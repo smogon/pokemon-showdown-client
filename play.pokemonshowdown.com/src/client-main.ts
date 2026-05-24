@@ -2178,6 +2178,17 @@ export const PS = new class extends PSModel {
 			} case 'nametaken': {
 				PS.join('login' as RoomID, { args: { error: `Someone is already using the name ${args[1]}.` } });
 				break;
+			} case 'chat': case 'c': {
+				if (args[1] === '~' && (args[2] + ' ').startsWith('/warn ')) {
+					PS.join(`rules-warn` as RoomID, {
+						args: {
+							type: 'warn',
+							message: args[2].slice(6).trim() || undefined,
+						},
+						parentElem: null,
+					});
+					continue;
+				}
 			}
 
 			}

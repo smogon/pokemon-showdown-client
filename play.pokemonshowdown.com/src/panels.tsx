@@ -703,7 +703,9 @@ export class PSView extends preact.Component {
 		// iOS Safari bug, no global click events when tapping
 		// I'm sure it's intentional but it interferes with putting the dismiss feature in window.onclick
 		if ((ev.target as Element)?.className === 'ps-overlay') {
-			PS.closePopup();
+			if (!PS.rooms[PS.popups.slice(-1)[0]]?.args?.noClose) {
+				PS.closePopup();
+			}
 			ev.preventDefault();
 			ev.stopImmediatePropagation();
 		}
