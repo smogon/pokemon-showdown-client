@@ -795,11 +795,10 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 			this.teamKey = this.getDefaultTeam(teamFormat);
 		}
 		const team = PS.teams.byKey[this.teamKey] || null;
-		const isDisabled = !!(PS.mainmenu.teamSent || PS.mainmenu.search.searching.length);
 		return <button
 			name="team" value={this.teamKey}
 			class="select teamselect" data-href="/teamdropdown" data-format={teamFormat} onChange={this.change}
-			disabled={isDisabled}
+			disabled={!!PS.mainmenu.searchingFormat()}
 		>
 			{PS.roomTypes['teamdropdown'] && <TeamBox team={team} noLink />}
 		</button>;
