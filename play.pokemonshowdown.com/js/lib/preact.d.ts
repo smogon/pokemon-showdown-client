@@ -436,12 +436,14 @@ declare global {
 			// Form Events
 			onChange?: GenericEventHandler;
 			onChangeCapture?: GenericEventHandler;
-			onInput?: GenericEventHandler;
-			onInputCapture?: GenericEventHandler;
+			onInput?: EventHandler<InputEvent>;
+			onInputCapture?: EventHandler<InputEvent>;
 			onSearch?: GenericEventHandler;
 			onSearchCapture?: GenericEventHandler;
 			onSubmit?: GenericEventHandler;
 			onSubmitCapture?: GenericEventHandler;
+			onToggle?: GenericEventHandler;
+			onToggleCapture?: GenericEventHandler;
 
 			// Keyboard Events
 			onKeyDown?: KeyboardEventHandler;

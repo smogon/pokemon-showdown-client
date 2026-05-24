@@ -380,7 +380,7 @@ type TeamStorage = 'account' | 'public' | 'disconnected' | 'local';
 class TeamStoragePanel extends PSRoomPanel {
 	static readonly id = "teamstorage";
 	static readonly routes = ["teamstorage-*"];
-	static readonly location = "semimodal-popup";
+	static readonly location = "modal-popup";
 	static readonly noURL = true;
 
 	chooseOption = (ev: MouseEvent) => {

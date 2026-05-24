@@ -226,7 +226,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 	}
 	override componentDidUpdate() {
 		const room = this.props.room;
-		const currentlyHidden = !room.width && room.parentElem && ['popup', 'semimodal-popup'].includes(room.location);
+		const currentlyHidden = !room.width && room.parentElem && ['popup', 'modal-popup'].includes(room.location);
 		this.updateDimensions();
 		if (currentlyHidden) return;
 		if (room.focusNextUpdate) {
@@ -576,8 +576,10 @@ export class PSView extends preact.Component {
 				if (PS.popups.length) {
 					ev.stopImmediatePropagation();
 					ev.preventDefault();
-					PS.closePopup();
-					PS.focusRoom(PS.room.id);
+					if (PS.room.closable) {
+						PS.closePopup();
+						PS.focusRoom(PS.room.id);
+					}
 				} else if (PS.room.id === 'rooms') {
 					PS.hideRightRoom();
 				}
@@ -703,7 +705,9 @@ export class PSView extends preact.Component {
 		// iOS Safari bug, no global click events when tapping
 		// I'm sure it's intentional but it interferes with putting the dismiss feature in window.onclick
 		if ((ev.target as Element)?.className === 'ps-overlay') {
-			PS.closePopup();
+			if (PS.room.closable) {
+				PS.closePopup();
+			}
 			ev.preventDefault();
 			ev.stopImmediatePropagation();
 		}
@@ -764,7 +768,12 @@ export class PSView extends preact.Component {
 		case 'cmd':
 			const room = PS.getRoom(elem) || PS.mainmenu;
 			if (elem.name === 'send') {
-				room.sendDirect(elem.value);
+				// Legacy behavior. Use `data-cmd` or `data-sendraw` once we drop support for the old client.
+				if ((room as ChatRoom).pmTarget) {
+					PS.send(elem.value);
+				} else {
+					room.sendDirect(elem.value);
+				}
 			} else {
 				room.send(elem.value);
 			}
@@ -823,7 +832,7 @@ export class PSView extends preact.Component {
 			PS.update();
 		}
 
-		if (room.location === 'modal-popup' || !room.parentElem || !source) {
+		if (!room.parentElem || !source) {
 			return { maxWidth: width || 480 };
 		}
 		if (!room.width || !room.height) {
@@ -906,7 +915,8 @@ export class PSView extends preact.Component {
 
 		}
 
-		if (width) style.maxWidth = width;
+		// -2 to exclude 1px border on each side
+		if (width) style.maxWidth = typeof width === 'number' ? width - 2 : width;
 
 		return style;
 	}

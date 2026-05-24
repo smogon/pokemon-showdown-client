@@ -169,7 +169,7 @@ export class MainMenuRoom extends PSRoom {
 			this.parseFormats(args);
 			return;
 		} case 'popup': {
-			const [, message] = args;
+			let [, message] = args;
 			for (const roomid in PS.rooms) {
 				const room = PS.rooms[roomid] as ChatRoom | MainMenuRoom;
 				if (room.teamSent) {
@@ -178,7 +178,12 @@ export class MainMenuRoom extends PSRoom {
 				}
 				if (room.type === 'team') (room as any).cancelUpload();
 			}
-			PS.alert(message.replace(/\|\|/g, '\n'));
+			let width: number | undefined;
+			if (message.startsWith('|wide|')) {
+				message = message.slice(6);
+				width = 960;
+			}
+			PS.alert(message.replace(/\|\|/g, '\n'), { width });
 			return;
 		}
 		}
@@ -812,6 +817,7 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 		return <button
 			name="team" value={this.teamKey}
 			class="select teamselect" data-href="/teamdropdown" data-format={teamFormat} onChange={this.change}
+			disabled={!!PS.mainmenu.searchingFormat()}
 		>
 			{PS.roomTypes['teamdropdown'] && <TeamBox team={team} noLink />}
 		</button>;
