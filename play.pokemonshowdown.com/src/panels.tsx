@@ -226,7 +226,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 	}
 	override componentDidUpdate() {
 		const room = this.props.room;
-		const currentlyHidden = !room.width && room.parentElem && ['popup', 'semimodal-popup'].includes(room.location);
+		const currentlyHidden = !room.width && room.parentElem && ['popup', 'modal-popup'].includes(room.location);
 		this.updateDimensions();
 		if (currentlyHidden) return;
 		if (room.focusNextUpdate) {
@@ -576,8 +576,10 @@ export class PSView extends preact.Component {
 				if (PS.popups.length) {
 					ev.stopImmediatePropagation();
 					ev.preventDefault();
-					PS.closePopup();
-					PS.focusRoom(PS.room.id);
+					if (PS.room.closable) {
+						PS.closePopup();
+						PS.focusRoom(PS.room.id);
+					}
 				} else if (PS.room.id === 'rooms') {
 					PS.hideRightRoom();
 				}
@@ -703,7 +705,7 @@ export class PSView extends preact.Component {
 		// iOS Safari bug, no global click events when tapping
 		// I'm sure it's intentional but it interferes with putting the dismiss feature in window.onclick
 		if ((ev.target as Element)?.className === 'ps-overlay') {
-			if (!PS.rooms[PS.popups.slice(-1)[0]]?.args?.noClose) {
+			if (PS.room.closable) {
 				PS.closePopup();
 			}
 			ev.preventDefault();
@@ -830,7 +832,7 @@ export class PSView extends preact.Component {
 			PS.update();
 		}
 
-		if (room.location === 'modal-popup' || !room.parentElem || !source) {
+		if (!room.parentElem || !source) {
 			return { maxWidth: width || 480 };
 		}
 		if (!room.width || !room.height) {

@@ -472,7 +472,7 @@ class UserOptionsPanel extends PSRoomPanel {
 class UserListPanel extends PSRoomPanel {
 	static readonly id = 'userlist';
 	static readonly routes = ['userlist'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	static readonly noURL = true;
 	override render() {
 		const room = this.props.room;
@@ -558,7 +558,7 @@ class VolumePanel extends PSRoomPanel {
 class OptionsPanel extends PSRoomPanel {
 	static readonly id = 'options';
 	static readonly routes = ['options'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	declare state: { showStatusInput?: boolean, showStatusUpdated?: boolean };
 
 	override componentDidMount() {
@@ -838,7 +838,7 @@ class GooglePasswordBox extends preact.Component<{ name: string }> {
 class LoginPanel extends PSRoomPanel {
 	static readonly id = 'login';
 	static readonly routes = ['login'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	declare state: { passwordShown?: boolean };
 
 	override componentDidMount() {
@@ -965,7 +965,7 @@ class LoginPanel extends PSRoomPanel {
 class AvatarsPanel extends PSRoomPanel {
 	static readonly id = 'avatars';
 	static readonly routes = ['avatars'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 
 	override render() {
 		const room = this.props.room;
@@ -998,7 +998,7 @@ class AvatarsPanel extends PSRoomPanel {
 class BattleForfeitPanel extends PSRoomPanel {
 	static readonly id = 'forfeit';
 	static readonly routes = ['forfeitbattle'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	static readonly noURL = true;
 
 	override render() {
@@ -1024,7 +1024,7 @@ class BattleForfeitPanel extends PSRoomPanel {
 class ReplacePlayerPanel extends PSRoomPanel {
 	static readonly id = 'replaceplayer';
 	static readonly routes = ['replaceplayer'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	static readonly noURL = true;
 
 	handleReplacePlayer = (ev: Event) => {
@@ -1065,7 +1065,7 @@ class ReplacePlayerPanel extends PSRoomPanel {
 class ChangePasswordPanel extends PSRoomPanel {
 	static readonly id = "changepassword";
 	static readonly routes = ["changepassword"];
-	static readonly location = "semimodal-popup";
+	static readonly location = "modal-popup";
 	static readonly noURL = true;
 
 	declare state: { errorMsg: string };
@@ -1143,7 +1143,7 @@ class ChangePasswordPanel extends PSRoomPanel {
 class RegisterPanel extends PSRoomPanel {
 	static readonly id = "register";
 	static readonly routes = ["register"];
-	static readonly location = "semimodal-popup";
+	static readonly location = "modal-popup";
 	static readonly noURL = true;
 	static readonly rightPopup = true;
 
@@ -1234,7 +1234,7 @@ class RegisterPanel extends PSRoomPanel {
 class BackgroundListPanel extends PSRoomPanel {
 	static readonly id = 'changebackground';
 	static readonly routes = ['changebackground'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	static readonly noURL = true;
 	static handleDrop(ev: DragEvent) {
 		const files = ev.dataTransfer?.files;
@@ -1387,7 +1387,7 @@ class BackgroundListPanel extends PSRoomPanel {
 class ChatFormattingPanel extends PSRoomPanel {
 	static readonly id = 'chatformatting';
 	static readonly routes = ['chatformatting'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	static readonly noURL = true;
 
 	handleOnChange = (ev: Event) => {
@@ -1471,7 +1471,7 @@ class ChatFormattingPanel extends PSRoomPanel {
 class LeaveRoomPanel extends PSRoomPanel {
 	static readonly id = 'confirmleaveroom';
 	static readonly routes = ['confirmleaveroom'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	static readonly noURL = true;
 
 	override render() {
@@ -1494,7 +1494,7 @@ class LeaveRoomPanel extends PSRoomPanel {
 class BattleOptionsPanel extends PSRoomPanel {
 	static readonly id = 'battleoptions';
 	static readonly routes = ['battleoptions'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	static readonly noURL = true;
 
 	handleHardcoreMode = (ev: Event) => {
@@ -1736,7 +1736,7 @@ class PopupRoom extends PSRoom {
 class PopupPanel extends PSRoomPanel<PopupRoom> {
 	static readonly id = 'popup';
 	static readonly routes = ['popup-*'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	static readonly noURL = true;
 	static readonly Model = PopupRoom;
 
@@ -1759,6 +1759,10 @@ class PopupPanel extends PSRoomPanel<PopupRoom> {
 		textbox.select();
 	}
 	parseMessage(message: string) {
+		if (message.startsWith('|modal|')) {
+			message = message.slice(7);
+			this.props.room.closable = false;
+		}
 		if (message.startsWith('|html|')) {
 			return BattleLog.sanitizeHTML(message.slice(6));
 		}
@@ -1801,7 +1805,7 @@ class PopupPanel extends PSRoomPanel<PopupRoom> {
 class RoomTabListPanel extends PSRoomPanel {
 	static readonly id = 'roomtablist';
 	static readonly routes = ['roomtablist'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	static readonly noURL = true;
 
 	startingLayout = PS.prefs.onepanel;
@@ -1828,7 +1832,7 @@ class RoomTabListPanel extends PSRoomPanel {
 class BattleTimerPanel extends PSRoomPanel {
 	static readonly id = 'battletimer';
 	static readonly routes = ['battletimer'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	static readonly noURL = true;
 
 	override render() {
@@ -1854,14 +1858,13 @@ class RulesPanel extends PSRoomPanel<PopupRoom> {
 
 	override componentDidMount() {
 		super.componentDidMount();
-		const args = this.props.room.args;
-		const isWarn = args?.type === 'warn';
-		if (isWarn && args) {
-			args.noClose = true;
+		const room = this.props.room;
+		const isWarn = room.args?.type === 'warn';
+		if (isWarn) {
+			room.closable = false;
 			const timerRef = setInterval(() => {
 				const timeLeft = this.state.timeLeft!;
 				if (timeLeft === 1) {
-					this.props.room.args!.noClose = false;
 					clearInterval(this.state.timerRef);
 					this.setState({ canClose: true, timeLeft: 0, timerRef: null });
 				} else {

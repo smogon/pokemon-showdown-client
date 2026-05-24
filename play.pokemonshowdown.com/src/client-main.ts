@@ -899,7 +899,7 @@ class PSServer {
  * Rooms
  *********************************************************************/
 
-type PSRoomLocation = 'left' | 'right' | 'popup' | 'mini-window' | 'modal-popup' | 'semimodal-popup';
+type PSRoomLocation = 'left' | 'right' | 'popup' | 'mini-window' | 'modal-popup';
 
 export interface RoomOptions {
 	id: RoomID;
@@ -976,6 +976,11 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	isPlaceholder = false;
 	readonly classType: string = '';
 	location: PSRoomLocation = 'left';
+	/**
+	 * Whether a modal popup is closable by clicking on the
+	 * background or pressing Esc. It is, of course, still closable
+	 * through other methods.
+	 */
 	closable = true;
 	/**
 	 * Whether the room is connected to the server. This is _eager_,
@@ -1031,7 +1036,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		if (options.location) this.location = options.location;
 		if (options.parentElem) this.parentElem = options.parentElem;
 		if (options.parentRoomid) this.parentRoomid = options.parentRoomid;
-		if (this.location !== 'popup' && this.location !== 'semimodal-popup') this.parentElem = null;
+		if (this.location !== 'popup' && this.location !== 'modal-popup') this.parentElem = null;
 		if (options.rightPopup) this.rightPopup = true;
 		if (options.connected) this.connected = options.connected;
 		if (options.backlog) this.backlog = options.backlog;
@@ -1820,39 +1825,39 @@ export const PS = new class extends PSModel {
 		"user-*": "*popup",
 		"viewuser-*": "*popup",
 		"volume": "*popup",
-		"options": "*semimodal-popup",
+		"options": "*modal-popup",
 		"*": "*right",
 		"battle-*": "*",
 		"battles": "*right",
-		"teamdropdown": "*semimodal-popup",
-		"formatdropdown": "*semimodal-popup",
+		"teamdropdown": "*modal-popup",
+		"formatdropdown": "*modal-popup",
 		"team-*": "*",
 		"ladder": "*",
 		"ladder-*": "*",
 		"view-*": "*",
-		"login": "*semimodal-popup",
+		"login": "*modal-popup",
 		"help-*": "*right",
-		"tourpopout": "*semimodal-popup",
+		"tourpopout": "*modal-popup",
 		"groupchat-*": "*right",
 		"users": "*popup",
 		"useroptions-*": "*popup",
-		"userlist": "*semimodal-popup",
-		"avatars": "*semimodal-popup",
-		"changepassword": "*semimodal-popup",
-		"register": "*semimodal-popup",
-		"forfeitbattle": "*semimodal-popup",
-		"replaceplayer": "*semimodal-popup",
-		"changebackground": "*semimodal-popup",
-		"confirmleaveroom": "*semimodal-popup",
-		"chatformatting": "*semimodal-popup",
-		"popup-*": "*semimodal-popup",
-		"roomtablist": "*semimodal-popup",
-		"battleoptions": "*semimodal-popup",
-		"battletimer": "*semimodal-popup",
+		"userlist": "*modal-popup",
+		"avatars": "*modal-popup",
+		"changepassword": "*modal-popup",
+		"register": "*modal-popup",
+		"forfeitbattle": "*modal-popup",
+		"replaceplayer": "*modal-popup",
+		"changebackground": "*modal-popup",
+		"confirmleaveroom": "*modal-popup",
+		"chatformatting": "*modal-popup",
+		"popup-*": "*modal-popup",
+		"roomtablist": "*modal-popup",
+		"battleoptions": "*modal-popup",
+		"battletimer": "*modal-popup",
 		"rules-*": "*modal-popup",
 		"resources": "*",
 		"game-*": "*",
-		"teamstorage-*": "*semimodal-popup",
+		"teamstorage-*": "*modal-popup",
 		"viewteam-*": "*",
 	});
 	/** List of rooms on the left side of the top tabbar */
@@ -2598,7 +2603,7 @@ export const PS = new class extends PSModel {
 	}
 	isPopup(room: PSRoom | undefined | null) {
 		if (!room) return false;
-		return room.location === 'popup' || room.location === 'semimodal-popup' || room.location === 'modal-popup';
+		return room.location === 'popup' || room.location === 'modal-popup';
 	}
 	isNormalRoom(room: PSRoom | undefined | null) {
 		if (!room) return false;
@@ -2619,8 +2624,7 @@ export const PS = new class extends PSModel {
 			}
 			return;
 		}
-		const POPUPS = ['popup', 'semimodal-popup', 'modal-popup'];
-		if (this.isPopup(room) && POPUPS.includes(location)) {
+		if (this.isPopup(room) && (location === 'popup' || location === 'modal-popup')) {
 			room.location = location;
 			return;
 		}
@@ -2633,7 +2637,7 @@ export const PS = new class extends PSModel {
 				this.miniRoomList.splice(miniRoomIndex, 1);
 			}
 			if (this.room === room) this.room = this.panel;
-		} else if (POPUPS.includes(room.location)) {
+		} else if (room.location === 'popup' || room.location === 'modal-popup') {
 			const popupIndex = this.popups.indexOf(room.id);
 			if (popupIndex >= 0) {
 				this.popups.splice(popupIndex, 1);
@@ -2669,7 +2673,6 @@ export const PS = new class extends PSModel {
 			this.miniRoomList.splice(index ?? 0, 0, room.id);
 			break;
 		case 'popup':
-		case 'semimodal-popup':
 		case 'modal-popup':
 			// moving a room to a popup must move it to the topmost popup
 			this.popups.push(room.id);
