@@ -651,7 +651,7 @@ class OptionsPanel extends PSRoomPanel {
 
 	override render() {
 		const room = this.props.room;
-		return <PSPanelWrapper room={room}><div class="pad">
+		return <PSPanelWrapper room={room} width={340}><div class="pad">
 			<p>
 				<img
 					class="trainersprite yours" width="40" height="40" style={{ verticalAlign: 'middle' }}

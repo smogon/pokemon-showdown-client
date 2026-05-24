@@ -915,7 +915,8 @@ export class PSView extends preact.Component {
 
 		}
 
-		if (width) style.maxWidth = width;
+		// -2 to exclude 1px border on each side
+		if (width) style.maxWidth = typeof width === 'number' ? width - 2 : width;
 
 		return style;
 	}
