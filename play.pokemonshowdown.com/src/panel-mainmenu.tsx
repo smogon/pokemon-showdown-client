@@ -167,7 +167,7 @@ export class MainMenuRoom extends PSRoom {
 			this.parseFormats(args);
 			return;
 		} case 'popup': {
-			const [, message] = args;
+			let [, message] = args;
 			for (const roomid in PS.rooms) {
 				const room = PS.rooms[roomid] as ChatRoom | MainMenuRoom;
 				if (room.teamSent) {
@@ -176,7 +176,12 @@ export class MainMenuRoom extends PSRoom {
 				}
 				if (room.type === 'team') (room as any).cancelUpload();
 			}
-			PS.alert(message.replace(/\|\|/g, '\n'));
+			let width: number | undefined;
+			if (message.startsWith('|wide|')) {
+				message = message.slice(6);
+				width = 960;
+			}
+			PS.alert(message.replace(/\|\|/g, '\n'), { width });
 			return;
 		}
 		}
@@ -248,6 +253,7 @@ export class MainMenuRoom extends PSRoom {
 				let partner = false;
 				let bestOfDefault = false;
 				let teraPreviewDefault = false;
+				let itemClauseDefault = false;
 				let team: 'preset' | null = null;
 				let teambuilderLevel: number | null = null;
 				let lastCommaIndex = name.lastIndexOf(',');
@@ -262,6 +268,7 @@ export class MainMenuRoom extends PSRoom {
 					if (code & 32) partner = true;
 					if (code & 64) bestOfDefault = true;
 					if (code & 128) teraPreviewDefault = true;
+					if (code & 256) itemClauseDefault = true;
 				} else {
 					// Backwards compatibility: late 0.9.0 -> 0.10.0
 					if (name.substr(name.length - 2) === ',#') { // preset teams
@@ -325,6 +332,7 @@ export class MainMenuRoom extends PSRoom {
 					tournamentShow,
 					bestOfDefault,
 					teraPreviewDefault,
+					itemClauseDefault,
 					rated: searchShow && id.substr(4, 7) !== 'unrated',
 					teambuilderLevel,
 					partner,
@@ -807,6 +815,7 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 		return <button
 			name="team" value={this.teamKey}
 			class="select teamselect" data-href="/teamdropdown" data-format={teamFormat} onChange={this.change}
+			disabled={!!PS.mainmenu.searchingFormat()}
 		>
 			{PS.roomTypes['teamdropdown'] && <TeamBox team={team} noLink />}
 		</button>;
@@ -823,6 +832,7 @@ export class TeamForm extends preact.Component<{
 	format = '';
 	teraPreview = false;
 	bestOf = false;
+	itemClause = false;
 	changeFormat = (ev: Event) => {
 		this.format = (ev.target as HTMLButtonElement).value;
 	};
@@ -849,6 +859,10 @@ export class TeamForm extends preact.Component<{
 			const value = this.base?.querySelector<HTMLInputElement>('input[name=bestofvalue]')?.value;
 			format = `${format}${hasCustomRules ? `, Best of = ${value!}` : `@@@ Best of = ${value!}`}`;
 		}
+		if (this.itemClause) {
+			const hasCustomRules = format.includes('@@@');
+			format = `${format}${hasCustomRules ? ', Item Clause = 1' : '@@@ Item Clause = 1'}`;
+		}
 		PS.teams.loadTeam(team).then(() => {
 			(validate === 'validate' ? this.props.onValidate : this.props.onSubmit)?.(ev, format, team);
 		});
@@ -858,6 +872,7 @@ export class TeamForm extends preact.Component<{
 		const rule = (ev.target as HTMLInputElement)?.name;
 		if (rule === 'terapreview') this.teraPreview = checked;
 		if (rule === 'bestof') this.bestOf = checked;
+		if (rule === 'itemclause=1') this.itemClause = checked;
 	};
 	handleClick = (ev: Event) => {
 		let target = ev.target as HTMLButtonElement | null;
@@ -925,6 +940,11 @@ export class TeamForm extends preact.Component<{
 							name="bestofvalue" type="number" min="3" max="9" step="2" value="3" style="width: 28px; vertical-align: initial;"
 						/>
 					</abbr></label></p>}
+			{this.props.selectType === 'challenge' &&
+				window.BattleFormats[formatId]?.itemClauseDefault && <p>
+				<label class="checkbox">
+					<input type="checkbox" name="itemclause" onChange={this.toggleCustomRule} />
+					<abbr title="Start a battle with Item Clause">Item Clause</abbr></label></p>}
 			<p>{this.props.children}</p>
 		</form>;
 	}
