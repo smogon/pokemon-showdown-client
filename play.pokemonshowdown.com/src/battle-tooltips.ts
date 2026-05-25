@@ -1868,6 +1868,7 @@ export class BattleTooltips {
 		] satisfies Dex.MoveTarget[] as Dex.MoveTarget[]).includes(move.target)) {
 			return 1;
 		}
+		if (move.id === 'struggle') return 1;
 		const hardcoreMode = this.battle.hardcoreMode;
 		const inverse = this.battle.rules['Inverse Mod'];
 		const targetTypes = target.getTypeList();
