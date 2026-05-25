@@ -1174,9 +1174,11 @@ export class ChatTextEntry extends preact.Component<{
 			});
 
 			const currentLine = prefix.substring(prefix.lastIndexOf('\n') + 1);
-			const isCommandSearch = (currentLine.startsWith('/') && !currentLine.startsWith('//')) || currentLine.startsWith('!');
+			const isCommandWord = (word: string) => (word.startsWith('/') && !word.startsWith('//')) || word.startsWith('!');
+			const currentWord = currentLine.substring(currentLine.lastIndexOf(' ') + 1);
+			const isCommandSearch = isCommandWord(currentWord);
 			if (isCommandSearch) {
-				PS.mainmenu.makeQuery('cmdsearch', currentLine, true).then((data: string[]) => {
+				PS.mainmenu.makeQuery('cmdsearch', currentWord, true).then((data: string[]) => {
 					const cmds = data.sort((a, b) => a.length < b.length ? 1 : -1);
 					const nextCmd = cmds[cmds.length - 1];
 					const newValue = nextCmd + value.substring(end);
