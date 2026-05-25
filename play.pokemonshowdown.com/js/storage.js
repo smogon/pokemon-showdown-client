@@ -766,6 +766,56 @@ Storage.unpackLine = function (line) {
 	};
 };
 
+Storage.expandSearchTermAlts = function (id) {
+	var alts = [id];
+	if (!id || !window.Dex) return alts;
+	var addForme = function (forme) {
+		if (!forme || !forme.exists) return;
+		alts.push(toID(forme.name));
+		if (forme.requiredItems) {
+			for (var i = 0; i < forme.requiredItems.length; i++) {
+				alts.push(toID(forme.requiredItems[i]));
+			}
+		}
+	};
+	var addBaseFormes = function (base) {
+		if (!base || !base.exists || !base.otherFormes) return;
+		for (var i = 0; i < base.otherFormes.length; i++) {
+			var forme = Dex.species.get(base.otherFormes[i]);
+			if (forme.isMega || forme.isPrimal) addForme(forme);
+		}
+	};
+	var species = Dex.species.get(id);
+	if (species.exists) {
+		if (species.isMega || species.isPrimal) {
+			alts.push(toID(species.baseSpecies));
+			addForme(species);
+		} else {
+			addBaseFormes(species);
+		}
+	} else {
+		var prefixes = ['mega', 'primal'];
+		for (var p = 0; p < prefixes.length; p++) {
+			if (id.indexOf(prefixes[p]) === 0 && id.length > prefixes[p].length) {
+				var base = Dex.species.get(id.slice(prefixes[p].length));
+				if (base.exists) {
+					alts.push(base.id);
+					addBaseFormes(base);
+					break;
+				}
+			}
+		}
+	}
+	var item = Dex.items.get(id);
+	if (item.exists && item.megaStone) {
+		for (var baseName in item.megaStone) {
+			alts.push(toID(baseName));
+			alts.push(toID(item.megaStone[baseName]));
+		}
+	}
+	return alts;
+};
+
 Storage.packAllTeams = function (teams) {
 	return teams.map(function (team) {
 		return (
