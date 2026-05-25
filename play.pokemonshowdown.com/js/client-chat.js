@@ -1004,7 +1004,12 @@
 						var row = data[i];
 						if (!row) return self.add('|raw|Error: corrupted ranking data');
 						var formatId = toID(row.formatid);
-						if (!formatTargeting && row.elo >= 1000.5 || formats[formatId] || gens[formatId.slice(0, 4)] || (gens['gen6'] && formatId.substr(0, 3) !== 'gen')) {
+						var matchesTarget = (
+							formats[formatId] ||
+							gens[formatId.slice(0, 4)] ||
+							(gens['gen6'] && formatId.substr(0, 3) !== 'gen')
+						);
+						if (matchesTarget || (!formatTargeting && row.elo >= 1001 && (row.w + row.l + row.t > 0))) {
 							buffer += '<tr>';
 						} else {
 							buffer += '<tr class="hidden">';
