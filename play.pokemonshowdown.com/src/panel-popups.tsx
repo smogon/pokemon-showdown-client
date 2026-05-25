@@ -666,7 +666,7 @@ class OptionsPanel extends PSRoomPanel {
 
 			{this.state.showStatusInput ? (
 				<p>
-					<input name="statustext" />
+					<input class="textbox" name="statustext" />
 					<button class="button" onClick={this.editStatus}><i class="fa fa-pencil" aria-hidden></i></button>
 				</p>
 			) : (
@@ -758,9 +758,9 @@ class OptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="optlabel">
 					Language: {}
-					<select name="language" onChange={this.handleOnChange} class="button" value={serverSettings.language}>
-						<option value="german">Deutsch</option>
+					<select name="language" onChange={this.handleOnChange} class="button" value={serverSettings.language || 'english'}>
 						<option value="english">English</option>
+						<option value="german">Deutsch</option>
 						<option value="spanish">Español</option>
 						<option value="french">Français</option>
 						<option value="italian">Italiano</option>

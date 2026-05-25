@@ -191,7 +191,7 @@ class RoomsPanel extends PSRoomPanel {
 		return [...hidden, ["Search results", results]];
 	}
 	override render() {
-		if (this.hidden && PS.isVisible(this.props.room)) this.hidden = false;
+		if (this.hidden && PS.isVisiblePanel(this.props.room)) this.hidden = false;
 		if (this.hidden) {
 			return <PSPanelWrapper room={this.props.room}>{null}</PSPanelWrapper>;
 		}

@@ -188,6 +188,7 @@ PS.router = new PSRouter();
 
 export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ room: T }> {
 	subscriptions: PSSubscription[] = [];
+	wasVisible = true; // remember, shouldComponentUpdate isn't called on first render
 	subscribeTo<M>(
 		model: PSModel<M> | PSStreamModel<M>, callback: (value: M) => void = () => { this.forceUpdate(); }
 	): PSSubscription {
@@ -204,6 +205,12 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 			else this.receiveLine(args);
 		}));
 		this.componentDidUpdate();
+	}
+	override shouldComponentUpdate() {
+		const wasVisible = this.wasVisible;
+		const visible = PS.isVisible(this.props.room);
+		this.wasVisible = visible;
+		return visible || wasVisible;
 	}
 	justUpdatedDimensions = false;
 	updateDimensions() {
@@ -940,7 +947,7 @@ export class PSView extends preact.Component {
 		let rooms = [] as preact.VNode[];
 		for (const roomid in PS.rooms) {
 			const room = PS.rooms[roomid]!;
-			if (PS.isNormalRoom(room)) {
+			if (PS.isPanel(room)) {
 				rooms.push(this.renderRoom(room));
 			}
 		}

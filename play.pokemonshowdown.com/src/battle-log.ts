@@ -122,6 +122,13 @@ export class BattleLog {
 		});
 		this.addNode(el);
 	}
+	static renderTimestamp(timestamp: number | null, showTimestamps?: 'minutes' | 'seconds' | null) {
+		if (!showTimestamps) return '';
+		const date = timestamp && !isNaN(timestamp) ? new Date(timestamp * 1000) : new Date();
+		const components = [date.getHours(), date.getMinutes()];
+		if (showTimestamps === 'seconds') components.push(date.getSeconds());
+		return `<small class="gray">[${components.map(x => x < 10 ? `0${x}` : x).join(':')}] </small>`;
+	}
 	add(args: Args, kwArgs?: KWArgs, preempt?: boolean, showTimestamps?: 'minutes' | 'seconds') {
 		if (kwArgs?.silent) return;
 		const battle = this.scene?.battle;
@@ -169,15 +176,7 @@ export class BattleLog {
 			}
 			const ignoreList = window.app?.ignore || window.PS?.prefs?.ignore;
 			if (ignoreList?.[toUserid(name)] && ' +^\u2605\u2606'.includes(rank)) return;
-			let timestampHtml = '';
-			if (showTimestamps) {
-				const date = timestamp && !isNaN(timestamp) ? new Date(timestamp * 1000) : new Date();
-				const components = [date.getHours(), date.getMinutes()];
-				if (showTimestamps === 'seconds') {
-					components.push(date.getSeconds());
-				}
-				timestampHtml = `<small class="gray">[${components.map(x => x < 10 ? `0${x}` : x).join(':')}] </small>`;
-			}
+			const timestampHtml = BattleLog.renderTimestamp(timestamp, showTimestamps);
 			const isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message) || this.getHighlight?.(args);
 			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, timestampHtml, isHighlighted);
 			if (!noNotify && isHighlighted) {

@@ -458,6 +458,7 @@ export class MainMenuRoom extends PSRoom {
 		case 'teamupload':
 			if (PS.teams.uploading) {
 				const team = PS.teams.uploading;
+				team.teamid = response.teamid;
 				team.uploaded = {
 					teamid: response.teamid,
 					notLoaded: false,

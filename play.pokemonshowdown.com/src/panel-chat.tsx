@@ -107,12 +107,18 @@ export class ChatRoom extends PSRoom {
 			return;
 
 		case 'noinit':
-			if (this.battle) {
+			if (this.battle && args[1] === 'joinfailed') {
+				this.receiveLine(['bigerror', args[2]]);
+				this.receiveLine(['html',
+					`<div class="broadcast-red pad"><p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p></div>`,
+				]);
+			} else if (this.battle) {
 				// check the Replays database
 				(this as any as BattleRoom).loadReplay();
 			} else {
+				const message = args[2] ? BattleLog.escapeHTML(args[2]) : `Chatroom "${BattleLog.escapeHTML(this.title)}" not found`;
 				this.receiveLine(['html',
-					`<div class="broadcast-red pad"><h3>Chatroom "${BattleLog.escapeHTML(this.title)}" not found</h3><p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p></div>`,
+					`<div class="broadcast-red pad"><h3>${message}</h3><p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p></div>`,
 				]);
 			}
 			return;
@@ -199,12 +205,13 @@ export class ChatRoom extends PSRoom {
 					if (time < cutOffTime) cutOffStart = i;
 				}
 				if (lines[i].startsWith('|raw|<div class="infobox"> You joined ')) {
-					reconnectMessage = `|raw|<div class="infobox">You reconnected to ${lines[i].slice(38)}`;
+					const timestamp = BattleLog.renderTimestamp(Date.now() / 1000, PS.prefs.timestamps?.chatrooms);
+					reconnectMessage = `|raw|<div class="infobox">${timestamp}You reconnected to ${lines[i].slice(38)}`;
 					cutOffEnd = i;
 					if (!lines[i - 1]) cutOffEnd = i - 1;
 				}
 			}
-			console.log("Reconnection log splice:");
+			console.log(`Reconnection log splice: (cutoff: ${cutOffTime})`);
 			console.log([
 				...lines.slice(0, cutOffStart),
 				'====================',
@@ -215,7 +222,8 @@ export class ChatRoom extends PSRoom {
 			lines = lines.slice(cutOffStart, cutOffEnd);
 
 			if (lines.length) {
-				this.receiveLine([`raw`, `<div class="infobox">You disconnected.</div>`]);
+				const timestamp = BattleLog.renderTimestamp(cutOffTime, PS.prefs.timestamps?.chatrooms);
+				this.receiveLine([`raw`, `<div class="infobox">${timestamp}You disconnected.</div>`]);
 				for (const line of lines) this.receiveLine(BattleTextParser.parseLine(line));
 				this.receiveLine(BattleTextParser.parseLine(reconnectMessage));
 			}
@@ -307,7 +315,7 @@ export class ChatRoom extends PSRoom {
 		const lastMessageDate = lastMessageDates[PS.server.id][this.id] || 0;
 		// because the time offset to the server can vary slightly, subtract it to not have it affect comparisons between dates
 		const time = serverTime - (this.timeOffset || 0);
-		if (PS.isVisible(this)) {
+		if (PS.isVisiblePanel(this)) {
 			this.lastMessageTime = null;
 			lastMessageDates[PS.server.id][this.id] = time;
 			PS.prefs.set('logtimes', lastMessageDates);

@@ -53,6 +53,7 @@ interface TournamentTableBracketData {
 	scores: number[];
 }
 type TournamentInfo = {
+	/** nickname will override this */
 	format?: string,
 	teambuilderFormat?: string,
 	generator?: string,
@@ -148,7 +149,8 @@ export class ChatTournament extends PSModel {
 		} else if (args[0] === 'tournament') {
 			switch (cmd) {
 			case 'create': {
-				this.info.format = args[2];
+				this.info.format = args[5] || args[2];
+				this.info.teambuilderFormat = args[2];
 				this.info.generator = args[3];
 				const formatName = BattleLog.formatName(args[2]);
 				const type = args[3];

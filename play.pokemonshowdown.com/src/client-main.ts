@@ -531,7 +531,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 					}
 					localTeam.uploaded = {
 						teamid: team.teamid,
-						notLoaded: false,
+						notLoaded: this.unloadedPackedTeam(team.team) === localTeam.packedTeam,
 						private: team.private,
 					};
 					delete teams[localTeam.teamid];
@@ -554,22 +554,22 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 						localTeam.teamid = team.teamid;
 						localTeam.uploaded = {
 							teamid: team.teamid,
-							notLoaded: false,
+							notLoaded: this.unloadedPackedTeam(team.team) === localTeam.packedTeam,
 							private: team.private,
 						};
 						break;
 					}
 				}
 				if (!matched) {
-					const mons = team.team.split(',').map((m: string) => ({ species: m, moves: [] }));
 					const newTeam: Team = {
 						name: team.name,
 						format: team.format,
 						folder: '',
-						packedTeam: Teams.pack(mons),
+						packedTeam: this.unloadedPackedTeam(team.team),
 						iconCache: null,
 						isBox: false,
 						key: this.getKey(team.name),
+						teamid: team.teamid,
 						uploaded: {
 							teamid: team.teamid,
 							notLoaded: true,
@@ -580,6 +580,10 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 				}
 			}
 		});
+	}
+	unloadedPackedTeam(uploadedTeam: string) {
+		const mons = uploadedTeam.split(',').map((m: string) => ({ species: m, moves: [] }));
+		return Teams.pack(mons);
 	}
 	loadTeam(team: Team | undefined | null, ifNeeded: true): void | Promise<void>;
 	loadTeam(team: Team | undefined | null): Promise<void>;
@@ -1059,7 +1063,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	}
 	notify(options: { title: string, body?: string, noAutoDismiss?: boolean, id?: string }) {
 		let desktopNotification: Notification | null = null;
-		const roomIsFocused = document.hasFocus?.() && PS.isVisible(this);
+		const roomIsFocused = document.hasFocus?.() && PS.isVisiblePanel(this);
 		if (roomIsFocused && !options.noAutoDismiss) return;
 		if (!roomIsFocused) {
 			PS.playNotificationSound();
@@ -1092,7 +1096,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		PS.update();
 	}
 	subtleNotify() {
-		if (PS.isVisible(this)) return;
+		if (PS.isVisiblePanel(this)) return;
 		const room = PS.rooms[this.id] as ChatRoom;
 		const lastSeenTimestamp = PS.prefs.logtimes?.[PS.server.id]?.[this.id] || 0;
 		const lastMessageTime = +(room.lastMessage?.[1] || 0);
@@ -1245,7 +1249,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
 			const targetRoom = roomid ? PS.rooms[roomid] : this;
 			if (!targetRoom) return this.errorReply(`Room '${roomid}' not found.`);
-			if (PS.isNormalRoom(targetRoom)) {
+			if (PS.isPanel(targetRoom)) {
 				this.errorReply(`'${roomid}' is already maximized.`);
 			} else if (!PS.isPopup(targetRoom)) {
 				PS.moveRoom(targetRoom, 'left', false, 0);
@@ -2180,7 +2184,7 @@ export const PS = new class extends PSModel {
 						if (!PS.user.initializing) {
 							room.receiveLine(['error', args[2]]);
 						}
-					} else if (args[1] === 'nonexistent') {
+					} else if (args[1] === 'nonexistent' || args[1] === 'joinfailed') {
 						// sometimes we assume a room is a chatroom when it's not
 						// when that happens, just ignore this error
 						if (room.type === 'chat' || room.type === 'battle') room.receiveLine(args);
@@ -2222,7 +2226,17 @@ export const PS = new class extends PSModel {
 		}
 		this.connection.send(`${roomid || ''}|${msg}`);
 	}
-	isVisible(room: PSRoom) {
+	isVisible(room: PSRoom): boolean {
+		if (PS.isPanel(room)) {
+			return !this.leftPanelWidth ? room === this.panel : room === this.leftPanel || room === this.rightPanel;
+		}
+		if (room.location === 'mini-window') {
+			return !this.leftPanelWidth ? this.mainmenu === this.panel : this.mainmenu === this.leftPanel;
+		}
+		// some kind of popup
+		return true;
+	}
+	isVisiblePanel(room: PSRoom) {
 		if (!this.leftPanelWidth) {
 			// one panel visible
 			return room === this.panel || room === this.room;
@@ -2357,10 +2371,10 @@ export const PS = new class extends PSModel {
 			return true;
 		}
 		this.closePopupsAbove(room, true);
-		if (!this.isVisible(room)) {
+		if (!this.isVisiblePanel(room)) {
 			room.focusNextUpdate = true;
 		}
-		if (PS.isNormalRoom(room)) {
+		if (PS.isPanel(room)) {
 			if (room.location === 'right') {
 				this.rightPanel = room;
 			} else {
@@ -2583,16 +2597,6 @@ export const PS = new class extends PSModel {
 			PS.focusRoom(PS.leftPanel.id);
 		}
 	}
-	roomVisible(room: PSRoom): boolean {
-		if (PS.isNormalRoom(room)) {
-			return !this.leftPanelWidth ? room === this.panel : room === this.leftPanel || room === this.rightPanel;
-		}
-		if (room.location === 'mini-window') {
-			return !this.leftPanelWidth ? this.mainmenu === this.panel : this.mainmenu === this.leftPanel;
-		}
-		// some kind of popup
-		return true;
-	}
 	renameRoom(room: PSRoom, id: RoomID) {
 		// should never happen
 		if (this.rooms[id]) this.removeRoom(this.rooms[id]);
@@ -2617,7 +2621,8 @@ export const PS = new class extends PSModel {
 		if (!room) return false;
 		return room.location === 'popup' || room.location === 'modal-popup';
 	}
-	isNormalRoom(room: PSRoom | undefined | null) {
+	/** this isn't just !isPopup. you forgot about mini windows again. */
+	isPanel(room: PSRoom | undefined | null) {
 		if (!room) return false;
 		return room.location === 'left' || room.location === 'right';
 	}
@@ -2641,7 +2646,7 @@ export const PS = new class extends PSModel {
 			return;
 		}
 
-		background ??= !this.roomVisible(room);
+		background ??= !this.isVisible(room);
 
 		if (room.location === 'mini-window') {
 			const miniRoomIndex = this.miniRoomList.indexOf(room.id);
