@@ -1400,7 +1400,7 @@ Storage.exportTeam = function (team, hidestats) {
 			text += ' @ ' + curSet.item;
 		}
 		text += "  \n";
-		if (curSet.ability) {
+		if (curSet.ability && curSet.ability !== 'No Ability') {
 			text += 'Ability: ' + curSet.ability + "  \n";
 		}
 		if (curSet.level && curSet.level !== 100) {
