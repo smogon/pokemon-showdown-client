@@ -488,10 +488,8 @@ export class ChatRoom extends PSRoom {
 							buffer += `<tr class="no-matches"><td colspan="8"><em>This user has no notable ladder activity.</em></td></tr>`;
 						}
 					}
-					const otherFormats = hiddenFormats.slice(0, 3).join(', ') +
-						(hiddenFormats.length > 3 ? ` and ${hiddenFormats.length - 3} other formats` : '');
-					buffer += `<tr><td colspan="8"><button name="showOtherFormats">` +
-						BattleLog.html`${otherFormats} not shown</button></td></tr>`;
+					buffer += `<tr><td colspan="8"><button class="button" name="showOtherFormats">` +
+						`Show ${hiddenFormats.length} hidden format${hiddenFormats.length === 1 ? '' : 's'}</button></td></tr>`;
 				}
 				let userid = toID(targets[0]);
 				let registered = PS.user.registered;
