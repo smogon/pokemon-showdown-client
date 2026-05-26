@@ -3444,6 +3444,10 @@ export class BattleStatGuesser {
 			minusStat = 'atk';
 		} else if (stats.def > stats.spe && stats.spd > stats.spe && !evs['spe']) {
 			minusStat = 'spe';
+		} else if (plusStat === 'def' || plusStat === 'spd') {
+			// defensive set, don't sacrifice the other defensive stat
+			// physical moves are frequently run for utility rather than damage
+			minusStat = evs['atk'] && !evs['spe'] ? 'spe' : 'atk';
 		} else if (stats.def > stats.spd) {
 			minusStat = 'spd';
 		} else {
