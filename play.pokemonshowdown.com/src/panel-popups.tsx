@@ -643,8 +643,24 @@ class OptionsPanel extends PSRoomPanel {
 
 	editStatus = (ev: Event) => {
 		const statusInput = this.base!.querySelector<HTMLInputElement>('input[name=statustext]');
-		PS.send(statusInput?.value?.length ? `/status ${statusInput.value}` : `/clearstatus`);
+		const newStatus = statusInput?.value || '';
+		PS.send(newStatus.length ? `/status ${newStatus}` : `/clearstatus`);
+		PS.user.status = newStatus;
+		PS.user.update(null);
 		this.setState({ showStatusUpdated: true, showStatusInput: false });
+		setTimeout(() => this.setState({ showStatusUpdated: false }), 2000);
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+	};
+
+	clearStatus = (ev: Event) => {
+		const statusInput = this.base!.querySelector<HTMLInputElement>('input[name=statustext]');
+		if (statusInput) statusInput.value = '';
+		PS.send(`/clearstatus`);
+		PS.user.status = '';
+		PS.user.update(null);
+		this.setState({ showStatusUpdated: true, showStatusInput: false });
+		setTimeout(() => this.setState({ showStatusUpdated: false }), 2000);
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
 	};
@@ -666,8 +682,16 @@ class OptionsPanel extends PSRoomPanel {
 
 			{this.state.showStatusInput ? (
 				<p>
-					<input name="statustext" />
+					<input
+						name="statustext"
+						value={PS.user.status}
+						onInput={e => {
+							PS.user.status = (e.currentTarget as HTMLInputElement).value;
+							this.forceUpdate();
+						}}
+					/>
 					<button class="button" onClick={this.editStatus}><i class="fa fa-pencil" aria-hidden></i></button>
+					<button class="button" onClick={this.clearStatus}><i class="fa fa-eraser" aria-hidden></i></button>
 				</p>
 			) : (
 				<p>
