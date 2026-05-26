@@ -480,11 +480,15 @@
 						var pokemon = team.team.split(']').map(function (el) {
 							return toID(PSUtils.splitFirst(el, '|')[0]);
 						});
-						var searchVal = this.curSearchVal.split(',').map(function (el) {
-							return toID(el);
+						var searchGroups = this.curSearchVal.split(',').map(function (el) {
+							return Storage.expandSearchTermAlts(toID(el));
 						});
-						var meetsCriteria = searchVal.every(function (el) {
-							return team.team.indexOf(el) > -1 || pokemon.includes(el);
+						var meetsCriteria = searchGroups.every(function (alts) {
+							for (var ai = 0; ai < alts.length; ai++) {
+								var alt = alts[ai];
+								if (team.team.indexOf(alt) > -1 || pokemon.includes(alt)) return true;
+							}
+							return false;
 						});
 						if (!meetsCriteria) continue;
 					}

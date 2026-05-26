@@ -217,18 +217,68 @@ class TeambuilderRoom extends PSRoom {
 			};
 		}
 	}
+	searchAlts: string[][] = [];
 	updateSearch = (value: string) => {
 		if (!value) {
 			this.searchTerms = [];
+			this.searchAlts = [];
 		} else {
 			this.searchTerms = value.split(",").map(q => q.trim().toLowerCase());
+			this.searchAlts = this.searchTerms.map(term => expandSearchTermAlts(toID(term)));
 		}
 	};
 	matchesSearch = (team: Team) => {
 		if (this.searchTerms.length === 0) return true;
 		const normalized = team.packedTeam.toLowerCase();
-		return this.searchTerms.every(term => normalized.includes(term));
+		return this.searchAlts.every(alts => alts.some(alt => normalized.includes(alt)));
 	};
+}
+
+function expandSearchTermAlts(id: ID): string[] {
+	const alts: string[] = [id];
+	if (!id) return alts;
+	const addForme = (forme: ReturnType<typeof Dex.species.get>) => {
+		if (!forme.exists) return;
+		alts.push(toID(forme.name));
+		if (forme.requiredItems) {
+			for (const item of forme.requiredItems) alts.push(toID(item));
+		}
+	};
+	const addBaseFormes = (base: ReturnType<typeof Dex.species.get>) => {
+		if (!base.exists || !base.otherFormes) return;
+		for (const formeName of base.otherFormes) {
+			const forme = Dex.species.get(formeName);
+			if (forme.isMega || forme.isPrimal) addForme(forme);
+		}
+	};
+	const species = Dex.species.get(id);
+	if (species.exists) {
+		if (species.isMega || species.isPrimal) {
+			alts.push(toID(species.baseSpecies));
+			addForme(species);
+		} else {
+			addBaseFormes(species);
+		}
+	} else {
+		for (const prefix of ['mega', 'primal']) {
+			if (id.startsWith(prefix) && id.length > prefix.length) {
+				const base = Dex.species.get(id.slice(prefix.length));
+				if (base.exists) {
+					alts.push(base.id);
+					addBaseFormes(base);
+					break;
+				}
+			}
+		}
+	}
+	const item = Dex.items.get(id);
+	if (item.exists && item.megaStone) {
+		for (const baseName in item.megaStone) {
+			alts.push(toID(baseName));
+			alts.push(toID(item.megaStone[baseName]));
+		}
+	}
+	return alts;
 }
 
 class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
