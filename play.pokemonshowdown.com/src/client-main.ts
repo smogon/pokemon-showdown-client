@@ -522,6 +522,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 				teams[team.teamid] = team;
 			}
 
+			const NOT_LOADED_REGEX = /^[^|]*\|\|\|\|\|\|\|\|\|\|\|(?:\][^|]*\|\|\|\|\|\|\|\|\|\|\|)*$/;
 			// find exact teamid matches
 			for (const localTeam of this.list) {
 				if (localTeam.teamid) {
@@ -531,7 +532,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 					}
 					localTeam.uploaded = {
 						teamid: team.teamid,
-						notLoaded: this.unloadedPackedTeam(team.team) === localTeam.packedTeam,
+						notLoaded: NOT_LOADED_REGEX.test(localTeam.packedTeam),
 						private: team.private,
 					};
 					delete teams[localTeam.teamid];
@@ -554,7 +555,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 						localTeam.teamid = team.teamid;
 						localTeam.uploaded = {
 							teamid: team.teamid,
-							notLoaded: this.unloadedPackedTeam(team.team) === localTeam.packedTeam,
+							notLoaded: NOT_LOADED_REGEX.test(localTeam.packedTeam),
 							private: team.private,
 						};
 						break;
@@ -1118,11 +1119,11 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	}
 	autoDismissNotifications() {
 		let room = PS.rooms[this.id] as ChatRoom;
-		if (room.lastMessageTime) {
+		if (room.lastViewedTime) {
 			// Mark chat messages as read to avoid double-notifying on reload
 			let lastMessageDates = PS.prefs.logtimes || {};
 			if (!lastMessageDates[PS.server.id]) lastMessageDates[PS.server.id] = {};
-			lastMessageDates[PS.server.id][room.id] = room.lastMessageTime || 0;
+			lastMessageDates[PS.server.id][room.id] = room.lastViewedTime || 0;
 			PS.prefs.set('logtimes', lastMessageDates);
 		}
 		for (let i = this.notifications.length - 1; i >= 0; i--) {
