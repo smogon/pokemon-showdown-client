@@ -1004,7 +1004,12 @@
 						var row = data[i];
 						if (!row) return self.add('|raw|Error: corrupted ranking data');
 						var formatId = toID(row.formatid);
-						if (!formatTargeting || formats[formatId] || gens[formatId.slice(0, 4)] || (gens['gen6'] && formatId.substr(0, 3) !== 'gen')) {
+						var matchesTarget = (
+							formats[formatId] ||
+							gens[formatId.slice(0, 4)] ||
+							(gens['gen6'] && formatId.substr(0, 3) !== 'gen')
+						);
+						if (matchesTarget || (!formatTargeting && row.elo >= 1001 && (row.w + row.l + row.t > 0))) {
 							buffer += '<tr>';
 						} else {
 							buffer += '<tr class="hidden">';
@@ -1048,9 +1053,13 @@
 					}
 					if (hiddenFormats.length) {
 						if (hiddenFormats.length === data.length) {
-							buffer += '<tr class="no-matches"><td colspan="8"><em>This user has not played any ladder games that match "' + BattleLog.escapeHTML(Object.keys(gens).concat(Object.keys(formats)).join(', ')) + '".</em></td></tr>';
+							if (formatTargeting) {
+								buffer += '<tr class="no-matches"><td colspan="8"><em>This user has not played any ladder games that match "' + BattleLog.escapeHTML(Object.keys(gens).concat(Object.keys(formats)).join(', ')) + '".</em></td></tr>';
+							} else {
+								buffer += '<tr class="no-matches"><td colspan="8"><em>This user has no notable ladder activity.</em></td></tr>';
+							}
 						}
-						buffer += '<tr><td colspan="8"><button name="showOtherFormats">' + hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + (hiddenFormats.length - 3) + ' other formats' : '') + ' not shown</button></td></tr>';
+						buffer += '<tr><td colspan="8"><button class="button" name="showOtherFormats">Show ' + hiddenFormats.length + ' hidden format' + (hiddenFormats.length > 1 ? 's' : '') + '</button></td></tr>';
 					}
 					var userid = toID(targets[0]);
 					var registered = app.user.get('registered');

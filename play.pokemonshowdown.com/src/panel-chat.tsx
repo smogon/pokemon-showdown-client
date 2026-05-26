@@ -437,10 +437,12 @@ export class ChatRoom extends PSRoom {
 				for (const row of data) {
 					if (!row) return this.add(`|error|Error: corrupted ranking data`);
 					const formatId = toID(row.formatid);
-					if (!formatTargeting ||
+					const matchesTarget = (
 						formats[formatId] ||
 						gens[formatId.slice(0, 4)] ||
-						(gens['gen6'] && !formatId.startsWith('gen'))) {
+						(gens['gen6'] && !formatId.startsWith('gen'))
+					);
+					if (matchesTarget || (!formatTargeting && row.elo >= 1001 && (row.w + row.l + row.t > 0))) {
 						buffer += '<tr>';
 					} else {
 						buffer += '<tr class="hidden">';
@@ -488,14 +490,16 @@ export class ChatRoom extends PSRoom {
 				}
 				if (hiddenFormats.length) {
 					if (hiddenFormats.length === data.length) {
-						const formatsText = Object.keys(gens).concat(Object.keys(formats)).join(', ');
-						buffer += `<tr class="no-matches"><td colspan="8">` +
-							BattleLog.html`<em>This user has not played any ladder games that match ${formatsText}.</em></td></tr>`;
+						if (formatTargeting) {
+							const formatsText = Object.keys(gens).concat(Object.keys(formats)).join(', ');
+							buffer += `<tr class="no-matches"><td colspan="8">` +
+								BattleLog.html`<em>This user has not played any ladder games that match ${formatsText}.</em></td></tr>`;
+						} else {
+							buffer += `<tr class="no-matches"><td colspan="8"><em>This user has no notable ladder activity.</em></td></tr>`;
+						}
 					}
-					const otherFormats = hiddenFormats.slice(0, 3).join(', ') +
-						(hiddenFormats.length > 3 ? ` and ${hiddenFormats.length - 3} other formats` : '');
-					buffer += `<tr><td colspan="8"><button name="showOtherFormats">` +
-						BattleLog.html`${otherFormats} not shown</button></td></tr>`;
+					buffer += `<tr><td colspan="8"><button class="button" name="showOtherFormats">` +
+						`Show ${hiddenFormats.length} hidden format${hiddenFormats.length === 1 ? '' : 's'}</button></td></tr>`;
 				}
 				let userid = toID(targets[0]);
 				let registered = PS.user.registered;
