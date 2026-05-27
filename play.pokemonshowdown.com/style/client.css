@@ -606,7 +606,6 @@ p.or:after {
 	position: absolute;
 	left: 325px;
 	top: 40px;
-	z-index: 1;
 }
 .mainmenu {
 	padding: 0 0 51px 0;
@@ -629,9 +628,9 @@ p.or:after {
 	position: absolute;
 	bottom: 15px;
 	left: 20px;
+	line-height: 1.4;
 	color: #BBBBBB;
 	text-shadow: 0 0 3px black, 0 0 3px black, 0 0 3px black;
-	z-index: 0;
 }
 .mainmenufooter blockquote {
 	margin: 0 0 1em 0;
