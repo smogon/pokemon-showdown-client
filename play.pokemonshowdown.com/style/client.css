@@ -628,7 +628,6 @@ p.or:after {
 	position: absolute;
 	bottom: 15px;
 	left: 20px;
-	line-height: 1.4;
 	color: #BBBBBB;
 	text-shadow: 0 0 3px black, 0 0 3px black, 0 0 3px black;
 }
