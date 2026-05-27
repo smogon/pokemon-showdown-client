@@ -124,10 +124,10 @@ RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)/$ /$1 [R=301,L]
 
 # Anything that looks like a roomid: connect to the server
 RewriteCond %{HTTP_COOKIE} ^.*preactalpha=1.*$
-RewriteRule ^(|[A-Za-z0-9][A-Za-z0-9-]*)$ ./preactalpha.html [L,E=INDEX_PAGE:1]
+RewriteRule ^(|[A-Za-z0-9][A-Za-z0-9-]*)$ ./caches/index-new.html [L,E=INDEX_PAGE:1]
 RewriteRule ^$ - [E=INDEX_PAGE:1]
-RewriteRule ^(preactalpha|preactbeta|beta|dev|development|login|users|(dm|challenge|user|viewuser|ladder)-[a-z0-9-]*)$ ./preactalpha.html [L,E=INDEX_PAGE:1]
-RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE:1]
+RewriteRule ^(preactalpha|preactbeta|beta|dev|development|login|users|(dm|challenge|user|viewuser|ladder)-[a-z0-9-]*)$ ./caches/index-new.html [L,E=INDEX_PAGE:1]
+RewriteRule ^(|[A-Za-z0-9][A-Za-z0-9-]*)$ ./caches/index-old.html [L,E=INDEX_PAGE:1]
 
 # RewriteRule ^crossprotocol\.html$ - [E=CROSSPROTOCOL:1]
 # Header set X-Frame-Options "ALLOW-FROM http://play.pokemonshowdown.com" env=CROSSPROTOCOL
@@ -164,9 +164,8 @@ RewriteRule ^backup/ - [F]
 RewriteRule ^\.git/ - [F]
 RewriteRule ^lib/ - [F]
 
-RewriteRule ^index\.template\.html$ - [F]
-RewriteRule ^preactalpha\.template\.html$ - [F]
-RewriteRule ^testclient\.html$ - [F]
+RewriteRule ^caches/ - [F]
+RewriteRule ^testclient-old\.html$ - [F]
 RewriteRule ^testclient-beta\.html$ - [F]
 
 RewriteCond %{REQUEST_FILENAME} !-f

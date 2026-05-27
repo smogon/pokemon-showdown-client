@@ -4,7 +4,7 @@ Pokémon Showdown Client
 Navigation: [Website][1] | [Server repository][2] | **Client repository** | [Dex repository][3]
 
   [1]: http://pokemonshowdown.com/
-  [2]: https://github.com/Zarel/Pokemon-Showdown
+  [2]: https://github.com/smogon/pokemon-showdown
   [3]: https://github.com/Zarel/Pokemon-Showdown-Dex
 
 Introduction
@@ -17,7 +17,7 @@ This is what runs `play.pokemonshowdown.com`.
 **WARNING: You probably want the [Pokémon Showdown server][4]**, if you're
 setting up a server.
 
-  [4]: https://github.com/Zarel/Pokemon-Showdown
+  [4]: https://github.com/smogon/pokemon-showdown
 
 Browser support
 ------------------------------------------------------------------------
@@ -46,7 +46,7 @@ Development is proceeding on the client rewrite! The live version is
 available at https://play.pokemonshowdown.com/beta
 
 You can contribute to it yourself using the same process as before, just
-use `testclient-beta.html` rather than `testclient.html`.
+use `testclient-new.html` rather than `testclient-old.html`.
 
 Testing (the old client)
 ------------------------------------------------------------------------
@@ -56,7 +56,7 @@ require v20 or later) and Git, and run `node build` (on Windows) or `./build`
 (on other OSes) to build.
 
 You can make and test client changes simply by building after each change,
-and opening `play.pokemonshowdown.com/testclient.html`. This will allow you
+and opening `play.pokemonshowdown.com/testclient-old.html`. This will allow you
 to test changes to the client without setting up your own login server.
 
 ### Test keys
@@ -85,18 +85,18 @@ Make sure to put it in `config/` and not `play.pokemonshowdown.com/config/`.
 ### Other servers
 
 You can connect to an arbitrary server by navigating to
-`testclient.html?~~host:port`. For example, to connect to a server running
-locally on port 8000, you can navigate to `testclient.html?~~localhost:8000`.
+`testclient-old.html?~~host:port`. For example, to connect to a server running
+locally on port 8000, you can navigate to `testclient-old.html?~~localhost:8000`.
 
 **NOTE**: Certain browsers will convert `'?'` to `'%3F'` when reading files off
 of the local filesystem. As a workaround, try using a different browser or
 serving the files locally first (ie. run `npx http-server` from the
 directory this README is in, then navigate in your browser to
-`http://localhost:8080/testclient.html?~~localhost:8000`).
+`http://localhost:8080/testclient-old.html?~~localhost:8000`).
 
 ### Limitations
 
-Even with a test key, the following things will fail in `testclient.html`:
+Even with a test key, the following things will fail in `testclient`:
 
 + Registering
 + Logging into other accounts (you can still switch to other unregistered
