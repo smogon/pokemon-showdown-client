@@ -21,6 +21,7 @@ npm-debug.log
 /play.pokemonshowdown.com/data/
 
 /play.pokemonshowdown.com/js/server/
+/play.pokemonshowdown.com/js/oldclient/
 /play.pokemonshowdown.com/js/*.js.map
 /play.pokemonshowdown.com/js/battle*.js
 /play.pokemonshowdown.com/js/panel*.js

@@ -141,6 +141,17 @@ console.log(
 );
 
 /*********************************************************
+ * Copy old client files
+ *********************************************************/
+
+process.stdout.write("Copying old client files... ");
+fs.cpSync('play.pokemonshowdown.com/src/oldclient', 'play.pokemonshowdown.com/js/oldclient', {
+	recursive: true,
+	force: true,
+});
+console.log("DONE");
+
+/*********************************************************
  * Update cachebuster and News
  *********************************************************/
 
@@ -190,7 +201,7 @@ let preactIndexContents = fs.readFileSync('play.pokemonshowdown.com/preactalpha.
 preactIndexContents = preactIndexContents.replace(URL_REGEX, addCachebuster);
 let crossprotocolContents = fs.readFileSync('play.pokemonshowdown.com/crossprotocol.template.html', UTF8);
 crossprotocolContents = crossprotocolContents.replace(URL_REGEX, addCachebuster);
-let replayEmbedContents = fs.readFileSync('play.pokemonshowdown.com/js/replay-embed.template.js', UTF8);
+let replayEmbedContents = fs.readFileSync('play.pokemonshowdown.com/js/replay-embed.js', UTF8);
 replayEmbedContents = replayEmbedContents.replace(/play\.pokemonshowdown\.com/g, routes.client);
 
 // add news, only if it's actually likely to exist
