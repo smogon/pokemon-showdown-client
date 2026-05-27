@@ -433,6 +433,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		BattleChoiceBuilder.fixRequest(request, room.battle);
 
+		room.battle.updateWithRequest(request);
+
 		if (request.side) {
 			const wasPlayer = !!room.side;
 			room.battle.myPokemon = request.side.pokemon;
