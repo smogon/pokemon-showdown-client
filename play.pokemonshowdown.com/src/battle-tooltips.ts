@@ -1879,9 +1879,8 @@ export class BattleTooltips {
 		const dex = this.battle.dex;
 		const priority = move.priority + (category === 'Status' && sourceAbility === 'Prankster' ? 1 : 0);
 
-		if (hardcoreMode && (move.category === 'Status' || dex.gen < 7)) {
-			return null;
-		}
+		if (hardcoreMode && (move.category === 'Status' || dex.gen < 7)) return null;
+		if (move.id === 'struggle' && dex.gen > 1) return 1;
 
 		let inflictsStatus = null;
 		let inflictsEffect = null;

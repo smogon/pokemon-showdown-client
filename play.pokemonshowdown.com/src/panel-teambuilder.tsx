@@ -427,10 +427,12 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		this.forceUpdate();
 	};
 	static handleDrop(ev: DragEvent) {
+		let draggingTeam = false;
 		if (PS.dragging?.type === 'team' && typeof PS.dragging?.team === 'object') {
 			PS.teams.save();
+			draggingTeam = true;
 		}
-		return !!this.addDraggedTeam(ev, (PS.rooms['teambuilder'] as TeambuilderRoom)?.curFolder);
+		return !!this.addDraggedTeam(ev, (PS.rooms['teambuilder'] as TeambuilderRoom)?.curFolder) || draggingTeam;
 	}
 	updateSearch = (ev: KeyboardEvent) => {
 		const target = ev.currentTarget as HTMLInputElement;

@@ -108,7 +108,7 @@ export class PSHeader extends preact.Component {
 		const room = PS.rooms[id];
 		if (!room) return null;
 		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
-		const cur = PS.isVisible(room) ? ' cur' : '';
+		const cur = PS.isVisiblePanel(room) ? ' cur' : '';
 		let notifying = room.isSubtleNotifying ? ' subtle-notifying' : '';
 		let hoverTitle = '';
 		let notifications = room.notifications;
