@@ -3338,22 +3338,22 @@ export class BattleStatGuesser {
 				}
 			}
 
-			const ensureHPDivisibility = (currentEVTotal: number) => {
-				let SRweaknesses = ['Fire', 'Flying', 'Bug', 'Ice'];
-				let SRresistances = ['Ground', 'Steel', 'Fighting'];
-				let SRweak = 0;
-				if (set.ability !== 'Magic Guard' && set.ability !== 'Mountaineer') {
-					if (SRweaknesses.includes(species.types[0])) {
-						SRweak++;
-					} else if (SRresistances.includes(species.types[0])) {
-						SRweak--;
-					}
-					if (SRweaknesses.includes(species.types[1])) {
-						SRweak++;
-					} else if (SRresistances.includes(species.types[1])) {
-						SRweak--;
-					}
+			let SRweaknesses = ['Fire', 'Flying', 'Bug', 'Ice'];
+			let SRresistances = ['Ground', 'Steel', 'Fighting'];
+			let SRweak = 0;
+			if (set.ability !== 'Magic Guard' && set.ability !== 'Mountaineer') {
+				if (SRweaknesses.includes(species.types[0])) {
+					SRweak++;
+				} else if (SRresistances.includes(species.types[0])) {
+					SRweak--;
 				}
+				if (SRweaknesses.includes(species.types[1])) {
+					SRweak++;
+				} else if (SRresistances.includes(species.types[1])) {
+					SRweak--;
+				}
+			}
+			const ensureHPDivisibility = (currentEVTotal: number) => {
 				let hpDivisibility = 0;
 				let hpShouldBeDivisible = false;
 				let hp = evs['hp'] || 0;
