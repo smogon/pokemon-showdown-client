@@ -3395,41 +3395,32 @@ export class BattleStatGuesser {
 				}
 				return currentEVTotal;
 			};
-			const addRemainingEVs = (statName: Dex.StatName, remaining: number) => {
-				const currentEV = evs[statName] || 0;
-				ev = Math.min(remaining, maxPoints - currentEV);
-				if (ev <= 0) return 0;
-				stat = this.getStat(statName, set, currentEV + ev);
-				while (ev > 0 && stat === this.getStat(statName, set, currentEV + ev - step)) ev -= step;
-				if (ev) evs[statName] = currentEV + ev;
-				return ev;
-			};
 			evTotal = ensureHPDivisibility(evTotal);
 			let hpSelected = false;
 			while (evTotal < totalPoints) {
 				const evTotalBefore = evTotal;
-				let remaining = totalPoints - evTotal;
-				if (remaining > maxPoints) remaining = maxPoints;
 				secondaryStat = null;
 				if (!evs['atk'] && moveCount['PhysicalAttack'] >= 1) {
 					secondaryStat = 'atk';
 				} else if (!evs['spa'] && moveCount['SpecialAttack'] >= 1) {
 					secondaryStat = 'spa';
-				} else if (!hpSelected && stats.hp > 1 && !evs['hp']) {
+				} else if (!evs['hp'] && stats.hp > 1 && !hpSelected) {
 					secondaryStat = 'hp';
-				} else if (stats.hp === 1 && !evs['spe']) {
-					secondaryStat = 'spe';
-				} else if (!evs['spd']) {
+				} else if (!evs['spd'] && stats.hp > 1) {
 					secondaryStat = 'spd';
-				} else if (!evs['def']) {
+				} else if (!evs['def'] && stats.hp > 1) {
 					secondaryStat = 'def';
 				} else if (!evs['spe']) {
 					secondaryStat = 'spe';
 				}
 				if (!secondaryStat) break;
 
-				const added = addRemainingEVs(secondaryStat, remaining);
-				evTotal += added;
+				ev = Math.min(totalPoints - evTotal, maxPoints);
+				stat = this.getStat(secondaryStat, set, ev);
+				while (ev > 0 && stat === this.getStat(secondaryStat, set, ev - step)) ev -= step;
+				if (ev) evs[secondaryStat] = ev;
+				evTotal += ev;
+
 				if (secondaryStat === 'hp') {
 					hpSelected = true;
 					evTotal = ensureHPDivisibility(evTotal);
