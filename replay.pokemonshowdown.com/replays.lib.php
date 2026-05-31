@@ -99,7 +99,7 @@ class Replays {
 		$res->execute([$id]);
 
 		$replay['safe_inputlog'] = (
-			str_ends_with($replay['formatid'], 'swserandombattle') ||
+			str_ends_with($replay['formatid'], 'randombattle') ||
 			str_ends_with($replay['formatid'], 'randomdoublesbattle') ||
 			str_ends_with($replay['formatid'], 'challengecup') ||
 			str_ends_with($replay['formatid'], 'challengecup1v1') ||

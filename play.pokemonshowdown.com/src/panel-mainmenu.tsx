@@ -910,7 +910,7 @@ export class TeamForm extends preact.Component<{
 		if (window.BattleFormats) {
 			this.format ||= this.props.defaultFormat || '';
 			if (!this.format) {
-				this.format = `gen${Dex.gen}swserandombattle`;
+				this.format = `gen${Dex.gen}randombattle`;
 
 				const starredPrefs = PS.prefs.starredformats || {};
 				// .reverse() because the newest starred format should be the default one
