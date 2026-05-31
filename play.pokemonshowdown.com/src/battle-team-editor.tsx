@@ -1014,6 +1014,9 @@ class TeamTextbox extends preact.Component<{
 	editor: TeamEditorState,
 	onChange?: () => void, onUpdate?: () => void,
 }> {
+	override state = {
+		copyButtonUsed: undefined as number | undefined,
+	};
 	static EMPTY_PROMISE = Promise.resolve(null);
 	editor!: TeamEditorState;
 	setInfo: {
@@ -1714,19 +1717,22 @@ class TeamTextbox extends preact.Component<{
 	copyAll = (ev: Event) => {
 		this.textbox.select();
 		document.execCommand('copy');
-		const button = ev?.currentTarget as HTMLButtonElement;
-		if (button) {
-			button.innerHTML = '<i class="fa fa-check" aria-hidden="true"></i> Copied';
-			button.className += ' cur';
-		}
+		clearTimeout(this.state.copyButtonUsed);
+		this.setState({
+			copyButtonUsed: setTimeout(() => this.setState({ copyButtonUsed: undefined }), 3000),
+		});
 	};
 	render() {
 		const editor = this.props.editor;
 		const statsDetailsOffset = editor.gen >= 3 ? 18 : -1;
 		return <div>
 			<p>
-				<button class="button" onClick={this.copyAll}>
-					<i class="fa fa-copy" aria-hidden></i> Copy
+				<button class={`button ${this.state.copyButtonUsed ? 'cur' : ''}`} onClick={this.copyAll}>
+					{this.state.copyButtonUsed ? (
+						<><i class="fa fa-check" aria-hidden></i> Copied!</>
+					) : (
+						<><i class="fa fa-copy" aria-hidden></i> Copy</>
+					)}
 				</button> {}
 				<label class="checkbox inline">
 					<input type="checkbox" name="compat" onChange={this.changeCompat} /> Old export format
@@ -2848,8 +2854,6 @@ class StatForm extends preact.Component<{
 
 		const baseStats = species.baseStats;
 
-		const nature = BattleNatures[set.nature || 'Serious'];
-
 		const useEVs = !editor.isLetsGo && !editor.isChampions;
 		// const useAVs = editor.isLetsGo && team.format.endsWith('norestrictions');
 		const maxEV = editor.isChampions ? 32 : useEVs ? 252 : 200;
@@ -2930,9 +2934,9 @@ class StatForm extends preact.Component<{
 					</tr>
 				</table>
 				{editor.gen >= 3 && <p>
-					Nature: <select name="nature" class="button" onChange={this.changeNature}>
+					Nature: <select name="nature" class="button" onChange={this.changeNature} value={set.nature || 'Serious'}>
 						{Object.entries(BattleNatures).map(([natureName, curNature]) => (
-							<option value={natureName} selected={curNature === nature}>
+							<option value={natureName}>
 								{natureName}
 								{curNature.plus && ` (+${BattleStatNames[curNature.plus]}, -${BattleStatNames[curNature.minus!]})`}
 							</option>
@@ -3147,9 +3151,11 @@ class DetailsForm extends preact.Component<{
 					</p>
 				)}
 				{((!editor.isLetsGo && editor.gen === 7) || editor.isNatDex || species.baseSpecies === 'Unown') && <p>
-					<label class="label">Hidden Power Type: <select name="hptype" class="button" onChange={this.changeHPType}>
+					<label class="label">Hidden Power Type: <select
+						name="hptype" class="button" onChange={this.changeHPType} value={editor.getHPType(set)}
+					>
 						{Dex.types.all().map(type => (
-							type.HPivs && <option value={type.name} selected={editor.getHPType(set) === type.name}>
+							type.HPivs && <option value={type.name}>
 								{type.name}
 							</option>
 						))}
@@ -3161,11 +3167,12 @@ class DetailsForm extends preact.Component<{
 						{species.requiredTeraType && editor.formeLegality === 'normal' ? (
 							<select name="teratype" class="button cur" disabled><option>{species.requiredTeraType}</option></select>
 						) : (
-							<select name="teratype" class="button" onChange={this.changeTera}>
+							<select
+								name="teratype" class="button" onChange={this.changeTera}
+								value={set.teraType || species.requiredTeraType || species.types[0]}
+							>
 								{Dex.types.all().map(type => (
-									<option value={type.name} selected={(set.teraType || species.requiredTeraType || species.types[0]) === type.name}>
-										{type.name}
-									</option>
+									<option value={type.name}>{type.name}</option>
 								))}
 							</select>
 						)}

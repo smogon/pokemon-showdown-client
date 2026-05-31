@@ -229,7 +229,14 @@ class TeamDropdownPanel extends PSRoomPanel {
 		const room = this.props.room;
 		if (!room.parentElem) {
 			return <PSPanelWrapper room={room}>
-				<p>Error: You tried to open a team selector, but you have nothing to select a team for.</p>
+				<div class="pad">
+					<p>This team selector is no longer available (the challenge was cancelled or something).</p>
+					<p class="buttonbar">
+						<button type="button" data-cmd="/close" class="button">
+							Close
+						</button>
+					</p>
+				</div>
 			</PSPanelWrapper>;
 		}
 		const baseFormat = room.parentElem.getAttribute('data-format') || Dex.modid;
@@ -397,7 +404,14 @@ class FormatDropdownPanel extends PSRoomPanel {
 		const room = this.props.room;
 		if (!room.parentElem) {
 			return <PSPanelWrapper room={room}>
-				<p>Error: You tried to open a format selector, but you have nothing to select a format for.</p>
+				<div class="pad">
+					<p>This format selector is no longer available.</p>
+					<p class="buttonbar">
+						<button type="button" data-cmd="/close" class="button">
+							Close
+						</button>
+					</p>
+				</div>
 			</PSPanelWrapper>;
 		}
 

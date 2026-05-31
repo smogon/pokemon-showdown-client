@@ -7,7 +7,7 @@
 
 import preact from "../js/lib/preact";
 import type { PSSubscription } from "./client-core";
-import { PS, PSRoom, type RoomOptions, type RoomID, type Team } from "./client-main";
+import { PS, PSRoom, type RoomOptions, type RoomID, type Team, Config } from "./client-main";
 import { PSView, PSPanelWrapper, PSRoomPanel } from "./panels";
 import { TeamForm } from "./panel-mainmenu";
 import { BattleLog } from "./battle-log";
@@ -107,11 +107,19 @@ export class ChatRoom extends PSRoom {
 			return;
 
 		case 'noinit':
-			if (this.battle) {
+			if (this.battle && args[1] === 'joinfailed') {
+				this.receiveLine(['bigerror', args[2]]);
+				this.receiveLine(['html',
+					`<div class="broadcast-red pad"><p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p></div>`,
+				]);
+			} else if (this.battle) {
 				// check the Replays database
 				(this as any as BattleRoom).loadReplay();
 			} else {
-				this.receiveLine(['bigerror', 'Room does not exist']);
+				const message = args[2] ? BattleLog.escapeHTML(args[2]) : `Chatroom "${BattleLog.escapeHTML(this.title)}" not found`;
+				this.receiveLine(['html',
+					`<div class="broadcast-red pad"><h3>${message}</h3><p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p></div>`,
+				]);
 			}
 			return;
 		case 'expire':
@@ -197,12 +205,13 @@ export class ChatRoom extends PSRoom {
 					if (time < cutOffTime) cutOffStart = i;
 				}
 				if (lines[i].startsWith('|raw|<div class="infobox"> You joined ')) {
-					reconnectMessage = `|raw|<div class="infobox">You reconnected to ${lines[i].slice(38)}`;
+					const timestamp = BattleLog.renderTimestamp(Date.now() / 1000, PS.prefs.timestamps?.chatrooms);
+					reconnectMessage = `|raw|<div class="infobox">${timestamp}You reconnected to ${lines[i].slice(38)}`;
 					cutOffEnd = i;
 					if (!lines[i - 1]) cutOffEnd = i - 1;
 				}
 			}
-			console.log("Reconnection log splice:");
+			console.log(`Reconnection log splice: (cutoff: ${cutOffTime})`);
 			console.log([
 				...lines.slice(0, cutOffStart),
 				'====================',
@@ -213,7 +222,8 @@ export class ChatRoom extends PSRoom {
 			lines = lines.slice(cutOffStart, cutOffEnd);
 
 			if (lines.length) {
-				this.receiveLine([`raw`, `<div class="infobox">You disconnected.</div>`]);
+				const timestamp = BattleLog.renderTimestamp(cutOffTime, PS.prefs.timestamps?.chatrooms);
+				this.receiveLine([`raw`, `<div class="infobox">${timestamp}You disconnected.</div>`]);
 				for (const line of lines) this.receiveLine(BattleTextParser.parseLine(line));
 				this.receiveLine(BattleTextParser.parseLine(reconnectMessage));
 			}
@@ -305,7 +315,7 @@ export class ChatRoom extends PSRoom {
 		const lastMessageDate = lastMessageDates[PS.server.id][this.id] || 0;
 		// because the time offset to the server can vary slightly, subtract it to not have it affect comparisons between dates
 		const time = serverTime - (this.timeOffset || 0);
-		if (PS.isVisible(this)) {
+		if (PS.isVisiblePanel(this)) {
 			this.lastMessageTime = null;
 			lastMessageDates[PS.server.id][this.id] = time;
 			PS.prefs.set('logtimes', lastMessageDates);
@@ -437,10 +447,12 @@ export class ChatRoom extends PSRoom {
 				for (const row of data) {
 					if (!row) return this.add(`|error|Error: corrupted ranking data`);
 					const formatId = toID(row.formatid);
-					if (!formatTargeting ||
+					const matchesTarget = (
 						formats[formatId] ||
 						gens[formatId.slice(0, 4)] ||
-						(gens['gen6'] && !formatId.startsWith('gen'))) {
+						(gens['gen6'] && !formatId.startsWith('gen'))
+					);
+					if (matchesTarget || (!formatTargeting && row.elo >= 1001 && (row.w + row.l + row.t > 0))) {
 						buffer += '<tr>';
 					} else {
 						buffer += '<tr class="hidden">';
@@ -488,19 +500,21 @@ export class ChatRoom extends PSRoom {
 				}
 				if (hiddenFormats.length) {
 					if (hiddenFormats.length === data.length) {
-						const formatsText = Object.keys(gens).concat(Object.keys(formats)).join(', ');
-						buffer += `<tr class="no-matches"><td colspan="8">` +
-							BattleLog.html`<em>This user has not played any ladder games that match ${formatsText}.</em></td></tr>`;
+						if (formatTargeting) {
+							const formatsText = Object.keys(gens).concat(Object.keys(formats)).join(', ');
+							buffer += `<tr class="no-matches"><td colspan="8">` +
+								BattleLog.html`<em>This user has not played any ladder games that match ${formatsText}.</em></td></tr>`;
+						} else {
+							buffer += `<tr class="no-matches"><td colspan="8"><em>This user has no notable ladder activity.</em></td></tr>`;
+						}
 					}
-					const otherFormats = hiddenFormats.slice(0, 3).join(', ') +
-						(hiddenFormats.length > 3 ? ` and ${hiddenFormats.length - 3} other formats` : '');
-					buffer += `<tr><td colspan="8"><button name="showOtherFormats">` +
-						BattleLog.html`${otherFormats} not shown</button></td></tr>`;
+					buffer += `<tr><td colspan="8"><button class="button" name="showOtherFormats">` +
+						`Show ${hiddenFormats.length} hidden format${hiddenFormats.length === 1 ? '' : 's'}</button></td></tr>`;
 				}
 				let userid = toID(targets[0]);
 				let registered = PS.user.registered;
 				if (registered && PS.user.userid === userid) {
-					buffer += `<tr><td colspan="8" style="text-align:right"><a href="//${PS.routes.users}/${userid}">Reset W/L</a></tr></td>`;
+					buffer += `<tr><td colspan="8" style="text-align:right"><a href="//${Config.routes.users}/${userid}">Reset W/L</a></tr></td>`;
 				}
 				buffer += '</table></div>';
 				this.add(`|html|${buffer}`);
@@ -758,7 +772,7 @@ export class ChatRoom extends PSRoom {
 		if (this.joinLeave['join'].length && this.joinLeave['leave'].length) message += '; ';
 		message += this.formatJoinLeave(this.joinLeave['leave'], 'left');
 
-		this.add(`|uhtml|${this.joinLeave.messageId}|<small style="color: #555555">${message}</small>`);
+		this.add(`|uhtml|${this.joinLeave.messageId}|<small class="gray">${message}</small>`);
 	}
 
 	formatJoinLeave(preList: string[], action: 'joined' | 'left') {
@@ -1176,9 +1190,11 @@ export class ChatTextEntry extends preact.Component<{
 			});
 
 			const currentLine = prefix.substring(prefix.lastIndexOf('\n') + 1);
-			const isCommandSearch = (currentLine.startsWith('/') && !currentLine.startsWith('//')) || currentLine.startsWith('!');
+			const isCommandWord = (word: string) => (word.startsWith('/') && !word.startsWith('//')) || word.startsWith('!');
+			const currentWord = currentLine.substring(currentLine.lastIndexOf(' ') + 1);
+			const isCommandSearch = isCommandWord(currentWord);
 			if (isCommandSearch) {
-				PS.mainmenu.makeQuery('cmdsearch', currentLine, true).then((data: string[]) => {
+				PS.mainmenu.makeQuery('cmdsearch', currentWord, true).then((data: string[]) => {
 					const cmds = data.sort((a, b) => a.length < b.length ? 1 : -1);
 					const nextCmd = cmds[cmds.length - 1];
 					const newValue = nextCmd + value.substring(end);

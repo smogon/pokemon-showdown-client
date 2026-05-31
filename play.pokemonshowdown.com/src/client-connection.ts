@@ -69,6 +69,7 @@ export class PSConnection {
 				case 'connected':
 					console.log('\u2705 (CONNECTED via worker)');
 					this.connected = true;
+					if (PS.prefs.avatar) worker.postMessage({ type: 'send', data: `/avatar ${PS.prefs.avatar},1` });
 					this.queue.forEach(msg => worker.postMessage({ type: 'send', data: msg }));
 					this.queue = [];
 					PS.update();
@@ -122,6 +123,7 @@ export class PSConnection {
 			console.log('\u2705 (CONNECTED)');
 			this.connected = true;
 			this.reconnectDelay = 1000;
+			if (PS.prefs.avatar) socket.send(`/avatar ${PS.prefs.avatar},1`);
 			this.queue.forEach(msg => socket.send(msg));
 			this.queue = [];
 			PS.update();
