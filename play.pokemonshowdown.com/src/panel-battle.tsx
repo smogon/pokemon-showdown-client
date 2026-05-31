@@ -154,7 +154,7 @@ export class BattleRoom extends ChatRoom {
 
 	loadReplay() {
 		const replayid = this.id.slice(7);
-		Net(`https://replay.pokemonshowdown.com/${replayid}.json`).get().catch().then(data => {
+		Net(`https://replay.pokemonshowdown.com/${replayid}.json`).get().catch(() => '').then(data => {
 			try {
 				const replay = JSON.parse(data);
 				this.title = `[${replay.format}] ${replay.players.join(' vs. ')}`;
@@ -165,7 +165,10 @@ export class BattleRoom extends ChatRoom {
 				this.connected = 'client-only';
 				this.update(null);
 			} catch {
-				this.receiveLine(['error', 'Battle not found']);
+				this.receiveLine(['bigerror', `Battle "${replayid}" not found`]);
+				this.receiveLine(['html',
+					`<div class="broadcast-red pad"><p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p></div>`,
+				]);
 			}
 		});
 	}
@@ -1099,7 +1102,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				<ChatUserList room={room} top={this.battleHeight} minimized />
 				<button
 					data-href="battleoptions" class="button"
-					style={{ position: 'absolute', right: '75px', top: this.battleHeight }}
+					style={{ position: 'absolute', right: '10px', top: this.battleHeight + 2 }}
 				>
 					Battle options
 				</button>
@@ -1121,7 +1124,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<ChatUserList room={room} left={640} minimized />
 			<button
 				data-href="battleoptions" class="button"
-				style={{ position: 'absolute', right: '15px' }}
+				style={{ position: 'absolute', right: '10px', top: '2px' }}
 			>
 				Battle options
 			</button>

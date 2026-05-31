@@ -1655,6 +1655,9 @@ pre.textbox.textbox-empty[placeholder]:before {
 	border-top: 0;
 	border-bottom: 0;
 }
+.ps-room .battle-log .inner {
+	padding-top: 25px;
+}
 
 /* I like this one (bottom-aligns chat logs) but it's controversial */
 /* .battle-log, .chat-log {

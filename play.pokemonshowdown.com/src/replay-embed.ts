@@ -14,16 +14,21 @@
  * @license MIT
  */
 
+import { Battle } from "./battle";
+import type { ID } from "./battle-dex";
+import { BattleLog } from "./battle-log";
+import { BattleSound } from "./battle-sound";
+
 window.exports = window;
 
-function linkStyle(url) {
-	var linkEl = document.createElement('link');
+function linkStyle(url: string) {
+	const linkEl = document.createElement('link');
 	linkEl.rel = 'stylesheet';
 	linkEl.href = url;
 	document.head.appendChild(linkEl);
 }
-function requireScript(url) {
-	var scriptEl = document.createElement('script');
+function requireScript(url: string) {
+	const scriptEl = document.createElement('script');
 	scriptEl.src = url;
 	document.head.appendChild(scriptEl);
 }
@@ -50,60 +55,60 @@ requireScript('https://play.pokemonshowdown.com/data/teambuilder-tables.js?a7');
 requireScript('https://play.pokemonshowdown.com/js/battle-tooltips.js?a7');
 requireScript('https://play.pokemonshowdown.com/js/battle.js?a7');
 
-var Replays = {
-	battle: null,
+const Replays = {
+	$el: null! as JQuery,
+	battle: null! as Battle,
 	muted: false,
-	init: function () {
+	init() {
 		this.$el = $('.wrapper');
 		if (!this.$el.length) {
 			$('body').append('<div class="wrapper replay-wrapper" style="max-width:1180px;margin:0 auto"><div class="battle"></div><div class="battle-log"></div><div class="replay-controls"></div><div class="replay-controls-2"></div>');
 			this.$el = $('.wrapper');
 		}
 
-		var id = $('input[name=replayid]').val() || '';
-		var log = ($('script.battle-log-data').text() || '').replace(/\\\//g, '/');
+		const id = ($('input[name=replayid]').val() || '') as ID;
+		const log = ($('script.battle-log-data').text() || '').replace(/\\\//g, '/');
 
-		var self = this;
-		this.$el.on('click', '.chooser button', function (e) {
-			self.clickChangeSetting(e);
+		this.$el.on('click', '.chooser button', e => {
+			this.clickChangeSetting(e);
 		});
-		this.$el.on('click', 'button', function (e) {
-			var action = $(e.currentTarget).data('action');
-			if (action) self[action]();
+		this.$el.on('click', 'button', e => {
+			const action = $(e.currentTarget).data('action');
+			if (action) this[action as 'play']();
 		});
 
 		this.battle = new Battle({
-			id: id,
+			id,
 			$frame: this.$('.battle'),
 			$logFrame: this.$('.battle-log'),
 			log: log.split('\n'),
 			isReplay: true,
 			paused: true,
-			autoresize: true
+			autoresize: true,
 		});
 
 		this.$('.replay-controls-2').html('<div class="chooser leftchooser speedchooser"> <em>Speed:</em> <div><button value="hyperfast">Hyperfast</button><button value="fast">Fast</button><button value="normal" class="sel">Normal</button><button value="slow">Slow</button><button value="reallyslow">Really Slow</button></div> </div> <div class="chooser colorchooser"> <em>Color&nbsp;scheme:</em> <div><button class="sel" value="light">Light</button><button value="dark">Dark</button></div> </div> <div class="chooser soundchooser" style="display:none"> <em>Music:</em> <div><button class="sel" value="on">On</button><button value="off">Off</button></div> </div>');
 
 		// this works around a WebKit/Blink bug relating to float layout
-		var rc2 = this.$('.replay-controls-2')[0];
+		const rc2 = this.$('.replay-controls-2')[0];
 		// eslint-disable-next-line no-self-assign
 		if (rc2) rc2.innerHTML = rc2.innerHTML;
 
 		if (window.HTMLAudioElement) $('.soundchooser, .startsoundchooser').show();
 		this.update();
-		this.battle.subscribe(function (state) { self.update(state); });
+		this.battle.subscribe(state => this.update(state));
 	},
-	"$": function (sel) {
+	$(sel: string): JQuery {
 		return this.$el.find(sel);
 	},
-	clickChangeSetting: function (e) {
+	clickChangeSetting(e: JQuery.ClickEvent) {
 		e.preventDefault();
-		var $chooser = $(e.currentTarget).closest('.chooser');
-		var value = e.currentTarget.value;
+		const $chooser = $(e.currentTarget).closest('.chooser');
+		const value = e.currentTarget.value;
 		this.changeSetting($chooser, value, $(e.currentTarget));
 	},
-	changeSetting: function (type, value, valueElem) {
-		var $chooser;
+	changeSetting(type: string | JQuery, value: string, valueElem?: JQuery) {
+		let $chooser;
 		if (typeof type === 'string') {
 			$chooser = this.$('.' + type + 'chooser');
 		} else {
@@ -139,31 +144,31 @@ var Replays = {
 			break;
 
 		case 'speed':
-			var fadeTable = {
+			const fadeTable = {
 				hyperfast: 40,
 				fast: 50,
 				normal: 300,
 				slow: 500,
-				reallyslow: 1000
+				reallyslow: 1000,
 			};
-			var delayTable = {
+			const delayTable = {
 				hyperfast: 1,
 				fast: 1,
 				normal: 1,
 				slow: 1000,
-				reallyslow: 3000
+				reallyslow: 3000,
 			};
-			this.battle.messageShownTime = delayTable[value];
-			this.battle.messageFadeTime = fadeTable[value];
+			this.battle.messageShownTime = delayTable[value as keyof typeof delayTable];
+			this.battle.messageFadeTime = fadeTable[value as keyof typeof fadeTable];
 			this.battle.scene.updateAcceleration();
 			break;
 		}
 	},
-	update: function (state) {
+	update(state?: string) {
 		if (state === 'error') {
-			var m = /^([a-z0-9]+)-[a-z0-9]+-[0-9]+$/.exec(this.battle.id);
+			const m = /^([a-z0-9]+)-[a-z0-9]+-[0-9]+$/.exec(this.battle.id);
 			if (m) {
-				this.battle.log('<hr /><div class="chat">This replay was uploaded from a third-party server (<code>' + BattleLog.escapeHTML(m[1]) + '</code>). It contains errors.</div><div class="chat">Replays uploaded from third-party servers can contain errors if the server is running custom code, or the server operator has otherwise incorrectly configured their server.</div>', true);
+				this.battle.scene.message('<hr /><div class="chat">This replay was uploaded from a third-party server (<code>' + BattleLog.escapeHTML(m[1]) + '</code>). It contains errors.</div><div class="chat">Replays uploaded from third-party servers can contain errors if the server is running custom code, or the server operator has otherwise incorrectly configured their server.</div>');
 			}
 			return;
 		}
@@ -171,38 +176,38 @@ var Replays = {
 		if (BattleSound.muted && !this.muted) this.changeSetting('sound', 'off');
 
 		if (this.battle.paused) {
-			var resetDisabled = !this.battle.started ? ' disabled' : '';
+			const resetDisabled = !this.battle.started ? ' disabled' : '';
 			this.$('.replay-controls').html('<button data-action="play"><i class="fa fa-play"></i> Play</button><button data-action="reset"' + resetDisabled + '><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchViewpoint"><i class="fa fa-random"></i> Switch sides</button>');
 		} else {
 			this.$('.replay-controls').html('<button data-action="pause"><i class="fa fa-pause"></i> Pause</button><button data-action="reset"><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchViewpoint"><i class="fa fa-random"></i> Switch sides</button>');
 		}
 	},
-	pause: function () {
+	pause() {
 		this.battle.pause();
 	},
-	play: function () {
+	play() {
 		this.battle.play();
 	},
-	reset: function () {
+	reset() {
 		this.battle.reset();
 	},
-	ff: function () {
+	ff() {
 		this.battle.seekBy(1);
 	},
-	rewind: function () {
+	rewind() {
 		this.battle.seekBy(-1);
 	},
-	ffto: function () {
-		var turn = prompt('Turn?');
-		if (!turn || !turn.trim()) return;
+	ffto() {
+		let turn: string | number | null = prompt('Turn?');
+		if (!turn?.trim()) return;
 		if (turn === 'e' || turn === 'end' || turn === 'f' || turn === 'finish') turn = Infinity;
 		turn = Number(turn);
 		if (isNaN(turn) || turn < 0) alert("Invalid turn");
 		this.battle.seekTurn(turn);
 	},
-	switchViewpoint: function () {
+	switchViewpoint() {
 		this.battle.switchViewpoint();
-	}
+	},
 };
 
 window.onload = function () {
@@ -213,7 +218,7 @@ if (window.matchMedia) {
 	if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
 		document.body.className = 'dark';
 	}
-	window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (event) {
+	window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
 		document.body.className = event.matches ? "dark" : "";
 	});
 }
