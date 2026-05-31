@@ -3320,61 +3320,6 @@ export class BattleStatGuesser {
 			evs[secondaryStat] = ev;
 			evTotal += ev;
 
-			let SRweaknesses = ['Fire', 'Flying', 'Bug', 'Ice'];
-			let SRresistances = ['Ground', 'Steel', 'Fighting'];
-			let SRweak = 0;
-			if (set.ability !== 'Magic Guard' && set.ability !== 'Mountaineer') {
-				if (SRweaknesses.includes(species.types[0])) {
-					SRweak++;
-				} else if (SRresistances.includes(species.types[0])) {
-					SRweak--;
-				}
-				if (SRweaknesses.includes(species.types[1])) {
-					SRweak++;
-				} else if (SRresistances.includes(species.types[1])) {
-					SRweak--;
-				}
-			}
-			let hpDivisibility = 0;
-			let hpShouldBeDivisible = false;
-			let hp = evs['hp'] || 0;
-			stat = this.getStat('hp', set, hp, 1);
-			if ((set.item === 'Leftovers' || set.item === 'Black Sludge') && hasMove['substitute'] && stat !== 404) {
-				hpDivisibility = 4;
-			} else if (set.item === 'Leftovers' || set.item === 'Black Sludge') {
-				hpDivisibility = 0;
-			} else if (hasMove['bellydrum'] && (set.item || '').endsWith('Berry')) {
-				hpDivisibility = 2;
-				hpShouldBeDivisible = true;
-			} else if (hasMove['substitute'] && (set.item || '').endsWith('Berry')) {
-				hpDivisibility = 4;
-				hpShouldBeDivisible = true;
-			} else if (SRweak >= 2 || hasMove['bellydrum']) {
-				hpDivisibility = 2;
-			} else if (SRweak >= 1 || hasMove['substitute'] || hasMove['transform']) {
-				hpDivisibility = 4;
-			} else if (set.ability !== 'Magic Guard') {
-				hpDivisibility = 8;
-			}
-
-			if (hpDivisibility) {
-				while (hp < maxPoints && evTotal < totalPoints && !(stat % hpDivisibility) !== hpShouldBeDivisible) {
-					hp += step;
-					stat = this.getStat('hp', set, hp, 1);
-					evTotal += step;
-				}
-				while (hp > 0 && !(stat % hpDivisibility) !== hpShouldBeDivisible) {
-					hp -= step;
-					stat = this.getStat('hp', set, hp, 1);
-					evTotal -= step;
-				}
-				while (hp > 0 && stat === this.getStat('hp', set, hp - step, 1)) {
-					hp -= step;
-					evTotal -= step;
-				}
-				if (hp || evs['hp']) evs['hp'] = hp;
-			}
-
 			if (this.supportsEVs) {
 				if (species.id === 'tentacruel') {
 					evTotal = this.ensureMinEVs(evs, 'spe', 16, evTotal);
@@ -3393,36 +3338,95 @@ export class BattleStatGuesser {
 				}
 			}
 
-			if (evTotal < totalPoints) {
-				let remaining = totalPoints - evTotal;
-				if (remaining > maxPoints) remaining = maxPoints;
+			let SRweaknesses = ['Fire', 'Flying', 'Bug', 'Ice'];
+			let SRresistances = ['Ground', 'Steel', 'Fighting'];
+			let SRweak = 0;
+			if (set.ability !== 'Magic Guard' && set.ability !== 'Mountaineer') {
+				if (SRweaknesses.includes(species.types[0])) {
+					SRweak++;
+				} else if (SRresistances.includes(species.types[0])) {
+					SRweak--;
+				}
+				if (SRweaknesses.includes(species.types[1])) {
+					SRweak++;
+				} else if (SRresistances.includes(species.types[1])) {
+					SRweak--;
+				}
+			}
+			const ensureHPDivisibility = (currentEVTotal: number) => {
+				let hpDivisibility = 0;
+				let hpShouldBeDivisible = false;
+				let hp = evs['hp'] || 0;
+				let hpStat = this.getStat('hp', set, hp, 1);
+				if ((set.item === 'Leftovers' || set.item === 'Black Sludge') && hasMove['substitute'] && hpStat !== 404) {
+					hpDivisibility = 4;
+				} else if (set.item === 'Leftovers' || set.item === 'Black Sludge') {
+					hpDivisibility = 0;
+				} else if (hasMove['bellydrum'] && (set.item || '').endsWith('Berry')) {
+					hpDivisibility = 2;
+					hpShouldBeDivisible = true;
+				} else if (hasMove['substitute'] && (set.item || '').endsWith('Berry')) {
+					hpDivisibility = 4;
+					hpShouldBeDivisible = true;
+				} else if (SRweak >= 2 || hasMove['bellydrum']) {
+					hpDivisibility = 2;
+				} else if (SRweak >= 1 || hasMove['substitute'] || hasMove['transform']) {
+					hpDivisibility = 4;
+				} else if (set.ability !== 'Magic Guard') {
+					hpDivisibility = 8;
+				}
+
+				if (hpDivisibility) {
+					while (hp < maxPoints && currentEVTotal < totalPoints && !(hpStat % hpDivisibility) !== hpShouldBeDivisible) {
+						hp += step;
+						hpStat = this.getStat('hp', set, hp, 1);
+						currentEVTotal += step;
+					}
+					while (hp > 0 && !(hpStat % hpDivisibility) !== hpShouldBeDivisible) {
+						hp -= step;
+						hpStat = this.getStat('hp', set, hp, 1);
+						currentEVTotal -= step;
+					}
+					while (hp > 0 && hpStat === this.getStat('hp', set, hp - step, 1)) {
+						hp -= step;
+						currentEVTotal -= step;
+					}
+					if (hp || evs['hp']) evs['hp'] = hp;
+				}
+				return currentEVTotal;
+			};
+			evTotal = ensureHPDivisibility(evTotal);
+			let hpSelected = false;
+			while (evTotal < totalPoints) {
+				const evTotalBefore = evTotal;
 				secondaryStat = null;
 				if (!evs['atk'] && moveCount['PhysicalAttack'] >= 1) {
 					secondaryStat = 'atk';
 				} else if (!evs['spa'] && moveCount['SpecialAttack'] >= 1) {
 					secondaryStat = 'spa';
-				} else if (stats.hp === 1 && !evs['def']) {
-					secondaryStat = 'def';
-				} else if (stats.def === stats.spd && !evs['spd']) {
+				} else if (!evs['hp'] && stats.hp > 1 && !hpSelected) {
+					secondaryStat = 'hp';
+				} else if (!evs['spd'] && stats.hp > 1) {
 					secondaryStat = 'spd';
-				} else if (!evs['spd']) {
-					secondaryStat = 'spd';
-				} else if (!evs['def']) {
+				} else if (!evs['def'] && stats.hp > 1) {
 					secondaryStat = 'def';
+				} else if (!evs['spe']) {
+					secondaryStat = 'spe';
 				}
-				if (secondaryStat) {
-					ev = remaining;
-					stat = this.getStat(secondaryStat, set, ev);
-					while (ev > 0 && stat === this.getStat(secondaryStat, set, ev - step)) ev -= step;
-					if (ev) evs[secondaryStat] = ev;
-					remaining -= ev;
+				if (!secondaryStat) break;
+
+				ev = Math.min(totalPoints - evTotal, maxPoints);
+				stat = this.getStat(secondaryStat, set, ev);
+				while (ev > 0 && stat === this.getStat(secondaryStat, set, ev - step)) ev -= step;
+				if (ev) evs[secondaryStat] = ev;
+				evTotal += ev;
+
+				if (secondaryStat === 'hp') {
+					hpSelected = true;
+					evTotal = ensureHPDivisibility(evTotal);
+					continue;
 				}
-				if (remaining && !evs['spe']) {
-					ev = remaining;
-					stat = this.getStat('spe', set, ev);
-					while (ev > 0 && stat === this.getStat('spe', set, ev - step)) ev -= step;
-					if (ev) evs['spe'] = ev;
-				}
+				if (evTotal === evTotalBefore) break;
 			}
 		}
 
