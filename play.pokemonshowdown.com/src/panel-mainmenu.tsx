@@ -733,6 +733,16 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 				<div class="mainmenu-footer">
 					<div class="bgcredit"></div>
 					<small>
+						<a href="//youtube.com/@smogon" target="_blank" title="YouTube">
+							<i class="fa fa-youtube-play fa-lg fa-fw" aria-hidden="true" id="youtube"></i></a> | {}
+						<a href="//x.com/SmogonU" target="_blank" title="Twitter">
+							<i class="fa fa-twitter fa-lg fa-fw" aria-hidden="true" id="twitter"></i></a> | {}
+						<a href="//facebook.com/SmogonU" target="_blank" title="Facebook">
+							<i class="fa fa-facebook-square fa-lg fa-fw" aria-hidden="true" id="facebook"></i></a> | {}
+						<a href="//twitch.tv/smogonu" target="_blank" title="Twitch">
+							<i class="fa fa-twitch fa-lg fa-fw" aria-hidden="true" id="twitch"></i></a> | {}
+						<a href="//discord.com/invite/smogon" target="_blank" title="Discord">
+							<i class="fa fa-gamepad fa-lg fa-fw" aria-hidden="true" id="discord"></i></a><br />
 						<a href={`//${Config.routes.dex}/`} target="_blank">Pok&eacute;dex</a> | {}
 						<a href={`//${Config.routes.replays}/`} target="_blank">Replays</a> | {}
 						<a href={`//${Config.routes.root}/rules`} target="_blank">Rules</a> | {}
