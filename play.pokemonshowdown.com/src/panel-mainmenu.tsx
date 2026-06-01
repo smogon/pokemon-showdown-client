@@ -714,45 +714,42 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		const onlineButton = ' button' + (PS.isOffline ? ' disabled' : '');
 		const tinyLayout = this.props.room.width < 620 ? ' tiny-layout' : '';
 		return <PSPanelWrapper room={this.props.room} onDragEnter={this.handleDragEnter}>
-			<div class="mainmenu-wrapper">
-				<div class={`mainmenu${tinyLayout}`}>
-					<div class="mainmenu-mini-windows">
-						{this.renderMiniRooms()}
-					</div>
-					<div class="mainmenu-left">
-						{this.renderGames()}
+			<div class={`mainmenu-mini-windows${tinyLayout}`}>
+				{this.renderMiniRooms()}
+			</div>
+			<div class={`mainmenu${tinyLayout}`}>
+				<div class="mainmenu-left">
+					{this.renderGames()}
 
-						{this.renderSearchButton()}
+					{this.renderSearchButton()}
 
-						<div class="menugroup">
-							<p><a class="mainmenu2 mainmenu button" href="teambuilder">Teambuilder</a></p>
-							<p><a class={"mainmenu3 mainmenu" + onlineButton} href="ladder">Ladder</a></p>
-							<p><a class={"mainmenu4 mainmenu" + onlineButton} href="view-tournaments-all">Tournaments</a></p>
-						</div>
+					<div class="menugroup">
+						<p><a class="mainmenu2 mainmenu button" href="teambuilder">Teambuilder</a></p>
+						<p><a class={"mainmenu3 mainmenu" + onlineButton} href="ladder">Ladder</a></p>
+						<p><a class={"mainmenu4 mainmenu" + onlineButton} href="view-tournaments-all">Tournaments</a></p>
+					</div>
 
-						<div class="menugroup">
-							<p><a class={"mainmenu4 mainmenu" + onlineButton} href="battles">Watch a battle</a></p>
-							<p><a class={"mainmenu5 mainmenu" + onlineButton} href="users">Find a user</a></p>
-							<p><a class={"mainmenu6 mainmenu" + onlineButton} href="view-friends-all">Friends</a></p>
-							<p><a class={"mainmenu7 mainmenu" + onlineButton} href="resources">Info & Resources</a></p>
-						</div>
+					<div class="menugroup">
+						<p><a class={"mainmenu4 mainmenu" + onlineButton} href="battles">Watch a battle</a></p>
+						<p><a class={"mainmenu5 mainmenu" + onlineButton} href="users">Find a user</a></p>
+						<p><a class={"mainmenu6 mainmenu" + onlineButton} href="view-friends-all">Friends</a></p>
+						<p><a class={"mainmenu7 mainmenu" + onlineButton} href="resources">Info & Resources</a></p>
 					</div>
-					<div class="mainmenu-right" style={{ display: PS.leftPanelWidth ? 'none' : 'block' }}>
-						<div class="menugroup">
-							<p><a class={"mainmenu1 mainmenu" + onlineButton} href="rooms">Chat rooms</a></p>
-							{PS.server.id !== 'showdown' && (
-								<p><a class={"mainmenu2 mainmenu" + onlineButton} href="lobby">Lobby chat</a></p>
-							)}
-						</div>
+				</div>
+				<div class="mainmenu-right" style={{ display: PS.leftPanelWidth ? 'none' : 'block' }}>
+					<div class="menugroup">
+						<p><a class={"mainmenu1 mainmenu" + onlineButton} href="rooms">Chat rooms</a></p>
+						{PS.server.id !== 'showdown' && (
+							<p><a class={"mainmenu2 mainmenu" + onlineButton} href="lobby">Lobby chat</a></p>
+						)}
 					</div>
-					<div style="clear:both"></div>
 				</div>
 				<div class="mainmenu-footer">
 					<div class="bgcredit">{this.renderBackgroundCredit()}</div>
 					<small>
 						<a href={`//${Config.routes.dex}/`} target="_blank">Pok&eacute;dex</a> | {}
 						<a href={`//${Config.routes.replays}/`} target="_blank">Replays</a> | {}
-						<a href="//smogon.com/forums/" target="_blank">Forum</a> | {}
+						<a href="//smogon.com/forums/" target="_blank">Forum</a><br />
 						<a href={`//${Config.routes.root}/rules`} target="_blank">Rules</a> | {}
 						<a href={`//${Config.routes.root}/credits`} target="_blank">Credits</a> | {}
 						<a href={`//${Config.routes.root}/privacy`} target="_blank">Privacy</a>

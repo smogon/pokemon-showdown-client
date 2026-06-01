@@ -699,20 +699,14 @@ p.or:after {
  * Main menu
  *********************************************************/
 
-.mainmenu-wrapper {
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	min-height: 100%;
-}
 .mainmenu {
-	max-width: 612px;
+	position: sticky;
+	top: 0;
+	min-height: 100%;
 }
 
 .mainmenu-left {
-	position: sticky;
-	top: 0;
-	padding: 25px 0 0 0;
+	padding: 25px 0 51px 0;
 	width: 300px;
 }
 .mainmenu-right {
@@ -722,13 +716,19 @@ p.or:after {
 	width: 300px;
 }
 .mainmenu-mini-windows {
-	float: right;
+	/* slightly overlaps with leftmenu but less than the margins */
+	position: absolute;
+	left: 295px;
+	top: 0;
 	width: 312px;
 	min-height: 2px;
-	padding: 25px 0 0 0;
+	padding: 25px 0 51px 0;
 }
 
 .mainmenu-footer {
+	position: absolute;
+	bottom: 0;
+	left: 0;
 	padding: 0 0 15px 20px;
 	color: #BBBBBB;
 	text-shadow: 0 0 3px black, 0 0 3px black, 0 0 3px black;
@@ -752,19 +752,31 @@ p.or:after {
 	color: #CCDDFF;
 }
 
-.tiny-layout .mainmenu-left, .tiny-layout .mainmenu-right, .tiny-layout .mainmenu-mini-windows {
+.mainmenu.tiny-layout, .mainmenu-mini-windows.tiny-layout {
 	position: static;
-	float: none;
 	left: 0;
 	top: 0;
 	width: auto;
 	min-height: auto;
 }
+.mainmenu-mini-windows.tiny-layout {
+	padding-bottom: 0;
+}
+.tiny-layout .mainmenu-left, .tiny-layout .mainmenu-right {
+	width: auto;
+}
+.tiny-layout .mainmenu-footer {
+	position: static;
+}
 
 @media (max-width:1087px) {
+	.mainmenu-left {
+		padding-bottom: 0;
+	}
 	.mainmenu-right {
 		position: static;
 		top: 0;
+		padding-bottom: 51px;
 	}
 }
 
