@@ -491,6 +491,14 @@ export const Dex = new class implements ModdedDex {
 						speciesId
 					];
 				if (!relumiData) return;
+				// Stats-only overrides must not create stub Pokedex entries that block
+				// inherited cosmetic-form synthesis (e.g. Furfrou trim variants).
+				if (
+					!relumiData.num && !relumiData.types && !relumiData.isCosmeticForme &&
+					relumiData.baseStats && !(speciesId in (window.BattlePokedex || {}))
+				) {
+					return;
+				}
 				if (!window.BattlePokedex) window.BattlePokedex = {};
 				if (
 					window.BattlePokedex[speciesId]?.exists !== false &&
@@ -934,6 +942,34 @@ export const Dex = new class implements ModdedDex {
 		let top = Math.floor(num / 12) * 30;
 		let left = (num % 12) * 40;
 		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?v21) no-repeat scroll -${left}px -${top}px${fainted}`;
+	}
+
+	/** Cosmetic form names for the teambuilder alt-form picker (base Dex, not modded). */
+	getAltFormPickerNames(species: Species): string[] {
+		const base = this.species.get(species.baseSpecies);
+		const onCosmeticForm = toID(species.name) !== toID(base.name);
+
+		if (onCosmeticForm) {
+			const names = [species.name];
+			const prefix = toID(species.name);
+			const overrideData = window.BattleTeambuilderTable?.gen8relumi?.overrideSpeciesData;
+			if (overrideData) {
+				for (const id in overrideData) {
+					const entry = overrideData[id];
+					if (entry?.isCosmeticForme && entry.name && toID(entry.baseSpecies) === prefix) {
+						names.push(entry.name);
+					}
+				}
+			}
+			// Nested variants (e.g. Alcremie cream + topping) or leaf formes with siblings on base.
+			if (names.length > 1) return names;
+			if (base.cosmeticFormes?.length) return [base.name, ...base.cosmeticFormes];
+			return [species.name];
+		}
+
+		const cosmeticFormes = base.cosmeticFormes;
+		if (cosmeticFormes?.length) return [base.name, ...cosmeticFormes];
+		return [base.name];
 	}
 
 	getTeambuilderSpriteData(pokemon: any, dex: ModdedDex = Dex): TeambuilderSpriteData {

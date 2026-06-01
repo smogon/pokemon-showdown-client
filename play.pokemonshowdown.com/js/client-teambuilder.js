@@ -3947,43 +3947,38 @@
 			this.chartIndex = data.index;
 			var dex = this.room.curTeam.dex;
 			var species = dex.species.get(this.curSet.species);
-			var baseid = toID(species.baseSpecies);
-			var forms = [baseid].concat(species.cosmeticFormes.map(toID));
+			// Resolve form list and sprites from base Dex so inherited cosmetic formes work in mods.
+			this.formNames = Dex.getAltFormPickerNames(species);
+			var curSpeciesId = toID(this.curSet.species);
 			var maxSpriteSize = 96;
 
 			var buf = '';
 			buf += '<p>Pick a variant or <button name="close" class="button">Cancel</button></p>';
 			buf += '<div class="formlist">';
 
-			var formCount = forms.length;
+			var formCount = this.formNames.length;
 			for (var i = 0; i < formCount; i++) {
-				var formid = forms[i].substring(baseid.length);
-				var form = (formid ? formid[0].toUpperCase() + formid.slice(1) : '');
-				// Use the species' own spriteid rather than reconstructing from baseid+formid,
-				// so cosmetic formes whose baseSpecies differs from the picker's baseid (e.g.
-				// Alcremie sweet variants whose baseSpecies is a cream form) get the right path.
-				var formSpecies = dex.species.get(forms[i]);
-				var spriteid = formSpecies.spriteid || (baseid + (form ? '-' + formid : ''));
-				var data = Dex.getTeambuilderSpriteData(spriteid, dex);
-				var spriteSize = data.spriteDir === 'sprites/dex' ? 120 : 96;
+				var formName = this.formNames[i];
+				var formSpecies = Dex.species.get(formName);
+				var spriteid = formSpecies.spriteid;
+				var spriteData = Dex.getTeambuilderSpriteData(spriteid, dex);
+				var spriteSize = spriteData.spriteDir === 'sprites/dex' ? 120 : 96;
 				maxSpriteSize = Math.max(maxSpriteSize, spriteSize);
 				var spriteDim = 'width: ' + spriteSize + 'px; height: ' + spriteSize + 'px;';
-				var resize = (data.h ? 'background-size:' + data.h + 'px;' : '');
-				buf += '<button name="setForm" value="' + form + '" style="';
-				buf += 'background-image: url(' + Dex.resourcePrefix + data.spriteDir + '/' + spriteid + '.png); ' + spriteDim + resize + '" class="option';
-				buf += (form === (species.forme || '') ? ' cur' : '') + '"></button>';
+				var resize = (spriteData.h ? 'background-size:' + spriteData.h + 'px;' : '');
+				buf += '<button name="setForm" value="' + i + '" style="';
+				buf += 'background-image: url(' + Dex.resourcePrefix + spriteData.spriteDir + '/' + spriteid + '.png); ' + spriteDim + resize + '" class="option';
+				buf += (toID(formName) === curSpeciesId ? ' cur' : '') + '"></button>';
 			}
 			buf += '<div style="clear:both"></div>';
 			buf += '</div>';
 
 			this.$el.html(buf).css({ 'max-width': (4 + maxSpriteSize) * 7 });
 		},
-		setForm: function (form) {
-			var species = Dex.species.get(this.curSet.species);
-			if (form && form !== species.form) {
-				this.curSet.species = Dex.species.get(species.baseSpecies + form).name;
-			} else if (!form) {
-				this.curSet.species = species.baseSpecies;
+		setForm: function (index) {
+			var formName = this.formNames[+index];
+			if (formName) {
+				this.curSet.species = Dex.species.get(formName).name;
 			}
 			this.close();
 			if (this.room.curSet) {
