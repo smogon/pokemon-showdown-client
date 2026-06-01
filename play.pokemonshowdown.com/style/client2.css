@@ -724,6 +724,10 @@ p.or:after {
 	min-height: 2px;
 	padding: 25px 0 51px 0;
 }
+.mini-window {
+	position: relative;
+	z-index: 1;
+}
 
 .mainmenu-footer {
 	position: absolute;
