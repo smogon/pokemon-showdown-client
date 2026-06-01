@@ -157,6 +157,18 @@
 	font-size: 7pt;
 	font-style: normal;
 }
+.dexlist .bstcol.relumi-change-up em {
+	color: #1f7a34;
+}
+.dexlist .bstcol.relumi-change-down em {
+	color: #a3312f;
+}
+.dark .dexlist .bstcol.relumi-change-up em {
+	color: #5dd981;
+}
+.dark .dexlist .bstcol.relumi-change-down em {
+	color: #ff8d8d;
+}
 .dexlist .stattitlecol {
 	padding-top: 2px;
 	width: 20px;

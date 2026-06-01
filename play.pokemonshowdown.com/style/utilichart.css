@@ -161,6 +161,18 @@
 	font-size: 7pt;
 	font-style: normal;
 }
+.utilichart .bstcol.relumi-change-up em {
+	color: #1f7a34;
+}
+.utilichart .bstcol.relumi-change-down em {
+	color: #a3312f;
+}
+.dark .utilichart .bstcol.relumi-change-up em {
+	color: #5dd981;
+}
+.dark .utilichart .bstcol.relumi-change-down em {
+	color: #ff8d8d;
+}
 .utilichart .stattitlecol {
 	padding-top: 2px;
 	width: 20px;

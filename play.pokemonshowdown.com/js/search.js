@@ -315,15 +315,6 @@
 		if (!vanillaMove || !vanillaMove.exists) return null;
 		return vanillaMove;
 	};
-	Search.prototype.getVanillaAbilityData = function (abilityId) {
-		var relumiTable = this.getRelumiOverrides();
-		if (relumiTable && relumiTable.vanillaAbilityData && relumiTable.vanillaAbilityData[abilityId]) {
-			return relumiTable.vanillaAbilityData[abilityId];
-		}
-		var vanillaAbility = Dex.forGen(9).abilities.get(abilityId);
-		if (!vanillaAbility || !vanillaAbility.exists) return null;
-		return vanillaAbility;
-	};
 	Search.prototype.shouldHighlightRelumiChanges = function () {
 		if (Dex.prefs('relumiHighlightBalanceChanges') === false) return false;
 
@@ -403,6 +394,29 @@
 
 		return value > vanillaStat ? ' relumi-change-up' : ' relumi-change-down';
 	};
+	Search.prototype.getBSTClass = function (speciesId, currentBST) {
+		if (!this.shouldHighlightRelumiChanges()) return '';
+
+		var relumiTable = this.getRelumiOverrides();
+		if (!relumiTable || !relumiTable.overrideSpeciesData) return '';
+
+		var diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
+		var relumiSpeciesDiff = relumiTable.overrideSpeciesData[diffSourceId];
+		if (!relumiSpeciesDiff || !relumiSpeciesDiff.baseStats) return '';
+
+		var vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
+		var vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+		if (!vanillaSpecies || !vanillaSpecies.baseStats) return '';
+
+		var vanillaBST = 0;
+		for (var stat in vanillaSpecies.baseStats) {
+			vanillaBST += vanillaSpecies.baseStats[stat];
+		}
+
+		if (typeof vanillaBST !== 'number' || vanillaBST === currentBST) return '';
+
+		return currentBST > vanillaBST ? ' relumi-change-up' : ' relumi-change-down';
+	};
 	Search.prototype.isNewRelumiAbility = function (speciesId, abilityName) {
 		if (!abilityName || !this.shouldHighlightRelumiChanges()) return false;
 
@@ -449,37 +463,15 @@
 
 		return value > vanillaValue ? ' relumi-change-up' : ' relumi-change-down';
 	};
-	// Returns true if the move's shortDesc differs from vanilla in Relumi.
-	Search.prototype.hasRelumiMoveDescChange = function (moveId, currentDesc) {
-		if (!this.shouldHighlightRelumiChanges()) return false;
-
-		var relumiTable = this.getRelumiOverrides();
-		if (!relumiTable || !relumiTable.overrideMoveData) return false;
-
-		var relumiMoveDiff = relumiTable.relumiMoveOverrides ? relumiTable.relumiMoveOverrides[moveId] : null;
-		if (!relumiMoveDiff || typeof relumiMoveDiff.shortDesc !== 'string') return false;
-
-		var vanillaMove = this.getVanillaMoveData(moveId);
-		if (!vanillaMove) return false;
-
-		var vanillaDesc = vanillaMove.shortDesc || '';
-		return vanillaDesc !== (currentDesc || '');
-	};
-	// Returns true if the ability's shortDesc differs from vanilla in Relumi.
-	Search.prototype.hasRelumiAbilityDescChange = function (abilityId, currentDesc) {
-		if (!this.shouldHighlightRelumiChanges()) return false;
-
-		var relumiTable = this.getRelumiOverrides();
-		if (!relumiTable || !relumiTable.overrideAbilityData) return false;
-
-		var relumiAbilityDiff = relumiTable.relumiAbilityOverrides ? relumiTable.relumiAbilityOverrides[abilityId] : null;
-		if (!relumiAbilityDiff || typeof relumiAbilityDiff.shortDesc !== 'string') return false;
-
-		var vanillaAbility = this.getVanillaAbilityData(abilityId);
-		if (!vanillaAbility) return false;
-
-		var vanillaDesc = vanillaAbility.shortDesc || '';
-		return vanillaDesc !== (currentDesc || '');
+	// Parse [buff] and [nerf] tags in description text
+	Search.prototype.parseDescriptionTags = function (desc) {
+		if (!desc) return '';
+		var parsed = desc;
+		// Replace [buff]text[/buff] with green highlighting
+		parsed = parsed.replace(/\[buff\](.*?)\[\/buff\]/g, '<span class="relumi-change-up">$1</span>');
+		// Replace [nerf]text[/nerf] with red highlighting
+		parsed = parsed.replace(/\[nerf\](.*?)\[\/nerf\]/g, '<span class="relumi-change-down">$1</span>');
+		return parsed;
 	};
 	Search.prototype.renderPokemonRow = function (pokemon, matchStart, matchLength, errorMessage, attrs) {
 		if (!attrs) attrs = '';
@@ -593,7 +585,8 @@
 			if (i === 'spd' && gen === 1) continue;
 			bst += stats[i];
 		}
-		buf += '<span class="col bstcol"><em>BST<br />' + bst + '</em></span> ';
+		var bstClass = this.getBSTClass(id, bst);
+		buf += '<span class="col bstcol' + bstClass + '"><em>BST<br />' + bst + '</em></span> ';
 
 		buf += '</a></li>';
 
@@ -720,12 +713,7 @@
 			return buf;
 		}
 
-		buf += '<span class="col abilitydesccol">';
-		var abilityDesc = BattleLog.escapeHTML(ability.shortDesc);
-		if (this.hasRelumiAbilityDescChange(id, ability.shortDesc)) {
-			abilityDesc = '<span class="relumi-change-up">' + abilityDesc + '</span>';
-		}
-		buf += abilityDesc + '</span> ';
+		buf += '<span class="col abilitydesccol">' + this.parseDescriptionTags(BattleLog.escapeHTML(ability.shortDesc)) + '</span> ';
 
 		buf += '</a></li>';
 
@@ -784,11 +772,7 @@
 		buf += '<span class="col pplabelcol"><em>PP</em><br />' + pp + '</span> ';
 
 		// desc
-		var moveDesc = BattleLog.escapeHTML(move.shortDesc);
-		if (this.hasRelumiMoveDescChange(id, move.shortDesc)) {
-			moveDesc = '<span class="relumi-change-up">' + moveDesc + '</span>';
-		}
-		buf += '<span class="col movedesccol">' + moveDesc + '</span> ';
+		buf += '<span class="col movedesccol">' + this.parseDescriptionTags(BattleLog.escapeHTML(move.shortDesc)) + '</span> ';
 
 		buf += '</a></li>';
 
@@ -831,11 +815,7 @@
 		buf += '<span class="col pplabelcol"><em>PP</em><br />' + pp + '</span> ';
 
 		// desc
-		var moveInnerDesc = BattleLog.escapeHTML(move.shortDesc || move.desc);
-		if (this.hasRelumiMoveDescChange(toID(move.name), move.shortDesc || move.desc)) {
-			moveInnerDesc = '<span class="relumi-change-up">' + moveInnerDesc + '</span>';
-		}
-		buf += '<span class="col movedesccol">' + moveInnerDesc + '</span> ';
+		buf += '<span class="col movedesccol">' + this.parseDescriptionTags(BattleLog.escapeHTML(move.shortDesc || move.desc)) + '</span> ';
 
 		buf += '</a>';
 
@@ -878,11 +858,7 @@
 		buf += '<span class="col pplabelcol"><em>PP</em><br />' + pp + '</span> ';
 
 		// desc
-		var taggedMoveDesc = BattleLog.escapeHTML(move.shortDesc || move.desc);
-		if (this.hasRelumiMoveDescChange(toID(move.name), move.shortDesc || move.desc)) {
-			taggedMoveDesc = '<span class="relumi-change-up">' + taggedMoveDesc + '</span>';
-		}
-		buf += '<span class="col movedesccol">' + taggedMoveDesc + '</span> ';
+		buf += '<span class="col movedesccol">' + this.parseDescriptionTags(BattleLog.escapeHTML(move.shortDesc || move.desc)) + '</span> ';
 
 		buf += '</a></li>';
 
