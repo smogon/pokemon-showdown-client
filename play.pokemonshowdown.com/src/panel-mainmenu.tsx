@@ -7,6 +7,7 @@
 
 import preact from "../js/lib/preact";
 import { PSLoginServer } from "./client-connection";
+import { PSBackground } from "./client-core";
 import { Config, PS, PSRoom, type RoomID, type RoomOptions, type Team } from "./client-main";
 import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { BattlesRoom } from "./panel-battle";
@@ -537,6 +538,10 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	static readonly routes = [''];
 	static readonly Model = MainMenuRoom;
 	static readonly icon = <i class="fa fa-home" aria-hidden></i>;
+	override componentDidMount() {
+		super.componentDidMount();
+		this.subscribeTo(PSBackground);
+	}
 	override focus() {
 		this.base?.querySelector<HTMLButtonElement>('.formatselect')?.focus();
 	}
@@ -696,6 +701,15 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			)}
 		</TeamForm>;
 	}
+	renderBackgroundCredit() {
+		const attrib = PSBackground.attrib;
+		if (!attrib) return null;
+		return (
+			<small>
+				<a href={attrib.url} target="_blank" class="subtle">"{attrib.title}" <small>background by {attrib.artist}</small></a>
+			</small>
+		);
+	}
 	override render() {
 		const onlineButton = ' button' + (PS.isOffline ? ' disabled' : '');
 		const tinyLayout = this.props.room.width < 620 ? ' tiny-layout' : '';
@@ -731,13 +745,14 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					</div>
 				</div>
 				<div class="mainmenu-footer">
-					<div class="bgcredit"></div>
+					<div class="bgcredit">{this.renderBackgroundCredit()}</div>
 					<small>
 						<a href={`//${Config.routes.dex}/`} target="_blank">Pok&eacute;dex</a> | {}
 						<a href={`//${Config.routes.replays}/`} target="_blank">Replays</a> | {}
+						<a href="//smogon.com/forums/" target="_blank">Forum</a> | {}
 						<a href={`//${Config.routes.root}/rules`} target="_blank">Rules</a> | {}
 						<a href={`//${Config.routes.root}/credits`} target="_blank">Credits</a> | {}
-						<a href="//smogon.com/forums/" target="_blank">Forum</a>
+						<a href={`//${Config.routes.root}/privacy`} target="_blank">Privacy</a>
 					</small>
 				</div>
 			</div>

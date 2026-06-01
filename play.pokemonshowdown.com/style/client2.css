@@ -723,6 +723,9 @@ p.or:after {
 	width: 312px;
 	min-height: 2px;
 	padding: 25px 0 51px 0;
+}
+.mini-window {
+	position: relative;
 	z-index: 1;
 }
 
