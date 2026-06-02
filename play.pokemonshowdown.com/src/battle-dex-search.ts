@@ -1552,6 +1552,12 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		if (itemid === 'blastoisinite') abilityid = 'megalauncher' as ID;
 		if (itemid === 'aerodactylite') abilityid = 'toughclaws' as ID;
 		if (itemid === 'glalitite') abilityid = 'refrigerate' as ID;
+		if (itemid === 'feraligite') abilityid = 'dragonize' as ID;
+		if (['gardevoirite', 'altarianite'].includes(itemid)) abilityid = 'pixilate' as ID;
+		if (['pinsirite', 'salamenceite'].includes(itemid)) abilityid = 'aerilate' as ID;
+		if (itemid === 'banettite') abilityid = 'prankster' as ID;
+
+		const TYPE_CHANGING_ABILITIES = ['aerilate', 'dragonize', 'galvanize', 'normalize', 'pixilate', 'refrigerate'] as ID[];
 
 		switch (id) {
 		case 'fakeout': case 'flamecharge': case 'nuzzle': case 'poweruppunch': case 'trailblaze':
@@ -1560,6 +1566,12 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			return ['desolateland', 'drought', 'chlorophyll', 'orichalcumpulse'].includes(abilityid) || itemid === 'powerherb';
 		case 'dynamicpunch': case 'grasswhistle': case 'inferno': case 'sing':
 			return abilityid === 'noguard';
+		case 'raindance': case 'sunnyday':
+			return dex.gen < 4 || (this.isDoubles && abilityid === 'prankster');
+		case 'electricterrain': case 'grassyterrain': case 'psychicterrain':
+			return this.isDoubles && abilityid === 'prankster';
+		case 'charm': case 'cottonspore': case 'eerieimpulse': case 'faketears': case 'featherdance': case 'metalsound': case 'scaryface': case 'screech':
+			return this.isDoubles && abilityid === 'prankster';
 		case 'heatcrash': case 'heavyslam':
 			return species.weightkg >= (species.evos ? 75 : 130);
 		case 'aerialace':
@@ -1579,12 +1591,14 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				['iceface', 'unburden'].includes(abilityid);
 		case 'bulletseed':
 			return ['skilllink', 'technician'].includes(abilityid);
+		case 'celebrate':
+			return itemid === 'normaliumz';
 		case 'chillingwater':
 			return !moves.includes('scald');
 		case 'counter': case 'mirrorcoat':
 			return species.baseStats.hp >= 65;
 		case 'dazzlinggleam':
-			return !moves.includes('alluringvoice') || this.formatType?.includes('doubles');
+			return !moves.includes('alluringvoice') || this.isDoubles;
 		case 'darkvoid':
 			return dex.gen < 7;
 		case 'dualwingbeat':
@@ -1592,9 +1606,11 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		case 'electroshot':
 			return true;
 		case 'feint':
-			return abilityid === 'refrigerate';
+			return TYPE_CHANGING_ABILITIES.includes(abilityid);
 		case 'futuresight':
-			return dex.gen > 5;
+			return dex.gen > 5 && !this.isDoubles;
+		case 'gigaimpact':
+			return TYPE_CHANGING_ABILITIES.includes(abilityid);
 		case 'grassyglide':
 			return abilityid === 'grassysurge';
 		case 'gyroball':
@@ -1625,6 +1641,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			return species.baseSpecies === 'Unown';
 		case 'hyperspacefury':
 			return species.id === 'hoopaunbound';
+		case 'hyperbeam':
+			return TYPE_CHANGING_ABILITIES.includes(abilityid);
 		case 'hypnosis':
 			return (dex.gen < 4 && !moves.includes('sleeppowder')) || (dex.gen > 6 && abilityid === 'baddreams');
 		case 'icepunch':
@@ -1648,7 +1666,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		case 'jumpkick':
 			return !moves.includes('highjumpkick') && !moves.includes('axekick');
 		case 'lastresort':
-			return set && set.moves.length < 3;
+			return set && set.moves.length < 3 || itemid === 'eeviumz';
 		case 'leafblade':
 			return true;
 		case 'leechlife':
@@ -1673,8 +1691,10 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			return (!moves.includes('poltergeist') && !moves.includes('shadowclaw')) || this.isDoubles;
 		case 'poisonfang':
 			return species.types.includes('Poison') && !moves.includes('gunkshot') && !moves.includes('poisonjab');
-		case 'raindance':
-			return dex.gen < 4;
+		case 'pollenpuff':
+			return !moves.includes('bugbuzz') || this.isDoubles;
+		case 'quash':
+			return this.isDoubles && abilityid === 'prankster';
 		case 'relicsong':
 			return species.id === 'meloetta';
 		case 'refresh':
@@ -1703,8 +1723,6 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			return (!moves.includes('earthquake') && !moves.includes('drillrun')) || this.isDoubles;
 		case 'stunspore':
 			return !moves.includes('thunderwave');
-		case 'sunnyday':
-			return dex.gen < 4;
 		case 'technoblast':
 			return dex.gen > 5 && itemid.endsWith('drive') || itemid === 'dousedrive';
 		case 'teleport':
@@ -1724,6 +1742,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			return species.baseStats.spe <= 100;
 		case 'wildcharge':
 			return !moves.includes('supercellslam');
+		case 'xscissor':
+			return abilityid === 'sharpness' || dex.gen < 7 || (!moves.includes('leechlife') && !moves.includes('lunge'));
 		case 'zapcannon':
 			return abilityid === 'noguard' || (dex.gen < 4 && !moves.includes('thunderwave'));
 		}
@@ -1763,10 +1783,10 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		'accelerock', 'acrobatics', 'aquacutter', 'avalanche', 'barbbarrage', 'bonemerang', 'bouncybubble', 'bulletpunch', 'buzzybuzz', 'ceaselessedge', 'circlethrow', 'clearsmog', 'doubleironbash', 'dragondarts', 'dragontail', 'drainingkiss', 'endeavor', 'facade', 'firefang', 'flipturn', 'flowertrick', 'freezedry', 'frustration', 'geargrind', 'gigadrain', 'grassknot', 'gyroball', 'icefang', 'iceshard', 'iciclespear', 'infernalparade', 'knockoff', 'lastrespects', 'lowkick', 'machpunch', 'mortalspin', 'mysticalpower', 'naturesmadness', 'nightshade', 'nuzzle', 'pikapapow', 'populationbomb', 'psychocut', 'psyshieldbash', 'pursuit', 'quickattack', 'ragefist', 'rapidspin', 'return', 'rockblast', 'ruination', 'saltcure', 'scorchingsands', 'seismictoss', 'shadowclaw', 'shadowsneak', 'sizzlyslide', 'stoneaxe', 'storedpower', 'stormthrow', 'suckerpunch', 'superfang', 'surgingstrikes', 'tachyoncutter', 'tailslap', 'thunderclap', 'tripleaxel', 'tripledive', 'twinbeam', 'uturn', 'vacuumwave', 'veeveevolley', 'voltswitch', 'watershuriken', 'weatherball',
 	] as ID[] as readonly ID[];
 	static readonly BAD_STRONG_MOVES = [
-		'belch', 'burnup', 'crushclaw', 'dragonrush', 'dreameater', 'eggbomb', 'firepledge', 'flyingpress', 'futuresight', 'grasspledge', 'hyperbeam', 'hyperfang', 'hyperspacehole', 'jawlock', 'landswrath', 'megakick', 'megapunch', 'mistyexplosion', 'muddywater', 'nightdaze', 'pollenpuff', 'rockclimb', 'selfdestruct', 'shelltrap', 'skyuppercut', 'slam', 'strength', 'submission', 'synchronoise', 'takedown', 'thrash', 'uproar', 'waterpledge',
+		'belch', 'burnup', 'crushclaw', 'dragonrush', 'dreameater', 'eggbomb', 'firepledge', 'flyingpress', 'futuresight', 'grasspledge', 'hyperbeam', 'hyperfang', 'hyperspacehole', 'jawlock', 'landswrath', 'megakick', 'megapunch', 'mistyexplosion', 'muddywater', 'nightdaze', 'rockclimb', 'selfdestruct', 'shelltrap', 'skyuppercut', 'slam', 'strength', 'submission', 'synchronoise', 'takedown', 'thrash', 'uproar', 'waterpledge',
 	] as ID[] as readonly ID[];
 	static readonly GOOD_DOUBLES_MOVES = [
-		'allyswitch', 'bulldoze', 'coaching', 'electroweb', 'faketears', 'fling', 'followme', 'healpulse', 'helpinghand', 'junglehealing', 'lifedew', 'lunarblessing', 'muddywater', 'pollenpuff', 'psychup', 'ragepowder', 'safeguard', 'skillswap', 'snipeshot', 'wideguard', 'decorate', 'snarl',
+		'afteryou', 'allyswitch', 'beatup', 'breakingswipe', 'bulldoze', 'coaching', 'decorate', 'electroweb', 'entrainment', 'firepledge', 'fling', 'followme', 'grasspledge', 'healpulse', 'helpinghand', 'imprison', 'junglehealing', 'lifedew', 'lunarblessing', 'muddywater', 'psychup', 'ragepowder', 'safeguard', 'skillswap', 'snarl', 'snipeshot', 'stringshot', 'strugglebug', 'waterpledge', 'wideguard',
 	] as ID[] as readonly ID[];
 	getBaseResults() {
 		if (!this.species) return this.getDefaultResults();
