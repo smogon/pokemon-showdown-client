@@ -463,6 +463,73 @@
 
 		return value > vanillaValue ? ' relumi-change-up' : ' relumi-change-down';
 	};
+	// Learnset highlighting
+	Search.prototype.isNewRelumiLearnset = function (moveId) {
+		if (!this.shouldHighlightRelumiChanges()) return false;
+
+		var typedSearch = this.engine && this.engine.typedSearch;
+		if (!typedSearch || !typedSearch.species) return false;
+
+		var currentSpeciesId = typedSearch.species;
+		var relumiTable = this.getRelumiOverrides();
+		if (!relumiTable || !relumiTable.learnsets) return false;
+
+		var relumiLearnsets = relumiTable.learnsets;
+		var vanillaLearnsets = window.BattleTeambuilderTable && window.BattleTeambuilderTable.learnsets;
+		if (!vanillaLearnsets) return false;
+
+		// Walk through the learnset chain (pre-evolutions, forms, etc.)
+		// to check if the move is learned anywhere in the chain
+		var learnsInRelumi = this.canLearnInChain(currentSpeciesId, moveId, relumiLearnsets);
+		var learnsInVanilla = this.canLearnInChain(currentSpeciesId, moveId, vanillaLearnsets);
+
+		return learnsInRelumi && !learnsInVanilla;
+	};
+	// Helper function to check if a species can learn a move in its learnset chain
+	Search.prototype.canLearnInChain = function (speciesId, moveId, learnsets) {
+		var learnsetid = this.getFirstLearnsetId(speciesId, learnsets);
+		while (learnsetid) {
+			var learnset = learnsets[learnsetid];
+			if (learnset && moveId in learnset) {
+				return true;
+			}
+			learnsetid = this.getNextLearnsetId(learnsetid, speciesId, learnsets);
+		}
+		return false;
+	};
+	// Get the first learnset ID for a species (handles base species, battle-only forms, etc.)
+	Search.prototype.getFirstLearnsetId = function (speciesId, learnsets) {
+		if (speciesId in learnsets) return speciesId;
+		var species = this.engine.dex.species.get(speciesId);
+		if (!species || !species.exists) return '';
+
+		var baseLearnsetid = toID(species.baseSpecies);
+		if (typeof species.battleOnly === 'string' && species.battleOnly !== species.baseSpecies) {
+			baseLearnsetid = toID(species.battleOnly);
+		}
+		if (baseLearnsetid in learnsets) return baseLearnsetid;
+		return '';
+	};
+	// Get the next learnset ID in the chain (pre-evolutions, forms, etc.)
+	Search.prototype.getNextLearnsetId = function (learnsetid, speciesId, learnsets) {
+		var lsetSpecies = this.engine.dex.species.get(learnsetid);
+		if (!lsetSpecies || !lsetSpecies.exists) return '';
+
+		// Special cases for specific forms
+		if (learnsetid === 'lycanrocdusk' || (speciesId === 'rockruff' && learnsetid === 'rockruff')) {
+			return 'rockruffdusk';
+		}
+		if (lsetSpecies.id === 'gastrodoneast') return 'gastrodon';
+		if (lsetSpecies.id === 'pumpkaboosuper') return 'pumpkaboo';
+		if (lsetSpecies.id === 'sinisteaantique') return 'sinistea';
+		if (lsetSpecies.id === 'tatsugiristretchy') return 'tatsugiri';
+		if (lsetSpecies.id === 'blastoiseclone') return 'blastoise';
+
+		var next = lsetSpecies.battleOnly || lsetSpecies.changesFrom || lsetSpecies.prevo;
+		if (next) return toID(next);
+
+		return '';
+	};
 	// Parse [buff] and [nerf] tags in description text
 	Search.prototype.parseDescriptionTags = function (desc) {
 		if (!desc) return '';
@@ -744,7 +811,9 @@
 				name += '<small>' + move.name.substr(tagStart) + '</small>';
 			}
 		}
-		buf += '<span class="col movenamecol">' + name + '</span> ';
+		var isNewLearnset = this.isNewRelumiLearnset(id);
+		var moveNameClass = isNewLearnset ? ' relumi-change-up' : '';
+		buf += '<span class="col movenamecol' + moveNameClass + '">' + name + '</span> ';
 
 		// error
 		if (errorMessage) {
