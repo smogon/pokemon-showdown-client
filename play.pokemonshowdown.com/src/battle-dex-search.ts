@@ -1551,19 +1551,41 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		if (itemid === 'pidgeotite') abilityid = 'noguard' as ID;
 		if (itemid === 'blastoisinite') abilityid = 'megalauncher' as ID;
 		if (itemid === 'aerodactylite') abilityid = 'toughclaws' as ID;
+		if (itemid === 'banettite') abilityid = 'prankster' as ID;
+
 		if (itemid === 'glalitite') abilityid = 'refrigerate' as ID;
 		if (itemid === 'feraligite') abilityid = 'dragonize' as ID;
 		if (['gardevoirite', 'altarianite'].includes(itemid)) abilityid = 'pixilate' as ID;
 		if (['pinsirite', 'salamenceite'].includes(itemid)) abilityid = 'aerilate' as ID;
-		if (itemid === 'banettite') abilityid = 'prankster' as ID;
 
+		if (itemid === 'charizarditey') abilityid = 'drought' as ID;
+		if (itemid === 'houndoominite') abilityid = 'solarpower' as ID;
+		if (itemid === 'meganiumite') abilityid = 'megasol' as ID;
+		if (itemid === 'redorb') abilityid = 'desolateland' as ID;
+
+		if (itemid === 'swampertite') abilityid = 'swiftswim' as ID;
+		if (itemid === 'blueorb') abilityid = 'primordialsea' as ID;
+
+		if (itemid === 'tyranitarite') abilityid = 'sandstream' as ID;
+		if (['steelixite', 'garchompite'].includes(itemid)) abilityid = 'sandforce' as ID;
+
+		if (['abomasite', 'frosslassite'].includes(itemid)) abilityid = 'snowwarning' as ID;
+
+		const SUN_RELATED_ABILITIES = ['chlorophyll', 'desolateland', 'drought', 'megasol', 'orichalcumpulse', 'solarpower'] as ID[];
+		const RAIN_RELATED_ABILITIES = ['drizzle', 'dryskin', 'primordialsea', 'raindish', 'swiftswim'] as ID[];
+		const SAND_RELATED_ABILITIES = ['sandforce', 'sandrush', 'sandspit', 'sandstream', 'sandveil'] as ID[];
+		const SNOW_RELATED_ABILITIES = ['icebody', 'slushrush', 'snowcloak', 'snowwarning'] as ID[];
 		const TYPE_CHANGING_ABILITIES = ['aerilate', 'dragonize', 'galvanize', 'normalize', 'pixilate', 'refrigerate'] as ID[];
 
 		switch (id) {
 		case 'fakeout': case 'flamecharge': case 'nuzzle': case 'poweruppunch': case 'trailblaze':
 			return abilityid !== 'sheerforce';
 		case 'solarbeam': case 'solarblade':
-			return ['desolateland', 'drought', 'chlorophyll', 'orichalcumpulse'].includes(abilityid) || itemid === 'powerherb';
+			return SUN_RELATED_ABILITIES.includes(abilityid) || itemid === 'powerherb';
+		case 'hurricane': case 'thunder':
+			return !SUN_RELATED_ABILITIES.includes(abilityid);
+		case 'moonlight': case 'morningsun': case 'synthesis':
+			return !(RAIN_RELATED_ABILITIES.includes(abilityid) || SAND_RELATED_ABILITIES.includes(abilityid) || SNOW_RELATED_ABILITIES.includes(abilityid));
 		case 'dynamicpunch': case 'grasswhistle': case 'inferno': case 'sing':
 			return abilityid === 'noguard';
 		case 'raindance': case 'sunnyday':
@@ -1574,10 +1596,13 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			return this.isDoubles && abilityid === 'prankster';
 		case 'heatcrash': case 'heavyslam':
 			return species.weightkg >= (species.evos ? 75 : 130);
+
 		case 'aerialace':
 			return ['technician', 'toughclaws'].includes(abilityid) && !moves.includes('bravebird');
 		case 'ancientpower':
 			return ['serenegrace', 'technician'].includes(abilityid) || !moves.includes('powergem');
+		case 'auroraveil':
+			return SNOW_RELATED_ABILITIES.includes(abilityid)
 		case 'aquajet':
 			return !moves.includes('jetpunch');
 		case 'aurawheel':
@@ -1604,7 +1629,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		case 'dualwingbeat':
 			return abilityid === 'technician' || !moves.includes('drillpeck');
 		case 'electroshot':
-			return true;
+			return RAIN_RELATED_ABILITIES.includes(abilityid) || species.id === 'archaludon';
 		case 'feint':
 			return TYPE_CHANGING_ABILITIES.includes(abilityid);
 		case 'futuresight':
@@ -1613,6 +1638,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			return TYPE_CHANGING_ABILITIES.includes(abilityid);
 		case 'grassyglide':
 			return abilityid === 'grassysurge';
+		case 'growth':
+			return SUN_RELATED_ABILITIES.includes(abilityid);
 		case 'gyroball':
 			return species.baseStats.spe <= 60;
 		case 'headbutt':
