@@ -1578,6 +1578,12 @@ export class BattleTooltips {
 		if (!serverPokemon || isTransformed) {
 			if (!clientPokemon) throw new Error('Must pass either clientPokemon or serverPokemon');
 			let { min, ev0, ev84, ev252, max } = this.getSpeedRange(clientPokemon);
+			if (this.battle.gen < 3) {
+				if (this.battle.tier.includes('Random')) {
+					return `<p><small>Spe</small> ${max} <small>(before stat stage changes)</small></p>`;
+				}
+				return `<p><small>Spe</small> ${min} to ${max} <small>(before stat stage changes)</small></p>`;
+			}
 			if (this.battle.tier.includes('Random')) {
 				return `<p><small>Spe</small> ${min} or ${ev84} <small>(before external modifiers)</small></p>`;
 			} else if (this.battle.tier.includes("Let's Go")) {
@@ -1724,8 +1730,14 @@ export class BattleTooltips {
 			ev84 = tr(baseSpe + 13 + 20);
 			ev252 = tr(baseSpe + 32 + 20);
 			max = tr(maxNature * (baseSpe + 32 + 20));
+		} else if (gen < 3) {
+			max = tr((2 * baseSpe + maxIv + 63) * level / 100 + 5);
+			ev252 = max;
+			ev84 = 0;
+			ev0 = tr((2 * baseSpe + maxIv) * level / 100 + 5);
+			min = isCGT ? max : tr(2 * baseSpe * level / 100 + 5);
 		} else {
-			let maxIvEvOffset = maxIv + ((isRandomBattle && gen >= 3) ? 21 : 63);
+			let maxIvEvOffset = maxIv + (isRandomBattle ? 21 : 63);
 			max = tr(tr((2 * baseSpe + maxIvEvOffset) * level / 100 + 5) * maxNature);
 			ev252 = tr(tr((2 * baseSpe + maxIvEvOffset) * level / 100 + 5));
 			ev84 = tr(tr((2 * baseSpe + 31 + 21) * level / 100 + 5));
@@ -1977,6 +1989,7 @@ export class BattleTooltips {
 			return 1;
 		}
 		const hardcoreMode = this.battle.hardcoreMode;
+		const inverse = this.battle.rules['Inverse Mod'];
 		const targetTypes = target.getTypeList();
 		const sourceAbility = source.effectiveAbility();
 		// Mold Breaker doesn't ignore _everything_, but it sure ignores everything that affects effectiveness
@@ -2042,7 +2055,15 @@ export class BattleTooltips {
 					factor = 1;
 					break;
 				}
-				factor = 0;
+				// Inverse replaces immunities with weaknesses. This has to
+				// be coded here, else it won't calculate secondary type's
+				// effectiveness. It sets a resistance to be consistent with
+				// the inversion done at the end.
+				if (inverse) {
+					factor *= 0.5;
+				} else {
+					factor = 0;
+				}
 			} else if (move.id === 'freezedry' && targetType === 'Water') {
 				factor *= 2;
 			} else {
@@ -2107,11 +2128,20 @@ export class BattleTooltips {
 			return factor * otherFactor === 0 ? 0 : 1;
 		}
 		if (hardcoreMode && dex.gen <= 9) {
-			if (factor > 2) return 2;
-			if (factor < 0.5) return 0.5;
+			if (factor > 2) factor = 2;
+			if (factor < 0.5) factor = 0.5;
+			if (inverse && dex.gen >= 7) return 1 / factor;
 			return factor;
 		}
-		if (hardcoreMode) return factor;
+		if (hardcoreMode) {
+			if (inverse && dex.gen >= 7) return 1 / factor;
+			return factor;
+		}
+
+		// Inverse Mod reverses effectiveness
+		if (inverse) {
+			return 1 / (factor * otherFactor);
+		}
 		return factor * otherFactor;
 	}
 	getMoveTypeText(move: Dex.Move, value: ModifiableValue, forMaxMove?: boolean | Dex.Move) {
@@ -3358,7 +3388,7 @@ export class BattleStatGuesser {
 			if (!moveCount['PhysicalAttack']) evs.atk = 0;
 			if (!moveCount['SpecialAttack']) evs.spa = 0;
 			if (hasMove['gyroball'] || hasMove['trickroom']) evs.spe = 0;
-		} else if (!this.supportsEVs) {
+		} else if (!this.supportsEVs && !this.useStatPoints) {
 			// Let's Go, AVs disabled
 			// no change
 		} else if (this.ignoreEVLimits) {
@@ -3396,6 +3426,24 @@ export class BattleStatGuesser {
 			evs[secondaryStat] = ev;
 			evTotal += ev;
 
+			if (this.supportsEVs) {
+				if (species.id === 'tentacruel') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 16, evTotal);
+				} else if (species.id === 'skarmory') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 24, evTotal);
+				} else if (species.id === 'jirachi') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 32, evTotal);
+				} else if (species.id === 'celebi') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 36, evTotal);
+				} else if (species.id === 'volcarona') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 52, evTotal);
+				} else if (species.id === 'gliscor') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 72, evTotal);
+				} else if (species.id === 'dragonite' && evs['hp']) {
+					evTotal = this.ensureMaxEVs(evs, 'spe', 220, evTotal);
+				}
+			}
+
 			let SRweaknesses = ['Fire', 'Flying', 'Bug', 'Ice'];
 			let SRresistances = ['Ground', 'Steel', 'Fighting'];
 			let SRweak = 0;
@@ -3411,92 +3459,80 @@ export class BattleStatGuesser {
 					SRweak--;
 				}
 			}
-			let hpDivisibility = 0;
-			let hpShouldBeDivisible = false;
-			let hp = evs['hp'] || 0;
-			stat = this.getStat('hp', set, hp, 1);
-			if ((set.item === 'Leftovers' || set.item === 'Black Sludge') && hasMove['substitute'] && stat !== 404) {
-				hpDivisibility = 4;
-			} else if (set.item === 'Leftovers' || set.item === 'Black Sludge') {
-				hpDivisibility = 0;
-			} else if (hasMove['bellydrum'] && (set.item || '').endsWith('Berry')) {
-				hpDivisibility = 2;
-				hpShouldBeDivisible = true;
-			} else if (hasMove['substitute'] && (set.item || '').endsWith('Berry')) {
-				hpDivisibility = 4;
-				hpShouldBeDivisible = true;
-			} else if (SRweak >= 2 || hasMove['bellydrum']) {
-				hpDivisibility = 2;
-			} else if (SRweak >= 1 || hasMove['substitute'] || hasMove['transform']) {
-				hpDivisibility = 4;
-			} else if (set.ability !== 'Magic Guard') {
-				hpDivisibility = 8;
-			}
-
-			if (hpDivisibility) {
-				while (hp < maxPoints && evTotal < totalPoints && !(stat % hpDivisibility) !== hpShouldBeDivisible) {
-					hp += step;
-					stat = this.getStat('hp', set, hp, 1);
-					evTotal += step;
+			const ensureHPDivisibility = (currentEVTotal: number) => {
+				let hpDivisibility = 0;
+				let hpShouldBeDivisible = false;
+				let hp = evs['hp'] || 0;
+				let hpStat = this.getStat('hp', set, hp, 1);
+				if ((set.item === 'Leftovers' || set.item === 'Black Sludge') && hasMove['substitute'] && hpStat !== 404) {
+					hpDivisibility = 4;
+				} else if (set.item === 'Leftovers' || set.item === 'Black Sludge') {
+					hpDivisibility = 0;
+				} else if (hasMove['bellydrum'] && (set.item || '').endsWith('Berry')) {
+					hpDivisibility = 2;
+					hpShouldBeDivisible = true;
+				} else if (hasMove['substitute'] && (set.item || '').endsWith('Berry')) {
+					hpDivisibility = 4;
+					hpShouldBeDivisible = true;
+				} else if (SRweak >= 2 || hasMove['bellydrum']) {
+					hpDivisibility = 2;
+				} else if (SRweak >= 1 || hasMove['substitute'] || hasMove['transform']) {
+					hpDivisibility = 4;
+				} else if (set.ability !== 'Magic Guard') {
+					hpDivisibility = 8;
 				}
-				while (hp > 0 && !(stat % hpDivisibility) !== hpShouldBeDivisible) {
-					hp -= step;
-					stat = this.getStat('hp', set, hp, 1);
-					evTotal -= step;
-				}
-				while (hp > 0 && stat === this.getStat('hp', set, hp - step, 1)) {
-					hp -= step;
-					evTotal -= step;
-				}
-				if (hp || evs['hp']) evs['hp'] = hp;
-			}
 
-			if (species.id === 'tentacruel') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 16, evTotal);
-			} else if (species.id === 'skarmory') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 24, evTotal);
-			} else if (species.id === 'jirachi') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 32, evTotal);
-			} else if (species.id === 'celebi') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 36, evTotal);
-			} else if (species.id === 'volcarona') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 52, evTotal);
-			} else if (species.id === 'gliscor') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 72, evTotal);
-			} else if (species.id === 'dragonite' && evs['hp']) {
-				evTotal = this.ensureMaxEVs(evs, 'spe', 220, evTotal);
-			}
-
-			if (evTotal < totalPoints) {
-				let remaining = totalPoints - evTotal;
-				if (remaining > maxPoints) remaining = maxPoints;
+				if (hpDivisibility) {
+					while (hp < maxPoints && currentEVTotal < totalPoints && !(hpStat % hpDivisibility) !== hpShouldBeDivisible) {
+						hp += step;
+						hpStat = this.getStat('hp', set, hp, 1);
+						currentEVTotal += step;
+					}
+					while (hp > 0 && !(hpStat % hpDivisibility) !== hpShouldBeDivisible) {
+						hp -= step;
+						hpStat = this.getStat('hp', set, hp, 1);
+						currentEVTotal -= step;
+					}
+					while (hp > 0 && hpStat === this.getStat('hp', set, hp - step, 1)) {
+						hp -= step;
+						currentEVTotal -= step;
+					}
+					if (hp || evs['hp']) evs['hp'] = hp;
+				}
+				return currentEVTotal;
+			};
+			evTotal = ensureHPDivisibility(evTotal);
+			let hpSelected = false;
+			while (evTotal < totalPoints) {
+				const evTotalBefore = evTotal;
 				secondaryStat = null;
 				if (!evs['atk'] && moveCount['PhysicalAttack'] >= 1) {
 					secondaryStat = 'atk';
 				} else if (!evs['spa'] && moveCount['SpecialAttack'] >= 1) {
 					secondaryStat = 'spa';
-				} else if (stats.hp === 1 && !evs['def']) {
-					secondaryStat = 'def';
-				} else if (stats.def === stats.spd && !evs['spd']) {
+				} else if (!evs['hp'] && stats.hp > 1 && !hpSelected) {
+					secondaryStat = 'hp';
+				} else if (!evs['spd'] && stats.hp > 1) {
 					secondaryStat = 'spd';
-				} else if (!evs['spd']) {
-					secondaryStat = 'spd';
-				} else if (!evs['def']) {
+				} else if (!evs['def'] && stats.hp > 1) {
 					secondaryStat = 'def';
+				} else if (!evs['spe']) {
+					secondaryStat = 'spe';
 				}
-				if (secondaryStat) {
-					ev = remaining;
-					stat = this.getStat(secondaryStat, set, ev);
-					while (ev > 0 && stat === this.getStat(secondaryStat, set, ev - step)) ev -= step;
-					if (ev) evs[secondaryStat] = ev;
-					remaining -= ev;
+				if (!secondaryStat) break;
+
+				ev = Math.min(totalPoints - evTotal, maxPoints);
+				stat = this.getStat(secondaryStat, set, ev);
+				while (ev > 0 && stat === this.getStat(secondaryStat, set, ev - step)) ev -= step;
+				if (ev) evs[secondaryStat] = ev;
+				evTotal += ev;
+
+				if (secondaryStat === 'hp') {
+					hpSelected = true;
+					evTotal = ensureHPDivisibility(evTotal);
+					continue;
 				}
-				if (remaining && !evs['spe']) {
-					ev = remaining;
-					stat = this.getStat('spe', set, ev);
-					while (ev > 0 && stat === this.getStat('spe', set, ev - step)) ev -= step;
-					if (ev) evs['spe'] = ev;
-				}
+				if (evTotal === evTotalBefore) break;
 			}
 		}
 
@@ -3514,6 +3550,10 @@ export class BattleStatGuesser {
 			minusStat = 'atk';
 		} else if (stats.def > stats.spe && stats.spd > stats.spe && !evs['spe']) {
 			minusStat = 'spe';
+		} else if (plusStat === 'def' || plusStat === 'spd') {
+			// defensive set, don't sacrifice the other defensive stat
+			// physical moves are frequently run for utility rather than damage
+			minusStat = evs['atk'] && !evs['spe'] ? 'spe' : 'atk';
 		} else if (stats.def > stats.spd) {
 			minusStat = 'spd';
 		} else {

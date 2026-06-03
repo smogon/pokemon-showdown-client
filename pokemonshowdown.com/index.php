@@ -375,7 +375,7 @@ foreach ($latestNewsCache as $topic_id) {
 
 <footer>
 	<p>
-		<small><a href="/rules">Rules</a> | <a href="/privacy">Privacy policy</a> | <a href="/credits">Credits</a> | <a href="/contact">Contact</a></small>
+		<small><a href="/rules">Rules</a> | <a href="/credits">Credits</a> | <a href="/privacy">Privacy</a> | <a href="/contact">Contact</a></small>
 	</p>
 </footer>
 

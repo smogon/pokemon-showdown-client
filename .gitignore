@@ -13,24 +13,10 @@ npm-debug.log
 # /play.pokemonshowdown.com/audio/
 
 # built from other sources
-/play.pokemonshowdown.com/index.php
-/play.pokemonshowdown.com/index.html
-/play.pokemonshowdown.com/index-test.html
-/play.pokemonshowdown.com/preactalpha.html
+/play.pokemonshowdown.com/caches/
 /play.pokemonshowdown.com/crossprotocol.html
 /play.pokemonshowdown.com/data/
-
-/play.pokemonshowdown.com/js/server/
-/play.pokemonshowdown.com/js/*.js.map
-/play.pokemonshowdown.com/js/battle*.js
-/play.pokemonshowdown.com/js/panel*.js
-/play.pokemonshowdown.com/js/replay-embed.js
-/play.pokemonshowdown.com/js/client-endload.js
-/play.pokemonshowdown.com/js/client-main.js
-/play.pokemonshowdown.com/js/client-core.js
-/play.pokemonshowdown.com/js/client-connection.js
-/play.pokemonshowdown.com/js/client-connection-worker.js
-/play.pokemonshowdown.com/js/miniedit.js
+/play.pokemonshowdown.com/js/
 /play.pokemonshowdown.com/ads.txt
 
 /pokemonshowdown.com/.well-known/

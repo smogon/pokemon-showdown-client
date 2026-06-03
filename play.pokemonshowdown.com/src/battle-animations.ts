@@ -598,6 +598,9 @@ export class BattleScene implements BattleSceneStub {
 		} else if (typeof rated === 'string' && rated.startsWith('National Pokemon Association')) {
 			bg = 'fx/bg-npa.png';
 			this.setBgm(-101);
+		} else if (typeof rated === 'string' && rated.startsWith('World Cup of Pokemon')) {
+			bg = 'fx/bg-wcop.png';
+			this.setBgm(-101);
 		} else if (typeof rated === 'string' && rated.startsWith('Smogon Champions League')) {
 			bg = 'fx/bg-scl.png';
 			this.setBgm(-101);

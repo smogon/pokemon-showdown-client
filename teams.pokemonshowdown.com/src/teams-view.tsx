@@ -229,7 +229,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 	override state = {
 		team: undefined as null | void | Team,
 		error: undefined as string | undefined,
-		copyButtonMsg: false as boolean,
+		copyButtonUsed: undefined as number | undefined,
 		displayMode: localStorage.getItem('teamdisplaymode') || null,
 		spriteGen: Number(localStorage.getItem('spritegen')) || 6,
 		manageOpen: false,
@@ -287,10 +287,10 @@ export class TeamViewer extends preact.Component<PageProps> {
 						<button class={manageClass} onClick={() => this.changeManage()}>Manage</button> :
 						loggedin && <button class="button" onClick={() => this.copyToBuilder()}>Copy to builder</button>}
 					<button
-						class="button"
-						disabled={!this.state.team || this.state.copyButtonMsg}
+						class={`button ${this.state.copyButtonUsed ? 'disabled' : ''}`}
+						disabled={!this.state.team}
 						onClick={() => this.copyTeam()}
-					>{this.state.copyButtonMsg ? 'Copied!' : 'Copy team'}</button>
+					>{this.state.copyButtonUsed ? 'Copied!' : 'Copy team'}</button>
 					<button class="button" onClick={() => this.changeDisplayMode()}>Display: {modeName}</button>
 					<button class="button" onClick={() => this.changeColorMode()}>Use {isDark ? 'light' : 'dark'} mode</button>
 					<select
@@ -434,10 +434,10 @@ export class TeamViewer extends preact.Component<PageProps> {
 		if (!this.state.team) return;
 		const team = unpackTeam(this.state.team.team);
 		navigator.clipboard.writeText(team.map(exportSet).join('\n'));
-		this.setState({ copyButtonMsg: true });
-		setTimeout(() => {
-			this.setState({ copyButtonMsg: false });
-		}, 1000);
+		clearTimeout(this.state.copyButtonUsed);
+		this.setState({
+			copyButtonUsed: setTimeout(() => this.setState({ copyButtonUsed: undefined }), 3000),
+		});
 	}
 
 	copyToBuilder() {

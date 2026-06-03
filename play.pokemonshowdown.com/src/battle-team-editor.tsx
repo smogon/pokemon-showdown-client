@@ -66,6 +66,7 @@ export class TeamEditorState extends PSModel {
 	isLetsGo = false;
 	isNatDex = false;
 	isBDSP = false;
+	isChampions = false;
 	formeLegality: 'normal' | 'hackmons' | 'custom' = 'normal';
 	abilityLegality: 'normal' | 'hackmons' = 'normal';
 	defaultLevel = 100;
@@ -101,6 +102,7 @@ export class TeamEditorState extends PSModel {
 		this.isLetsGo = formatid.includes('letsgo');
 		this.isNatDex = formatid.includes('nationaldex') || formatid.includes('natdex');
 		this.isBDSP = formatid.includes('bdsp');
+		this.isChampions = formatid.includes('champions');
 		if (formatid.includes('almostanyability') || formatid.includes('aaa')) {
 			this.abilityLegality = 'hackmons';
 		} else {
@@ -526,6 +528,7 @@ export class TeamEditorState extends PSModel {
 	defaultIVs(set: Dex.PokemonSet, noGuess = !!set.ivs): Record<Dex.StatName, number> {
 		const useIVs = this.gen > 2;
 		const defaultIVs = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
+		if (this.isChampions) return defaultIVs;
 		if (!useIVs) {
 			for (const stat of Dex.statNames) defaultIVs[stat] = 15;
 		}
@@ -666,9 +669,6 @@ export class TeamEditorState extends PSModel {
 		}
 	}
 	getStat(stat: StatName, set: Dex.PokemonSet, ivOverride: number, evOverride?: number, natureOverride?: number) {
-		const supportsEVs = !this.isLetsGo;
-		const supportsAVs = !supportsEVs;
-
 		// do this after setting set.evs because it's assumed to exist
 		// after getStat is run
 		const species = this.dex.species.get(set.species);
@@ -678,15 +678,16 @@ export class TeamEditorState extends PSModel {
 
 		const baseStat = species.baseStats[stat];
 		const iv = ivOverride;
-		const ev = evOverride ?? set.evs?.[stat] ?? (this.gen > 2 ? 0 : 252);
+		let ev = evOverride ?? set.evs?.[stat] ?? (this.gen > 2 ? 0 : 252);
+		if (this.isChampions) ev *= 8;
 
 		if (stat === 'hp') {
 			if (baseStat === 1) return 1;
-			if (!supportsEVs) return Math.trunc(Math.trunc(2 * baseStat + iv + 100) * level / 100 + 10) + (supportsAVs ? ev : 0);
+			if (this.isLetsGo) return Math.trunc(Math.trunc(2 * baseStat + iv + 100) * level / 100 + 10) + ev;
 			return Math.trunc(Math.trunc(2 * baseStat + iv + Math.trunc(ev / 4) + 100) * level / 100 + 10);
 		}
 		let val = Math.trunc(Math.trunc(2 * baseStat + iv + Math.trunc(ev / 4)) * level / 100 + 5);
-		if (!supportsEVs) {
+		if (this.isLetsGo) {
 			val = Math.trunc(Math.trunc(2 * baseStat + iv) * level / 100 + 5);
 		}
 		if (natureOverride) {
@@ -696,9 +697,9 @@ export class TeamEditorState extends PSModel {
 		} else if (BattleNatures[set.nature!]?.minus === stat) {
 			val *= 0.9;
 		}
-		if (!supportsEVs) {
+		if (this.isLetsGo) {
 			const friendshipValue = Math.trunc((70 / 255 / 10 + 1) * 100);
-			val = Math.trunc(val) * friendshipValue / 100 + (supportsAVs ? ev : 0);
+			val = Math.trunc(val) * friendshipValue / 100 + ev;
 		}
 		return Math.trunc(val);
 	}
@@ -1016,6 +1017,9 @@ class TeamTextbox extends preact.Component<{
 	editor: TeamEditorState,
 	onChange?: () => void, onUpdate?: () => void,
 }> {
+	override state = {
+		copyButtonUsed: undefined as number | undefined,
+	};
 	static EMPTY_PROMISE = Promise.resolve(null);
 	editor!: TeamEditorState;
 	setInfo: {
@@ -1680,7 +1684,7 @@ class TeamTextbox extends preact.Component<{
 			<span class="detailcell">
 				<label>Shiny</label>{set.shiny ? 'Yes' : '\u2014'}
 			</span>
-			{editor.gen === 9 ? (
+			{editor.gen === 9 && !editor.isChampions ? (
 				<span class="detailcell">
 					<label>Tera</label><PSIcon type={set.teraType || species.requiredTeraType || species.types[0]} />
 				</span>
@@ -1716,19 +1720,22 @@ class TeamTextbox extends preact.Component<{
 	copyAll = (ev: Event) => {
 		this.textbox.select();
 		document.execCommand('copy');
-		const button = ev?.currentTarget as HTMLButtonElement;
-		if (button) {
-			button.innerHTML = '<i class="fa fa-check" aria-hidden="true"></i> Copied';
-			button.className += ' cur';
-		}
+		clearTimeout(this.state.copyButtonUsed);
+		this.setState({
+			copyButtonUsed: setTimeout(() => this.setState({ copyButtonUsed: undefined }), 3000),
+		});
 	};
 	render() {
 		const editor = this.props.editor;
 		const statsDetailsOffset = editor.gen >= 3 ? 18 : -1;
 		return <div>
 			<p>
-				<button class="button" onClick={this.copyAll}>
-					<i class="fa fa-copy" aria-hidden></i> Copy
+				<button class={`button ${this.state.copyButtonUsed ? 'cur' : ''}`} onClick={this.copyAll}>
+					{this.state.copyButtonUsed ? (
+						<><i class="fa fa-check" aria-hidden></i> Copied!</>
+					) : (
+						<><i class="fa fa-copy" aria-hidden></i> Copy</>
+					)}
 				</button> {}
 				<label class="checkbox inline">
 					<input type="checkbox" name="compat" onChange={this.changeCompat} /> Old export format
@@ -2004,7 +2011,7 @@ class TeamWizard extends preact.Component<{
 								<strong class="label">Shiny</strong> {}
 								{set.shiny ? <img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Yes" /> : '\u2014'}
 							</span>}
-							{editor.gen === 9 && <span class="detailcell">
+							{editor.gen === 9 && !editor.isChampions && <span class="detailcell">
 								<strong class="label">Tera</strong> {}
 								<PSIcon type={set.teraType || species.requiredTeraType || species.types[0]} />
 							</span>}
@@ -2483,6 +2490,7 @@ class StatForm extends preact.Component<{
 		const hpIVdata = hpType && !editor.canHyperTrain(set) && editor.getHPIVs(hpType) || null;
 		const autoSpread = set.ivs && editor.defaultIVs(set, false);
 		const autoSpreadValue = autoSpread && Object.values(autoSpread).join('/');
+		if (editor.isChampions) return null;
 		if (!hpIVdata) {
 			return <select name="ivspread" class="button" onChange={this.changeIVSpread}>
 				<option value="" selected>IV spreads</option>
@@ -2747,11 +2755,12 @@ class StatForm extends preact.Component<{
 		if (target.type === 'range') {
 			// enforce limit
 			const maxEv = this.maxEVs();
+			let usableMaxEv = maxEv === 510 ? 508 : maxEv;
 			if (maxEv < 6 * 252) {
 				let totalEv = 0;
 				for (const curEv of Object.values(set.evs || {})) totalEv += curEv;
 				if (totalEv > maxEv && totalEv - value <= maxEv) {
-					set.evs![statID] = maxEv - (totalEv - value) - (maxEv % 4);
+					set.evs![statID] = usableMaxEv - (totalEv - value);
 				}
 			}
 		} else {
@@ -2839,8 +2848,8 @@ class StatForm extends preact.Component<{
 	};
 	maxEVs() {
 		const editor = this.props.editor;
-		const useEVs = !editor.isLetsGo && editor.gen >= 3;
-		return useEVs ? 510 : Infinity;
+		const useCappedEVs = !editor.isLetsGo && editor.gen >= 3 && !editor.isChampions;
+		return editor.isChampions ? 66 : useCappedEVs ? 510 : Infinity;
 	}
 	override render() {
 		const { editor, set } = this.props;
@@ -2848,11 +2857,9 @@ class StatForm extends preact.Component<{
 
 		const baseStats = species.baseStats;
 
-		const nature = BattleNatures[set.nature || 'Serious'];
-
-		const useEVs = !editor.isLetsGo;
-		// const useAVs = !useEVs && team.format.endsWith('norestrictions');
-		const maxEV = useEVs ? 252 : 200;
+		const useEVs = !editor.isLetsGo && !editor.isChampions;
+		// const useAVs = editor.isLetsGo && team.format.endsWith('norestrictions');
+		const maxEV = editor.isChampions ? 32 : useEVs ? 252 : 200;
 		const stepEV = useEVs ? 4 : 1;
 		const defaultEV = useEVs && editor.gen <= 2 && !set.evs ? maxEV : 0;
 		const useIVs = editor.gen > 2;
@@ -2878,7 +2885,7 @@ class StatForm extends preact.Component<{
 		if (maxEVs < 6 * 252) {
 			let totalEv = 0;
 			for (const ev of Object.values(set.evs || {})) totalEv += ev;
-			if (totalEv <= maxEVs) {
+			if (totalEv <= maxEVs && !editor.isChampions) {
 				remaining = (totalEv > (maxEVs - 2) ? 0 : (maxEVs - 2) - totalEv);
 			} else {
 				remaining = maxEVs - totalEv;
@@ -2896,9 +2903,9 @@ class StatForm extends preact.Component<{
 						<th>{/* Stat name */}</th>
 						<th>Base</th>
 						<th class="setstatbar">{/* Stat bar */}</th>
-						<th>{useEVs ? 'EVs' : 'AVs'}</th>
+						<th>{editor.isLetsGo ? 'AVs' : editor.isChampions ? 'Points' : 'EVs'}</th>
 						<th>{/* EV slider */}</th>
-						<th>{useIVs ? 'IVs' : 'DVs'}</th>
+						{!editor.isChampions && <th>{useIVs ? 'IVs' : 'DVs'}</th>}
 						<th>{/* Final stat */}</th>
 					</tr>
 					{stats.map(([statID, statName, stat]) => <tr>
@@ -2915,23 +2922,24 @@ class StatForm extends preact.Component<{
 							type="range" class="evslider" tabIndex={-1} aria-hidden
 							onInput={this.changeEV} onChange={this.changeEV}
 						/></td>
-						<td><input
+						{!editor.isChampions && <td><input
 							name={`iv-${statID}`} min={0} max={useIVs ? 31 : 15} placeholder={`${defaultIVs[statID]}`} style="width:40px"
-							type="number" inputMode="numeric" class="textbox default-placeholder" onInput={this.changeIV} onChange={this.changeIV}
-						/></td>
+							type="number" inputMode="numeric" class="textbox default-placeholder" onInput={this.changeIV}
+							onChange={this.changeIV}
+						/></td>}
 						<td style="text-align:right"><strong>{stat}</strong></td>
 					</tr>)}
 					<tr>
 						<td colSpan={2}></td>
-						<td class="setstatbar" style="text-align:right">{remaining !== null ? 'Remaining:' : ''}</td>
+						<td class="setstatbar" style="text-align:right">{remaining !== null ? 'Remaining:' : <>&nbsp;</>}</td>
 						<td style="text-align:center">{remaining && remaining < 0 ? <b class="message-error">{remaining}</b> : remaining}</td>
 						<td colSpan={3} style="text-align:right">{this.renderIVMenu()}</td>
 					</tr>
 				</table>
 				{editor.gen >= 3 && <p>
-					Nature: <select name="nature" class="button" onChange={this.changeNature}>
+					Nature: <select name="nature" class="button" onChange={this.changeNature} value={set.nature || 'Serious'}>
 						{Object.entries(BattleNatures).map(([natureName, curNature]) => (
-							<option value={natureName} selected={curNature === nature}>
+							<option value={natureName}>
 								{natureName}
 								{curNature.plus && ` (+${BattleStatNames[curNature.plus]}, -${BattleStatNames[curNature.minus!]})`}
 							</option>
@@ -3078,7 +3086,7 @@ class DetailsForm extends preact.Component<{
 					name="level" value={set.level ?? ''} placeholder={`${editor.defaultLevel}`}
 					type="number" inputMode="numeric" min="1" max="100" step="1"
 					class="textbox inputform numform default-placeholder" style="width: 50px"
-					onInput={this.changeLevel} onChange={this.changeLevel}
+					onInput={this.changeLevel} onChange={this.changeLevel} disabled={editor.isChampions}
 				/></label><small>(You probably want to change the team's levels by changing the format, not here)</small></p>
 				{editor.gen > 1 && (<>
 					<p><div class="label">Shiny: <div class="labeled">
@@ -3146,25 +3154,28 @@ class DetailsForm extends preact.Component<{
 					</p>
 				)}
 				{((!editor.isLetsGo && editor.gen === 7) || editor.isNatDex || species.baseSpecies === 'Unown') && <p>
-					<label class="label">Hidden Power Type: <select name="hptype" class="button" onChange={this.changeHPType}>
+					<label class="label">Hidden Power Type: <select
+						name="hptype" class="button" onChange={this.changeHPType} value={editor.getHPType(set)}
+					>
 						{Dex.types.all().map(type => (
-							type.HPivs && <option value={type.name} selected={editor.getHPType(set) === type.name}>
+							type.HPivs && <option value={type.name}>
 								{type.name}
 							</option>
 						))}
 					</select></label>
 				</p>}
-				{editor.gen === 9 && <p>
+				{editor.gen === 9 && !editor.isChampions && <p>
 					<label class="label" title="Tera Type">
 						Tera Type: {}
 						{species.requiredTeraType && editor.formeLegality === 'normal' ? (
 							<select name="teratype" class="button cur" disabled><option>{species.requiredTeraType}</option></select>
 						) : (
-							<select name="teratype" class="button" onChange={this.changeTera}>
+							<select
+								name="teratype" class="button" onChange={this.changeTera}
+								value={set.teraType || species.requiredTeraType || species.types[0]}
+							>
 								{Dex.types.all().map(type => (
-									<option value={type.name} selected={(set.teraType || species.requiredTeraType || species.types[0]) === type.name}>
-										{type.name}
-									</option>
+									<option value={type.name}>{type.name}</option>
 								))}
 							</select>
 						)}
