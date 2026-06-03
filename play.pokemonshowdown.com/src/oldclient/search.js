@@ -302,6 +302,11 @@
 		if (relumiTable && relumiTable.vanillaSpeciesData && relumiTable.vanillaSpeciesData[speciesId]) {
 			return relumiTable.vanillaSpeciesData[speciesId];
 		}
+		// Species with override data but no vanillaSpeciesData entry are custom forms
+		// — Dex.forGen would return the mod-added BattlePokedex entry, not true vanilla data.
+		if (relumiTable && relumiTable.overrideSpeciesData && speciesId in relumiTable.overrideSpeciesData) {
+			return null;
+		}
 		var vanillaSpecies = Dex.forGen(9).species.get(speciesId);
 		if (!vanillaSpecies || !vanillaSpecies.exists) return null;
 		return vanillaSpecies;
@@ -361,6 +366,23 @@
 		return speciesId;
 	};
 	Search.prototype.getVanillaComparisonSpeciesId = function (speciesId) {
+		var relumiTable = this.getRelumiOverrides();
+		var hasVanillaData = relumiTable && relumiTable.vanillaSpeciesData && speciesId in relumiTable.vanillaSpeciesData;
+		if (hasVanillaData) return speciesId;
+
+		// Species with override data but no vanillaSpeciesData entry are custom forms.
+		// Dex.forGen would return the mod-added BattlePokedex entry, not true vanilla.
+		if (relumiTable && relumiTable.overrideSpeciesData && speciesId in relumiTable.overrideSpeciesData) {
+			var currentDex = (this.engine && this.engine.dex) || Dex;
+			if (!currentDex || !currentDex.species) return speciesId;
+			var species = currentDex.species.get(speciesId);
+			if (!species || !species.exists) return speciesId;
+			var baseId = toID(species.baseSpecies || speciesId);
+			if (baseId !== speciesId) return baseId;
+			return speciesId;
+		}
+
+		// Fall through for species not touched by mod overrides.
 		var vanillaSpecies = Dex.forGen(9).species.get(speciesId);
 		if (vanillaSpecies && vanillaSpecies.exists) return speciesId;
 
@@ -381,13 +403,25 @@
 
 		var diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
 		var relumiSpeciesDiff = relumiTable.overrideSpeciesData[diffSourceId];
-		if (!relumiSpeciesDiff || !relumiSpeciesDiff.baseStats || relumiSpeciesDiff.baseStats[statName] === undefined) {
+		if (!relumiSpeciesDiff) return '';
+
+		var vanillaComparisonId;
+		var vanillaSpecies;
+
+		if (relumiSpeciesDiff.baseStats && relumiSpeciesDiff.baseStats[statName] !== undefined) {
+			// Normal path: override has this stat explicitly
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies) return '';
+		} else if (!relumiSpeciesDiff.baseStats) {
+			// No baseStats override — compare custom form (not in vanilla) against base form's vanilla stats
+			if (this.getVanillaSpeciesData(speciesId)) return '';
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(speciesId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies || !vanillaSpecies.baseStats) return '';
+		} else {
 			return '';
 		}
-
-		var vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
-		var vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
-		if (!vanillaSpecies) return '';
 
 		var vanillaStat = vanillaSpecies.baseStats[statName];
 		if (typeof vanillaStat !== 'number' || vanillaStat === value) return '';
@@ -402,11 +436,23 @@
 
 		var diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
 		var relumiSpeciesDiff = relumiTable.overrideSpeciesData[diffSourceId];
-		if (!relumiSpeciesDiff || !relumiSpeciesDiff.baseStats) return '';
+		if (!relumiSpeciesDiff) return '';
 
-		var vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
-		var vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
-		if (!vanillaSpecies || !vanillaSpecies.baseStats) return '';
+		var vanillaComparisonId;
+		var vanillaSpecies;
+
+		if (relumiSpeciesDiff.baseStats) {
+			// Normal path: override has baseStats
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies || !vanillaSpecies.baseStats) return '';
+		} else {
+			// No baseStats override — compare custom form (not in vanilla) against base form's vanilla BST
+			if (this.getVanillaSpeciesData(speciesId)) return '';
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(speciesId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies || !vanillaSpecies.baseStats) return '';
+		}
 
 		var vanillaBST = 0;
 		for (var stat in vanillaSpecies.baseStats) {
@@ -425,11 +471,23 @@
 
 		var diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
 		var relumiSpeciesDiff = relumiTable.overrideSpeciesData[diffSourceId];
-		if (!relumiSpeciesDiff || !relumiSpeciesDiff.abilities) return false;
+		if (!relumiSpeciesDiff) return false;
 
-		var vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
-		var vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
-		if (!vanillaSpecies) return false;
+		var vanillaComparisonId;
+		var vanillaSpecies;
+
+		if (relumiSpeciesDiff.abilities) {
+			// Normal path: override has abilities
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies) return false;
+		} else {
+			// No abilities override — compare custom form (not in vanilla) against base form's vanilla abilities
+			if (this.getVanillaSpeciesData(speciesId)) return false;
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(speciesId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies) return false;
+		}
 
 		var vanillaAbilities = {};
 		for (var slot in vanillaSpecies.abilities) {
@@ -523,7 +581,6 @@
 		if (lsetSpecies.id === 'pumpkaboosuper') return 'pumpkaboo';
 		if (lsetSpecies.id === 'sinisteaantique') return 'sinistea';
 		if (lsetSpecies.id === 'tatsugiristretchy') return 'tatsugiri';
-		if (lsetSpecies.id === 'blastoiseclone') return 'blastoise';
 
 		var next = lsetSpecies.battleOnly || lsetSpecies.changesFrom || lsetSpecies.prevo;
 		if (next) return toID(next);
