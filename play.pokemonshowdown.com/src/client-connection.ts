@@ -60,16 +60,7 @@ export class PSConnection {
 	constructor() {
 		const loading = PSStorage.init();
 		if (loading) {
-			// Timeout after 5s so the WebSocket connection can establish even
-			// if the PSStorage cross-origin iframe is blocked (e.g., the
-			// official crossdomain.php rejects unauthorized hosts).
-			const fallback = new Promise<void>(resolve => {
-				setTimeout(() => {
-					Config.server ||= Config.defaultserver;
-					resolve();
-				}, 5000);
-			});
-			Promise.race([loading, fallback]).then(() => {
+			loading.then(() => {
 				this.initConnection();
 			});
 		} else {
@@ -489,16 +480,29 @@ export const PSLoginServer = new class {
 			}
 		}
 		// Team ops (getteams/getteam): use GET with query params and bypass
-		// PSStorage (the cross-origin iframe bridge), so the request goes directly
-		// to the local server where customhttpresponse can handle it.
+		// PSStorage (the cross-origin iframe bridge) and Net() (which may
+		// prepend Net.defaultRoute), so the request goes directly to the
+		// local server where customhttpresponse can handle it.
 		// Auth ops (login/getassertion): keep POST with body through PSStorage,
 		// matching the old client's $.get() vs $.post() split.
 		if (act === 'getteams' || act === 'getteam') {
-			return Net(url).get({ query: data }).then(
-				res => res ?? null
-			).catch(
-				() => null
-			);
+			const params = new URLSearchParams();
+			for (const key in data) {
+				params.set(key, String(data[key]));
+			}
+			console.log('[Relumi rawQuery] team op:', act, 'url:', url, 'Net.defaultRoute:', Net.defaultRoute);
+			return fetch(url + '?' + params.toString(), {
+				credentials: 'same-origin',
+			}).then(res => {
+				if (!res.ok) {
+					console.warn('[Relumi rawQuery] team op failed:', res.status, res.statusText);
+					return null;
+				}
+				return res.text().then(text => text ?? null);
+			}).catch(err => {
+				console.warn('[Relumi rawQuery] team op error:', err);
+				return null;
+			});
 		}
 		return PSStorage.request('POST', url, data) || Net(url).get({ method: 'POST', body: data }).then(
 			res => res ?? null
@@ -600,8 +604,12 @@ class NetRequest {
 }
 
 export function Net(uri: string) {
+	const originalUri = uri;
 	if (uri.startsWith('/') && !uri.startsWith('//') && Net.defaultRoute) uri = Net.defaultRoute + uri;
 	if (uri.startsWith('//') && document.location.protocol === 'file:') uri = 'https:' + uri;
+	if (originalUri !== uri) {
+		console.log('[Relumi Net] defaultRoute applied:', originalUri, '->', uri, 'Net.defaultRoute:', Net.defaultRoute);
+	}
 	return new NetRequest(uri);
 }
 
