@@ -66,6 +66,8 @@ export class TeamEditorState extends PSModel {
 	isLetsGo = false;
 	isNatDex = false;
 	isBDSP = false;
+	isRelumi = false;
+	isRelumiTesting = false;
 	isChampions = false;
 	formeLegality: 'normal' | 'hackmons' | 'custom' = 'normal';
 	abilityLegality: 'normal' | 'hackmons' = 'normal';
@@ -102,6 +104,8 @@ export class TeamEditorState extends PSModel {
 		this.isLetsGo = formatid.includes('letsgo');
 		this.isNatDex = formatid.includes('nationaldex') || formatid.includes('natdex');
 		this.isBDSP = formatid.includes('bdsp');
+		this.isRelumi = formatid.includes('relumi');
+		this.isRelumiTesting = this.isRelumi && formatid.includes('testing');
 		this.isChampions = formatid.includes('champions');
 		if (formatid.includes('almostanyability') || formatid.includes('aaa')) {
 			this.abilityLegality = 'hackmons';
@@ -3134,7 +3138,7 @@ class DetailsForm extends preact.Component<{
 					)}
 				</>
 				)}
-				{editor.gen === 8 && !editor.isBDSP && !species.cannotDynamax && (
+				{editor.gen === 8 && !editor.isBDSP && !species.cannotDynamax && (!editor.isRelumi || editor.isRelumiTesting) && (
 					<p>
 						<label class="label" style="display:inline">Dynamax Level: <input
 							name="dynamaxlevel" value={set.dynamaxLevel ?? ''} placeholder="10"
