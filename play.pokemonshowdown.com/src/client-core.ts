@@ -159,11 +159,18 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 		this.id = bgid;
 
 		// curid
-		if (!bgid || bgid === 'waterfall') {
+		if (bgid === undefined || bgid === null || bgid === 'waterfall') {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
 			} else {
-				// Relumi mod: include relumi in the default background list
+				// Relumi mod: default to relumi for new users
+				bgid = 'relumi';
+			}
+		} else if (bgid === '') {
+			// User clicked "Random" button
+			if (location.host === 'smogtours.psim.us') {
+				bgid = 'shaymin';
+			} else {
 				const bgs = ['relumi', 'horizon', 'ocean', 'shaymin', 'charizards'];
 				bgid = bgs[Math.floor(Math.random() * bgs.length)];
 				// if someone clicked the random button, try to roll a different bg than before

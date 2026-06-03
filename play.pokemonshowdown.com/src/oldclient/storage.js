@@ -67,13 +67,12 @@ Storage.bg = {
 	 */
 	load: function (bgUrl, bgid, hues) {
 		this.id = bgid;
-		if (!bgid) {
+		if (bgid === undefined || bgid === null) {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
 			} else if (location.host === Config.routes.client || bgid === 'waterfall') {
-				// Relumi mod: include relumi in the default background list
-				var bgs = ['relumi', 'horizon', 'ocean', 'shaymin', 'charizards', 'psday'];
-				bgid = bgs[Math.floor(Math.random() * bgs.length)];
+				// Relumi mod: default to relumi for new users
+				bgid = 'relumi';
 			} else {
 				$(document.body).css({
 					background: '',
@@ -81,6 +80,15 @@ Storage.bg = {
 				});
 				$('#mainmenubuttoncolors').remove();
 				return true;
+			}
+			bgUrl = Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg';
+		} else if (bgid === '') {
+			// User clicked "Random" button
+			if (location.host === Config.routes.client || bgid === 'waterfall') {
+				var bgs = ['relumi', 'horizon', 'ocean', 'shaymin', 'charizards', 'psday'];
+				bgid = bgs[Math.floor(Math.random() * bgs.length)];
+			} else if (location.host === 'smogtours.psim.us') {
+				bgid = 'shaymin';
 			}
 			bgUrl = Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg';
 		}
