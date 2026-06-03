@@ -75,7 +75,7 @@ export class PSConnection {
 		console.log("[PSConnection] server =", PS.server);
 		if (isLocal) {
 			console.log(
-				"[PSConnection] Using local direct socket (bypassing worker)",
+				"[PSConnection] Using local direct socket (bypassing worker)"
 			);
 			this.directConnect();
 			return;
@@ -471,13 +471,24 @@ export const PSLoginServer = new class {
 		// }
 		data.act = act;
 		let url = '/~~' + PS.server.id + '/action.php';
-		// Keep relative URL in local dev so the dev server proxies it; only
-		// absolutize when running from a real .html path on production.
-		if (location.pathname.endsWith('.html') && !PSStorage.isLocalDev()) {
+		// Keep relative URL in normal operation so requests hit the local server;
+		// only absolutize for testclient where the page may be loaded offline.
+		if (Config.testclient) {
 			url = 'https://' + Config.routes.client + url;
 			if (typeof POKEMON_SHOWDOWN_TESTCLIENT_KEY === 'string') {
 				data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/%2C/g, ',');
 			}
+		}
+		// Team ops (getteams/getteam): use GET with query params so the dev server
+		// proxy and game server's customhttpresponse can read `act`/`teamid` from
+		// the URL. Auth ops (login/getassertion): keep POST with body, matching the
+		// old client's $.get() vs $.post() split.
+		if (act === 'getteams' || act === 'getteam') {
+			return PSStorage.request('GET', url, data) || Net(url).get({ query: data }).then(
+				res => res ?? null
+			).catch(
+				() => null
+			);
 		}
 		return PSStorage.request('POST', url, data) || Net(url).get({ method: 'POST', body: data }).then(
 			res => res ?? null
