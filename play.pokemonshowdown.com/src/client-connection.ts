@@ -10,6 +10,42 @@ import { Config, PS } from "./client-main";
 declare const SockJS: any;
 declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
 
+/**
+ * LOCAL DEV BYPASS — Relumi Showdown
+ *
+ * The upstream client uses a web worker (client-connection-worker.js) and
+ * cross-origin iframe storage (PSStorage.init) to communicate with the
+ * game server. Both mechanisms fail when the client is served from a local
+ * HTTP dev server (localhost / LAN IP) because:
+ *
+ *   1. The worker constructs WebSocket URLs relative to the production
+ *      origin, so it never reaches the local game server on port 8000.
+ *   2. PSStorage.init creates a cross-origin iframe to play.pokemonshowdown.com
+ *      for shared prefs/teams, which blocks resolution of Config.server and
+ *      delays (or prevents) the socket connection on localhost.
+ *
+ * To fix this, two things are patched:
+ *
+ *   • PSConnection.initConnection() — when isLocalDev() is true, skip the
+ *     worker entirely and call directConnect() which opens a SockJS/WebSocket
+ *     connection using the server config that our local config injection
+ *     (serve-relumi-client.js) has already set to localhost:8000.
+ *
+ *   • PSStorage.init() — when isLocalDev() is true, return early after
+ *     assigning Config.server from Config.defaultserver, skipping the
+ *     cross-origin iframe setup.
+ *
+ * PSStorage.isLocalDev() is the single source of truth for detecting local
+ * environments. It matches localhost, 127.0.0.1, ::1, .local hostnames,
+ * and RFC-1918/CGN private IP ranges.
+ *
+ * IMPORTANT: These changes may be reverted by upstream merges. After merging
+ * upstream, verify that isLocalDev() and the early-return paths still exist.
+ * The serve-relumi-client.js dev server also applies LAN-aware rewrites to
+ * the compiled JS via rewriteLanLocalDevChecks() as a belt-and-suspenders
+ * measure, but the TypeScript source is the canonical location.
+ */
+
 export class PSConnection {
 	socket: WebSocket | null = null;
 	connected = false;
@@ -32,7 +68,22 @@ export class PSConnection {
 	}
 
 	initConnection() {
-		if (!this.tryConnectInWorker()) this.directConnect();
+		const isLocal = PSStorage.isLocalDev();
+		console.log("[PSConnection.initConnection] isLocalDev =", isLocal);
+		console.log("[PSConnection] hostname =", location.hostname);
+		console.log("[PSConnection] server =", PS.server);
+		if (isLocal) {
+			console.log(
+				"[PSConnection] Using local direct socket (bypassing worker)",
+			);
+			this.directConnect();
+			return;
+		}
+		console.log("[PSConnection] Attempting worker connection");
+		if (!this.tryConnectInWorker()) {
+			console.log("[PSConnection] Worker failed, falling back to direct");
+			this.directConnect();
+		}
 	}
 
 	canReconnect() {
@@ -224,6 +275,20 @@ export class PSStorage {
 	static requests: Record<string, (data: any) => void> | null = null;
 	static requestCount = 0;
 	static readonly origin = `https://${Config.routes.client}`;
+	static isLocalDev() {
+		const host = location.hostname;
+		return (
+			host === "localhost" ||
+			host === "127.0.0.1" ||
+			host === "::1" ||
+			host.endsWith(".local") ||
+			/^10\./.test(host) ||
+			/^192\.168\./.test(host) ||
+			/^172\.(1[6-9]|2\d|3[0-1])\./.test(host) ||
+			/^169\.254\./.test(host) ||
+			/^100\.(6[4-9]|[78]\d|9\d|1[01]\d|12[0-7])\./.test(host)
+		);
+	}
 	static loader?: () => void;
 	static loaded: Promise<void> | boolean = false;
 	static init(): void | Promise<void> {
@@ -231,9 +296,10 @@ export class PSStorage {
 			if (this.loaded === true) return;
 			return this.loaded;
 		}
-		if (Config.testclient) {
+		if (Config.testclient || PSStorage.isLocalDev()) {
+			Config.server ||= Config.defaultserver;
 			return;
-		} else if (`${location.protocol}//${location.hostname}` === PSStorage.origin) {
+		} else if (`${location.protocol}//${location.host}` === PSStorage.origin) {
 			// Same origin, everything can be kept as default
 			Config.server ||= Config.defaultserver;
 			return;
