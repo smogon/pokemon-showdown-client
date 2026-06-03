@@ -56,7 +56,7 @@
 			buf += '<p><button class="button mainmenu2" name="joinRoom" value="teambuilder">Teambuilder</button></p>';
 			buf += '<p><button class="button mainmenu3" name="joinRoom" value="ladder">Ladder</button></p>';
 			// buf += '<p><button class="button mainmenu4" name="send" value="/smogtours">Tournaments</button></p>';
-			buf += '<p><a class="button mainmenu4" href="stats.html">Stats</a></p>';
+			buf += '<p><a class="button mainmenu4" href="stats.html" style="pointer-events: none; opacity: 0.5; cursor: not-allowed;">Stats</a></p>';
 			buf += '<p><a class="button mainmenu5" href="https://calc.relumishowdown.dpdns.org/" target="_blank" rel="noopener noreferrer">Damage Calc</a></p>';
 			buf += '</div>';
 
