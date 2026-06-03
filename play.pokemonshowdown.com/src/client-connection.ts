@@ -479,12 +479,13 @@ export const PSLoginServer = new class {
 				data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/%2C/g, ',');
 			}
 		}
-		// Team ops (getteams/getteam): use GET with query params so the dev server
-		// proxy and game server's customhttpresponse can read `act`/`teamid` from
-		// the URL. Auth ops (login/getassertion): keep POST with body, matching the
-		// old client's $.get() vs $.post() split.
+		// Team ops (getteams/getteam): use GET with query params and bypass
+		// PSStorage (the cross-origin iframe bridge), so the request goes directly
+		// to the local server where customhttpresponse can handle it.
+		// Auth ops (login/getassertion): keep POST with body through PSStorage,
+		// matching the old client's $.get() vs $.post() split.
 		if (act === 'getteams' || act === 'getteam') {
-			return PSStorage.request('GET', url, data) || Net(url).get({ query: data }).then(
+			return Net(url).get({ query: data }).then(
 				res => res ?? null
 			).catch(
 				() => null
