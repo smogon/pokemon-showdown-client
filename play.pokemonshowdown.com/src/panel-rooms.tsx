@@ -206,14 +206,14 @@ class RoomsPanel extends PSRoomPanel {
 				<a class="button" href="users" title="Find an online user">
 					<span
 						class={`pixelated usercount${Dex.afdMode === true ? ' afd' : ''}`}
-						title="Meloetta is PS's mascot! The Aria forme is about using its voice, and represents our chatrooms."
+						title="Shaymin is Relumi's mascot! It loves nature and friendship, and represents our chatrooms."
 					></span>
 					<strong>{rooms.userCount || '-'}</strong> users online
 				</a> {}
 				<a class="button" href="battles" title="Watch an active battle">
 					<span
 						class={`pixelated battlecount${Dex.afdMode ? ' afd' : ''}`}
-						title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
+						title="Giratina is Relumi's mascot! It is a fierce and powerful Pokémon, and represents our battles."
 					></span>
 					<strong>{rooms.battleCount || '-'}</strong> active battles
 				</a>

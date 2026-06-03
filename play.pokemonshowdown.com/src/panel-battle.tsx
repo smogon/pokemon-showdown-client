@@ -99,7 +99,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 					</button> {}
 					<span
 						style={Dex.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle'} class="picon"
-						title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
+						title="Giratina is Relumi's mascot! It is a fierce and powerful Pokémon, and represents our battles."
 					></span>
 				</p>
 
