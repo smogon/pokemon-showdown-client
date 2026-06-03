@@ -633,6 +633,7 @@ class OptionsPanel extends PSRoomPanel {
 		case 'refreshprompt':
 		case 'noanim':
 		case 'nopastgens':
+		case 'useupstreamsprites':
 		case 'relumiHighlightBalanceChanges':
 		case 'noselfhighlight':
 		case 'leavePopupRoom':
@@ -723,6 +724,11 @@ class OptionsPanel extends PSRoomPanel {
 				<label class="checkbox"><input
 					name="nopastgens" checked={PS.prefs.nopastgens || false} type="checkbox" onChange={this.handleOnChange}
 				/> Use modern sprites for past generations</label>
+			</p>
+			<p>
+				<label class="checkbox"><input
+					name="useupstreamsprites" checked={PS.prefs.useupstreamsprites || false} type="checkbox" onChange={this.handleOnChange}
+				/> Use upstream (official) sprites instead of custom</label>
 			</p>
 			<p>
 				<label class="checkbox"><input

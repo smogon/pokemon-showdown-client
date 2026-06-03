@@ -726,7 +726,8 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					<div class="menugroup">
 						<p><a class="mainmenu2 mainmenu button" href="teambuilder">Teambuilder</a></p>
 						<p><a class={"mainmenu3 mainmenu" + onlineButton} href="ladder">Ladder</a></p>
-						<p><a class={"mainmenu4 mainmenu" + onlineButton} href="view-tournaments-all">Tournaments</a></p>
+						<p><a class="mainmenu4 mainmenu button" href="stats.html" style="pointer-events: none; opacity: 0.5; cursor: not-allowed;">Stats</a></p>
+						<p><a class="mainmenu5 mainmenu button" href="https://calc.relumishowdown.dpdns.org/" target="_blank" rel="noopener noreferrer">Damage Calc</a></p>
 					</div>
 
 					<div class="menugroup">
@@ -909,8 +910,9 @@ export class TeamForm extends preact.Component<{
 		const formatId = toID(this.format.split('@@@')[0]);
 		if (window.BattleFormats) {
 			this.format ||= this.props.defaultFormat || '';
+			// Default format
 			if (!this.format) {
-				this.format = `gen${Dex.gen}randombattle`;
+				this.format = `gen8relumisinglesrandom`;
 
 				const starredPrefs = PS.prefs.starredformats || {};
 				// .reverse() because the newest starred format should be the default one
