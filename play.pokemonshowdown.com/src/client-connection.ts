@@ -161,8 +161,9 @@ export class PSConnection {
 		if (this.worker) return; // must be one or the other
 
 		const server = PS.server;
-		const port = server.protocol === 'https' ? `:${server.port}` : `:${server.httpport!}`;
-		const url = `${server.protocol}://${server.host}${port}${server.prefix}`;
+		// For http, upstream sets httpport; for local dev we set port and leave httpport unset.
+		const connPort = server.protocol === 'https' ? server.port : (server.httpport ?? server.port);
+		const url = `${server.protocol}://${server.host}:${connPort}${server.prefix}`;
 
 		try {
 			this.socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
@@ -470,7 +471,9 @@ export const PSLoginServer = new class {
 		// }
 		data.act = act;
 		let url = '/~~' + PS.server.id + '/action.php';
-		if (location.pathname.endsWith('.html')) {
+		// Keep relative URL in local dev so the dev server proxies it; only
+		// absolutize when running from a real .html path on production.
+		if (location.pathname.endsWith('.html') && !PSStorage.isLocalDev()) {
 			url = 'https://' + Config.routes.client + url;
 			if (typeof POKEMON_SHOWDOWN_TESTCLIENT_KEY === 'string') {
 				data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/%2C/g, ',');
