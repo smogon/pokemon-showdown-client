@@ -60,7 +60,16 @@ export class PSConnection {
 	constructor() {
 		const loading = PSStorage.init();
 		if (loading) {
-			loading.then(() => {
+			// Timeout after 5s so the WebSocket connection can establish even
+			// if the PSStorage cross-origin iframe is blocked (e.g., the
+			// official crossdomain.php rejects unauthorized hosts).
+			const fallback = new Promise<void>(resolve => {
+				setTimeout(() => {
+					Config.server ||= Config.defaultserver;
+					resolve();
+				}, 5000);
+			});
+			Promise.race([loading, fallback]).then(() => {
 				this.initConnection();
 			});
 		} else {
