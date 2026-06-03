@@ -65,6 +65,9 @@
 			'change select[name=ivspread]': 'ivSpreadChange',
 			'change .evslider': 'statSlided',
 			'input .evslider': 'statSlide',
+			'change .statform input[name^="customstat-"]': 'customStatChange',
+			'change .statform select[name="customtype1"]': 'customTypeChange',
+			'change .statform select[name="customtype2"]': 'customTypeChange',
 
 			// teambuilder events
 			'click .utilichart a': 'chartClick',
@@ -1535,7 +1538,7 @@
 			buf += itemicon;
 			buf += '</div>';
 			buf += '<div class="setcell setcell-typeicons">';
-			var types = species.types;
+			var types = (this.curTeam.format.includes('testing') && set.customTypes && set.customTypes.length) ? set.customTypes : species.types;
 			if (types) {
 				for (var i = 0; i < types.length; i++) buf += Dex.getTypeIcon(types[i]);
 			}
@@ -2541,9 +2544,18 @@
 
 			buf += '<div><label>Speed</label></div></div>';
 
+			var isRelumi = this.curTeam.format.includes('relumi') && this.curTeam.format.includes('testing');
+			var customBaseStats = (isRelumi && set.customBaseStats) || {};
+
+			/* Render base stat column: editable inputs for Relumi testing formats, read-only text otherwise */
 			buf += '<div class="col basestatscol"><div><em>Base</em></div>';
 			for (var i in stats) {
-				buf += '<div><b>' + baseStats[i] + '</b></div>';
+				var bsv = (customBaseStats[i] !== undefined ? customBaseStats[i] : baseStats[i]);
+				if (isRelumi) {
+					buf += '<div><input type="number" name="customstat-' + i + '" value="' + bsv + '" class="textbox inputform numform" min="1" max="255" step="1" /></div>';
+				} else {
+					buf += '<div><b>' + bsv + '</b></div>';
+				}
 			}
 			buf += '</div>';
 
@@ -2758,6 +2770,24 @@
 				buf += '<p id="statoptimizer"></p>';
 			}
 
+			/* Render custom type dropdowns for Relumi testing formats (below nature) */
+			if (isRelumi) {
+				var customTypes = (set.customTypes && set.customTypes.length) ? set.customTypes : species.types;
+				var allTypes = Dex.types.all();
+				buf += '<p style="clear:both">Types:';
+				buf += ' <select name="customtype1" class="button">';
+				for (var t = 0; t < allTypes.length; t++) {
+					buf += '<option value="' + allTypes[t].name + '"' + (customTypes[0] === allTypes[t].name ? ' selected' : '') + '>' + allTypes[t].name + '</option>';
+				}
+				buf += '</select>';
+				buf += ' <select name="customtype2" class="button">';
+				buf += '<option value="">—</option>';
+				for (var t = 0; t < allTypes.length; t++) {
+					buf += '<option value="' + allTypes[t].name + '"' + (customTypes[1] === allTypes[t].name ? ' selected' : '') + '>' + allTypes[t].name + '</option>';
+				}
+				buf += '</select></p>';
+			}
+
 			buf += '</div>';
 			this.$chart.html(buf);
 			this.checkStatOptimizations();
@@ -2898,6 +2928,54 @@
 			}
 			this.save();
 		},
+
+		/* Handles changes to custom base stat number inputs in Relumi testing formats */
+		customStatChange: function (e) {
+			var set = this.curSet;
+			if (!set) return;
+			var stat = e.currentTarget.name.substr(11);
+			var val = parseInt(e.currentTarget.value, 10);
+			if (isNaN(val) || val < 1) val = 1;
+			if (val > 255) val = 255;
+			e.currentTarget.value = val;
+			if (!set.customBaseStats) set.customBaseStats = {};
+			if (set.customBaseStats[stat] !== val) {
+				set.customBaseStats[stat] = val;
+				this.updateStatGraph();
+				this.save();
+			}
+			/* Clean up if all custom stats match the species' actual base stats */
+			var species = this.curTeam.dex.species.get(set.species);
+			var allMatch = true;
+			for (var s in { hp: 1, atk: 1, def: 1, spa: 1, spd: 1, spe: 1 }) {
+				if ((set.customBaseStats[s] !== undefined ? set.customBaseStats[s] : species.baseStats[s]) !== species.baseStats[s]) {
+					allMatch = false;
+					break;
+				}
+			}
+			if (allMatch) delete set.customBaseStats;
+		},
+
+		/* Handles changes to custom type dropdowns in Relumi testing formats */
+		customTypeChange: function (e) {
+			var set = this.curSet;
+			if (!set) return;
+			var type1 = this.$chart.find('select[name="customtype1"]').val();
+			var type2 = this.$chart.find('select[name="customtype2"]').val();
+			var newTypes = [type1];
+			if (type2) newTypes.push(type2);
+			/* Only store custom types if they differ from the species' actual types */
+			var species = this.curTeam.dex.species.get(set.species);
+			var defaultTypes = species.types;
+			if (newTypes.length === defaultTypes.length && newTypes[0] === defaultTypes[0] && (newTypes[1] || '') === (defaultTypes[1] || '')) {
+				delete set.customTypes;
+			} else {
+				set.customTypes = newTypes;
+			}
+			this.updateSetTop();
+			this.save();
+		},
+
 		updateIVs: function () {
 			var set = this.curSet;
 			if (!set.moves || this.canHyperTrain(set)) return;
@@ -3788,6 +3866,8 @@
 			if (set.dynamaxLevel) delete set.dynamaxLevel;
 			if (set.gigantamax) delete set.gigantamax;
 			if (set.teraType) delete set.teraType;
+			if (set.customBaseStats) delete set.customBaseStats;
+			if (set.customTypes) delete set.customTypes;
 			var requiredItems = species.requiredItems;
 			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
 			var isRelumiFormat = this.curTeam.format.includes('relumi');
@@ -3842,7 +3922,11 @@
 			if (!set.level) set.level = 100;
 			if (typeof set.ivs[stat] === 'undefined') set.ivs[stat] = 31;
 
+			/* Use custom base stats from set when available in Relumi testing formats */
 			var baseStat = species.baseStats[stat];
+			if (set.customBaseStats && set.customBaseStats[stat] !== undefined && this.curTeam.format.includes('testing')) {
+				baseStat = set.customBaseStats[stat];
+			}
 			var iv = (set.ivs[stat] || 0);
 			if (this.curTeam.gen <= 2) iv &= 30;
 			var ev = set.evs[stat];

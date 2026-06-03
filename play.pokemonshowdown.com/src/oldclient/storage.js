@@ -892,12 +892,14 @@ Storage.packTeam = function (team) {
 			buf += '|';
 		}
 
-		if (set.pokeball || (set.hpType && !hasHP) || set.gigantamax || (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.teraType) {
+		if (set.pokeball || (set.hpType && !hasHP) || set.gigantamax || (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.teraType || set.customBaseStats || set.customTypes) {
 			buf += ',' + (set.hpType || '');
 			buf += ',' + toID(set.pokeball);
 			buf += ',' + (set.gigantamax ? 'G' : '');
 			buf += ',' + (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10 ? set.dynamaxLevel : '');
 			buf += ',' + (set.teraType || '');
+			buf += ',' + (set.customBaseStats ? set.customBaseStats.hp + ':' + set.customBaseStats.atk + ':' + set.customBaseStats.def + ':' + set.customBaseStats.spa + ':' + set.customBaseStats.spd + ':' + set.customBaseStats.spe : '');
+			buf += ',' + (set.customTypes ? set.customTypes.join(':') : '');
 		}
 	}
 
@@ -1007,9 +1009,9 @@ Storage.fastUnpackTeam = function (buf) {
 		j = buf.indexOf(']', i);
 		var misc = undefined;
 		if (j < 0) {
-			if (i < buf.length) misc = buf.substring(i).split(',', 6);
+			if (i < buf.length) misc = buf.substring(i).split(',', 9);
 		} else {
-			if (i !== j) misc = buf.substring(i, j).split(',', 6);
+			if (i !== j) misc = buf.substring(i, j).split(',', 9);
 		}
 		if (misc) {
 			set.happiness = (misc[0] ? Number(misc[0]) : 255);
@@ -1018,6 +1020,22 @@ Storage.fastUnpackTeam = function (buf) {
 			set.gigantamax = !!misc[3];
 			set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
 			set.teraType = misc[5];
+			if (misc[6]) {
+				var cbs = misc[6].split(':');
+				if (cbs.length === 6) {
+					set.customBaseStats = {
+						hp: parseInt(cbs[0], 10) || 0,
+						atk: parseInt(cbs[1], 10) || 0,
+						def: parseInt(cbs[2], 10) || 0,
+						spa: parseInt(cbs[3], 10) || 0,
+						spd: parseInt(cbs[4], 10) || 0,
+						spe: parseInt(cbs[5], 10) || 0
+					};
+				}
+			}
+			if (misc[7]) {
+				set.customTypes = misc[7].split(':').filter(function (t) { return t; });
+			}
 		}
 		if (j < 0) break;
 		i = j + 1;
@@ -1130,9 +1148,9 @@ Storage.unpackTeam = function (buf) {
 		j = buf.indexOf(']', i);
 		var misc = undefined;
 		if (j < 0) {
-			if (i < buf.length) misc = buf.substring(i).split(',', 6);
+			if (i < buf.length) misc = buf.substring(i).split(',', 9);
 		} else {
-			if (i !== j) misc = buf.substring(i, j).split(',', 6);
+			if (i !== j) misc = buf.substring(i, j).split(',', 9);
 		}
 		if (misc) {
 			set.happiness = (misc[0] ? Number(misc[0]) : 255);
@@ -1141,6 +1159,22 @@ Storage.unpackTeam = function (buf) {
 			set.gigantamax = !!misc[3];
 			set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
 			set.teraType = misc[5];
+			if (misc[6]) {
+				var cbs = misc[6].split(':');
+				if (cbs.length === 6) {
+					set.customBaseStats = {
+						hp: parseInt(cbs[0], 10) || 0,
+						atk: parseInt(cbs[1], 10) || 0,
+						def: parseInt(cbs[2], 10) || 0,
+						spa: parseInt(cbs[3], 10) || 0,
+						spd: parseInt(cbs[4], 10) || 0,
+						spe: parseInt(cbs[5], 10) || 0
+					};
+				}
+			}
+			if (misc[7]) {
+				set.customTypes = misc[7].split(':').filter(function (t) { return t; });
+			}
 		}
 		if (j < 0 || buf.indexOf('|', j) < 0) break;
 		i = j + 1;
@@ -1323,6 +1357,24 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 11) === 'Tera Type: ') {
 			line = line.substr(11);
 			curSet.teraType = line;
+		} else if (line.substr(0, 14) === 'Custom-Stats: ') {
+			/* Parse Custom-Stats: hp/atk/def/spa/spd/spe — silently ignored by non-Relumi formats */
+			line = line.substr(14);
+			var statParts = line.split('/');
+			if (statParts.length === 6) {
+				curSet.customBaseStats = {
+					hp: parseInt(statParts[0], 10) || 0,
+					atk: parseInt(statParts[1], 10) || 0,
+					def: parseInt(statParts[2], 10) || 0,
+					spa: parseInt(statParts[3], 10) || 0,
+					spd: parseInt(statParts[4], 10) || 0,
+					spe: parseInt(statParts[5], 10) || 0
+				};
+			}
+		} else if (line.substr(0, 14) === 'Custom-Types: ') {
+			/* Parse Custom-Types: Type1/Type2 — silently ignored by non-Relumi formats */
+			line = line.substr(14);
+			curSet.customTypes = line.split('/').filter(function (t) { return t; });
 		} else if (line.substr(0, 15) === 'Dynamax Level: ') {
 			line = line.substr(15);
 			curSet.dynamaxLevel = +line;
@@ -1529,6 +1581,17 @@ Storage.exportTeam = function (team, hidestats) {
 			if (move) {
 				text += '- ' + move + "  \n";
 			}
+		}
+		/* Emit custom base stats and types only when they differ from defaults */
+		if (curSet.customBaseStats) {
+			/* Fill in species' actual base stats for any unset custom stat fields */
+			var species = Dex.species.get(curSet.species);
+			var defaultStats = species.baseStats;
+			var customStatStr = (curSet.customBaseStats.hp !== undefined ? curSet.customBaseStats.hp : defaultStats.hp) + '/' + (curSet.customBaseStats.atk !== undefined ? curSet.customBaseStats.atk : defaultStats.atk) + '/' + (curSet.customBaseStats.def !== undefined ? curSet.customBaseStats.def : defaultStats.def) + '/' + (curSet.customBaseStats.spa !== undefined ? curSet.customBaseStats.spa : defaultStats.spa) + '/' + (curSet.customBaseStats.spd !== undefined ? curSet.customBaseStats.spd : defaultStats.spd) + '/' + (curSet.customBaseStats.spe !== undefined ? curSet.customBaseStats.spe : defaultStats.spe);
+			text += 'Custom-Stats: ' + customStatStr + "  \n";
+		}
+		if (curSet.customTypes && curSet.customTypes.length) {
+			text += 'Custom-Types: ' + curSet.customTypes.join('/') + "  \n";
 		}
 		text += "\n";
 	}
