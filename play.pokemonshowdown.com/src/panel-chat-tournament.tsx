@@ -53,6 +53,7 @@ interface TournamentTableBracketData {
 	scores: number[];
 }
 type TournamentInfo = {
+	/** nickname will override this */
 	format?: string,
 	teambuilderFormat?: string,
 	generator?: string,
@@ -148,7 +149,8 @@ export class ChatTournament extends PSModel {
 		} else if (args[0] === 'tournament') {
 			switch (cmd) {
 			case 'create': {
-				this.info.format = args[2];
+				this.info.format = args[5] || args[2];
+				this.info.teambuilderFormat = args[2];
 				this.info.generator = args[3];
 				const formatName = BattleLog.formatName(args[2]);
 				const type = args[3];
@@ -485,9 +487,9 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 					<div class="tournament-challenge-user">vs. {info.challenges[tour.selectedChallenge]}</div>
 					<button type="submit" class="button"><strong>Ready!</strong></button>
 					{info.challenges.length > 1 && <span class="tournament-challenge-user-menu">
-						<select onChange={this.selectChallengeUser}>
+						<select onChange={this.selectChallengeUser} value={tour.selectedChallenge}>
 							{info.challenges.map((challenge, index) => (
-								<option value={index} selected={index === tour.selectedChallenge}>{challenge}</option>
+								<option value={index}>{challenge}</option>
 							))}
 						</select>
 					</span>}
@@ -943,7 +945,7 @@ export class TournamentTreeBracket extends preact.Component<{
 export class TourPopOutPanel extends PSRoomPanel {
 	static readonly id = 'tourpopout';
 	static readonly routes = ['tourpopout'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	static readonly noURL = true;
 	override componentDidMount() {
 		const tour = this.props.room.args?.tour as ChatTournament;
@@ -952,7 +954,7 @@ export class TourPopOutPanel extends PSRoomPanel {
 	override render() {
 		const room = this.props.room;
 		const tour = room.args?.tour as ChatTournament;
-		return <PSPanelWrapper room={room} fullSize>
+		return <PSPanelWrapper room={room} noScroll fullSize>
 			{tour && <TournamentBracket tour={tour} poppedOut />}
 		</PSPanelWrapper>;
 	}

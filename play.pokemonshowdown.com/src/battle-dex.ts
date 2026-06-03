@@ -314,9 +314,6 @@ export const Dex = new class implements ModdedDex {
 		if (dex.gen === 8 && formatid.includes('bdsp')) {
 			dex = Dex.mod('gen8bdsp' as ID);
 		}
-		if (dex.gen === 9 && formatid.includes('legends')) {
-			dex = Dex.mod('gen9legendsou' as ID);
-		}
 		if (dex.gen === 9 && formatid.includes('champions')) {
 			dex = Dex.mod('champions' as ID);
 		}
@@ -933,15 +930,13 @@ export const Dex = new class implements ModdedDex {
 			// @ts-expect-error safe, but too lazy to cast
 			id = toID(pokemon.volatiles.formechange[1]);
 		}
-		let fainted = (pokemon as Pokemon | ServerPokemon)?.fainted
-			? `;opacity:.3;filter:grayscale(100%) brightness(.5)`
-			: ``;
-
 		let num = this.getPokemonIconNum(id, pokemon?.gender === "F", facingLeft);
 
 		let top = Math.floor(num / 12) * 30;
 		let left = (num % 12) * 40;
-		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?v21) no-repeat scroll -${left}px -${top}px${fainted}`;
+		let fainted = ((pokemon as Pokemon | ServerPokemon)?.fainted ?
+			`;opacity:.3;filter:grayscale(100%) brightness(.5)` : ``);
+		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?v22) no-repeat scroll -${left}px -${top}px${fainted}`;
 	}
 
 	/** Cosmetic form names for the teambuilder alt-form picker (base Dex, not modded). */

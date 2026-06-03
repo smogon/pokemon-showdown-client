@@ -420,6 +420,12 @@ pre.textbox {
 .textbox tt {
 	color: #3388CC;
 }
+.textbox tt.message-cmd {
+	color: #1a5f97;
+}
+.dark .textbox tt.message-cmd {
+	color: #86b7df;
+}
 .textbox:hover {
 	border-color: #474747;
 	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);

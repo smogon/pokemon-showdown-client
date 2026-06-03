@@ -756,6 +756,9 @@ p.or:after {
 	width: 312px;
 	min-height: 2px;
 	padding: 25px 0 51px 0;
+}
+.mini-window {
+	position: relative;
 	z-index: 1;
 }
 
@@ -1799,6 +1802,9 @@ pre.textbox.textbox-empty[placeholder]:before {
 	border-top: 0;
 	border-bottom: 0;
 }
+.ps-room .battle-log .inner {
+	padding-top: 25px;
+}
 
 /* I like this one (bottom-aligns chat logs) but it's controversial */
 /* .battle-log, .chat-log {
@@ -2657,7 +2663,7 @@ button.team:active {
 	background: rgba(0, 255, 200, 0.18);
 }
 .dark a.ilink {
-	color: #4488ee;
+	color: #81AAF2;
 }
 .dark .chat.mine {
 	background: rgba(255, 255, 255, 0.05);

@@ -188,8 +188,9 @@ export const Teams = new class {
 
 			// nature
 			j = buf.indexOf('|', i);
-			set.nature = buf.substring(i, j) as Dex.NatureName;
-			if (set.nature as any === 'undefined') delete set.nature;
+			const nature = buf.substring(i, j);
+			set.nature = nature.charAt(0).toUpperCase() + nature.slice(1) as Dex.NatureName;
+			if (set.nature as any === 'Undefined') delete set.nature;
 			i = j + 1;
 
 			// evs

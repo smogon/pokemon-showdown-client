@@ -7,7 +7,7 @@
 
 import preact from "../js/lib/preact";
 import type { PSSubscription } from "./client-core";
-import { PS, PSRoom, type RoomOptions, type RoomID, type Team } from "./client-main";
+import { PS, PSRoom, type RoomOptions, type RoomID, type Team, Config } from "./client-main";
 import { PSView, PSPanelWrapper, PSRoomPanel } from "./panels";
 import { TeamForm } from "./panel-mainmenu";
 import { BattleLog } from "./battle-log";
@@ -107,11 +107,19 @@ export class ChatRoom extends PSRoom {
 			return;
 
 		case 'noinit':
-			if (this.battle) {
+			if (this.battle && args[1] === 'joinfailed') {
+				this.receiveLine(['bigerror', args[2]]);
+				this.receiveLine(['html',
+					`<div class="broadcast-red pad"><p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p></div>`,
+				]);
+			} else if (this.battle) {
 				// check the Replays database
 				(this as any as BattleRoom).loadReplay();
 			} else {
-				this.receiveLine(['bigerror', 'Room does not exist']);
+				const message = args[2] ? BattleLog.escapeHTML(args[2]) : `Chatroom "${BattleLog.escapeHTML(this.title)}" not found`;
+				this.receiveLine(['html',
+					`<div class="broadcast-red pad"><h3>${message}</h3><p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p></div>`,
+				]);
 			}
 			return;
 		case 'expire':
@@ -197,12 +205,13 @@ export class ChatRoom extends PSRoom {
 					if (time < cutOffTime) cutOffStart = i;
 				}
 				if (lines[i].startsWith('|raw|<div class="infobox"> You joined ')) {
-					reconnectMessage = `|raw|<div class="infobox">You reconnected to ${lines[i].slice(38)}`;
+					const timestamp = BattleLog.renderTimestamp(Date.now() / 1000, PS.prefs.timestamps?.chatrooms);
+					reconnectMessage = `|raw|<div class="infobox">${timestamp}You reconnected to ${lines[i].slice(38)}`;
 					cutOffEnd = i;
 					if (!lines[i - 1]) cutOffEnd = i - 1;
 				}
 			}
-			console.log("Reconnection log splice:");
+			console.log(`Reconnection log splice: (cutoff: ${cutOffTime})`);
 			console.log([
 				...lines.slice(0, cutOffStart),
 				'====================',
@@ -213,7 +222,8 @@ export class ChatRoom extends PSRoom {
 			lines = lines.slice(cutOffStart, cutOffEnd);
 
 			if (lines.length) {
-				this.receiveLine([`raw`, `<div class="infobox">You disconnected.</div>`]);
+				const timestamp = BattleLog.renderTimestamp(cutOffTime, PS.prefs.timestamps?.chatrooms);
+				this.receiveLine([`raw`, `<div class="infobox">${timestamp}You disconnected.</div>`]);
 				for (const line of lines) this.receiveLine(BattleTextParser.parseLine(line));
 				this.receiveLine(BattleTextParser.parseLine(reconnectMessage));
 			}
@@ -305,7 +315,7 @@ export class ChatRoom extends PSRoom {
 		const lastMessageDate = lastMessageDates[PS.server.id][this.id] || 0;
 		// because the time offset to the server can vary slightly, subtract it to not have it affect comparisons between dates
 		const time = serverTime - (this.timeOffset || 0);
-		if (PS.isVisible(this)) {
+		if (PS.isVisiblePanel(this)) {
 			this.lastMessageTime = null;
 			lastMessageDates[PS.server.id][this.id] = time;
 			PS.prefs.set('logtimes', lastMessageDates);
@@ -504,7 +514,7 @@ export class ChatRoom extends PSRoom {
 				let userid = toID(targets[0]);
 				let registered = PS.user.registered;
 				if (registered && PS.user.userid === userid) {
-					buffer += `<tr><td colspan="8" style="text-align:right"><a href="//${PS.routes.users}/${userid}">Reset W/L</a></tr></td>`;
+					buffer += `<tr><td colspan="8" style="text-align:right"><a href="//${Config.routes.users}/${userid}">Reset W/L</a></tr></td>`;
 				}
 				buffer += '</table></div>';
 				this.add(`|html|${buffer}`);
@@ -740,11 +750,6 @@ export class ChatRoom extends PSRoom {
 	}
 
 	handleJoinLeave(action: 'join' | 'leave', name: string, silent: boolean) {
-		if (action === 'join') {
-			this.addUser(name);
-		} else if (action === 'leave') {
-			this.removeUser(name);
-		}
 		const showjoins = PS.prefs.showjoins?.[PS.server.id];
 		if (!(showjoins?.[this.id] ?? showjoins?.['global'] ?? !silent)) return;
 
@@ -767,7 +772,7 @@ export class ChatRoom extends PSRoom {
 		if (this.joinLeave['join'].length && this.joinLeave['leave'].length) message += '; ';
 		message += this.formatJoinLeave(this.joinLeave['leave'], 'left');
 
-		this.add(`|uhtml|${this.joinLeave.messageId}|<small style="color: #555555">${message}</small>`);
+		this.add(`|uhtml|${this.joinLeave.messageId}|<small class="gray">${message}</small>`);
 	}
 
 	formatJoinLeave(preList: string[], action: 'joined' | 'left') {
@@ -830,6 +835,19 @@ export class CopyableURLBox extends preact.Component<{ url: string }> {
 	}
 }
 
+interface UserAutoCompleteCandidate {
+	type: "user";
+	userid: string;
+	prefixIndex: number;
+}
+
+interface CmdAutoCompleteCandidate {
+	type: "command";
+	command: string;
+}
+
+export type AutoCompleteCandidate = UserAutoCompleteCandidate | CmdAutoCompleteCandidate;
+
 export class ChatTextEntry extends preact.Component<{
 	room: ChatRoom, onMessage: (msg: string, elem: HTMLElement) => void, onKey: (e: KeyboardEvent) => boolean,
 	left?: number, tinyLayout?: boolean,
@@ -840,7 +858,7 @@ export class ChatTextEntry extends preact.Component<{
 	history: string[] = [];
 	historyIndex = 0;
 	tabComplete: {
-		candidates: { userid: string, prefixIndex: number }[],
+		candidates: AutoCompleteCandidate[],
 		candidateIndex: number,
 		/** the text left of the cursor before tab completing */
 		prefix: string,
@@ -1105,7 +1123,7 @@ export class ChatTextEntry extends preact.Component<{
 		return false;
 	}
 	// TODO - add support for commands tabcomplete
-	handleTabComplete(reverse: boolean) {
+	handleTabComplete(reverse: boolean): boolean {
 		// Don't tab complete at the start of the text box.
 		let { value, start, end } = this.getSelection();
 		if (start !== end || end === 0) return false;
@@ -1140,23 +1158,25 @@ export class ChatTextEntry extends preact.Component<{
 			const match2 = /^([\s\S!/]*?)([A-Za-z0-9][^, \n]* [^, ]*)$/.exec(prefix);
 			if (!match1 && !match2) return true;
 
+			const candidates: AutoCompleteCandidate[] = [];
 			const idprefix = (match1 ? toID(match1[2]) : '');
 			let spaceprefix = (match2 ? match2[2].replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase() : '');
-			const candidates: { userid: string, prefixIndex: number }[] = [];
 			if (match2 && (match2[0] === '/' || match2[0] === '!')) spaceprefix = '';
 			for (const userid in users) {
 				if (spaceprefix && users[userid].slice(1).replace(/[^A-Za-z0-9 ]+/g, '')
 					.toLowerCase()
 					.startsWith(spaceprefix)) {
-					if (match2) candidates.push({ userid, prefixIndex: match2[1].length });
+					if (match2) candidates.push({ type: "user", userid, prefixIndex: match2[1].length });
 				} else if (idprefix && userid.startsWith(idprefix)) {
-					if (match1) candidates.push({ userid, prefixIndex: match1[1].length });
+					if (match1) candidates.push({ type: "user", userid, prefixIndex: match1[1].length });
 				}
 			}
 			// Sort by most recent to speak in the chat, or, in the case of a tie,
 			// in alphabetical order.
 			const userActivity = this.props.room.userActivity;
 			candidates.sort((a, b) => {
+				// command autocomplete options aren't added until after the user autocomplete options are sorted.
+				if (a.type !== "user" || b.type !== "user") return 0;
 				if (a.prefixIndex !== b.prefixIndex) {
 					// shorter prefix length comes first
 					return a.prefixIndex - b.prefixIndex;
@@ -1168,6 +1188,30 @@ export class ChatTextEntry extends preact.Component<{
 				}
 				return (a.userid < b.userid) ? -1 : 1; // alphabetical order
 			});
+
+			const currentLine = prefix.substring(prefix.lastIndexOf('\n') + 1);
+			const isCommandWord = (word: string) => (word.startsWith('/') && !word.startsWith('//')) || word.startsWith('!');
+			const currentWord = currentLine.substring(currentLine.lastIndexOf(' ') + 1);
+			const isCommandSearch = isCommandWord(currentWord);
+			if (isCommandSearch) {
+				PS.mainmenu.makeQuery('cmdsearch', currentWord, true).then((data: string[]) => {
+					const cmds = data.sort((a, b) => a.length < b.length ? 1 : -1);
+					const nextCmd = cmds[cmds.length - 1];
+					const newValue = nextCmd + value.substring(end);
+					this.setValue(newValue, nextCmd.length, nextCmd.length);
+					const currentCandidates = this.tabComplete?.candidates ?? [];
+					for (const cmd of cmds) {
+						currentCandidates.unshift({ type: "command", command: cmd });
+					}
+					this.tabComplete = {
+						candidates: currentCandidates,
+						candidateIndex: 0,
+						prefix: nextCmd,
+						cursor: nextCmd,
+					};
+				});
+				return true;
+			}
 
 			if (!candidates.length) {
 				this.tabComplete = null;
@@ -1182,13 +1226,22 @@ export class ChatTextEntry extends preact.Component<{
 		}
 		// Substitute in the tab-completed name
 		const candidate = this.tabComplete.candidates[this.tabComplete.candidateIndex];
-		let name = users[candidate.userid];
-		if (!name) return true;
+		if (candidate.type === "user") {
+			let name = users[candidate.userid];
+			if (!name) return true;
 
-		name = Dex.getShortName(name.slice(1)); // Remove rank and busy characters
-		const cursor = this.tabComplete.prefix.slice(0, candidate.prefixIndex) + name;
-		this.setValue(cursor + value.slice(end), cursor.length);
-		this.tabComplete.cursor = cursor;
+			name = Dex.getShortName(name.slice(1)); // Remove rank and busy characters
+			const cursor = this.tabComplete.prefix.slice(0, candidate.prefixIndex) + name;
+			this.setValue(cursor + value.slice(end), cursor.length);
+			this.tabComplete.cursor = cursor;
+		} else {
+			const prefixIndex = prefix.lastIndexOf('\n') + 1;
+			const fullPrefix = prefix.substring(0, prefixIndex) + Dex.getShortName(candidate.command);
+			const newValue = fullPrefix + value.substring(end);
+			this.setValue(newValue, fullPrefix.length, fullPrefix.length);
+			this.tabComplete.cursor = fullPrefix;
+			this.tabComplete.prefix = fullPrefix;
+		}
 		return true;
 	}
 	undoTabComplete() {
@@ -1409,7 +1462,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			</TeamForm>
 		</div> : null;
 
-		return <PSPanelWrapper room={room} focusClick fullSize>
+		return <PSPanelWrapper room={room} focusClick noScroll fullSize>
 			<ChatLog
 				class={`chat-log${tinyLayout ? '' : ' hasuserlist'}`} room={this.props.room}
 				left={tinyLayout ? 0 : 146} top={room.tour?.info.isActive ? 30 : 0}

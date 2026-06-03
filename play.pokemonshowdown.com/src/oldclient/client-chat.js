@@ -1184,6 +1184,7 @@
 			// documentation of client commands
 			case 'help':
 			case 'h':
+				if (text.charAt(0) === '!') return text;
 				switch (toID(target)) {
 				case 'chal':
 				case 'chall':
@@ -1193,6 +1194,7 @@
 					this.add('/challenge [user], [format] - Challenge the user [user] to a battle in the specified [format].');
 					this.add('/challenge [user], [format] @@@ [rules] - Challenge the user [user] to a battle with custom rules.');
 					this.add('[rules] can be a comma-separated list of: [added rule], ![removed rule], -[banned thing], *[restricted thing], +[unbanned/unrestricted thing]');
+					this.add('If used in the DMs of a user, no [user] parameter can be used and it will challenge that user.');
 					this.add('/battlerules - Detailed information on what can go in [rules].');
 					return false;
 				case 'accept':
@@ -1231,8 +1233,9 @@
 					return false;
 				case 'showjoins':
 				case 'hidejoins':
-					this.add('/showjoins [room] - Receive users\' join/leave messages. Optionally for only specified room.');
-					this.add('/hidejoins [room] - Ignore users\' join/leave messages. Optionally for only specified room.');
+					this.add('/showjoins [room] - Receive users\' join/leave messages.');
+					this.add('/hidejoins [room] - Ignore users\' join/leave messages.');
+					this.add('If no [room] is provided, changes the global setting.');
 					return false;
 				case 'showbattles':
 				case 'hidebattles':
@@ -1268,8 +1271,9 @@
 				case 'ranking':
 				case 'rating':
 				case 'ladder':
-					this.add('/rating - Get your own rating.');
-					this.add('/rating [username] - Get user [username]\'s rating.');
+					this.add('/rank [user] - Shows all ladder ranks for the given [user].');
+					this.add('/rank [user], [format] - Shows the rank of [user] in the given [format].');
+					this.add('If no user is given, it defaults to the user of the command.');
 					return false;
 				case 'afd':
 					this.add('/afd full - Enable all April Fools\' Day jokes.');

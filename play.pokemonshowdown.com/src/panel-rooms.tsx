@@ -14,6 +14,9 @@ export class RoomsRoom extends PSRoom {
 	override readonly classType: string = 'rooms';
 	constructor(options: RoomOptions) {
 		super(options);
+		if (Object.keys(PS.prefs.serversettings).length) {
+			PS.send(`/updatesettings ${JSON.stringify(PS.prefs.serversettings)}`);
+		}
 		PS.send(`/cmd rooms`);
 	}
 }
@@ -188,14 +191,14 @@ class RoomsPanel extends PSRoomPanel {
 		return [...hidden, ["Search results", results]];
 	}
 	override render() {
-		if (this.hidden && PS.isVisible(this.props.room)) this.hidden = false;
+		if (this.hidden && PS.isVisiblePanel(this.props.room)) this.hidden = false;
 		if (this.hidden) {
-			return <PSPanelWrapper room={this.props.room} scrollable>{null}</PSPanelWrapper>;
+			return <PSPanelWrapper room={this.props.room}>{null}</PSPanelWrapper>;
 		}
 		const rooms = PS.mainmenu.roomsCache;
 		this.updateRoomList();
 
-		return <PSPanelWrapper room={this.props.room} scrollable><div class="pad">
+		return <PSPanelWrapper room={this.props.room}><div class="pad">
 			<button class="button" style="float:right;font-size:10pt;margin-top:3px" onClick={this.hide}>
 				<i class="fa fa-caret-right" aria-hidden></i> Hide
 			</button>

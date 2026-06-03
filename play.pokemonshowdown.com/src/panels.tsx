@@ -188,6 +188,7 @@ PS.router = new PSRouter();
 
 export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ room: T }> {
 	subscriptions: PSSubscription[] = [];
+	wasVisible = true; // remember, shouldComponentUpdate isn't called on first render
 	subscribeTo<M>(
 		model: PSModel<M> | PSStreamModel<M>, callback: (value: M) => void = () => { this.forceUpdate(); }
 	): PSSubscription {
@@ -204,6 +205,12 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 			else this.receiveLine(args);
 		}));
 		this.componentDidUpdate();
+	}
+	override shouldComponentUpdate() {
+		const wasVisible = this.wasVisible;
+		const visible = PS.isVisible(this.props.room);
+		this.wasVisible = visible;
+		return visible || wasVisible;
 	}
 	justUpdatedDimensions = false;
 	updateDimensions() {
@@ -226,7 +233,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 	}
 	override componentDidUpdate() {
 		const room = this.props.room;
-		const currentlyHidden = !room.width && room.parentElem && ['popup', 'semimodal-popup'].includes(room.location);
+		const currentlyHidden = !room.width && room.parentElem && ['popup', 'modal-popup'].includes(room.location);
 		this.updateDimensions();
 		if (currentlyHidden) return;
 		if (room.focusNextUpdate) {
@@ -277,15 +284,31 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 
 export function PSPanelWrapper(props: {
 	room: PSRoom, children: preact.ComponentChildren,
-	focusClick?: boolean, scrollable?: boolean | 'hidden', width?: number | 'auto',
-	fullSize?: boolean, onDragEnter?: (ev: DragEvent) => void,
+	focusClick?: boolean,
+	/**
+	 * * `true` = overflow: visible
+	 * * `false` = overflow: auto (default)
+	 * * `"hidden"` = overflow: hidden
+	 *
+	 * For panels that manually manage their layout (usually with scrolling subareas)
+	 * rather than having a single scrollable area
+	 */
+	noScroll?: boolean | 'hidden',
+	width?: number | 'auto',
+	/**
+	 * on a mini-window, gives it `height: auto` instead of `height: 500px`
+	 * on a popup, makes it fill 90% of the screen's height/width
+	 */
+	fullSize?: boolean,
+	onDragEnter?: (ev: DragEvent) => void,
 }) {
 	const room = props.room;
 	if (room.location === 'mini-window') {
 		const size = props.fullSize ? ' mini-window-flex' : '';
+		const scrollable = !props.noScroll && !props.fullSize ? ' scrollable' : '';
 		return <div
 			id={`room-${room.id}`}
-			class={`mini-window-contents tiny-layout ps-room-light${props.scrollable === true ? ' scrollable' : ''}${size}`}
+			class={`mini-window-contents tiny-layout ps-room-light${scrollable}${size}`}
 			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} onDragEnter={props.onDragEnter}
 		>
 			{props.children}
@@ -298,10 +321,10 @@ export function PSPanelWrapper(props: {
 		</div>;
 	}
 	const style = PSView.posStyle(room) as any;
-	if (props.scrollable === 'hidden') style.overflow = 'hidden';
+	if (props.noScroll === 'hidden') style.overflow = 'hidden';
 	const tinyLayout = room.width < 620 ? ' tiny-layout' : '';
 	return <div
-		class={`ps-room${room.id === '' ? '' : ' ps-room-light'}${props.scrollable === true ? ' scrollable' : ''}${tinyLayout}`}
+		class={`ps-room${room.id === '' ? '' : ' ps-room-light'}${!props.noScroll ? ' scrollable' : ''}${tinyLayout}`}
 		id={`room-${room.id}`} role="tabpanel" aria-labelledby={`roomtab-${room.id}`}
 		style={style} onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} onDragEnter={props.onDragEnter}
 	>
@@ -542,10 +565,11 @@ export class PSView extends preact.Component {
 			}
 			const modifierKey = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
 			const altKey = !ev.ctrlKey && ev.altKey && !ev.metaKey && !ev.shiftKey;
-			if (ev.altKey && ev.shiftKey && ev.keyCode === 37) { // alt + shift + left
+			const altShiftKey = !ev.ctrlKey && ev.altKey && !ev.metaKey && ev.shiftKey;
+			if (altShiftKey && ev.keyCode === 37 && !isNonEmptyTextInput) { // alt + shift + left
 				PS.arrowKeysUsed = true;
 				PS.focusUnreadRoom('left');
-			} else if (ev.altKey && ev.shiftKey && ev.keyCode === 39) { // alt + shift + right
+			} else if (altShiftKey && ev.keyCode === 39 && !isNonEmptyTextInput) { // alt + shift + right
 				PS.arrowKeysUsed = true;
 				PS.focusUnreadRoom('right');
 			}
@@ -560,8 +584,10 @@ export class PSView extends preact.Component {
 				if (PS.popups.length) {
 					ev.stopImmediatePropagation();
 					ev.preventDefault();
-					PS.closePopup();
-					PS.focusRoom(PS.room.id);
+					if (PS.room.closable) {
+						PS.closePopup();
+						PS.focusRoom(PS.room.id);
+					}
 				} else if (PS.room.id === 'rooms') {
 					PS.hideRightRoom();
 				}
@@ -687,7 +713,9 @@ export class PSView extends preact.Component {
 		// iOS Safari bug, no global click events when tapping
 		// I'm sure it's intentional but it interferes with putting the dismiss feature in window.onclick
 		if ((ev.target as Element)?.className === 'ps-overlay') {
-			PS.closePopup();
+			if (PS.room.closable) {
+				PS.closePopup();
+			}
 			ev.preventDefault();
 			ev.stopImmediatePropagation();
 		}
@@ -748,7 +776,12 @@ export class PSView extends preact.Component {
 		case 'cmd':
 			const room = PS.getRoom(elem) || PS.mainmenu;
 			if (elem.name === 'send') {
-				room.sendDirect(elem.value);
+				// Legacy behavior. Use `data-cmd` or `data-sendraw` once we drop support for the old client.
+				if ((room as ChatRoom).pmTarget) {
+					PS.send(elem.value);
+				} else {
+					room.sendDirect(elem.value);
+				}
 			} else {
 				room.send(elem.value);
 			}
@@ -807,7 +840,7 @@ export class PSView extends preact.Component {
 			PS.update();
 		}
 
-		if (room.location === 'modal-popup' || !room.parentElem || !source) {
+		if (!room.parentElem || !source) {
 			return { maxWidth: width || 480 };
 		}
 		if (!room.width || !room.height) {
@@ -890,7 +923,8 @@ export class PSView extends preact.Component {
 
 		}
 
-		if (width) style.maxWidth = width;
+		// -2 to exclude 1px border on each side
+		if (width) style.maxWidth = typeof width === 'number' ? width - 2 : width;
 
 		return style;
 	}
@@ -913,7 +947,7 @@ export class PSView extends preact.Component {
 		let rooms = [] as preact.VNode[];
 		for (const roomid in PS.rooms) {
 			const room = PS.rooms[roomid]!;
-			if (PS.isNormalRoom(room)) {
+			if (PS.isPanel(room)) {
 				rooms.push(this.renderRoom(room));
 			}
 		}
