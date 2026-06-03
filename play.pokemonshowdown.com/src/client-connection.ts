@@ -479,30 +479,16 @@ export const PSLoginServer = new class {
 				data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/%2C/g, ',');
 			}
 		}
-		// Team ops (getteams/getteam): use GET with query params and bypass
-		// PSStorage (the cross-origin iframe bridge) and Net() (which may
-		// prepend Net.defaultRoute), so the request goes directly to the
-		// local server where customhttpresponse can handle it.
-		// Auth ops (login/getassertion): keep POST with body through PSStorage,
-		// matching the old client's $.get() vs $.post() split.
+		// Team ops (getteams/getteam): use GET with query params so the dev server
+		// proxy and game server's customhttpresponse can read `act`/`teamid` from
+		// the URL. Auth ops (login/getassertion): keep POST with body, matching the
+		// old client's $.get() vs $.post() split.
 		if (act === 'getteams' || act === 'getteam') {
-			const params = new URLSearchParams();
-			for (const key in data) {
-				params.set(key, String(data[key]));
-			}
-			console.log('[Relumi rawQuery] team op:', act, 'url:', url, 'Net.defaultRoute:', Net.defaultRoute);
-			return fetch(url + '?' + params.toString(), {
-				credentials: 'same-origin',
-			}).then(res => {
-				if (!res.ok) {
-					console.warn('[Relumi rawQuery] team op failed:', res.status, res.statusText);
-					return null;
-				}
-				return res.text().then(text => text ?? null);
-			}).catch(err => {
-				console.warn('[Relumi rawQuery] team op error:', err);
-				return null;
-			});
+			return PSStorage.request('GET', url, data) || Net(url).get({ query: data }).then(
+				res => res ?? null
+			).catch(
+				() => null
+			);
 		}
 		return PSStorage.request('POST', url, data) || Net(url).get({ method: 'POST', body: data }).then(
 			res => res ?? null
@@ -604,12 +590,8 @@ class NetRequest {
 }
 
 export function Net(uri: string) {
-	const originalUri = uri;
 	if (uri.startsWith('/') && !uri.startsWith('//') && Net.defaultRoute) uri = Net.defaultRoute + uri;
 	if (uri.startsWith('//') && document.location.protocol === 'file:') uri = 'https:' + uri;
-	if (originalUri !== uri) {
-		console.log('[Relumi Net] defaultRoute applied:', originalUri, '->', uri, 'Net.defaultRoute:', Net.defaultRoute);
-	}
 	return new NetRequest(uri);
 }
 
