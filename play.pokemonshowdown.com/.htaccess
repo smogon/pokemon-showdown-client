@@ -3,7 +3,7 @@ AddType application/x-tgz .tgz
 AddType application/x-chrome-extension .crx
 AddType application/x-web-app-manifest+json .webapp
 
-<filesMatch "^(index|preactalpha)\.html$">
+<filesMatch "^caches/index-(old|new)\.html$">
   FileETag None
   <ifModule mod_headers.c>
      Header unset ETag
@@ -164,6 +164,8 @@ RewriteRule ^backup/ - [F]
 RewriteRule ^\.git/ - [F]
 RewriteRule ^lib/ - [F]
 
+# TODO: figure this guy out
+RewriteCond %{THE_REQUEST} \s/caches/
 RewriteRule ^caches/ - [F]
 RewriteRule ^testclient-old\.html$ - [F]
 RewriteRule ^testclient-beta\.html$ - [F]

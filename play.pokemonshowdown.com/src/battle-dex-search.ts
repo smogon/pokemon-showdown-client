@@ -1322,7 +1322,10 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		}
 		let tierSet: SearchRow[] = table.tierSet;
 		let slices: { [k: string]: number } = table.formatSlices;
-		if (format === 'ubers' || format === 'uber' || format === 'ubersuu' || format === '4v4doublesuu' || format === 'nationaldexdoubles') {
+		if (
+			format === 'ubers' || format === 'uber' || format === 'ubersuu' ||
+			format === '4v4doublesuu' || format === 'nationaldexdoubles'
+		) {
 			tierSet = tierSet.slice(slices.Uber);
 		} else if (isVGCOrBS || (isHackmons && dex.gen === 9 && !this.formatType)) {
 			if (format.endsWith('series13') || format.endsWith('regj') || isHackmons) {
