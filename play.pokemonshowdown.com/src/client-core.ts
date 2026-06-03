@@ -22,8 +22,6 @@ declare const ColorThief: any;
 // PS's model classes are defined here
 
 const PSURL = `${document.location.protocol !== 'http:' ? 'https:' : ''}//${Config.routes.client}/`;
-const RELUMI_BACKGROUND_ID = 'relumi';
-const RELUMI_BACKGROUND_URL = `${PSURL}fx/client-bg-relumi.png`;
 
 export class PSSubscription<T = any> {
 	observable: PSModel<T> | PSStreamModel<T>;
@@ -157,12 +155,26 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 	}
 
 	load(bgUrl: string, bgid: string, menuColors: string[] | null = null) {
-		// Relumi custom client: force one background across all modes and saved settings.
-		bgid = RELUMI_BACKGROUND_ID;
-		bgUrl = RELUMI_BACKGROUND_URL;
-		menuColors = null;
+		// id
 		this.id = bgid;
+
+		// curid
+		if (!bgid || bgid === 'waterfall') {
+			if (location.host === 'smogtours.psim.us') {
+				bgid = 'shaymin';
+			} else {
+				// Relumi mod: include relumi in the default background list
+				const bgs = ['relumi', 'horizon', 'ocean', 'shaymin', 'charizards'];
+				bgid = bgs[Math.floor(Math.random() * bgs.length)];
+				// if someone clicked the random button, try to roll a different bg than before
+				if (bgid === this.curId) bgid = bgs[Math.floor(Math.random() * bgs.length)];
+			}
+		}
 		this.curId = bgid;
+
+		if (!bgUrl) {
+			bgUrl = (bgid === 'solidblue' ? '#344b6c' : PSURL + 'fx/client-bg-' + bgid + '.jpg');
+		}
 
 		// April Fool's 2016 - Digimon theme
 		// bgid = 'digimon';
@@ -173,6 +185,21 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 		// menuColors, attrib
 		let attrib = null;
 		switch (bgid) {
+		case 'relumi':
+			menuColors = [
+				"318.87640449438203,35.177865612648226%",
+				"216,46.2962962962963%",
+				"221.25,32.25806451612904%",
+				"197.8021978021978,52.60115606936417%",
+				"232.00000000000003,19.480519480519483%",
+				"228.38709677419354,60.7843137254902%",
+			];
+			attrib = {
+				url: '../fx/client-bg-relumi.jpg',
+				title: 'Re:Illuminated Platinum',
+				artist: 'Blutwo Animations',
+			};
+			break;
 		case 'horizon':
 			menuColors = [
 				"318.87640449438203,35.177865612648226%",

@@ -45,14 +45,10 @@ Storage.safeJSON = function (callback) {
 Storage.bg = {
 	id: '',
 	changeCount: 0,
-	RELUMI_ID: 'relumi',
-	RELUMI_URL: Dex.resourcePrefix + 'fx/client-bg-relumi.png',
 	// futureproofing in case we ever add more?
 	// because doing this once was annoying
 	MENU_BUTTONS: 7,
 	set: function (bgUrl, bgid, noSave) {
-		bgid = this.RELUMI_ID;
-		bgUrl = this.RELUMI_URL;
 		if (!this.load(bgUrl, bgid)) {
 			this.extractMenuColors(bgUrl, bgid, noSave);
 		} else if (bgid) {
@@ -70,26 +66,24 @@ Storage.bg = {
 	 * they still need to be extracted using Color Thief.
 	 */
 	load: function (bgUrl, bgid, hues) {
-		bgid = this.RELUMI_ID;
-		bgUrl = this.RELUMI_URL;
-		hues = null;
 		this.id = bgid;
-		// if (!bgid) {
-		// 	if (location.host === 'smogtours.psim.us') {
-		// 		bgid = 'shaymin';
-		// 	} else if (location.host === Config.routes.client || bgid === 'waterfall') {
-		// 		var bgs = ['horizon', 'ocean', 'shaymin', 'charizards', 'psday'];
-		// 		bgid = bgs[Math.floor(Math.random() * bgs.length)];
-		// 	} else {
-		// 		$(document.body).css({
-		// 			background: '',
-		// 			'background-size': ''
-		// 		});
-		// 		$('#mainmenubuttoncolors').remove();
-		// 		return true;
-		// 	}
-		// 	bgUrl = Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg';
-		// }
+		if (!bgid) {
+			if (location.host === 'smogtours.psim.us') {
+				bgid = 'shaymin';
+			} else if (location.host === Config.routes.client || bgid === 'waterfall') {
+				// Relumi mod: include relumi in the default background list
+				var bgs = ['relumi', 'horizon', 'ocean', 'shaymin', 'charizards', 'psday'];
+				bgid = bgs[Math.floor(Math.random() * bgs.length)];
+			} else {
+				$(document.body).css({
+					background: '',
+					'background-size': ''
+				});
+				$('#mainmenubuttoncolors').remove();
+				return true;
+			}
+			bgUrl = Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg';
+		}
 
 		// April Fool's 2016 - Digimon theme
 		// bgid = 'digimon';
@@ -112,6 +106,10 @@ Storage.bg = {
 
 		if (!hues) {
 			switch (bgid) {
+			case 'relumi':
+				hues = ["318.87640449438203,35.177865612648226%", "216,46.2962962962963%", "221.25,32.25806451612904%", "197.8021978021978,52.60115606936417%", "232.00000000000003,19.480519480519483%", "228.38709677419354,60.7843137254902%"];
+				attrib = 'Re:Illuminated Platinum <small>background by Blutwo Animations</small>';
+				break;
 			case 'horizon':
 				hues = ["318.87640449438203,35.177865612648226%", "216,46.2962962962963%", "221.25,32.25806451612904%", "197.8021978021978,52.60115606936417%", "232.00000000000003,19.480519480519483%", "228.38709677419354,60.7843137254902%"];
 				attrib = '<a href="https://vtas.deviantart.com/art/Pokemon-Horizon-312267168" target="_blank" class="subtle">"Horizon" <small>background by Vivian Zou</small></a>';

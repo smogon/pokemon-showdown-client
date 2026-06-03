@@ -849,6 +849,7 @@
 			buf += '<p><strong>Official</strong></p>';
 			buf += '<div class="bglist">';
 
+			buf += '<button name="setBg" value="relumi" class="option' + (cur === 'relumi' ? ' cur' : '') + '"><span class="bg" style="background-position:0 -' + (90 * 5) + 'px"></span>Relumi</button>';
 			buf += '<button name="setBg" value="charizards" class="option' + (cur === 'charizards' ? ' cur' : '') + '"><span class="bg" style="background-position:0 -' + (90 * 0) + 'px"></span>Charizards</button>';
 			buf += '<button name="setBg" value="horizon" class="option' + (cur === 'horizon' ? ' cur' : '') + '"><span class="bg" style="background-position:0 -' + (90 * 1) + 'px"></span>Horizon</button>';
 			buf += '<button name="setBg" value="ocean" class="option' + (cur === 'ocean' ? ' cur' : '') + '"><span class="bg" style="background-position:0 -' + (90 * 3) + 'px"></span>Ocean</button>';
@@ -870,8 +871,8 @@
 			this.$el.html(buf);
 		},
 		setBg: function (bgid) {
-			var bgUrl = Dex.resourcePrefix + "fx/client-bg-relumi.png";
-			Storage.bg.set(bgUrl, "relumi");
+			var bgUrl = (bgid === 'solidblue' ? '#344b6c' : Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg');
+			Storage.bg.set(bgUrl, bgid);
 			this.$('.cur').removeClass('cur');
 			this.$('button[value="' + bgid + '"]').addClass('cur');
 		},
