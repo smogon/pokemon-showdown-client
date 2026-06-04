@@ -1106,10 +1106,16 @@ p.or:after {
 	width: 49px;
 	height: 63px;
 	position: absolute;
+	/*
+	left: -55px;
+	bottom: -35px;
+	*/
 	left: -30px;
-	bottom: -5px;
-	background: url(https://play.pokemonshowdown.com/sprites/gen5/shaymin.png)
-		center no-repeat;
+	bottom: -20px;
+	background: url(https://play.pokemonshowdown.com/sprites/gen5/shaymin.png) center no-repeat;
+
+	transform: scaleX(-1) /* scale(2) */;
+	transform-origin: bottom center;
 }
 .roomcounters button:hover .usercount {
 	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/shaymin.gif) center no-repeat;
@@ -1123,7 +1129,7 @@ p.or:after {
 	width: 90px;
 	height: 76px;
 	position: absolute;
-	right: -60px;
+	right: -65px;
 	bottom: -10px;
 	background: url(https://play.pokemonshowdown.com/sprites/gen5/giratina-origin.png)
 		center no-repeat;
