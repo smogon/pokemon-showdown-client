@@ -395,63 +395,66 @@
 		if (baseId !== speciesId) return baseId;
 		return speciesId;
 	};
-	Search.prototype.getStatClass = function (speciesId, statName, value) {
-		if (!this.shouldHighlightRelumiChanges()) return '';
+	// Returns {vanilla, delta} or null if no diff. Used for title tooltips in stat columns
+	Search.prototype.getStatDiff = function (speciesId, statName, value) {
+		if (!this.shouldHighlightRelumiChanges()) return null;
 
 		var relumiTable = this.getRelumiOverrides();
-		if (!relumiTable || !relumiTable.overrideSpeciesData) return '';
+		if (!relumiTable || !relumiTable.overrideSpeciesData) return null;
 
 		var diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
 		var relumiSpeciesDiff = relumiTable.overrideSpeciesData[diffSourceId];
-		if (!relumiSpeciesDiff) return '';
+		if (!relumiSpeciesDiff) return null;
 
 		var vanillaComparisonId;
 		var vanillaSpecies;
 
 		if (relumiSpeciesDiff.baseStats && relumiSpeciesDiff.baseStats[statName] !== undefined) {
-			// Normal path: override has this stat explicitly
 			vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
 			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
-			if (!vanillaSpecies) return '';
+			if (!vanillaSpecies) return null;
 		} else if (!relumiSpeciesDiff.baseStats) {
-			// No baseStats override — compare custom form (not in vanilla) against base form's vanilla stats
-			if (this.getVanillaSpeciesData(speciesId)) return '';
+			if (this.getVanillaSpeciesData(speciesId)) return null;
 			vanillaComparisonId = this.getVanillaComparisonSpeciesId(speciesId);
 			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
-			if (!vanillaSpecies || !vanillaSpecies.baseStats) return '';
+			if (!vanillaSpecies || !vanillaSpecies.baseStats) return null;
 		} else {
-			return '';
+			return null;
 		}
 
 		var vanillaStat = vanillaSpecies.baseStats[statName];
-		if (typeof vanillaStat !== 'number' || vanillaStat === value) return '';
+		if (typeof vanillaStat !== 'number' || vanillaStat === value) return null;
 
-		return value > vanillaStat ? ' relumi-change-up' : ' relumi-change-down';
+		return { vanilla: vanillaStat, delta: value - vanillaStat };
 	};
-	Search.prototype.getBSTClass = function (speciesId, currentBST) {
-		if (!this.shouldHighlightRelumiChanges()) return '';
+	Search.prototype.getStatClass = function (speciesId, statName, value) {
+		var diff = this.getStatDiff(speciesId, statName, value);
+		if (!diff) return '';
+		return diff.delta > 0 ? ' relumi-change-up' : ' relumi-change-down';
+	};
+	// Returns {vanilla, delta} or null if no diff. Used for BST title tooltip
+	Search.prototype.getBSTDiff = function (speciesId, currentBST) {
+		if (!this.shouldHighlightRelumiChanges()) return null;
 
 		var relumiTable = this.getRelumiOverrides();
-		if (!relumiTable || !relumiTable.overrideSpeciesData) return '';
+		if (!relumiTable || !relumiTable.overrideSpeciesData) return null;
 
 		var diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
 		var relumiSpeciesDiff = relumiTable.overrideSpeciesData[diffSourceId];
-		if (!relumiSpeciesDiff) return '';
+		if (!relumiSpeciesDiff) return null;
 
 		var vanillaComparisonId;
 		var vanillaSpecies;
 
 		if (relumiSpeciesDiff.baseStats) {
-			// Normal path: override has baseStats
 			vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
 			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
-			if (!vanillaSpecies || !vanillaSpecies.baseStats) return '';
+			if (!vanillaSpecies || !vanillaSpecies.baseStats) return null;
 		} else {
-			// No baseStats override — compare custom form (not in vanilla) against base form's vanilla BST
-			if (this.getVanillaSpeciesData(speciesId)) return '';
+			if (this.getVanillaSpeciesData(speciesId)) return null;
 			vanillaComparisonId = this.getVanillaComparisonSpeciesId(speciesId);
 			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
-			if (!vanillaSpecies || !vanillaSpecies.baseStats) return '';
+			if (!vanillaSpecies || !vanillaSpecies.baseStats) return null;
 		}
 
 		var vanillaBST = 0;
@@ -459,9 +462,14 @@
 			vanillaBST += vanillaSpecies.baseStats[stat];
 		}
 
-		if (typeof vanillaBST !== 'number' || vanillaBST === currentBST) return '';
+		if (typeof vanillaBST !== 'number' || vanillaBST === currentBST) return null;
 
-		return currentBST > vanillaBST ? ' relumi-change-up' : ' relumi-change-down';
+		return { vanilla: vanillaBST, delta: currentBST - vanillaBST };
+	};
+	Search.prototype.getBSTClass = function (speciesId, currentBST) {
+		var diff = this.getBSTDiff(speciesId, currentBST);
+		if (!diff) return '';
+		return diff.delta > 0 ? ' relumi-change-up' : ' relumi-change-down';
 	};
 	Search.prototype.isNewRelumiAbility = function (speciesId, abilityName) {
 		if (!abilityName || !this.shouldHighlightRelumiChanges()) return false;
@@ -502,24 +510,30 @@
 		if (!this.isNewRelumiAbility(speciesId, abilityName)) return abilityName;
 		return '<span class="relumi-change-up">' + BattleLog.escapeHTML(abilityName) + '</span>';
 	};
-	Search.prototype.getMoveChangeClass = function (moveId, valueType, value) {
-		if (!this.shouldHighlightRelumiChanges()) return '';
+	// Returns {vanilla, delta} or null if no diff. Used for move power/accuracy title tooltips
+	Search.prototype.getMoveDiff = function (moveId, valueType, value) {
+		if (!this.shouldHighlightRelumiChanges()) return null;
 
 		var relumiTable = this.getRelumiOverrides();
-		if (!relumiTable || !relumiTable.overrideMoveData) return '';
+		if (!relumiTable || !relumiTable.overrideMoveData) return null;
 
 		var relumiMoveDiff = relumiTable.overrideMoveData[moveId];
-		if (!relumiMoveDiff || relumiMoveDiff[valueType] === undefined) return '';
+		if (!relumiMoveDiff || relumiMoveDiff[valueType] === undefined) return null;
 
 		var vanillaMove = this.getVanillaMoveData(moveId);
-		if (!vanillaMove) return '';
+		if (!vanillaMove) return null;
 
 		var vanillaValue = vanillaMove[valueType];
 		if (typeof vanillaValue !== 'number' || typeof value !== 'number' || vanillaValue === value) {
-			return '';
+			return null;
 		}
 
-		return value > vanillaValue ? ' relumi-change-up' : ' relumi-change-down';
+		return { vanilla: vanillaValue, delta: value - vanillaValue };
+	};
+	Search.prototype.getMoveChangeClass = function (moveId, valueType, value) {
+		var diff = this.getMoveDiff(moveId, valueType, value);
+		if (!diff) return '';
+		return diff.delta > 0 ? ' relumi-change-up' : ' relumi-change-down';
 	};
 	// Learnset highlighting
 	Search.prototype.isNewRelumiLearnset = function (moveId) {
@@ -689,28 +703,35 @@
 		// base stats
 		var stats = pokemon.baseStats;
 		var hpClass = this.getStatClass(id, 'hp', stats.hp);
+		var hpDiff = this.getStatDiff(id, 'hp', stats.hp);
 		var atkClass = this.getStatClass(id, 'atk', stats.atk);
+		var atkDiff = this.getStatDiff(id, 'atk', stats.atk);
 		var defClass = this.getStatClass(id, 'def', stats.def);
+		var defDiff = this.getStatDiff(id, 'def', stats.def);
 		var spaClass = this.getStatClass(id, 'spa', stats.spa);
+		var spaDiff = this.getStatDiff(id, 'spa', stats.spa);
 		var spdClass = this.getStatClass(id, 'spd', stats.spd);
+		var spdDiff = this.getStatDiff(id, 'spd', stats.spd);
 		var speClass = this.getStatClass(id, 'spe', stats.spe);
-		buf += '<span class="col statcol' + hpClass + '"><em>HP</em><br />' + stats.hp + '</span> ';
-		buf += '<span class="col statcol' + atkClass + '"><em>Atk</em><br />' + stats.atk + '</span> ';
-		buf += '<span class="col statcol' + defClass + '"><em>Def</em><br />' + stats.def + '</span> ';
+		var speDiff = this.getStatDiff(id, 'spe', stats.spe);
+		buf += '<span class="col statcol' + hpClass + '"' + (hpDiff ? ' title="Vanilla: ' + hpDiff.vanilla + ' → ' + stats.hp + ' (' + (hpDiff.delta > 0 ? '+' : '') + hpDiff.delta + ')"' : '') + '><em>HP</em><br />' + stats.hp + '</span> ';
+		buf += '<span class="col statcol' + atkClass + '"' + (atkDiff ? ' title="Vanilla: ' + atkDiff.vanilla + ' → ' + stats.atk + ' (' + (atkDiff.delta > 0 ? '+' : '') + atkDiff.delta + ')"' : '') + '><em>Atk</em><br />' + stats.atk + '</span> ';
+		buf += '<span class="col statcol' + defClass + '"' + (defDiff ? ' title="Vanilla: ' + defDiff.vanilla + ' → ' + stats.def + ' (' + (defDiff.delta > 0 ? '+' : '') + defDiff.delta + ')"' : '') + '><em>Def</em><br />' + stats.def + '</span> ';
 		if (gen >= 2) {
-			buf += '<span class="col statcol' + spaClass + '"><em>SpA</em><br />' + stats.spa + '</span> ';
-			buf += '<span class="col statcol' + spdClass + '"><em>SpD</em><br />' + stats.spd + '</span> ';
+			buf += '<span class="col statcol' + spaClass + '"' + (spaDiff ? ' title="Vanilla: ' + spaDiff.vanilla + ' → ' + stats.spa + ' (' + (spaDiff.delta > 0 ? '+' : '') + spaDiff.delta + ')"' : '') + '><em>SpA</em><br />' + stats.spa + '</span> ';
+			buf += '<span class="col statcol' + spdClass + '"' + (spdDiff ? ' title="Vanilla: ' + spdDiff.vanilla + ' → ' + stats.spd + ' (' + (spdDiff.delta > 0 ? '+' : '') + spdDiff.delta + ')"' : '') + '><em>SpD</em><br />' + stats.spd + '</span> ';
 		} else {
-			buf += '<span class="col statcol' + spaClass + '"><em>Spc</em><br />' + stats.spa + '</span> ';
+			buf += '<span class="col statcol' + spaClass + '"' + (spaDiff ? ' title="Vanilla: ' + spaDiff.vanilla + ' → ' + stats.spa + ' (' + (spaDiff.delta > 0 ? '+' : '') + spaDiff.delta + ')"' : '') + '><em>Spc</em><br />' + stats.spa + '</span> ';
 		}
-		buf += '<span class="col statcol' + speClass + '"><em>Spe</em><br />' + stats.spe + '</span> ';
+		buf += '<span class="col statcol' + speClass + '"' + (speDiff ? ' title="Vanilla: ' + speDiff.vanilla + ' → ' + stats.spe + ' (' + (speDiff.delta > 0 ? '+' : '') + speDiff.delta + ')"' : '') + '><em>Spe</em><br />' + stats.spe + '</span> ';
 		var bst = 0;
 		for (i in stats) {
 			if (i === 'spd' && gen === 1) continue;
 			bst += stats[i];
 		}
 		var bstClass = this.getBSTClass(id, bst);
-		buf += '<span class="col bstcol' + bstClass + '"><em>BST<br />' + bst + '</em></span> ';
+		var bstDiff = this.getBSTDiff(id, bst);
+		buf += '<span class="col bstcol' + bstClass + '"' + (bstDiff ? ' title="Vanilla BST: ' + bstDiff.vanilla + ' → ' + bst + ' (' + (bstDiff.delta > 0 ? '+' : '') + bstDiff.delta + ')"' : '') + '><em>BST<br />' + bst + '</em></span> ';
 
 		buf += '</a></li>';
 
@@ -892,9 +913,11 @@
 			if (!move.noPPBoosts) pp = (pp / 5 + 1) * 4;
 		}
 		var movePowerClass = this.getMoveChangeClass(id, 'basePower', move.basePower);
+		var movePowerDiff = this.getMoveDiff(id, 'basePower', move.basePower);
 		var moveAccuracyClass = this.getMoveChangeClass(id, 'accuracy', move.accuracy);
-		buf += '<span class="col labelcol' + movePowerClass + '">' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
-		buf += '<span class="col widelabelcol' + moveAccuracyClass + '"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
+		var moveAccuracyDiff = this.getMoveDiff(id, 'accuracy', move.accuracy);
+		buf += '<span class="col labelcol' + movePowerClass + '"' + (movePowerDiff ? ' title="Vanilla Power: ' + movePowerDiff.vanilla + ' → ' + move.basePower + ' (' + (movePowerDiff.delta > 0 ? '+' : '') + movePowerDiff.delta + ')"' : '') + '>' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
+		buf += '<span class="col widelabelcol' + moveAccuracyClass + '"' + (moveAccuracyDiff ? ' title="Vanilla Accuracy: ' + moveAccuracyDiff.vanilla + ' → ' + move.accuracy + ' (' + (moveAccuracyDiff.delta > 0 ? '+' : '') + moveAccuracyDiff.delta + ')"' : '') + '><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
 		buf += '<span class="col pplabelcol"><em>PP</em><br />' + pp + '</span> ';
 
 		// desc
@@ -935,9 +958,11 @@
 			if (!move.noPPBoosts) pp = (pp / 5 + 1) * 4;
 		}
 		var movePowerClass = this.getMoveChangeClass(toID(move.name), 'basePower', move.basePower);
+		var movePowerDiff = this.getMoveDiff(toID(move.name), 'basePower', move.basePower);
 		var moveAccuracyClass = this.getMoveChangeClass(toID(move.name), 'accuracy', move.accuracy);
-		buf += '<span class="col labelcol' + movePowerClass + '">' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
-		buf += '<span class="col widelabelcol' + moveAccuracyClass + '"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
+		var moveAccuracyDiff = this.getMoveDiff(toID(move.name), 'accuracy', move.accuracy);
+		buf += '<span class="col labelcol' + movePowerClass + '"' + (movePowerDiff ? ' title="Vanilla Power: ' + movePowerDiff.vanilla + ' → ' + move.basePower + ' (' + (movePowerDiff.delta > 0 ? '+' : '') + movePowerDiff.delta + ')"' : '') + '>' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
+		buf += '<span class="col widelabelcol' + moveAccuracyClass + '"' + (moveAccuracyDiff ? ' title="Vanilla Accuracy: ' + moveAccuracyDiff.vanilla + ' → ' + move.accuracy + ' (' + (moveAccuracyDiff.delta > 0 ? '+' : '') + moveAccuracyDiff.delta + ')"' : '') + '><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
 		buf += '<span class="col pplabelcol"><em>PP</em><br />' + pp + '</span> ';
 
 		// desc
@@ -979,8 +1004,12 @@
 			pp = move.pp > 20 ? 20 : move.pp;
 			if (!move.noPPBoosts) pp = (pp / 5 + 1) * 4;
 		}
-		buf += '<span class="col labelcol">' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
-		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
+		var movePowerDiff = this.getMoveDiff(toID(move.name), 'basePower', move.basePower);
+		var moveAccuracyDiff = this.getMoveDiff(toID(move.name), 'accuracy', move.accuracy);
+		var movePowerClass = movePowerDiff ? (movePowerDiff.delta > 0 ? ' relumi-change-up' : ' relumi-change-down') : '';
+		var moveAccuracyClass = moveAccuracyDiff ? (moveAccuracyDiff.delta > 0 ? ' relumi-change-up' : ' relumi-change-down') : '';
+		buf += '<span class="col labelcol' + movePowerClass + '"' + (movePowerDiff ? ' title="Vanilla Power: ' + movePowerDiff.vanilla + ' → ' + move.basePower + ' (' + (movePowerDiff.delta > 0 ? '+' : '') + movePowerDiff.delta + ')"' : '') + '>' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
+		buf += '<span class="col widelabelcol' + moveAccuracyClass + '"' + (moveAccuracyDiff ? ' title="Vanilla Accuracy: ' + moveAccuracyDiff.vanilla + ' → ' + move.accuracy + ' (' + (moveAccuracyDiff.delta > 0 ? '+' : '') + moveAccuracyDiff.delta + ')"' : '') + '><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
 		buf += '<span class="col pplabelcol"><em>PP</em><br />' + pp + '</span> ';
 
 		// desc
