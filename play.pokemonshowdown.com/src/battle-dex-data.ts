@@ -1613,7 +1613,7 @@ export class Species implements Effect {
 		this.tier = data.tier || '';
 
 		this.isTotem = false;
-		this.isMega = !!(this.forme && this.forme.includes('Mega'));
+		this.isMega = !!(this.forme && this.formeid.includes('mega'));
 		this.isPrimal = !!(this.forme && this.formeid === '-primal');
 		this.canGigantamax = !!data.canGigantamax;
 		this.cannotDynamax = !!data.cannotDynamax;

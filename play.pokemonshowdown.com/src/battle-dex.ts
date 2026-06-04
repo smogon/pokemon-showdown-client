@@ -754,37 +754,19 @@ export const Dex = new class implements ModdedDex {
 			let baseSpeciesid = toID(species.baseSpecies);
 			spriteData.cryurl = 'audio/cries/' + baseSpeciesid;
 			let formeid = species.formeid;
-			if (species.isMega || formeid && (
-				formeid === '-crowned' ||
-				formeid === '-eternal' ||
-				formeid === '-eternamax' ||
-				formeid === '-four' ||
-				formeid === '-hangry' ||
-				formeid === '-hero' ||
-				formeid === '-lowkey' ||
-				formeid === '-noice' ||
-				formeid === '-primal' ||
-				formeid === '-rapidstrike' ||
-				formeid === '-roaming' ||
-				formeid === '-school' ||
-				formeid === '-sky' ||
-				formeid === '-starter' ||
-				formeid === '-super' ||
-				formeid === '-therian' ||
-				formeid === '-unbound' ||
-				baseSpeciesid === 'calyrex' ||
-				baseSpeciesid === 'kyurem' ||
-				baseSpeciesid === 'cramorant' ||
-				baseSpeciesid === 'indeedee' ||
-				baseSpeciesid === 'lycanroc' ||
-				baseSpeciesid === 'necrozma' ||
-				baseSpeciesid === 'oinkologne' ||
-				baseSpeciesid === 'oricorio' ||
-				baseSpeciesid === 'slowpoke' ||
-				baseSpeciesid === 'tatsugiri' ||
-				baseSpeciesid === 'zygarde'
-			)) {
-				spriteData.cryurl += formeid;
+			const specialFormeCries = [
+				'-bloodmoon', '-crowned', '-eternal', '-eternamax', '-four', '-hangry', '-hero', '-lowkey', '-noice', '-primal', '-rapidstrike', '-roaming', '-school', '-sky', '-starter', '-super', '-therian', '-unbound',
+			];
+			const specialBaseSpeciesCries = [
+				'calyrex', 'kyurem', 'cramorant', 'indeedee', 'lycanroc', 'necrozma', 'oinkologne', 'oricorio', 'slowpoke', 'tatsugiri', 'zygarde',
+			];
+			if (species.isMega ||
+				formeid && (specialFormeCries.includes(formeid) || specialBaseSpeciesCries.includes(baseSpeciesid))) {
+				if (species.isMega && (baseSpeciesid === 'meowstic' || baseSpeciesid === 'tatsugiri')) {
+					spriteData.cryurl += '-mega';
+				} else {
+					spriteData.cryurl += formeid;
+				}
 			}
 			spriteData.cryurl += '.mp3';
 		}
