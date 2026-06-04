@@ -101,7 +101,6 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 
 	boosts: { [stat: string]: number } = {};
 	status: Dex.StatusName | 'tox' | '' | '???' = '';
-	statusStage = 0;
 	volatiles: { [effectid: string]: EffectState } = {};
 	turnstatuses: { [effectid: string]: EffectState } = {};
 	movestatuses: { [effectid: string]: EffectState } = {};
@@ -466,7 +465,6 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			}
 		}
 		// this.lastMove = '';
-		this.statusStage = 0;
 		this.statusData.toxicTurns = 0;
 		if (this.side.battle.gen === 5) this.statusData.sleepTurns = 0;
 	}
@@ -494,7 +492,6 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		pokemon.boosts = {};
 		pokemon.volatiles = {};
 		pokemon.side.battle.scene.removeTransform(pokemon);
-		pokemon.statusStage = 0;
 	}
 	copyTypesFrom(pokemon: Pokemon, preterastallized = false) {
 		const [types, addedType] = pokemon.getTypes(undefined, preterastallized);
@@ -2299,6 +2296,8 @@ export class Battle {
 			let poke = this.getPokemon(args[1])!;
 			for (const target of poke.side.pokemon) {
 				target.status = '';
+				target.statusData.sleepTurns = 0;
+				target.statusData.toxicTurns = 0;
 				this.scene.updateStatbarIfExists(target);
 			}
 
