@@ -1215,10 +1215,16 @@ form.menugroup {
 	width: 49px;
 	height: 63px;
 	position: absolute;
+	/*
+	left: -55px;
+	bottom: -35px;
+	*/
 	left: -30px;
 	bottom: -20px;
-	background: url(https://play.pokemonshowdown.com/sprites/gen5/shaymin.png)
-		center no-repeat;
+	background: url(https://play.pokemonshowdown.com/sprites/gen5/shaymin.png) center no-repeat;
+
+	transform: scaleX(-1) /* scale(2) */;
+	transform-origin: bottom center;
 }
 .roomcounters .button:hover .usercount {
 	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/shaymin.gif)
