@@ -40,6 +40,10 @@ export declare namespace Teams {
 		gigantamax?: boolean;
 		/** Defaults to the primary type */
 		teraType?: string;
+		/** Relumi testing only: overrides for the species' base stats */
+		customBaseStats?: Partial<Dex.StatsTable>;
+		/** Relumi testing only: overrides for the species' types */
+		customTypes?: Dex.TypeName[];
 	}
 	export interface PokemonSet extends Partial<FullPokemonSet> {
 		/** Defaults to species name (not including forme), like in games */
@@ -116,12 +120,22 @@ export const Teams = new class {
 			buf += `|${set.happiness !== undefined && set.happiness !== 255 ? set.happiness : ''}`;
 
 			if (set.pokeball || set.hpType || set.gigantamax ||
-				(set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.teraType) {
+				(set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.teraType ||
+				set.customBaseStats || set.customTypes) {
 				buf += `,${set.hpType || ''}`;
 				buf += `,${this.packName(set.pokeball || '')}`;
 				buf += `,${set.gigantamax ? 'G' : ''}`;
 				buf += `,${set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10 ? set.dynamaxLevel : ''}`;
 				buf += `,${set.teraType || ''}`;
+				if (set.customBaseStats) {
+					const cbs = set.customBaseStats;
+					buf += `,${cbs.hp ?? ''}:${cbs.atk ?? ''}:${cbs.def ?? ''}:${cbs.spa ?? ''}:${cbs.spd ?? ''}:${cbs.spe ?? ''}`;
+				} else {
+					buf += `,`;
+				}
+				if (set.customTypes) {
+					buf += `,${set.customTypes.join(':')}`;
+				}
 			}
 		}
 
@@ -247,9 +261,9 @@ export const Teams = new class {
 			j = buf.indexOf(']', i);
 			let misc;
 			if (j < 0) {
-				if (i < buf.length) misc = buf.substring(i).split(',', 6);
+				if (i < buf.length) misc = buf.substring(i).split(',', 9);
 			} else {
-				if (i !== j) misc = buf.substring(i, j).split(',', 6);
+				if (i !== j) misc = buf.substring(i, j).split(',', 9);
 			}
 			if (misc) {
 				set.happiness = (misc[0] ? Number(misc[0]) : undefined);
@@ -258,6 +272,27 @@ export const Teams = new class {
 				set.gigantamax = !!misc[3] || undefined;
 				set.dynamaxLevel = (misc[4] ? Number(misc[4]) : undefined);
 				set.teraType = misc[5] || undefined;
+				if (misc[6]) {
+					const cbs = misc[6].split(':');
+					if (cbs.length === 6) {
+						const customBaseStats: Partial<Dex.StatsTable> = {};
+						const keys: (keyof Dex.StatsTable)[] = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
+						let allDefault = true;
+						for (let k = 0; k < 6; k++) {
+							const v = parseInt(cbs[k], 10);
+							if (!isNaN(v)) {
+								customBaseStats[keys[k]] = v;
+								if (v !== species.baseStats[keys[k]]) allDefault = false;
+							} else if (species.baseStats[keys[k]] !== 0) {
+								allDefault = false;
+							}
+						}
+						if (!allDefault) set.customBaseStats = customBaseStats;
+					}
+				}
+				if (misc[7]) {
+					set.customTypes = misc[7].split(':').filter(Boolean) as Dex.TypeName[];
+				}
 			}
 			i = j + 1;
 			if (j < 0 || i <= lastI) break;
@@ -407,6 +442,18 @@ export const Teams = new class {
 			}
 		}
 
+		// Relumi testing: custom base stats / types
+		if (set.customBaseStats) {
+			const species = dex.species.get(set.species);
+			const baseStats = species.baseStats;
+			const cbs = set.customBaseStats;
+			text += `Custom-Stats: ${cbs.hp ?? baseStats.hp}/${cbs.atk ?? baseStats.atk}/${cbs.def ?? baseStats.def}/` +
+				`${cbs.spa ?? baseStats.spa}/${cbs.spd ?? baseStats.spd}/${cbs.spe ?? baseStats.spe}\n`;
+		}
+		if (set.customTypes?.length) {
+			text += `Custom-Types: ${set.customTypes.join('/')}\n`;
+		}
+
 		text += `\n`;
 		return text;
 	}
@@ -484,6 +531,27 @@ export const Teams = new class {
 			set.gigantamax = true;
 		} else if (line.startsWith('Tera Type: ')) {
 			set.teraType = line.slice(11);
+		} else if (line.startsWith('Custom-Stats: ')) {
+			const statParts = line.slice('Custom-Stats: '.length).split('/');
+			if (statParts.length === 6) {
+				const customBaseStats: Partial<Dex.StatsTable> = {};
+				const keys: (keyof Dex.StatsTable)[] = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
+				const species = Dex.species.get(set.species);
+				const baseStats = species.baseStats;
+				let allDefault = true;
+				for (let k = 0; k < 6; k++) {
+					const v = parseInt(statParts[k], 10);
+					if (!isNaN(v) && v >= 1 && v <= 255) {
+						customBaseStats[keys[k]] = v;
+						if (v !== baseStats[keys[k]]) allDefault = false;
+					} else if ((baseStats[keys[k]] || 0) !== 0) {
+						allDefault = false;
+					}
+				}
+				if (!allDefault) set.customBaseStats = customBaseStats;
+			}
+		} else if (line.startsWith('Custom-Types: ')) {
+			set.customTypes = line.slice('Custom-Types: '.length).split('/').filter(Boolean) as Dex.TypeName[];
 		} else if (line.startsWith('EVs: ')) {
 			const evLines = line.slice(5).split('(')[0].split('/');
 			set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };

@@ -218,6 +218,8 @@ export class TeamEditorState extends PSModel {
 		set.species = species.name;
 		set.ability = this.getDefaultAbility(set);
 		set.item = this.getDefaultItem(species.name) ?? set.item;
+		delete set.customBaseStats;
+		delete set.customTypes;
 
 		if (toID(speciesName) === 'Cathy') {
 			set.name = "Cathy";
@@ -680,7 +682,10 @@ export class TeamEditorState extends PSModel {
 
 		const level = set.level || this.defaultLevel;
 
-		const baseStat = species.baseStats[stat];
+		let baseStat = species.baseStats[stat];
+		if (set.customBaseStats?.[stat] !== undefined && this.isRelumiTesting) {
+			baseStat = set.customBaseStats[stat]!;
+		}
 		const iv = ivOverride;
 		let ev = evOverride ?? set.evs?.[stat] ?? (this.gen > 2 ? 0 : 252);
 		if (this.isChampions) ev *= 8;
@@ -1771,12 +1776,14 @@ class TeamTextbox extends preact.Component<{
 						if (!num) return null;
 
 						if (editor.narrow) {
+							const displayTypes = (editor.isRelumiTesting && set.customTypes?.length ? set.customTypes : species.types);
 							return <div style={`top:${prevOffset + 1}px;left:5px;position:absolute;text-align:center;pointer-events:none`}>
 								<div><PSIcon pokemon={species.id} /></div>
-								{species.types.map(type => <div><PSIcon type={type} /></div>)}
+								{displayTypes.map(type => <div><PSIcon type={type} /></div>)}
 								<div><PSIcon item={set.item || null} /></div>
 							</div>;
 						}
+						const displayTypes = (editor.isRelumiTesting && set.customTypes?.length ? set.customTypes : species.types);
 						return [<div
 							style={
 								`top:${prevOffset - 7}px;left:0;position:absolute;text-align:right;` +
@@ -1784,7 +1791,7 @@ class TeamTextbox extends preact.Component<{
 								Dex.getTeambuilderSprite(set, editor.dex)
 							}
 						>
-							<div>{species.types.map(type => <PSIcon type={type} />)}<PSIcon item={set.item || null} /></div>
+							<div>{displayTypes.map(type => <PSIcon type={type} />)}<PSIcon item={set.item || null} /></div>
 						</div>, <div style={`top:${prevOffset + statsDetailsOffset}px;right:9px;position:absolute`}>
 							{this.renderStats(set, i)}
 						</div>, <div style={`top:${prevOffset + statsDetailsOffset}px;right:145px;position:absolute`}>
@@ -1997,7 +2004,8 @@ class TeamWizard extends preact.Component<{
 						<button class={`button button-middle${cur('details')}`} onClick={this.setFocus} value={`details|${i}`}>
 							<span class="detailcell">
 								<strong class="label">Types</strong> {}
-								{species.types.map(type => <div><PSIcon type={type} /></div>)}
+								{(editor.isRelumiTesting && set.customTypes?.length ? set.customTypes : species.types)
+									.map(type => <div><PSIcon type={type} /></div>)}
 							</span>
 							<span class="detailcell">
 								<strong class="label">Level</strong> {}
@@ -2837,6 +2845,35 @@ class StatForm extends preact.Component<{
 		}
 		this.props.onChange();
 	};
+	changeCustomBaseStat = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set, editor } = this.props;
+		const statID = target.name.split('-')[1] as Dex.StatName;
+		let val = parseInt(target.value, 10);
+		if (isNaN(val) || val < 1) val = 1;
+		if (val > 255) val = 255;
+		target.value = `${val}`;
+		const species = editor.dex.species.get(set.species);
+		if (val === species.baseStats[statID]) {
+			if (set.customBaseStats) delete set.customBaseStats[statID];
+		} else {
+			set.customBaseStats ||= {};
+			set.customBaseStats[statID] = val;
+		}
+		// auto-cleanup if all custom stats match the species' defaults
+		if (set.customBaseStats) {
+			let allDefault = true;
+			for (const s of Dex.statNames) {
+				const cur = set.customBaseStats[s];
+				if (cur !== undefined && cur !== species.baseStats[s]) {
+					allDefault = false;
+					break;
+				}
+			}
+			if (allDefault) delete set.customBaseStats;
+		}
+		this.props.onChange();
+	};
 	changeIVSpread = (ev: Event) => {
 		const target = ev.currentTarget as HTMLSelectElement;
 		const { set } = this.props;
@@ -2914,7 +2951,19 @@ class StatForm extends preact.Component<{
 					</tr>
 					{stats.map(([statID, statName, stat]) => <tr>
 						<th style="text-align:right;font-weight:normal">{statName}</th>
-						<td style="text-align:right"><strong>{baseStats[statID]}</strong></td>
+						<td style="text-align:right">
+							{editor.isRelumiTesting ? (
+								<input
+									type="number" name={`custombase-${statID}`}
+									value={set.customBaseStats?.[statID] ?? baseStats[statID]}
+									min="1" max="255" step="1"
+									class="textbox inputform numform" style="width:40px"
+									onInput={this.changeCustomBaseStat} onChange={this.changeCustomBaseStat}
+								/>
+							) : (
+								<strong>{baseStats[statID]}</strong>
+							)}
+						</td>
 						<td class="setstatbar">{this.renderStatbar(stat, statID)}</td>
 						<td><input
 							name={`ev-${statID}`} placeholder={`${defaultEV || ''}`}
@@ -3068,6 +3117,29 @@ class DetailsForm extends preact.Component<{
 		}
 		this.props.onChange();
 	};
+	changeCustomType = (ev: Event) => {
+		const { set, editor } = this.props;
+		const select1 = this.base!.querySelector<HTMLSelectElement>('select[name="customtype1"]');
+		const select2 = this.base!.querySelector<HTMLSelectElement>('select[name="customtype2"]');
+		if (!select1) return;
+		const type1 = select1.value as Dex.TypeName;
+		const type2 = (select2?.value || '') as Dex.TypeName | '';
+		const newTypes: Dex.TypeName[] = type1 ? [type1] : [];
+		if (type2) newTypes.push(type2);
+		const species = editor.dex.species.get(set.species);
+		const defaultTypes = species.types;
+		const sameAsDefault = newTypes.length === defaultTypes.length &&
+			newTypes[0] === defaultTypes[0] &&
+			(newTypes[1] || '') === (defaultTypes[1] || '');
+		if (sameAsDefault) {
+			delete set.customTypes;
+		} else {
+			set.customTypes = newTypes;
+		}
+		this.props.onChange();
+		// ensure the parent re-renders so the wizard set list reflects the new icons
+		this.forceUpdate();
+	};
 	renderGender(gender: Dex.GenderName) {
 		const genderTable = { 'M': "Male", 'F': "Female" };
 		if (gender === 'N') return 'Unknown';
@@ -3183,6 +3255,27 @@ class DetailsForm extends preact.Component<{
 								))}
 							</select>
 						)}
+					</label>
+				</p>}
+				{editor.isRelumiTesting && <p style="clear:both">
+					<label class="label">Types: {}
+						<select
+							name="customtype1" class="button" onChange={this.changeCustomType}
+							value={set.customTypes?.[0] ?? species.types[0]}
+						>
+							{Dex.types.all().map(type => (
+								<option value={type.name}>{type.name}</option>
+							))}
+						</select> {}
+						<select
+							name="customtype2" class="button" onChange={this.changeCustomType}
+							value={set.customTypes?.[1] ?? species.types[1] ?? ''}
+						>
+							<option value="">—</option>
+							{Dex.types.all().map(type => (
+								<option value={type.name}>{type.name}</option>
+							))}
+						</select>
 					</label>
 				</p>}
 				{species.cosmeticFormes && <div>

@@ -6,6 +6,7 @@ npm-debug.log
 !/config/news.inc.php
 /vendor/
 /caches/
+.github/plans/
 
 /play.pokemonshowdown.com/dirindex/webfonts/
 /play.pokemonshowdown.com/dirindex/fontawesome5*
