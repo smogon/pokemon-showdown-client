@@ -473,6 +473,52 @@ export const Dex = new class implements ModdedDex {
 		},
 	};
 
+	hydrateRelumiSpecies(speciesId: ID, fallbackName: string) {
+		const relumiData =
+			window.BattleTeambuilderTable?.gen8relumi?.overrideSpeciesData?.[
+				speciesId
+			];
+		if (!relumiData) return;
+		// Stats-only overrides must not create stub Pokedex entries that block
+		// inherited cosmetic-form synthesis (e.g. Furfrou trim variants).
+		if (
+			!relumiData.num && !relumiData.types && !relumiData.isCosmeticForme &&
+			relumiData.baseStats && !(speciesId in (window.BattlePokedex || {}))
+		) {
+			return;
+		}
+		if (!window.BattlePokedex) window.BattlePokedex = {};
+		if (
+			window.BattlePokedex[speciesId]?.exists !== false &&
+			window.BattlePokedex[speciesId]
+		) {
+			return;
+		}
+		const hydratedData = {
+			exists: true,
+			id: speciesId,
+			name: relumiData.name || fallbackName,
+			...relumiData,
+		};
+		// Store as a proper Species instance so spriteid and other computed
+		// fields are available when getSpriteData reads species.spriteid.
+		window.BattlePokedex[speciesId] = new Species(speciesId, hydratedData.name, hydratedData);
+		if (
+			relumiData.baseSpecies &&
+			toID(relumiData.baseSpecies) !== speciesId
+		) {
+			const baseId = toID(relumiData.baseSpecies);
+			const baseSpecies = window.BattlePokedex[baseId];
+			if (baseSpecies) {
+				if (!Array.isArray(baseSpecies.otherFormes))
+					baseSpecies.otherFormes = [];
+				const formName = relumiData.name || speciesId;
+				if (!baseSpecies.otherFormes.includes(formName)) {
+					baseSpecies.otherFormes.push(formName);
+				}
+			}
+		}
+	}
 	species = {
 		get: (nameOrSpecies: string | Species | null | undefined): Species => {
 			if (nameOrSpecies && typeof nameOrSpecies !== 'string') {
@@ -482,61 +528,15 @@ export const Dex = new class implements ModdedDex {
 			let name = nameOrSpecies || '';
 			let id = toID(nameOrSpecies);
 			let formid = id;
-			const hydrateRelumiSpecies = (speciesId: ID) => {
-				const relumiData =
-					window.BattleTeambuilderTable?.gen8relumi?.overrideSpeciesData?.[
-						speciesId
-					];
-				if (!relumiData) return;
-				// Stats-only overrides must not create stub Pokedex entries that block
-				// inherited cosmetic-form synthesis (e.g. Furfrou trim variants).
-				if (
-					!relumiData.num && !relumiData.types && !relumiData.isCosmeticForme &&
-					relumiData.baseStats && !(speciesId in (window.BattlePokedex || {}))
-				) {
-					return;
-				}
-				if (!window.BattlePokedex) window.BattlePokedex = {};
-				if (
-					window.BattlePokedex[speciesId]?.exists !== false &&
-					window.BattlePokedex[speciesId]
-				) {
-					return;
-				}
-				const hydratedData = {
-					exists: true,
-					id: speciesId,
-					name: relumiData.name || name,
-					...relumiData,
-				};
-				// Store as a proper Species instance so spriteid and other computed
-				// fields are available when getSpriteData reads species.spriteid.
-				window.BattlePokedex[speciesId] = new Species(speciesId, hydratedData.name, hydratedData);
-				if (
-					relumiData.baseSpecies &&
-					toID(relumiData.baseSpecies) !== speciesId
-				) {
-					const baseId = toID(relumiData.baseSpecies);
-					const baseSpecies = window.BattlePokedex[baseId];
-					if (baseSpecies) {
-						if (!Array.isArray(baseSpecies.otherFormes))
-							baseSpecies.otherFormes = [];
-						const formName = relumiData.name || speciesId;
-						if (!baseSpecies.otherFormes.includes(formName)) {
-							baseSpecies.otherFormes.push(formName);
-						}
-					}
-				}
-			};
 			if (!window.BattlePokedexAltForms) window.BattlePokedexAltForms = {};
 			if (formid in window.BattlePokedexAltForms) return window.BattlePokedexAltForms[formid];
-			hydrateRelumiSpecies(formid);
+			this.hydrateRelumiSpecies(formid, name);
 			// Preserve exact species IDs (including cosmetic formes) and only apply aliases
 			// when there is no direct Pokedex entry for the requested ID.
 			if (window.BattleAliases && id in BattleAliases && !(window.BattlePokedex && id in window.BattlePokedex)) {
 				name = BattleAliases[id];
 				id = toID(name);
-				hydrateRelumiSpecies(id);
+				this.hydrateRelumiSpecies(id, name);
 			} else if (window.BattlePokedex && !(id in BattlePokedex) && window.BattleBaseSpeciesChart) {
 				for (const baseSpeciesId of BattleBaseSpeciesChart) {
 					if (formid.startsWith(baseSpeciesId)) {
@@ -546,7 +546,7 @@ export const Dex = new class implements ModdedDex {
 				}
 			}
 			if (!window.BattlePokedex) window.BattlePokedex = {};
-			hydrateRelumiSpecies(id);
+			this.hydrateRelumiSpecies(id, name);
 			let data = window.BattlePokedex[id];
 			if (data?.isCosmeticForme && data.baseSpecies) {
 				// Build cosmetic forms from base species data so aliases keep abilities/stats.
