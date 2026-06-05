@@ -26,84 +26,426 @@ export class PSSearchResults extends preact.Component<{
 	moveIds: ID[] = [];
 	resultIndex = -1;
 
+	// Per-search memos for Relumi diff/lookup helpers. Cleared at the start of
+	// each render cycle so the same species/move/move-field lookups don't repeat.
+	private _relumiDiffCache: Record<string, any> = Object.create(null);
+	private _relumiHighlightCached: boolean | undefined;
+
 	private getRelumiOverrides() {
 		return (window as any).BattleTeambuilderTable?.gen8relumi || null;
 	}
 	private shouldHighlightRelumiChanges() {
-		const format = this.props.search.typedSearch?.format || '';
-		if (!format.includes('relumi')) return false;
-		if (Dex.prefs('relumiHighlightBalanceChanges') === false) return false;
-		return !!this.getRelumiOverrides();
-	}
-	private getRelumiDiffSourceSpeciesId(speciesId: ID) {
-		const relumiTable = this.getRelumiOverrides();
-		if (!relumiTable?.overrideSpeciesData) return speciesId;
-		if (relumiTable.overrideSpeciesData[speciesId]) return speciesId;
-		// Compare cosmetics against their base diff source when only base has overrides.
-		const species = this.props.search.dex.species.get(speciesId);
-		if (!species?.exists) return speciesId;
-		const baseId = toID(species.baseSpecies || speciesId) as ID;
-		if (baseId !== speciesId && relumiTable.overrideSpeciesData[baseId]) {
-			return baseId;
+		if (this._relumiHighlightCached !== undefined) return this._relumiHighlightCached;
+		if (Dex.prefs('relumiHighlightBalanceChanges') === false) {
+			return (this._relumiHighlightCached = false);
 		}
-		return speciesId;
+		if (this.props.search.dex.modid === 'gen8relumi') {
+			return (this._relumiHighlightCached = true);
+		}
+		const format = this.props.search.typedSearch?.format || '';
+		return (this._relumiHighlightCached = format.includes('relumi'));
 	}
-	private getVanillaComparisonSpeciesId(speciesId: ID) {
-		const vanillaSpecies = Dex.forGen(9).species.get(speciesId);
-		if (vanillaSpecies.exists) return speciesId;
-		// Fall back to base species for forms that do not exist in vanilla data.
+	private getVanillaSpeciesData(speciesId: ID): Dex.Species | null {
+		const cacheKey = 'vanillaSpecies|' + speciesId;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		const relumiTable = this.getRelumiOverrides();
+		let result: Dex.Species | null;
+		if (relumiTable?.vanillaSpeciesData?.[speciesId]) {
+			result = relumiTable.vanillaSpeciesData[speciesId];
+		} else if (relumiTable?.overrideSpeciesData && speciesId in relumiTable.overrideSpeciesData) {
+			// Custom form (override present, no vanilla snapshot) — Dex.forGen would
+			// return the mod-added BattlePokedex entry, not true vanilla data.
+			result = null;
+		} else {
+			const vanillaSpecies = Dex.forGen(9).species.get(speciesId);
+			result = vanillaSpecies.exists ? vanillaSpecies : null;
+		}
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
+	}
+	private getVanillaMoveData(moveId: ID): Dex.Move | null {
+		const cacheKey = 'vanillaMove|' + moveId;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		const relumiTable = this.getRelumiOverrides();
+		let vanillaMove: Dex.Move | null;
+		if (relumiTable?.vanillaMoveData?.[moveId]) {
+			vanillaMove = relumiTable.vanillaMoveData[moveId];
+		} else {
+			vanillaMove = Dex.forGen(9).moves.get(moveId);
+			if (!vanillaMove.exists) vanillaMove = null;
+		}
+		this._relumiDiffCache[cacheKey] = vanillaMove;
+		return vanillaMove;
+	}
+	private resolveBaseSpeciesId(speciesId: ID): ID {
 		const species = this.props.search.dex.species.get(speciesId);
-		if (!species?.exists) return speciesId;
-		const baseId = toID(species.baseSpecies || speciesId) as ID;
-		if (baseId !== speciesId) return baseId;
-		return speciesId;
+		if (!species?.exists) return '' as ID;
+		const baseId = toID(species.baseSpecies || speciesId);
+		return baseId !== speciesId ? baseId : speciesId;
 	}
-	private getStatClass(speciesId: ID, statName: Dex.StatName, value: number) {
-		if (!this.shouldHighlightRelumiChanges()) return '';
-		const relumiTable = this.getRelumiOverrides();
-		const diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
-		const relumiSpeciesDiff = relumiTable?.overrideSpeciesData?.[diffSourceId];
-		if (!relumiSpeciesDiff?.baseStats || relumiSpeciesDiff.baseStats[statName] === undefined) return '';
-		const vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
-		const vanillaSpecies = Dex.forGen(9).species.get(vanillaComparisonId);
-		if (!vanillaSpecies.exists) return '';
-		const vanillaStat = vanillaSpecies.baseStats[statName];
-		if (value > vanillaStat) return 'relumi-change-up';
-		if (value < vanillaStat) return 'relumi-change-down';
-		return '';
+	private formsShareBaseStats(formStats: Dex.StatsTable, baseStats: Dex.StatsTable): boolean {
+		if (!formStats || !baseStats) return false;
+		return formStats.hp === baseStats.hp && formStats.atk === baseStats.atk &&
+			formStats.def === baseStats.def && formStats.spa === baseStats.spa &&
+			formStats.spd === baseStats.spd && formStats.spe === baseStats.spe;
 	}
-	private isNewRelumiAbility(speciesId: ID, abilityName: string) {
-		if (!this.shouldHighlightRelumiChanges()) return false;
+	private getRelumiDiffSourceSpeciesId(speciesId: ID): ID {
+		const cacheKey = 'diffSource|' + speciesId;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
 		const relumiTable = this.getRelumiOverrides();
-		const diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
-		const relumiSpeciesDiff = relumiTable?.overrideSpeciesData?.[diffSourceId];
-		if (!relumiSpeciesDiff?.abilities) return false;
-		const vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
-		const vanillaSpecies = Dex.forGen(9).species.get(vanillaComparisonId);
-		const vanillaAbilities = Object.create(null) as Record<string, 1>;
-		if (vanillaSpecies.exists) {
-			for (const ability of Object.values(vanillaSpecies.abilities || {})) {
-				if (ability) vanillaAbilities[ability] = 1;
+		let result: ID = speciesId;
+		if (relumiTable?.overrideSpeciesData) {
+			if (relumiTable.overrideSpeciesData[speciesId]) {
+				result = speciesId;
+			} else {
+				// Fall back to base form only if base has overrides AND this form is
+				// effectively the same as base (custom form, or cosmetic form with
+				// identical vanilla stats to base).
+				const baseId = this.resolveBaseSpeciesId(speciesId);
+				if (baseId && baseId !== speciesId && relumiTable.overrideSpeciesData[baseId]) {
+					const vanillaSpecies = Dex.forGen(9).species.get(speciesId);
+					if (!vanillaSpecies.exists) {
+						result = baseId;
+					} else {
+						const vanillaBase = Dex.forGen(9).species.get(baseId);
+						if (vanillaBase?.exists &&
+							!this.formsShareBaseStats(vanillaSpecies.baseStats, vanillaBase.baseStats)) {
+							// Vanilla stats differ from base = form has its own stats
+							// (e.g. Rotom appliances); do not coalesce.
+							result = speciesId;
+						} else {
+							result = baseId;
+						}
+					}
+				} else {
+					result = speciesId;
+				}
 			}
 		}
-		return !vanillaAbilities[abilityName];
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
+	}
+	private getVanillaComparisonSpeciesId(speciesId: ID): ID {
+		const cacheKey = 'vanillaCmp|' + speciesId;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		const relumiTable = this.getRelumiOverrides();
+		const hasVanillaData = !!(relumiTable?.vanillaSpeciesData && speciesId in relumiTable.vanillaSpeciesData);
+		let result: ID;
+		if (hasVanillaData) {
+			result = speciesId;
+		} else if (relumiTable?.overrideSpeciesData && speciesId in relumiTable.overrideSpeciesData) {
+			// Custom form (override, no vanilla snapshot) — fall back to base form.
+			result = this.resolveBaseSpeciesId(speciesId) || speciesId;
+		} else {
+			const vanillaSpecies = Dex.forGen(9).species.get(speciesId);
+			if (vanillaSpecies.exists) {
+				result = speciesId;
+			} else {
+				result = this.resolveBaseSpeciesId(speciesId) || speciesId;
+			}
+		}
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
+	}
+	private getStatDiff(speciesId: ID, statName: Dex.StatName, value: number): { vanilla: number, delta: number } | null {
+		const cacheKey = `statDiff|${speciesId}|${statName}|${value}`;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		let result: { vanilla: number, delta: number } | null = null;
+		if (!this.shouldHighlightRelumiChanges()) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		const relumiTable = this.getRelumiOverrides();
+		if (!relumiTable?.overrideSpeciesData) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		const diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
+		const relumiSpeciesDiff = relumiTable.overrideSpeciesData[diffSourceId];
+		if (!relumiSpeciesDiff) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+
+		let vanillaComparisonId: ID;
+		let vanillaSpecies: Dex.Species | null;
+		if (relumiSpeciesDiff.baseStats && relumiSpeciesDiff.baseStats[statName] !== undefined) {
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
+		} else if (!relumiSpeciesDiff.baseStats) {
+			if (this.getVanillaSpeciesData(speciesId)) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(speciesId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies?.baseStats) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
+		} else {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+
+		const vanillaStat = vanillaSpecies.baseStats[statName];
+		if (typeof vanillaStat !== 'number' || vanillaStat === value) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		result = { vanilla: vanillaStat, delta: value - vanillaStat };
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
+	}
+	private getStatClass(speciesId: ID, statName: Dex.StatName, value: number) {
+		const diff = this.getStatDiff(speciesId, statName, value);
+		if (!diff) return '';
+		return diff.delta > 0 ? 'relumi-change-up' : 'relumi-change-down';
+	}
+	private getBSTDiff(speciesId: ID, currentBST: number): { vanilla: number, delta: number } | null {
+		const cacheKey = `bstDiff|${speciesId}|${currentBST}`;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		let result: { vanilla: number, delta: number } | null = null;
+		if (!this.shouldHighlightRelumiChanges()) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		const relumiTable = this.getRelumiOverrides();
+		if (!relumiTable?.overrideSpeciesData) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		const diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
+		const relumiSpeciesDiff = relumiTable.overrideSpeciesData[diffSourceId];
+		if (!relumiSpeciesDiff) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+
+		let vanillaComparisonId: ID;
+		let vanillaSpecies: Dex.Species | null;
+		if (relumiSpeciesDiff.baseStats) {
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies?.baseStats) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
+		} else {
+			if (this.getVanillaSpeciesData(speciesId)) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(speciesId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies?.baseStats) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
+		}
+
+		let vanillaBST = 0;
+		for (const stat in vanillaSpecies.baseStats) {
+			vanillaBST += vanillaSpecies.baseStats[stat as Dex.StatName];
+		}
+		if (typeof vanillaBST !== 'number' || vanillaBST === currentBST) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		result = { vanilla: vanillaBST, delta: currentBST - vanillaBST };
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
+	}
+	private getBSTClass(speciesId: ID, currentBST: number) {
+		const diff = this.getBSTDiff(speciesId, currentBST);
+		if (!diff) return '';
+		return diff.delta > 0 ? 'relumi-change-up' : 'relumi-change-down';
+	}
+	private isNewRelumiAbility(speciesId: ID, abilityName: string): boolean {
+		if (!abilityName) return false;
+		const cacheKey = 'newAbility|' + speciesId + '|' + abilityName;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		let result = false;
+		if (!this.shouldHighlightRelumiChanges()) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		const relumiTable = this.getRelumiOverrides();
+		if (!relumiTable?.overrideSpeciesData) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		const diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
+		const relumiSpeciesDiff = relumiTable.overrideSpeciesData[diffSourceId];
+		if (!relumiSpeciesDiff) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+
+		let vanillaComparisonId: ID;
+		let vanillaSpecies: Dex.Species | null;
+		if (relumiSpeciesDiff.abilities) {
+			// Normal path: override has abilities.
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
+		} else {
+			// No abilities override — custom form path: compare against base form's
+			// vanilla abilities.
+			if (this.getVanillaSpeciesData(speciesId)) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(speciesId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
+		}
+
+		const vanillaAbilities: Record<string, true> = Object.create(null);
+		for (const slot in vanillaSpecies.abilities) {
+			const vanillaAbilityName = vanillaSpecies.abilities[slot as '0' | '1' | 'H' | 'S'];
+			if (vanillaAbilityName) vanillaAbilities[vanillaAbilityName] = true;
+		}
+		result = !vanillaAbilities[abilityName];
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
+	}
+	private getMoveDiff(
+		moveId: ID, valueType: 'basePower' | 'accuracy', value: number | true
+	): { vanilla: number | true, delta: number } | null {
+		const cacheKey = `moveDiff|${moveId}|${valueType}|${String(value)}`;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		let result: { vanilla: number | true, delta: number } | null = null;
+		if (!this.shouldHighlightRelumiChanges()) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		const relumiTable = this.getRelumiOverrides();
+		if (!relumiTable?.overrideMoveData) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		const relumiMoveDiff = relumiTable.overrideMoveData[moveId];
+		if (!relumiMoveDiff || relumiMoveDiff[valueType] === undefined) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		const vanillaMove = this.getVanillaMoveData(moveId);
+		if (!vanillaMove) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		const vanillaValue = vanillaMove[valueType];
+		if (typeof vanillaValue !== 'number' && vanillaValue !== true) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		if (typeof value !== 'number' && value !== true) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		if (value === vanillaValue) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		// Compute delta even when one side is `true` (always-hit flag). For the
+		// "true" sentinel, there's no meaningful numeric delta, so use a unit +/- 1.
+		if (value === true && vanillaValue !== true) {
+			result = { vanilla: vanillaValue, delta: 1 };
+		} else if (value !== true && vanillaValue === true) {
+			result = { vanilla: vanillaValue, delta: -1 };
+		} else if (typeof value === 'number' && typeof vanillaValue === 'number') {
+			result = { vanilla: vanillaValue, delta: value - vanillaValue };
+		}
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
 	}
 	private getMoveChangeClass(moveId: ID, valueType: 'basePower' | 'accuracy', value: number | true) {
-		if (!this.shouldHighlightRelumiChanges()) return '';
+		const diff = this.getMoveDiff(moveId, valueType, value);
+		if (!diff) return '';
+		return diff.delta > 0 ? 'relumi-change-up' : 'relumi-change-down';
+	}
+	private isNewRelumiLearnset(moveId: ID): boolean {
+		if (!this.shouldHighlightRelumiChanges()) return false;
+		const typedSearch = this.props.search.typedSearch;
+		if (!typedSearch?.species) return false;
+		const currentSpeciesId = typedSearch.species;
 		const relumiTable = this.getRelumiOverrides();
-		const relumiMoveDiff = relumiTable?.overrideMoveData?.[moveId];
-		if (!relumiMoveDiff || relumiMoveDiff[valueType] === undefined) return '';
-		const vanillaMove = Dex.forGen(9).moves.get(moveId);
-		if (!vanillaMove.exists) return '';
-		const vanillaValue = vanillaMove[valueType];
-		if (value === vanillaValue) return '';
-		if (value === true && vanillaValue !== true) return 'relumi-change-up';
-		if (value !== true && vanillaValue === true) return 'relumi-change-down';
-		if (typeof value === 'number' && typeof vanillaValue === 'number') {
-			if (value > vanillaValue) return 'relumi-change-up';
-			if (value < vanillaValue) return 'relumi-change-down';
+		if (!relumiTable?.learnsets) return false;
+		const relumiLearnsets = relumiTable.learnsets;
+		const vanillaLearnsets = (window as any).BattleTeambuilderTable?.learnsets;
+		if (!vanillaLearnsets) return false;
+		return this.canLearnInChain(currentSpeciesId, moveId, relumiLearnsets) &&
+			!this.canLearnInChain(currentSpeciesId, moveId, vanillaLearnsets);
+	}
+	private canLearnInChain(
+		speciesId: ID, moveId: ID, learnsets: any, visited: Record<string, true> = Object.create(null)
+	): boolean {
+		const learnsetid = this.getFirstLearnsetId(speciesId, learnsets);
+		let cur: ID = learnsetid;
+		while (cur) {
+			if (visited[cur]) return false; // guard against chain cycles
+			visited[cur] = true;
+			const learnset = learnsets[cur];
+			if (learnset && moveId in learnset) return true;
+			cur = this.getNextLearnsetId(cur, speciesId, learnsets);
 		}
-		return '';
+		return false;
+	}
+	private getFirstLearnsetId(speciesId: ID, learnsets: any): ID {
+		if (speciesId in learnsets) return speciesId;
+		const species = this.props.search.dex.species.get(speciesId);
+		if (!species?.exists) return '' as ID;
+		let baseLearnsetid: ID = toID(species.baseSpecies);
+		if (typeof species.battleOnly === 'string' && species.battleOnly !== species.baseSpecies) {
+			baseLearnsetid = toID(species.battleOnly);
+		}
+		if (baseLearnsetid in learnsets) return baseLearnsetid;
+		return '' as ID;
+	}
+	private getNextLearnsetId(learnsetid: ID, speciesId: ID, learnsets: any): ID {
+		const lsetSpecies = this.props.search.dex.species.get(learnsetid);
+		if (!lsetSpecies?.exists) return '' as ID;
+		// Special cases for specific forms
+		if (learnsetid === 'lycanrocdusk' || (speciesId === 'rockruff' && learnsetid === 'rockruff')) {
+			return 'rockruffdusk' as ID;
+		}
+		if (lsetSpecies.id === 'gastrodoneast') return 'gastrodon' as ID;
+		if (lsetSpecies.id === 'pumpkaboosuper') return 'pumpkaboo' as ID;
+		if (lsetSpecies.id === 'sinisteaantique') return 'sinistea' as ID;
+		if (lsetSpecies.id === 'tatsugiristretchy') return 'tatsugiri' as ID;
+		const next = lsetSpecies.battleOnly || lsetSpecies.changesFrom || lsetSpecies.prevo;
+		if (next) return toID(next);
+		return '' as ID;
+	}
+	private parseDescriptionTags(desc: string): preact.ComponentChild {
+		if (!desc) return '';
+		// [buff]text[/buff] → relumi-change-up, [nerf]text[/nerf] → relumi-change-down.
+		// Match the old client's replace semantics: capture inner text and wrap it.
+		const out: preact.ComponentChild[] = [];
+		const regex = /\[(buff|nerf)\](.*?)\[\/\1\]/g;
+		let lastIndex = 0;
+		let match: RegExpExecArray | null;
+		while ((match = regex.exec(desc)) !== null) {
+			if (match.index > lastIndex) out.push(desc.slice(lastIndex, match.index));
+			const tag = match[1];
+			const inner = match[2];
+			const cls = tag === 'buff' ? 'relumi-change-up' : 'relumi-change-down';
+			out.push(<span class={cls}>{inner}</span>);
+			lastIndex = match.index + match[0].length;
+		}
+		if (lastIndex < desc.length) out.push(desc.slice(lastIndex));
+		return <>{out}</>;
 	}
 
 	renderPokemonSortRow() {
@@ -150,6 +492,12 @@ export class PSSearchResults extends preact.Component<{
 		const spaClass = this.getStatClass(id, 'spa', stats.spa);
 		const spdClass = this.getStatClass(id, 'spd', stats.spd);
 		const speClass = this.getStatClass(id, 'spe', stats.spe);
+		const hpDiff = this.getStatDiff(id, 'hp', stats.hp);
+		const atkDiff = this.getStatDiff(id, 'atk', stats.atk);
+		const defDiff = this.getStatDiff(id, 'def', stats.def);
+		const spaDiff = this.getStatDiff(id, 'spa', stats.spa);
+		const spdDiff = this.getStatDiff(id, 'spd', stats.spd);
+		const speDiff = this.getStatDiff(id, 'spe', stats.spe);
 		const ability0NewClass = this.isNewRelumiAbility(id, pokemon.abilities['0']) ?
 			'relumi-change-up' : '';
 		const ability1NewClass = pokemon.abilities['1'] &&
@@ -161,6 +509,13 @@ export class PSSearchResults extends preact.Component<{
 		let bst = 0;
 		for (const stat of Object.values(stats)) bst += stat;
 		if (search.dex.gen < 2) bst -= stats['spd'];
+		const bstClass = this.getBSTClass(id, bst);
+		const bstDiff = this.getBSTDiff(id, bst);
+		const fmtStatTitle = (diff: { vanilla: number, delta: number } | null) =>
+			diff ? `Vanilla: ${diff.vanilla} → ${diff.delta + diff.vanilla} (${diff.delta > 0 ? '+' : ''}${diff.delta})` : '';
+		const fmtBSTTitle = bstDiff ?
+			`Vanilla BST: ${bstDiff.vanilla} → ${bst} (${bstDiff.delta > 0 ? '+' : ''}${bstDiff.delta})` :
+			'';
 
 		if (errorMessage) {
 			return <li class="result"><a
@@ -223,14 +578,28 @@ export class PSSearchResults extends preact.Component<{
 					)
 				)}
 
-				<span class="col statcol"><em>HP</em><br /><span class={hpClass}>{stats.hp}</span></span>
-				<span class="col statcol"><em>Atk</em><br /><span class={atkClass}>{stats.atk}</span></span>
-				<span class="col statcol"><em>Def</em><br /><span class={defClass}>{stats.def}</span></span>
-				{search.dex.gen >= 2 && <span class="col statcol"><em>SpA</em><br /><span class={spaClass}>{stats.spa}</span></span>}
-				{search.dex.gen >= 2 && <span class="col statcol"><em>SpD</em><br /><span class={spdClass}>{stats.spd}</span></span>}
-				{search.dex.gen < 2 && <span class="col statcol"><em>Spc</em><br /><span class={spaClass}>{stats.spa}</span></span>}
-				<span class="col statcol"><em>Spe</em><br /><span class={speClass}>{stats.spe}</span></span>
-				<span class="col bstcol"><em>BST<br />{bst}</em></span>
+				<span class="col statcol" title={fmtStatTitle(hpDiff)}><em>HP</em><br /><span class={hpClass}>{stats.hp}</span></span>
+				<span class="col statcol" title={fmtStatTitle(atkDiff)}>
+					<em>Atk</em><br /><span class={atkClass}>{stats.atk}</span>
+				</span>
+				<span class="col statcol" title={fmtStatTitle(defDiff)}>
+					<em>Def</em><br /><span class={defClass}>{stats.def}</span>
+				</span>
+				{search.dex.gen >= 2 && <span class="col statcol" title={fmtStatTitle(spaDiff)}>
+					<em>SpA</em><br /><span class={spaClass}>{stats.spa}</span>
+				</span>}
+				{search.dex.gen >= 2 && <span class="col statcol" title={fmtStatTitle(spdDiff)}>
+					<em>SpD</em><br /><span class={spdClass}>{stats.spd}</span>
+				</span>}
+				{search.dex.gen < 2 && <span class="col statcol" title={fmtStatTitle(spaDiff)}>
+					<em>Spc</em><br /><span class={spaClass}>{stats.spa}</span>
+				</span>}
+				<span class="col statcol" title={fmtStatTitle(speDiff)}>
+					<em>Spe</em><br /><span class={speClass}>{stats.spe}</span>
+				</span>
+				<span class={`col bstcol ${bstClass}`} title={fmtBSTTitle}>
+					<em>BST<br />{bst}</em>
+				</span>
 			</a>
 		</li>;
 	}
@@ -301,7 +670,7 @@ export class PSSearchResults extends preact.Component<{
 
 				{errorMessage}
 
-				{!errorMessage && <span class="col abilitydesccol">{ability.shortDesc}</span>}
+				{!errorMessage && <span class="col abilitydesccol">{this.parseDescriptionTags(ability.shortDesc)}</span>}
 			</a>
 		</li>;
 	}
@@ -346,11 +715,24 @@ export class PSSearchResults extends preact.Component<{
 		}
 		const movePowerClass = this.getMoveChangeClass(id, 'basePower', move.basePower);
 		const moveAccuracyClass = this.getMoveChangeClass(id, 'accuracy', move.accuracy);
+		const movePowerDiff = this.getMoveDiff(id, 'basePower', move.basePower);
+		const moveAccuracyDiff = this.getMoveDiff(id, 'accuracy', move.accuracy);
+		const isNewLearnset = this.isNewRelumiLearnset(id);
+		const moveNameClass = isNewLearnset ? 'relumi-change-up' : '';
+		const fmtValue = (v: number | true) => v === true ? 'always' : String(v);
+		type MoveDiff = { vanilla: number | true, delta: number };
+		const fmtMoveTitle = (label: string, diff: MoveDiff | null, current: number | true) => {
+			if (!diff) return '';
+			const sign = diff.delta > 0 ? '+' : '';
+			return `Vanilla ${label}: ${fmtValue(diff.vanilla)} → ${fmtValue(current)} (${sign}${diff.delta})`;
+		};
 		return <li class="result"><a
 			href={`${this.URL_ROOT}moves/${id}`} class={this.moveIds.includes(id) ? 'cur' : ''}
 			data-target="push" data-entry={entry}
 		>
-			<span class="col movenamecol">{this.renderName(move.name, matchStart, matchEnd, tagStart)}</span>
+			<span class="col movenamecol">
+				<span class={moveNameClass}>{this.renderName(move.name, matchStart, matchEnd, tagStart)}</span>
+			</span>
 
 			<span class="col typecol">
 				<img
@@ -363,12 +745,12 @@ export class PSSearchResults extends preact.Component<{
 				/>
 			</span>
 
-			<span class="col labelcol">
+			<span class="col labelcol" title={fmtMoveTitle('Power', movePowerDiff, move.basePower)}>
 				{move.category !== 'Status' ? [
 					<em>Power</em>, <br />, <span class={movePowerClass}>{move.basePower || '\u2014'}</span>,
 				] : ''}
 			</span>
-			<span class="col widelabelcol">
+			<span class="col widelabelcol" title={fmtMoveTitle('Accuracy', moveAccuracyDiff, move.accuracy)}>
 				<em>Accuracy</em><br />
 				<span class={moveAccuracyClass}>
 					{move.accuracy && move.accuracy !== true ? `${move.accuracy}%` : '\u2014'}
@@ -378,7 +760,7 @@ export class PSSearchResults extends preact.Component<{
 				<em>PP</em><br />{pp}
 			</span>
 
-			<span class="col movedesccol">{move.shortDesc}</span>
+			<span class="col movedesccol">{this.parseDescriptionTags(move.shortDesc)}</span>
 
 		</a></li>;
 	}
@@ -597,6 +979,11 @@ export class PSSearchResults extends preact.Component<{
 	}
 	override render() {
 		const search = this.props.search;
+
+		// Invalidate per-search memos so Relumi diff lookups don't return stale
+		// data when the search dex or current species changes between renders.
+		this._relumiDiffCache = Object.create(null);
+		this._relumiHighlightCached = undefined;
 
 		const set = search.typedSearch?.set;
 		if (set) {
