@@ -504,7 +504,10 @@ class NewsPanel extends PSRoomPanel {
 			document.cookie = "preactalpha=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 		}
 		if (target.value === 'leave') {
-			document.location.href = `/`;
+			// Switch to the legacy Backbone client at its explicit URL so a
+			// refresh keeps the user on the old client instead of returning
+			// to the new preact-alpha client at /.
+			document.location.href = `/index-old.html`;
 		}
 	};
 	override render() {
