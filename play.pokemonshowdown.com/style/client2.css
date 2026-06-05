@@ -20,7 +20,7 @@ body {
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 
 	/* see https://pokemonshowdown.com/credits */
-	background: #344b6c url(../fx/client-bg-relumi.png) no-repeat left center
+	background: #344b6c url(../fx/client-bg-relumi.jpg) no-repeat left center
 		fixed;
 	-webkit-background-size: cover;
 	-moz-background-size: cover;

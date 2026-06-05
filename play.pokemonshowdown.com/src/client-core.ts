@@ -128,7 +128,7 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 		super();
 		try {
 			let bg = localStorage.getItem('showdown_bg')?.split('\n') || [''];
-			if (bg.length === 1) {
+			if (bg.length === 1 && bg[0]) {
 				// id
 				this.load('', bg[0]);
 			} else if (bg.length === 2) {
@@ -139,6 +139,9 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 				this.load(bg[0], bg[1], bg.slice(2));
 			}
 		} catch {}
+		if (!this.id) {
+			this.load('', 'relumi');
+		}
 	}
 	save(bgUrl: string) {
 		if (this.id !== 'custom') {
