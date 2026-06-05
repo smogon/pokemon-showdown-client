@@ -429,7 +429,10 @@ function toId() {
 				Storage.whenPrefsLoaded(function () {
 					if (!Config.server.registered) {
 						app.send('/autojoin');
-						Backbone.history.start({ pushState: !Config.testclient });
+						// Match the .html check used in the registered branch below so
+						// /index-old.html doesn't get its URL silently rewritten to /.
+						var useHistoryEarly = !Config.testclient && (location.pathname.slice(-5) !== '.html');
+						Backbone.history.start({ pushState: useHistoryEarly });
 						return;
 					}
 					// Support legacy tournament setting and migrate to new pref
