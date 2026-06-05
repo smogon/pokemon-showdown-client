@@ -303,6 +303,9 @@ export function PSPanelWrapper(props: {
 	onDragEnter?: (ev: DragEvent) => void,
 }) {
 	const room = props.room;
+	const contents = room.caughtError ?
+		<div class="broadcast broadcast-red"><pre>{room.caughtError}</pre></div> :
+		props.children;
 	if (room.location === 'mini-window') {
 		const size = props.fullSize ? ' mini-window-flex' : '';
 		const scrollable = !props.noScroll && !props.fullSize ? ' scrollable' : '';
@@ -311,13 +314,13 @@ export function PSPanelWrapper(props: {
 			class={`mini-window-contents tiny-layout ps-room-light${scrollable}${size}`}
 			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} onDragEnter={props.onDragEnter}
 		>
-			{props.children}
+			{contents}
 		</div>;
 	}
 	if (PS.isPopup(room)) {
 		const style = PSView.getPopupStyle(room, props.width, props.fullSize);
 		return <div class="ps-popup" id={`room-${room.id}`} style={style} onDragEnter={props.onDragEnter}>
-			{props.children}
+			{contents}
 		</div>;
 	}
 	const style = PSView.posStyle(room) as any;
@@ -328,8 +331,21 @@ export function PSPanelWrapper(props: {
 		id={`room-${room.id}`} role="tabpanel" aria-labelledby={`roomtab-${room.id}`}
 		style={style} onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} onDragEnter={props.onDragEnter}
 	>
-		{room.caughtError ? <div class="broadcast broadcast-red"><pre>{room.caughtError}</pre></div> : props.children}
+		{contents}
 	</div>;
+}
+
+export class PSPanelErrorBoundary extends preact.Component<{ room: PSRoom }> {
+	componentDidCatch(err: Error) {
+		this.props.room.caughtError = err.stack || err.message;
+		this.setState({});
+	}
+	override render() {
+		const room = this.props.room;
+		const RoomType = PS.roomTypes[room.type];
+		const Panel = RoomType && !room.isPlaceholder && !room.caughtError ? RoomType : PSRoomPanel;
+		return <Panel room={room} />;
+	}
 }
 
 export class PSView extends preact.Component {
@@ -408,8 +424,23 @@ export class PSView extends preact.Component {
 		}
 
 		window.onbeforeunload = (ev: Event) => {
-			return PS.prefs.refreshprompt ? "Are you sure you want to leave?" : null;
+			for (const room of Object.values(PS.rooms)) {
+				const interruptClose = room!.interruptClose(true);
+				if (typeof interruptClose === 'string') return interruptClose;
+			}
+			if (PS.prefs.refreshprompt) {
+				return "Are you sure you want to leave?";
+			}
+			return null;
 		};
+
+		window.addEventListener('focus', () => {
+			for (const room of [PS.leftPanel, PS.rightPanel]) {
+				if (room && PS.isVisiblePanel(room)) {
+					room.autoDismissNotifications();
+				}
+			}
+		});
 
 		window.addEventListener('submit', ev => {
 			const elem = ev.target as HTMLFormElement | null;
@@ -928,19 +959,12 @@ export class PSView extends preact.Component {
 
 		return style;
 	}
-	renderRoom(room: PSRoom) {
-		const RoomType = PS.roomTypes[room.type];
-		const Panel = RoomType && !room.isPlaceholder && !room.caughtError ? RoomType : PSRoomPanel;
-		return <Panel key={room.id} room={room} />;
-	}
 	renderPopup(room: PSRoom) {
-		const RoomType = PS.roomTypes[room.type];
-		const Panel = RoomType && !room.isPlaceholder && !room.caughtError ? RoomType : PSRoomPanel;
 		if (room.location === 'popup' && room.parentElem) {
-			return <Panel key={room.id} room={room} />;
+			return <PSPanelErrorBoundary key={room.id} room={room} />;
 		}
 		return <div key={room.id} class="ps-overlay" onClick={this.handleClickOverlay} role="dialog">
-			<Panel room={room} />
+			<PSPanelErrorBoundary room={room} />
 		</div>;
 	}
 	render() {
@@ -948,7 +972,7 @@ export class PSView extends preact.Component {
 		for (const roomid in PS.rooms) {
 			const room = PS.rooms[roomid]!;
 			if (PS.isPanel(room)) {
-				rooms.push(this.renderRoom(room));
+				rooms.push(<PSPanelErrorBoundary key={room.id} room={room} />);
 			}
 		}
 		return <div class="ps-frame" role="none">

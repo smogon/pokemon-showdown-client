@@ -1,4 +1,5 @@
 const assert = require('assert').strict;
+const {describe, it} = require('node:test');
 
 try {
   global.BattlePokedex = require('../play.pokemonshowdown.com/data/pokedex.js').BattlePokedex;

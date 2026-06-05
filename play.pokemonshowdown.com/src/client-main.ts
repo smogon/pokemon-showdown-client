@@ -141,9 +141,9 @@ class PSPrefs extends PSStreamModel<string | null> {
 	 */
 	ignore: { [userid: string]: 1 | 0 } | null = null;
 	/**
-	 * hide = hide regular display, notify = notify on new tours, null = notify on joined tours.
+	 * hide = hide regular display, notify = notify on new tours, 'nonotify' | null = notify on joined tours.
 	 */
-	tournaments: 'hide' | 'notify' | null = null;
+	tournaments: 'hide' | 'notify' | 'nonotify' | null = null;
 	/**
 	 * true = one panel, false = two panels, left and right
 	 */
@@ -321,8 +321,8 @@ class PSPrefs extends PSStreamModel<string | null> {
 			let rooms = autojoin[PS.server.id] || '';
 			for (let title of rooms.split(",")) {
 				const id = /[^a-z0-9-]/.test(title) ? toID(title) as any as RoomID : title as RoomID;
-				PS.addRoom({ id, title, connected: true, autofocus: false });
-			};
+				PS.addRoom({ id, title, connected: 'init', autofocus: false });
+			}
 			const cmd = `/autojoin ${rooms}`;
 			if (PS.connection?.queue.includes(cmd)) {
 				// don't jam up the queue with autojoin requests
@@ -940,7 +940,7 @@ export interface RoomOptions {
 	parentRoomid?: RoomID | null;
 	/** Opens the popup to the right of its parent, instead of the default above/below (for userlists) */
 	rightPopup?: boolean;
-	connected?: 'autoreconnect' | 'client-only' | 'expired' | boolean;
+	connected?: 'autoreconnect' | 'client-only' | 'expired' | 'init' | boolean;
 	/** @see {PSRoomPanelSubclass#noURL} */
 	noURL?: boolean;
 	args?: Record<string, unknown> | null;
@@ -999,17 +999,20 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	closable = true;
 	/**
 	 * Whether the room is connected to the server. This is _eager_,
-	 * we set it to `true` when we send `/join`, not when the server
+	 * we set it to `'init'` when we send `/join`, not when the server
 	 * tells us we're connected. That's because it tracks whether we
 	 * still need to send `/join` or `/leave`.
 	 *
-	 * Only connected to server when `=== true`. String options mean
-	 * the room isn't connected to the game server but to something
-	 * else.
+	 * Set to 'init' during initialization, including while parsing
+	 * the lines after receiveing `'init'` from the server.
+	 *
+	 * Only connected to server when `=== true`. String options other
+	 * than `init` mean the room isn't connected to the game server
+	 * but to something else.
 	 *
 	 * 'client-only' for DMs
 	 */
-	connected: 'autoreconnect' | 'client-only' | 'expired' | boolean = false;
+	connected: 'autoreconnect' | 'client-only' | 'expired' | 'init' | boolean = false;
 	/**
 	 * Can this room even be connected to at all?
 	 * `true` = pass messages from the server to subscribers
@@ -1133,6 +1136,9 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		}
 		this.isSubtleNotifying = false;
 	}
+	interruptClose(explicit?: boolean, elem?: HTMLElement | null): string | boolean {
+		return false;
+	}
 	connect(): void {
 		throw new Error(`This room is not designed to connect to a server room`);
 	}
@@ -1213,20 +1219,9 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		},
 		'part,leave,close'(target, cmd, elem) {
 			const roomid = (/[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID) || this.id;
-			const room = PS.rooms[roomid] as BattleRoom;
-			const battle = room?.battle;
+			const room = PS.rooms[roomid];
 
-			if (room?.type === "battle" && !battle.ended && room.users[PS.user.userid]?.startsWith('☆') && !battle.isReplay) {
-				PS.join("forfeitbattle" as RoomID, { parentElem: elem });
-				return;
-			}
-			if (room?.type === "chat" && room.connected === true && PS.prefs.leavePopupRoom && !target) {
-				PS.join("confirmleaveroom" as RoomID, { parentElem: elem });
-				return;
-			}
-			if (room?.type === "chat" && room.challenging) {
-				room.cancelChallenge();
-			}
+			if (room?.interruptClose(!!target, elem)) return;
 
 			PS.leave(roomid);
 		},
@@ -1498,7 +1493,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				if (curMode === false) curMode = 'NEVER';
 				if (curMode) curMode = curMode.toUpperCase();
 				if (!curMode) curMode = 'DEFAULT (currently ' + (Dex.afdMode ? 'FULL' : 'OFF') + ')';
-				this.add('||AFD is currently set to ' + mode);
+				this.add('||AFD is currently set to ' + curMode);
 				this.send('/help afd');
 			}
 			for (let roomid in PS.rooms) {
@@ -2144,7 +2139,7 @@ export const PS = new class extends PSModel {
 					room = this.addRoom({
 						id: roomid2,
 						type,
-						connected: true,
+						connected: 'init',
 						autofocus: roomid !== 'staff' && roomid !== 'upperstaff',
 						// probably the only use for `autoclosePopups: false`.
 						// (the server sometimes sends a popup error message and a new room at the same time)
@@ -2216,6 +2211,7 @@ export const PS = new class extends PSModel {
 			}
 			room?.receiveLine(args);
 		}
+		if (room && isInit) room.connected = true;
 		room?.update(isInit ? [`initdone`] : null);
 	}
 	send(msg: string, roomid?: RoomID) {

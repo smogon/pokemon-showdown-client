@@ -9,7 +9,7 @@ import preact from "../js/lib/preact";
 import { PSLoginServer } from "./client-connection";
 import { PSBackground } from "./client-core";
 import { Config, PS, PSRoom, type RoomID, type RoomOptions, type Team } from "./client-main";
-import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSIcon, PSPanelErrorBoundary, PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { BattlesRoom } from "./panel-battle";
 import type { ChatRoom } from "./panel-chat";
 import type { LadderFormatRoom } from "./panel-ladder";
@@ -582,9 +582,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		// if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
 	};
 	renderMiniRoom(room: PSRoom) {
-		const RoomType = PS.roomTypes[room.type];
-		const Panel = RoomType || PSRoomPanel;
-		return <Panel key={room.id} room={room} />;
+		return <PSPanelErrorBoundary key={room.id} room={room} />;
 	}
 	handleClickMinimize = (e: MouseEvent) => {
 		if ((e.target as Element)?.getAttribute('data-cmd')) {

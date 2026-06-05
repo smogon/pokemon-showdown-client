@@ -1,4 +1,5 @@
 const assert = require('assert').strict;
+const {describe, it} = require('node:test');
 
 window = global;
 
