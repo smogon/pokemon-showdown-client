@@ -32,6 +32,10 @@
 		this.gen = 9;
 		this.mod = null;
 
+		// Per-search memos for Relumi diff/lookup helpers; cleared in find().
+		this._relumiDiffCache = Object.create(null);
+		this._relumiHighlightCached = undefined;
+
 		this.engine = new DexSearch();
 		window.search = this;
 
@@ -64,6 +68,9 @@
 	//
 
 	Search.prototype.find = function (query, firstElem) {
+		// Invalidate per-search memos; rendering reads the same diffs many times per page.
+		this._relumiDiffCache = Object.create(null);
+		this._relumiHighlightCached = undefined;
 		if (!this.engine.find(query)) return; // nothing changed
 
 		this.exactMatch = this.engine.exactMatch;
@@ -298,113 +305,147 @@
 		return (table && table.gen8relumi) || null;
 	};
 	Search.prototype.getVanillaSpeciesData = function (speciesId) {
+		var cacheKey = 'vanillaSpecies|' + speciesId;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		var result;
 		var relumiTable = this.getRelumiOverrides();
 		if (relumiTable && relumiTable.vanillaSpeciesData && relumiTable.vanillaSpeciesData[speciesId]) {
-			return relumiTable.vanillaSpeciesData[speciesId];
+			result = relumiTable.vanillaSpeciesData[speciesId];
+		} else if (relumiTable && relumiTable.overrideSpeciesData && speciesId in relumiTable.overrideSpeciesData) {
+			// Species with override data but no vanillaSpeciesData entry are custom forms
+			// — Dex.forGen would return the mod-added BattlePokedex entry, not true vanilla data.
+			result = null;
+		} else {
+			var vanillaSpecies = Dex.forGen(9).species.get(speciesId);
+			result = (vanillaSpecies && vanillaSpecies.exists) ? vanillaSpecies : null;
 		}
-		// Species with override data but no vanillaSpeciesData entry are custom forms
-		// — Dex.forGen would return the mod-added BattlePokedex entry, not true vanilla data.
-		if (relumiTable && relumiTable.overrideSpeciesData && speciesId in relumiTable.overrideSpeciesData) {
-			return null;
-		}
-		var vanillaSpecies = Dex.forGen(9).species.get(speciesId);
-		if (!vanillaSpecies || !vanillaSpecies.exists) return null;
-		return vanillaSpecies;
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
 	};
 	Search.prototype.getVanillaMoveData = function (moveId) {
+		var cacheKey = 'vanillaMove|' + moveId;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
 		var relumiTable = this.getRelumiOverrides();
+		var vanillaMove;
 		if (relumiTable && relumiTable.vanillaMoveData && relumiTable.vanillaMoveData[moveId]) {
-			return relumiTable.vanillaMoveData[moveId];
+			vanillaMove = relumiTable.vanillaMoveData[moveId];
+		} else {
+			vanillaMove = Dex.forGen(9).moves.get(moveId);
+			if (!vanillaMove || !vanillaMove.exists) vanillaMove = null;
 		}
-		var vanillaMove = Dex.forGen(9).moves.get(moveId);
-		if (!vanillaMove || !vanillaMove.exists) return null;
+		this._relumiDiffCache[cacheKey] = vanillaMove;
 		return vanillaMove;
 	};
 	Search.prototype.shouldHighlightRelumiChanges = function () {
-		if (Dex.prefs('relumiHighlightBalanceChanges') === false) return false;
-
-		if (this.engine && this.engine.dex && this.engine.dex.modid === 'gen8relumi') {
-			return true;
+		if (this._relumiHighlightCached !== undefined) return this._relumiHighlightCached;
+		if (Dex.prefs('relumiHighlightBalanceChanges') === false) {
+			return (this._relumiHighlightCached = false);
 		}
-
+		if (this.engine && this.engine.dex && this.engine.dex.modid === 'gen8relumi') {
+			return (this._relumiHighlightCached = true);
+		}
 		var typedSearch = this.engine && this.engine.typedSearch;
 		var format = typedSearch && typedSearch.format;
-		return (typeof format === 'string' && format.indexOf('gen8relumi') >= 0);
+		var result = (typeof format === 'string' && format.indexOf('gen8relumi') >= 0);
+		return (this._relumiHighlightCached = result);
+	};
+	// Looks up `speciesId` in the current dex and returns the base species ID when
+	// the form is distinct from base; otherwise returns the original ID.
+	// Returns '' when the species cannot be resolved.
+	Search.prototype._resolveBaseSpeciesId = function (speciesId) {
+		var currentDex = (this.engine && this.engine.dex) || Dex;
+		if (!currentDex || !currentDex.species) return '';
+		var species = currentDex.species.get(speciesId);
+		if (!species || !species.exists) return '';
+		var baseId = toID(species.baseSpecies || speciesId);
+		return baseId !== speciesId ? baseId : speciesId;
+	};
+	// Returns true when `formStats` are identical to `baseStats` (cosmetic form).
+	Search.prototype._formsShareBaseStats = function (formStats, baseStats) {
+		if (!formStats || !baseStats) return false;
+		return formStats.hp === baseStats.hp && formStats.atk === baseStats.atk &&
+			formStats.def === baseStats.def && formStats.spa === baseStats.spa &&
+			formStats.spd === baseStats.spd && formStats.spe === baseStats.spe;
 	};
 	Search.prototype.getRelumiDiffSourceSpeciesId = function (speciesId) {
+		var cacheKey = 'diffSource|' + speciesId;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
 		var relumiTable = this.getRelumiOverrides();
-		if (!relumiTable || !relumiTable.overrideSpeciesData) return speciesId;
-		if (relumiTable.overrideSpeciesData[speciesId]) return speciesId;
-
-		// Fall back to base form only if base has overrides AND this form is effectively
-		// the same as base (either custom form with no vanilla data, or cosmetic form
-		// with identical vanilla stats to base).
-		var currentDex = (this.engine && this.engine.dex) || Dex;
-		if (!currentDex || !currentDex.species) return speciesId;
-		var species = currentDex.species.get(speciesId);
-		if (!species || !species.exists) return speciesId;
-		var baseId = toID(species.baseSpecies || speciesId);
-		if (baseId !== speciesId && relumiTable.overrideSpeciesData[baseId]) {
-			var vanillaSpecies = Dex.forGen(9).species.get(speciesId);
-			var vanillaBase = Dex.forGen(9).species.get(baseId);
-			// No vanilla data = custom form, fall back to base
-			if (!vanillaSpecies || !vanillaSpecies.exists) return baseId;
-			// Vanilla stats differ from base = form has different stats (e.g., Rotom appliances)
-			// Compare using currentRelumiDex to get the actual base stats used in the mod
-			if (vanillaBase && vanillaBase.exists && vanillaSpecies.baseStats && vanillaBase.baseStats) {
-				var stats = vanillaSpecies.baseStats;
-				var baseStats = vanillaBase.baseStats;
-				if (stats.hp !== baseStats.hp || stats.atk !== baseStats.atk ||
-					stats.def !== baseStats.def || stats.spa !== baseStats.spa ||
-					stats.spd !== baseStats.spd || stats.spe !== baseStats.spe) {
-					return speciesId;
+		var result = speciesId;
+		if (relumiTable && relumiTable.overrideSpeciesData) {
+			if (relumiTable.overrideSpeciesData[speciesId]) {
+				result = speciesId;
+			} else {
+				// Fall back to base form only if base has overrides AND this form is effectively
+				// the same as base (either custom form with no vanilla data, or cosmetic form
+				// with identical vanilla stats to base).
+				var baseId = this._resolveBaseSpeciesId(speciesId);
+				if (baseId && baseId !== speciesId && relumiTable.overrideSpeciesData[baseId]) {
+					var vanillaSpecies = Dex.forGen(9).species.get(speciesId);
+					// No vanilla data = custom form, fall back to base
+					if (!vanillaSpecies || !vanillaSpecies.exists) {
+						result = baseId;
+					} else {
+						var vanillaBase = Dex.forGen(9).species.get(baseId);
+						// Vanilla stats differ from base = form has different stats (e.g., Rotom
+						// appliances); do not coalesce.
+						if (vanillaBase && vanillaBase.exists &&
+							!this._formsShareBaseStats(vanillaSpecies.baseStats, vanillaBase.baseStats)) {
+							result = speciesId;
+						} else {
+							// Cosmetic form (identical vanilla stats to base) - fall back to base
+							result = baseId;
+						}
+					}
+				} else {
+					result = speciesId;
 				}
 			}
-			// Cosmetic form (identical vanilla stats to base) - fall back to base
-			return baseId;
 		}
-		return speciesId;
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
 	};
 	Search.prototype.getVanillaComparisonSpeciesId = function (speciesId) {
+		var cacheKey = 'vanillaCmp|' + speciesId;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
 		var relumiTable = this.getRelumiOverrides();
 		var hasVanillaData = relumiTable && relumiTable.vanillaSpeciesData && speciesId in relumiTable.vanillaSpeciesData;
-		if (hasVanillaData) return speciesId;
-
-		// Species with override data but no vanillaSpeciesData entry are custom forms.
-		// Dex.forGen would return the mod-added BattlePokedex entry, not true vanilla.
-		if (relumiTable && relumiTable.overrideSpeciesData && speciesId in relumiTable.overrideSpeciesData) {
-			var currentDex = (this.engine && this.engine.dex) || Dex;
-			if (!currentDex || !currentDex.species) return speciesId;
-			var species = currentDex.species.get(speciesId);
-			if (!species || !species.exists) return speciesId;
-			var baseId = toID(species.baseSpecies || speciesId);
-			if (baseId !== speciesId) return baseId;
-			return speciesId;
+		var result;
+		if (hasVanillaData) {
+			result = speciesId;
+		} else if (relumiTable && relumiTable.overrideSpeciesData && speciesId in relumiTable.overrideSpeciesData) {
+			// Species with override data but no vanillaSpeciesData entry are custom forms.
+			// Dex.forGen would return the mod-added BattlePokedex entry, not true vanilla.
+			result = this._resolveBaseSpeciesId(speciesId) || speciesId;
+		} else {
+			var vanillaSpecies = Dex.forGen(9).species.get(speciesId);
+			result = (vanillaSpecies && vanillaSpecies.exists) ? speciesId : (this._resolveBaseSpeciesId(speciesId) || speciesId);
 		}
-
-		// Fall through for species not touched by mod overrides.
-		var vanillaSpecies = Dex.forGen(9).species.get(speciesId);
-		if (vanillaSpecies && vanillaSpecies.exists) return speciesId;
-
-		// Fall back to base species for forms that do not exist in vanilla data.
-		var currentDex = (this.engine && this.engine.dex) || Dex;
-		if (!currentDex || !currentDex.species) return speciesId;
-		var species = currentDex.species.get(speciesId);
-		if (!species || !species.exists) return speciesId;
-		var baseId = toID(species.baseSpecies || speciesId);
-		if (baseId !== speciesId) return baseId;
-		return speciesId;
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
 	};
 	// Returns {vanilla, delta} or null if no diff. Used for title tooltips in stat columns
 	Search.prototype.getStatDiff = function (speciesId, statName, value) {
-		if (!this.shouldHighlightRelumiChanges()) return null;
+		var cacheKey = 'statDiff|' + speciesId + '|' + statName + '|' + value;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		var result = null;
+		if (!this.shouldHighlightRelumiChanges()) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
 
 		var relumiTable = this.getRelumiOverrides();
-		if (!relumiTable || !relumiTable.overrideSpeciesData) return null;
+		if (!relumiTable || !relumiTable.overrideSpeciesData) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
 
 		var diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
 		var relumiSpeciesDiff = relumiTable.overrideSpeciesData[diffSourceId];
-		if (!relumiSpeciesDiff) return null;
+		if (!relumiSpeciesDiff) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
 
 		var vanillaComparisonId;
 		var vanillaSpecies;
@@ -412,20 +453,35 @@
 		if (relumiSpeciesDiff.baseStats && relumiSpeciesDiff.baseStats[statName] !== undefined) {
 			vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
 			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
-			if (!vanillaSpecies) return null;
+			if (!vanillaSpecies) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
 		} else if (!relumiSpeciesDiff.baseStats) {
-			if (this.getVanillaSpeciesData(speciesId)) return null;
+			if (this.getVanillaSpeciesData(speciesId)) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
 			vanillaComparisonId = this.getVanillaComparisonSpeciesId(speciesId);
 			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
-			if (!vanillaSpecies || !vanillaSpecies.baseStats) return null;
+			if (!vanillaSpecies || !vanillaSpecies.baseStats) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
 		} else {
-			return null;
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
 		}
 
 		var vanillaStat = vanillaSpecies.baseStats[statName];
-		if (typeof vanillaStat !== 'number' || vanillaStat === value) return null;
+		if (typeof vanillaStat !== 'number' || vanillaStat === value) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
 
-		return { vanilla: vanillaStat, delta: value - vanillaStat };
+		result = { vanilla: vanillaStat, delta: value - vanillaStat };
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
 	};
 	Search.prototype.getStatClass = function (speciesId, statName, value) {
 		var diff = this.getStatDiff(speciesId, statName, value);
@@ -434,14 +490,26 @@
 	};
 	// Returns {vanilla, delta} or null if no diff. Used for BST title tooltip
 	Search.prototype.getBSTDiff = function (speciesId, currentBST) {
-		if (!this.shouldHighlightRelumiChanges()) return null;
+		var cacheKey = 'bstDiff|' + speciesId + '|' + currentBST;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		var result = null;
+		if (!this.shouldHighlightRelumiChanges()) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
 
 		var relumiTable = this.getRelumiOverrides();
-		if (!relumiTable || !relumiTable.overrideSpeciesData) return null;
+		if (!relumiTable || !relumiTable.overrideSpeciesData) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
 
 		var diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
 		var relumiSpeciesDiff = relumiTable.overrideSpeciesData[diffSourceId];
-		if (!relumiSpeciesDiff) return null;
+		if (!relumiSpeciesDiff) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
 
 		var vanillaComparisonId;
 		var vanillaSpecies;
@@ -449,12 +517,21 @@
 		if (relumiSpeciesDiff.baseStats) {
 			vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
 			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
-			if (!vanillaSpecies || !vanillaSpecies.baseStats) return null;
+			if (!vanillaSpecies || !vanillaSpecies.baseStats) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
 		} else {
-			if (this.getVanillaSpeciesData(speciesId)) return null;
+			if (this.getVanillaSpeciesData(speciesId)) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
 			vanillaComparisonId = this.getVanillaComparisonSpeciesId(speciesId);
 			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
-			if (!vanillaSpecies || !vanillaSpecies.baseStats) return null;
+			if (!vanillaSpecies || !vanillaSpecies.baseStats) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
 		}
 
 		var vanillaBST = 0;
@@ -462,9 +539,14 @@
 			vanillaBST += vanillaSpecies.baseStats[stat];
 		}
 
-		if (typeof vanillaBST !== 'number' || vanillaBST === currentBST) return null;
+		if (typeof vanillaBST !== 'number' || vanillaBST === currentBST) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
 
-		return { vanilla: vanillaBST, delta: currentBST - vanillaBST };
+		result = { vanilla: vanillaBST, delta: currentBST - vanillaBST };
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
 	};
 	Search.prototype.getBSTClass = function (speciesId, currentBST) {
 		var diff = this.getBSTDiff(speciesId, currentBST);
@@ -472,14 +554,26 @@
 		return diff.delta > 0 ? ' relumi-change-up' : ' relumi-change-down';
 	};
 	Search.prototype.isNewRelumiAbility = function (speciesId, abilityName) {
-		if (!abilityName || !this.shouldHighlightRelumiChanges()) return false;
+		var cacheKey = 'newAbility|' + speciesId + '|' + abilityName;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		var result = false;
+		if (!abilityName || !this.shouldHighlightRelumiChanges()) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
 
 		var relumiTable = this.getRelumiOverrides();
-		if (!relumiTable || !relumiTable.overrideSpeciesData) return false;
+		if (!relumiTable || !relumiTable.overrideSpeciesData) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
 
 		var diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
 		var relumiSpeciesDiff = relumiTable.overrideSpeciesData[diffSourceId];
-		if (!relumiSpeciesDiff) return false;
+		if (!relumiSpeciesDiff) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
 
 		var vanillaComparisonId;
 		var vanillaSpecies;
@@ -488,13 +582,22 @@
 			// Normal path: override has abilities
 			vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
 			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
-			if (!vanillaSpecies) return false;
+			if (!vanillaSpecies) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
 		} else {
 			// No abilities override — compare custom form (not in vanilla) against base form's vanilla abilities
-			if (this.getVanillaSpeciesData(speciesId)) return false;
+			if (this.getVanillaSpeciesData(speciesId)) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
 			vanillaComparisonId = this.getVanillaComparisonSpeciesId(speciesId);
 			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
-			if (!vanillaSpecies) return false;
+			if (!vanillaSpecies) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
 		}
 
 		var vanillaAbilities = {};
@@ -503,7 +606,9 @@
 			if (vanillaAbilityName) vanillaAbilities[vanillaAbilityName] = true;
 		}
 
-		return !vanillaAbilities[abilityName];
+		result = !vanillaAbilities[abilityName];
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
 	};
 	Search.prototype.wrapRelumiAbility = function (speciesId, abilityName) {
 		if (!abilityName) return '';
@@ -512,23 +617,41 @@
 	};
 	// Returns {vanilla, delta} or null if no diff. Used for move power/accuracy title tooltips
 	Search.prototype.getMoveDiff = function (moveId, valueType, value) {
-		if (!this.shouldHighlightRelumiChanges()) return null;
+		var cacheKey = 'moveDiff|' + moveId + '|' + valueType + '|' + value;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		var result = null;
+		if (!this.shouldHighlightRelumiChanges()) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
 
 		var relumiTable = this.getRelumiOverrides();
-		if (!relumiTable || !relumiTable.overrideMoveData) return null;
+		if (!relumiTable || !relumiTable.overrideMoveData) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
 
 		var relumiMoveDiff = relumiTable.overrideMoveData[moveId];
-		if (!relumiMoveDiff || relumiMoveDiff[valueType] === undefined) return null;
+		if (!relumiMoveDiff || relumiMoveDiff[valueType] === undefined) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
 
 		var vanillaMove = this.getVanillaMoveData(moveId);
-		if (!vanillaMove) return null;
+		if (!vanillaMove) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
 
 		var vanillaValue = vanillaMove[valueType];
 		if (typeof vanillaValue !== 'number' || typeof value !== 'number' || vanillaValue === value) {
-			return null;
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
 		}
 
-		return { vanilla: vanillaValue, delta: value - vanillaValue };
+		result = { vanilla: vanillaValue, delta: value - vanillaValue };
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
 	};
 	Search.prototype.getMoveChangeClass = function (moveId, valueType, value) {
 		var diff = this.getMoveDiff(moveId, valueType, value);
@@ -917,10 +1040,10 @@
 			pp = move.pp > 20 ? 20 : move.pp;
 			if (!move.noPPBoosts) pp = (pp / 5 + 1) * 4;
 		}
-		var movePowerClass = this.getMoveChangeClass(id, 'basePower', move.basePower);
 		var movePowerDiff = this.getMoveDiff(id, 'basePower', move.basePower);
-		var moveAccuracyClass = this.getMoveChangeClass(id, 'accuracy', move.accuracy);
+		var movePowerClass = this.getMoveChangeClass(id, 'basePower', move.basePower);
 		var moveAccuracyDiff = this.getMoveDiff(id, 'accuracy', move.accuracy);
+		var moveAccuracyClass = this.getMoveChangeClass(id, 'accuracy', move.accuracy);
 		buf += '<span class="col labelcol' + movePowerClass + '"' + (movePowerDiff ? ' title="Vanilla Power: ' + movePowerDiff.vanilla + ' → ' + move.basePower + ' (' + (movePowerDiff.delta > 0 ? '+' : '') + movePowerDiff.delta + ')"' : '') + '>' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
 		buf += '<span class="col widelabelcol' + moveAccuracyClass + '"' + (moveAccuracyDiff ? ' title="Vanilla Accuracy: ' + moveAccuracyDiff.vanilla + ' → ' + move.accuracy + ' (' + (moveAccuracyDiff.delta > 0 ? '+' : '') + moveAccuracyDiff.delta + ')"' : '') + '><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
 		buf += '<span class="col pplabelcol"><em>PP</em><br />' + pp + '</span> ';
@@ -934,7 +1057,8 @@
 	};
 	Search.prototype.renderMoveRowInner = function (move, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toID(move.name) + '" data-target="push"';
+		var id = toID(move.name);
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + id + '" data-target="push"';
 		var buf = '<a' + attrs + ' data-entry="move|' + BattleLog.escapeHTML(move.name) + '">';
 
 		// name
@@ -962,10 +1086,10 @@
 			pp = move.pp > 20 ? 20 : move.pp;
 			if (!move.noPPBoosts) pp = (pp / 5 + 1) * 4;
 		}
-		var movePowerClass = this.getMoveChangeClass(toID(move.name), 'basePower', move.basePower);
-		var movePowerDiff = this.getMoveDiff(toID(move.name), 'basePower', move.basePower);
-		var moveAccuracyClass = this.getMoveChangeClass(toID(move.name), 'accuracy', move.accuracy);
-		var moveAccuracyDiff = this.getMoveDiff(toID(move.name), 'accuracy', move.accuracy);
+		var movePowerDiff = this.getMoveDiff(id, 'basePower', move.basePower);
+		var movePowerClass = this.getMoveChangeClass(id, 'basePower', move.basePower);
+		var moveAccuracyDiff = this.getMoveDiff(id, 'accuracy', move.accuracy);
+		var moveAccuracyClass = this.getMoveChangeClass(id, 'accuracy', move.accuracy);
 		buf += '<span class="col labelcol' + movePowerClass + '"' + (movePowerDiff ? ' title="Vanilla Power: ' + movePowerDiff.vanilla + ' → ' + move.basePower + ' (' + (movePowerDiff.delta > 0 ? '+' : '') + movePowerDiff.delta + ')"' : '') + '>' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
 		buf += '<span class="col widelabelcol' + moveAccuracyClass + '"' + (moveAccuracyDiff ? ' title="Vanilla Accuracy: ' + moveAccuracyDiff.vanilla + ' → ' + move.accuracy + ' (' + (moveAccuracyDiff.delta > 0 ? '+' : '') + moveAccuracyDiff.delta + ')"' : '') + '><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
 		buf += '<span class="col pplabelcol"><em>PP</em><br />' + pp + '</span> ';
@@ -979,7 +1103,8 @@
 	};
 	Search.prototype.renderTaggedMoveRow = function (move, tag, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toID(move.name) + '" data-target="push"';
+		var id = toID(move.name);
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + id + '" data-target="push"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="move|' + BattleLog.escapeHTML(move.name) + '">';
 
 		// tag
@@ -1009,10 +1134,10 @@
 			pp = move.pp > 20 ? 20 : move.pp;
 			if (!move.noPPBoosts) pp = (pp / 5 + 1) * 4;
 		}
-		var movePowerDiff = this.getMoveDiff(toID(move.name), 'basePower', move.basePower);
-		var moveAccuracyDiff = this.getMoveDiff(toID(move.name), 'accuracy', move.accuracy);
-		var movePowerClass = movePowerDiff ? (movePowerDiff.delta > 0 ? ' relumi-change-up' : ' relumi-change-down') : '';
-		var moveAccuracyClass = moveAccuracyDiff ? (moveAccuracyDiff.delta > 0 ? ' relumi-change-up' : ' relumi-change-down') : '';
+		var movePowerDiff = this.getMoveDiff(id, 'basePower', move.basePower);
+		var movePowerClass = this.getMoveChangeClass(id, 'basePower', move.basePower);
+		var moveAccuracyDiff = this.getMoveDiff(id, 'accuracy', move.accuracy);
+		var moveAccuracyClass = this.getMoveChangeClass(id, 'accuracy', move.accuracy);
 		buf += '<span class="col labelcol' + movePowerClass + '"' + (movePowerDiff ? ' title="Vanilla Power: ' + movePowerDiff.vanilla + ' → ' + move.basePower + ' (' + (movePowerDiff.delta > 0 ? '+' : '') + movePowerDiff.delta + ')"' : '') + '>' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
 		buf += '<span class="col widelabelcol' + moveAccuracyClass + '"' + (moveAccuracyDiff ? ' title="Vanilla Accuracy: ' + moveAccuracyDiff.vanilla + ' → ' + move.accuracy + ' (' + (moveAccuracyDiff.delta > 0 ? '+' : '') + moveAccuracyDiff.delta + ')"' : '') + '><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
 		buf += '<span class="col pplabelcol"><em>PP</em><br />' + pp + '</span> ';
