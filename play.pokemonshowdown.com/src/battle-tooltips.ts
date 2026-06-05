@@ -1460,7 +1460,7 @@ export class BattleTooltips {
 				}
 				return `<p><small>Spe</small> ${min} to ${max} <small>(before stat stage changes)</small></p>`;
 			}
-			if (this.battle.tier.includes('Random')) {
+			if (this.battle.tier.includes('Random') && !this.battle.tier.includes('Random Tandem')) {
 				return `<p><small>Spe</small> ${min} or ${ev84} <small>(before external modifiers)</small></p>`;
 			} else if (this.battle.tier.includes("Let's Go")) {
 				return `<p><small>Spe</small> ${min}<small class="gray">&ndash;${ev0}&ndash;</small>${max} <small>(before external modifiers)</small></p>`;
