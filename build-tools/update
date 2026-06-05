@@ -166,6 +166,13 @@ function addCachebuster(_, attr, url, urlQuery) {
 	url = url.replace('/pokemonshowdown.com/', '/' + routes.root + '/');
 	url = url.replace('/teams.pokemonshowdown.com/', '/' + routes.teams + '/');
 
+	// Relumi: strip the client host from client-resource URLs so the cached
+	// HTML references local assets (served by whichever host is serving the
+	// caches/ files) instead of the upstream production host. External links
+	// to dex.pokemonshowdown.com, replay.pokemonshowdown.com, etc. are left
+	// untouched so they continue to resolve to the actual external sites.
+	url = url.replace(new RegExp('^(https?:)?//' + escapeRegex(routes.client) + '/'), '/');
+
 	if (urlQuery) {
 		if (url.startsWith('/')) {
 			let hash = Math.random(); // just in case creating the hash fails
