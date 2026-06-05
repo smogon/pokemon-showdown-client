@@ -558,9 +558,14 @@
 		return learnsInRelumi && !learnsInVanilla;
 	};
 	// Helper function to check if a species can learn a move in its learnset chain
-	Search.prototype.canLearnInChain = function (speciesId, moveId, learnsets) {
+	Search.prototype.canLearnInChain = function (speciesId, moveId, learnsets, visited) {
+		if (!visited) visited = Object.create(null);
 		var learnsetid = this.getFirstLearnsetId(speciesId, learnsets);
 		while (learnsetid) {
+			// Guard against cycles in the prevo/battleOnly/changesFrom chain
+			// (corrupt override data would otherwise freeze the browser tab).
+			if (visited[learnsetid]) return false;
+			visited[learnsetid] = true;
 			var learnset = learnsets[learnsetid];
 			if (learnset && moveId in learnset) {
 				return true;
