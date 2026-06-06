@@ -1197,13 +1197,21 @@ export class ModdedDex {
 	species = {
 		get: (name: string): Species => {
 			let id = toID(name);
+			const origId = id;
+			const origName = name;
 			if (window.BattleAliases && id in BattleAliases && !(window.BattlePokedex && id in window.BattlePokedex)) {
 				name = BattleAliases[id];
 				id = toID(name);
 			}
-			if (this.cache.Species.hasOwnProperty(id)) return this.cache.Species[id];
+			// Cosmetic forms (e.g. furfroudiamond→Furfrou in BattleAliases) need
+			// the original name so Dex.species.get synthesizes cosmetic formes.
+			const isCosmeticAlias = origId !== id && window.BattleBaseSpeciesChart?.some(
+				base => origId.startsWith(base)
+			);
+			const cacheId = isCosmeticAlias ? origId : id;
+			if (this.cache.Species.hasOwnProperty(cacheId)) return this.cache.Species[cacheId];
 
-			let data = { ...Dex.species.get(name) };
+			let data = { ...Dex.species.get(isCosmeticAlias ? origName : name) };
 
 			for (let i = Dex.gen - 1; i >= this.gen; i--) {
 				const table = window.BattleTeambuilderTable[`gen${i}`];
@@ -1237,8 +1245,8 @@ export class ModdedDex {
 					evoSpecies.isNonstandard === "Unobtainable";
 			});
 
-			const species = new Species(id, name, data);
-			this.cache.Species[id] = species;
+			const species = new Species(cacheId, name, data);
+			this.cache.Species[cacheId] = species;
 			return species;
 		},
 	};
