@@ -833,7 +833,7 @@ export class TeamEditorState extends PSModel {
 		}
 		if (!(formatid in this._sampleSetPromises)) {
 			this._sampleSetPromises[formatid] = Net(
-				`https://${Config.routes.client}/data/sets/${formatid}.json`
+				`//${Config.routes.client}/data/sets/${formatid}.json`
 			).get().then(json => {
 				const data = JSON.parse(json);
 				TeamEditorState.sampleSets[formatid] = data;
