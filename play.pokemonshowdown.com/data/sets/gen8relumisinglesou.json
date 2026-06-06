@@ -2781,6 +2781,26 @@
       }
     },
     "Blissey": {
+      "Serene Grace (Bulky Support) - ID 1079": {
+        "species": "Blissey",
+        "moves": [
+          "Healing Wish",
+          "Light Screen",
+          "Last Resort",
+          "Double-Edge"
+        ],
+        "ability": "Serene Grace",
+        "item": "Toxic Orb",
+        "nature": "Bashful",
+        "evs": {
+          "hp": 89,
+          "atk": 84,
+          "def": 84,
+          "spa": 85,
+          "spd": 84,
+          "spe": 84
+        }
+      },
       "Natural Cure (Bulky Support) - ID 998": {
         "species": "Blissey",
         "moves": [
@@ -2801,43 +2821,24 @@
           "spe": 0
         }
       },
-      "Natural Cure (Bulky Support) - ID 1109": {
+      "Serene Grace (Bulky Support) - ID 529": {
         "species": "Blissey",
         "moves": [
+          "Healing Wish",
           "Light Screen",
           "Last Resort",
-          "Healing Wish",
           "Double-Edge"
         ],
-        "ability": "Natural Cure",
-        "item": "Expert Belt",
-        "nature": "Hardy",
+        "ability": "Serene Grace",
+        "item": "Toxic Orb",
+        "nature": "Serious",
         "evs": {
-          "hp": 84,
+          "hp": 89,
           "atk": 84,
           "def": 84,
-          "spa": 88,
+          "spa": 85,
           "spd": 84,
-          "spe": 86
-        }
-      },
-      "Natural Cure (Bulky Support) - ID 157": {
-        "species": "Blissey",
-        "moves": [
-          "Soft-Boiled",
-          "Stealth Rock",
-          "Tri Attack",
-          "Thunder Wave"
-        ],
-        "ability": "Natural Cure",
-        "nature": "Hardy",
-        "evs": {
-          "hp": 252,
-          "atk": 0,
-          "def": 0,
-          "spa": 6,
-          "spd": 252,
-          "spe": 0
+          "spe": 84
         }
       }
     },
@@ -3734,7 +3735,8 @@
         "moves": [
           "Earthquake",
           "Eruption",
-          "Rock Slide"
+          "Rock Slide",
+          "Yawn"
         ],
         "ability": "Drought",
         "item": "Choice Scarf",
@@ -4136,6 +4138,26 @@
           "spa": 8,
           "spd": 0,
           "spe": 0
+        }
+      },
+      "Serene Grace (Bulky Support) - ID 513": {
+        "species": "Chansey",
+        "moves": [
+          "Healing Wish",
+          "Sweet Kiss",
+          "Tail Whip",
+          "Echoed Voice"
+        ],
+        "ability": "Serene Grace",
+        "item": "Toxic Orb",
+        "nature": "Docile",
+        "evs": {
+          "hp": 89,
+          "atk": 84,
+          "def": 84,
+          "spa": 85,
+          "spd": 84,
+          "spe": 84
         }
       }
     },
@@ -6671,7 +6693,8 @@
         "moves": [
           "Hurricane",
           "Ice Beam",
-          "Future Sight"
+          "Future Sight",
+          "Present"
         ],
         "ability": "Technician",
         "nature": "Quirky",
@@ -6732,7 +6755,8 @@
         "moves": [
           "Blizzard",
           "Surf",
-          "Hidden Power"
+          "Hidden Power",
+          "Ice Beam"
         ],
         "ability": "Snow Warning",
         "item": "Weakness Policy",
@@ -7136,23 +7160,24 @@
           "spe": 252
         }
       },
-      "Sand Rush (Bulky Attacker) - ID 93": {
+      "Strong Jaw (Bulky Attacker) - ID 839": {
         "species": "Dracovish",
         "moves": [
-          "Brutal Swing",
+          "Fishious Rend",
           "Ancient Power",
           "Bite",
           "Dragon Breath"
         ],
-        "ability": "Sand Rush",
-        "nature": "Bashful",
+        "ability": "Strong Jaw",
+        "item": "Choice Band",
+        "nature": "Jolly",
         "evs": {
-          "hp": 84,
-          "atk": 88,
-          "def": 84,
-          "spa": 84,
-          "spd": 84,
-          "spe": 86
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 6,
+          "spe": 252
         }
       }
     },
@@ -7673,7 +7698,8 @@
         "moves": [
           "Spit Up",
           "Swallow",
-          "Stockpile"
+          "Stockpile",
+          "Hex"
         ],
         "ability": "Aftermath",
         "nature": "Quirky",
@@ -8004,25 +8030,6 @@
         ],
         "ability": "Serene Grace",
         "nature": "Bashful",
-        "evs": {
-          "hp": 84,
-          "atk": 88,
-          "def": 84,
-          "spa": 84,
-          "spd": 84,
-          "spe": 86
-        }
-      },
-      "Serene Grace (Bulky Support) - ID 32 2": {
-        "species": "Dunsparce",
-        "moves": [
-          "Take Down",
-          "Drill Run",
-          "Pursuit",
-          "Roost"
-        ],
-        "ability": "Serene Grace",
-        "nature": "Hardy",
         "evs": {
           "hp": 84,
           "atk": 88,
@@ -8432,7 +8439,8 @@
         "moves": [
           "Bite",
           "Quick Attack",
-          "Tackle"
+          "Tackle",
+          "Baby-Doll Eyes"
         ],
         "ability": "Adaptability",
         "item": "Expert Belt",
@@ -8760,7 +8768,8 @@
         "moves": [
           "Thunderbolt",
           "Energy Ball",
-          "Hidden Power"
+          "Hidden Power",
+          "Seed Bomb"
         ],
         "ability": "Grassy Surge",
         "item": "Terrain Extender",
@@ -10655,7 +10664,8 @@
         "moves": [
           "Night Shade",
           "Payback",
-          "Confuse Ray"
+          "Confuse Ray",
+          "Sucker Punch"
         ],
         "ability": "Levitate",
         "nature": "Bashful",
@@ -10917,6 +10927,25 @@
       }
     },
     "Gigalith": {
+      "Sand Stream (Bulky Support) - ID 168": {
+        "species": "Gigalith",
+        "moves": [
+          "Explosion",
+          "Stealth Rock",
+          "Sandstorm",
+          "Stone Edge"
+        ],
+        "ability": "Sand Stream",
+        "nature": "Hardy",
+        "evs": {
+          "hp": 252,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 6,
+          "spe": 0
+        }
+      },
       "Sand Stream (Bulky Attacker) - ID 958": {
         "species": "Gigalith",
         "moves": [
@@ -11281,6 +11310,25 @@
           "spa": 88,
           "spd": 84,
           "spe": 86
+        }
+      },
+      "Chlorophyll (Bulky Support) - ID 183": {
+        "species": "Gloom",
+        "moves": [
+          "Stun Spore",
+          "Sleep Powder",
+          "Giga Drain",
+          "Mega Drain"
+        ],
+        "ability": "Chlorophyll",
+        "nature": "Quirky",
+        "evs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 6,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
         }
       }
     },
@@ -12639,6 +12687,26 @@
           "spd": 84,
           "spe": 86
         }
+      },
+      "Serene Grace (Bulky Support) - ID 510": {
+        "species": "Happiny",
+        "moves": [
+          "Healing Wish",
+          "Defense Curl",
+          "Copycat",
+          "Sweet Kiss"
+        ],
+        "ability": "Serene Grace",
+        "item": "Toxic Orb",
+        "nature": "Bashful",
+        "evs": {
+          "hp": 89,
+          "atk": 84,
+          "def": 84,
+          "spa": 85,
+          "spd": 84,
+          "spe": 84
+        }
       }
     },
     "Hariyama": {
@@ -13020,7 +13088,8 @@
         "moves": [
           "Mud-Slap",
           "Pound",
-          "Quick Attack"
+          "Quick Attack",
+          "Tail Whip"
         ],
         "ability": "Dry Skin",
         "item": "Expert Belt",
@@ -14791,16 +14860,16 @@
       }
     },
     "Klang": {
-      "Plus (Bulky Support) - ID 617": {
+      "Motor Drive (Bulky Support) - ID 671": {
         "species": "Klang",
         "moves": [
-          "Autotomize",
           "Gear Grind",
+          "Shift Gear",
           "Lock-On",
           "Mirror Shot"
         ],
-        "ability": "Plus",
-        "nature": "Hardy",
+        "ability": "Motor Drive",
+        "nature": "Serious",
         "evs": {
           "hp": 84,
           "atk": 88,
@@ -14810,7 +14879,7 @@
           "spe": 86
         }
       },
-      "Clear Body (Bulky Support) - ID 365": {
+      "Plus (Bulky Support) - ID 617": {
         "species": "Klang",
         "moves": [
           "Autotomize",
@@ -14818,7 +14887,7 @@
           "Lock-On",
           "Mirror Shot"
         ],
-        "ability": "Clear Body",
+        "ability": "Plus",
         "nature": "Hardy",
         "evs": {
           "hp": 84,
@@ -16199,6 +16268,25 @@
           "spa": 0,
           "spd": 198,
           "spe": 196
+        }
+      },
+      "Swift Swim (Bulky Support) - ID 521": {
+        "species": "Lotad",
+        "moves": [
+          "Absorb",
+          "Nature Power",
+          "Bubble",
+          "Mist"
+        ],
+        "ability": "Swift Swim",
+        "nature": "Bashful",
+        "evs": {
+          "hp": 89,
+          "atk": 84,
+          "def": 84,
+          "spa": 85,
+          "spd": 84,
+          "spe": 84
         }
       }
     },
@@ -20421,6 +20509,25 @@
       }
     },
     "Oddish": {
+      "Chlorophyll (Bulky Support) - ID 515": {
+        "species": "Oddish",
+        "moves": [
+          "Absorb",
+          "Growth",
+          "Sweet Scent",
+          "Acid"
+        ],
+        "ability": "Chlorophyll",
+        "nature": "Docile",
+        "evs": {
+          "hp": 89,
+          "atk": 84,
+          "def": 84,
+          "spa": 85,
+          "spd": 84,
+          "spe": 84
+        }
+      },
       "Chlorophyll (Bulky Support) - ID 7": {
         "species": "Oddish",
         "moves": [
@@ -21741,7 +21848,8 @@
         "moves": [
           "Bug Bite",
           "Rapid Spin",
-          "Self-Destruct"
+          "Self-Destruct",
+          "Take Down"
         ],
         "ability": "Sturdy",
         "nature": "Hardy",
@@ -21759,7 +21867,8 @@
         "moves": [
           "Revenge",
           "Bug Bite",
-          "Self-Destruct"
+          "Self-Destruct",
+          "Tackle"
         ],
         "ability": "Sturdy",
         "item": "Expert Belt",
@@ -21879,7 +21988,8 @@
         "moves": [
           "Water Pulse",
           "Peck",
-          "Pound"
+          "Pound",
+          "Bubble"
         ],
         "ability": "Torrent",
         "item": "Oran Berry",
@@ -23282,6 +23392,26 @@
           "spe": 6
         }
       },
+      "Mold Breaker (Bulky Attacker) - ID 893": {
+        "species": "Rampardos",
+        "moves": [
+          "Rock Climb",
+          "Earthquake",
+          "Ancient Power",
+          "Zen Headbutt"
+        ],
+        "ability": "Mold Breaker",
+        "item": "Choice Scarf",
+        "nature": "Jolly",
+        "evs": {
+          "hp": 6,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 252
+        }
+      },
       "Sheer Force (Bulky Attacker) - ID 891": {
         "species": "Rampardos",
         "moves": [
@@ -23300,26 +23430,6 @@
           "spa": 0,
           "spd": 0,
           "spe": 0
-        }
-      },
-      "Sheer Force (Bulky Attacker) - ID 1043": {
-        "species": "Rampardos",
-        "moves": [
-          "Brick Break",
-          "Zen Headbutt",
-          "Iron Head",
-          "Facade"
-        ],
-        "ability": "Sheer Force",
-        "item": "Life Orb",
-        "nature": "Adamant",
-        "evs": {
-          "hp": 252,
-          "atk": 252,
-          "def": 0,
-          "spa": 0,
-          "spd": 0,
-          "spe": 6
         }
       }
     },
@@ -23565,6 +23675,28 @@
           "hp": 6,
           "atk": 0,
           "def": 252,
+          "spa": 252,
+          "spd": 0,
+          "spe": 0
+        }
+      }
+    },
+    "Regieleki": {
+      "Transistor (Fast Attacker) - ID 921": {
+        "species": "Regieleki",
+        "moves": [
+          "Ancient Power",
+          "Thunder Cage",
+          "Lock-On",
+          "Zap Cannon"
+        ],
+        "ability": "Transistor",
+        "item": "Focus Sash",
+        "nature": "Modest",
+        "evs": {
+          "hp": 252,
+          "atk": 0,
+          "def": 6,
           "spa": 252,
           "spd": 0,
           "spe": 0
@@ -24195,26 +24327,6 @@
           "spe": 0
         }
       },
-      "Levitate (Setup Sweeper) - ID 1057": {
-        "species": "Rotom",
-        "moves": [
-          "Hydro Pump",
-          "Volt Switch",
-          "Nasty Plot",
-          "Pain Split"
-        ],
-        "ability": "Levitate",
-        "item": "Leftovers",
-        "nature": "Timid",
-        "evs": {
-          "hp": 0,
-          "atk": 0,
-          "def": 138,
-          "spa": 0,
-          "spd": 252,
-          "spe": 120
-        }
-      },
       "Levitate (Fast Attacker) - ID 683": {
         "species": "Rotom",
         "moves": [
@@ -24233,6 +24345,26 @@
           "spa": 8,
           "spd": 0,
           "spe": 252
+        }
+      },
+      "Levitate (Bulky Support) - ID 831": {
+        "species": "Rotom",
+        "moves": [
+          "Discharge",
+          "Shadow Ball",
+          "Volt Switch",
+          "Will-O-Wisp"
+        ],
+        "ability": "Levitate",
+        "item": "Magnet",
+        "nature": "Timid",
+        "evs": {
+          "hp": 36,
+          "atk": 36,
+          "def": 36,
+          "spa": 252,
+          "spd": 36,
+          "spe": 114
         }
       }
     },
@@ -25512,7 +25644,8 @@
         "moves": [
           "Aqua Tail",
           "Ice Beam",
-          "Snowscape"
+          "Snowscape",
+          "Dive"
         ],
         "ability": "Thick Fat",
         "nature": "Serious",
@@ -25615,7 +25748,8 @@
         "moves": [
           "Leaf Storm",
           "Dragon Pulse",
-          "Hidden Power"
+          "Hidden Power",
+          "Giga Drain"
         ],
         "ability": "Contrary",
         "item": "Life Orb",
@@ -28031,7 +28165,8 @@
         "moves": [
           "Wing Attack",
           "Quick Attack",
-          "Growl"
+          "Growl",
+          "Tackle"
         ],
         "ability": "Keen Eye",
         "nature": "Docile",
@@ -30505,12 +30640,13 @@
           "spe": 86
         }
       },
-      "Overgrow (Bulky Setup) - ID 176": {
+      "Overgrow (Bulky Support) - ID 176": {
         "species": "Turtwig",
         "moves": [
           "Razor Leaf",
           "Curse",
-          "Tackle"
+          "Tackle",
+          "Withdraw"
         ],
         "ability": "Overgrow",
         "item": "Oran Berry",
@@ -31276,12 +31412,13 @@
       }
     },
     "Venipede": {
-      "Swarm (Bulky Attacker) - ID 669": {
+      "Swarm (Bulky Support) - ID 669": {
         "species": "Venipede",
         "moves": [
           "Poison Sting",
           "Screech",
-          "Pursuit"
+          "Pursuit",
+          "Protect"
         ],
         "ability": "Swarm",
         "nature": "Bashful",
@@ -31441,7 +31578,8 @@
         "moves": [
           "Energy Ball",
           "Sludge Bomb",
-          "Hidden Power"
+          "Hidden Power",
+          "Double-Edge"
         ],
         "ability": "Grassy Surge",
         "item": "Terrain Extender",
@@ -31598,6 +31736,25 @@
           "spd": 84,
           "spe": 86
         }
+      },
+      "Chlorophyll (Bulky Support) - ID 501": {
+        "species": "Victreebel",
+        "moves": [
+          "Vine Whip",
+          "Stockpile",
+          "Swallow",
+          "Sweet Scent"
+        ],
+        "ability": "Chlorophyll",
+        "nature": "Bashful",
+        "evs": {
+          "hp": 89,
+          "atk": 85,
+          "def": 84,
+          "spa": 84,
+          "spd": 84,
+          "spe": 84
+        }
       }
     },
     "Vigoroth": {
@@ -31720,6 +31877,26 @@
           "spa": 8,
           "spd": 250,
           "spe": 0
+        }
+      },
+      "Effect Spore (Bulky Support) - ID 827": {
+        "species": "Vileplume",
+        "moves": [
+          "Giga Drain",
+          "Hidden Power",
+          "Sludge Bomb",
+          "Strength Sap"
+        ],
+        "ability": "Effect Spore",
+        "item": "Black Sludge",
+        "nature": "Hasty",
+        "evs": {
+          "hp": 158,
+          "atk": 60,
+          "def": 60,
+          "spa": 112,
+          "spd": 60,
+          "spe": 60
         }
       }
     },
@@ -32297,6 +32474,25 @@
           "spd": 84,
           "spe": 86
         }
+      },
+      "Chlorophyll (Bulky Support) - ID 183": {
+        "species": "Weepinbell",
+        "moves": [
+          "Sleep Powder",
+          "Poison Powder",
+          "Stun Spore",
+          "Acid"
+        ],
+        "ability": "Chlorophyll",
+        "nature": "Serious",
+        "evs": {
+          "hp": 6,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 252
+        }
       }
     },
     "Weezing": {
@@ -32488,7 +32684,8 @@
         "moves": [
           "Uproar",
           "Astonish",
-          "Disarming Voice"
+          "Disarming Voice",
+          "Echoed Voice"
         ],
         "ability": "Scrappy",
         "item": "Focus Sash",
@@ -32710,7 +32907,8 @@
         "moves": [
           "Confusion",
           "Gust",
-          "Endeavor"
+          "Endeavor",
+          "Odor Sleuth"
         ],
         "ability": "Simple",
         "item": "Expert Belt",
@@ -33595,6 +33793,25 @@
           "spa": 84,
           "spd": 84,
           "spe": 86
+        }
+      },
+      "Inner Focus (Bulky Attacker) - ID 518": {
+        "species": "Zubat",
+        "moves": [
+          "Bite",
+          "Leech Life",
+          "Supersonic",
+          "Astonish"
+        ],
+        "ability": "Inner Focus",
+        "nature": "Bashful",
+        "evs": {
+          "hp": 89,
+          "atk": 85,
+          "def": 84,
+          "spa": 84,
+          "spd": 84,
+          "spe": 84
         }
       }
     },
