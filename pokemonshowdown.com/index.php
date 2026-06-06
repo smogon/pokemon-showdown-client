@@ -43,7 +43,7 @@ include_once __DIR__ . '/../config/ads-landing.inc.php';
 		margin-left: 590px;
 	}
 	@media (max-width:880px) {
-		.left iframe {
+		.left iframe, .left .screenshot img {
 			width: 275px;
 			height: 144px;
 		}
@@ -100,8 +100,9 @@ include_once __DIR__ . '/../config/ads-landing.inc.php';
 
 		<section class="section" style="max-width: 850px">
 			<div class="left">
-				<!--div class="screenshot"><img src="/images/screenshot-desktop.png" alt="" width="549" height="288" style="border:1px solid #AAAAAA;box-shadow: 3px 3px 3px rgba(0,0,0,.2);image-rendering: -moz-auto;" /></div-->
-				<iframe width="560" height="315" src="https://www.youtube.com/embed/daw9GoZWWSI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+				<div class="screenshot"><img src="/images/screenshot-desktop.png" alt="" width="549" height="288" style="border:1px solid #AAAAAA;box-shadow: 3px 3px 3px rgba(0,0,0,.2);image-rendering: -moz-auto;" /></div>
+				<!--iframe width="560" height="315" src="https://www.youtube.com/embed/daw9GoZWWSI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe-->
+				<!-- rip pokeaim. hope everything goes well -->
 			</div>
 			<div class="right">
 				<p>
