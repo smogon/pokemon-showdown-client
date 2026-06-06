@@ -1347,7 +1347,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		},
 		'avatar'(target) {
 			target = target.toLowerCase();
-			if (/[^a-z0-9-]/.test(target)) target = toID(target);
+			// Allow dots for custom server-side avatars (e.g., politoed-pokemon.png)
+			if (/[^a-z0-9-.]/.test(target)) target = toID(target);
 			const avatar = window.BattleAvatarNumbers?.[target] || target;
 			PS.user.avatar = avatar;
 			PS.prefs.set('avatar', avatar || null);

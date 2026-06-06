@@ -1003,10 +1003,28 @@ class AvatarsPanel extends PSRoomPanel {
 			avatars.push([i, window.BattleAvatarNumbers?.[i] || `${i}`]);
 		}
 
+		const serverAvatars: string[] = (window.Config as any)?.serverAvatars || [];
+		const protocol = (Config.server.port === 443) ? 'https' : 'http';
+		const serverUrl = `${protocol}://${Config.server.host}:${Config.server.port}`;
+
 		return <PSPanelWrapper room={room} width={1210}><div class="pad">
 			<label class="optlabel"><strong>Choose an avatar or </strong>
 				<button class="button" data-cmd="/close"> Cancel</button>
 			</label>
+			{serverAvatars.length > 0 && <>
+				<div class="avatarlist">
+					{serverAvatars.map(avatar => (
+						<button
+							data-cmd={`/closeand /avatar ${avatar}`} title={`/avatar ${avatar}`}
+							class={`option${avatar === PS.user.avatar ? ' cur' : ''}`}
+							style="background: none"
+						>
+							<img src={`${serverUrl}/avatars/${encodeURIComponent(avatar)}`} width="80" height="80" />
+						</button>
+					))}
+				</div>
+				<div style="clear:left"></div>
+			</>}
 			<div class="avatarlist">
 				{avatars.map(([i, avatar]) => (
 					<button
