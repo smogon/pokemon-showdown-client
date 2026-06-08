@@ -280,7 +280,7 @@ export class Session {
 			if (splitChallenge[2] && !challengetoken) challengetoken = splitChallenge[2];
 		}
 
-		if (!toID(challenge)) {
+		if (challenge && toID(challenge) !== challenge) {
 			// Bogus challenge.
 			return ';;Corrupt challenge';
 		}
