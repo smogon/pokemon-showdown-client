@@ -12,7 +12,7 @@ self.onmessage = (event: MessageEvent) => {
 		serverInfo = server;
 		connectToServer();
 	} else if (type === 'send') {
-		if (socket && socket.readyState === WebSocket.OPEN) {
+		if (socket?.readyState === WebSocket.OPEN) {
 			socket.send(data);
 		} else {
 			queue.push(data);
@@ -31,9 +31,9 @@ function connectToServer() {
 	const url = `${serverInfo.protocol}://${serverInfo.host}${port}${serverInfo.prefix}`;
 
 	try {
-		socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
-	} catch {
 		socket = new WebSocket(url.replace('http', 'ws') + '/websocket');
+	} catch {
+		socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
 	}
 	if (socket) {
 		socket.onopen = () => {
