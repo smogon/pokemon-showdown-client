@@ -208,6 +208,7 @@ export interface TeambuilderSpriteData {
 	spriteDir: string;
 	spriteid: string;
 	shiny?: boolean;
+	pixelated?: boolean;
 }
 
 export const Dex = new class implements ModdedDex {
@@ -977,8 +978,7 @@ export const Dex = new class implements ModdedDex {
 				spriteid = species.spriteid || id;
 			}
 		}
-		if (species.exists === false) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5 };
-
+		if (species.exists === false) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5, pixelated: true };
 		if (Dex.afdMode) {
 			return {
 				spriteid,
@@ -1040,6 +1040,7 @@ export const Dex = new class implements ModdedDex {
 		else if (gen <= 2 && species.gen <= 2) spriteData.spriteDir = 'sprites/gen2';
 		else if (gen <= 3 && species.gen <= 3) spriteData.spriteDir = 'sprites/gen3';
 		else if (gen <= 4 && species.gen <= 4) spriteData.spriteDir = 'sprites/gen4';
+		spriteData.pixelated = true;
 		spriteData.x = 10;
 		spriteData.y = 5;
 		return spriteData;

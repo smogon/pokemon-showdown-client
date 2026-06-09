@@ -43,6 +43,7 @@ class RoomsPanel extends PSRoomPanel {
 		}));
 	}
 	override componentDidUpdate() {
+		super.componentDidUpdate();
 		const el = this.base?.querySelector('a.blocklink.cur');
 		if (!this.roomListFocusIndex) return;
 		el?.scrollIntoView({ behavior: 'auto', block: 'center' });

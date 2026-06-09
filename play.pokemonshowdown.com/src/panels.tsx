@@ -76,7 +76,7 @@ export class PSRouter {
 
 		if (url.startsWith('view-teams-view-')) {
 			const teamid = url.slice(16);
-			url = `viewteam-${teamid}` as RoomID;
+			url = `viewteam-${teamid}`;
 		}
 		return url as RoomID;
 	}
@@ -597,20 +597,22 @@ export class PSView extends preact.Component {
 			const modifierKey = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
 			const altKey = !ev.ctrlKey && ev.altKey && !ev.metaKey && !ev.shiftKey;
 			const altShiftKey = !ev.ctrlKey && ev.altKey && !ev.metaKey && ev.shiftKey;
-			if (altShiftKey && ev.keyCode === 37 && !isNonEmptyTextInput) { // alt + shift + left
+			const shiftKey = !ev.ctrlKey && !ev.altKey && !ev.metaKey && ev.shiftKey;
+			const kc = ev.keyCode;
+			if (altShiftKey && (kc === 37 || kc === 38)) { // alt + shift + left or up
 				PS.arrowKeysUsed = true;
 				PS.focusUnreadRoom('left');
-			} else if (altShiftKey && ev.keyCode === 39 && !isNonEmptyTextInput) { // alt + shift + right
+			} else if (altShiftKey && (kc === 39 || kc === 40)) { // alt + shift + right or down
 				PS.arrowKeysUsed = true;
 				PS.focusUnreadRoom('right');
 			}
-			if (altKey && ev.keyCode === 38) { // alt + up
+			if (altKey && kc === 38) { // alt + up
 				PS.arrowKeysUsed = true;
 				PS.focusUpRoom();
-			} else if (altKey && ev.keyCode === 40) { // alt + down
+			} else if (altKey && kc === 40) { // alt + down
 				PS.arrowKeysUsed = true;
 				PS.focusDownRoom();
-			} else if (ev.keyCode === 27) { // escape
+			} else if (!modifierKey && kc === 27) { // escape
 				// close popups
 				if (PS.popups.length) {
 					ev.stopImmediatePropagation();
@@ -623,22 +625,111 @@ export class PSView extends preact.Component {
 					PS.hideRightRoom();
 				}
 			}
+
 			if (isNonEmptyTextInput) return;
-			if (altKey && ev.keyCode === 37) { // alt + left
+
+			if (altKey && kc === 37) { // alt + left
 				PS.arrowKeysUsed = true;
 				PS.focusLeftRoom();
-			} else if (altKey && ev.keyCode === 39) { // alt + right
+			} else if (altKey && kc === 39) { // alt + right
 				PS.arrowKeysUsed = true;
 				PS.focusRightRoom();
+			} else if (shiftKey && kc === 37) { // shift + left
+				if (PS.prefs.onepanel === 'vertical') return;
+				const curLoc = PS.room.location;
+				let newLoc = curLoc;
+				let newIndex: number | null = null;
+				switch (curLoc) {
+				case 'right': {
+					newIndex = PS.rightRoomList.indexOf(PS.room.id) - 1;
+					if (newIndex < 0) {
+						newLoc = 'left';
+						newIndex = PS.leftRoomList.length + 1;
+					}
+					break;
+				}
+				case 'left': {
+					newIndex = PS.leftRoomList.indexOf(PS.room.id) - 1;
+					// newIndex <= 0 because MainMenu is always at 0 index
+					if (newIndex <= 0) {
+						newLoc = 'mini-window';
+						newIndex = PS.miniRoomList.length + 1;
+					}
+					break;
+				}
+				case 'mini-window': {
+					newIndex = PS.miniRoomList.indexOf(PS.room.id) - 1;
+					if (newIndex < 0) {
+						newLoc = 'right';
+						newIndex = PS.rightRoomList.length + 1;
+					}
+					break;
+				}
+				}
+				if (newIndex !== null) {
+					PS.moveRoom(PS.room, newLoc, false, newIndex);
+					PS.update();
+				}
+			} else if (shiftKey && kc === 39) { // shift + right
+				if (PS.prefs.onepanel === 'vertical') return;
+				const curLoc = PS.room.location;
+				let newLoc = curLoc;
+				let newIndex: number | null = null;
+				switch (curLoc) {
+				case 'right': {
+					newIndex = PS.rightRoomList.indexOf(PS.room.id) + 1;
+					if (newIndex >= PS.rightRoomList.length - 1) {
+						// newIndex = 1 because NewsPanel is at 0
+						newLoc = 'mini-window';
+						newIndex = 1;
+					}
+					break;
+				}
+				case 'left': {
+					newIndex = PS.leftRoomList.indexOf(PS.room.id) + 1;
+					if (newIndex >= PS.leftRoomList.length) {
+						newLoc = 'right';
+						newIndex = 0;
+					}
+					break;
+				}
+				case 'mini-window': {
+					newIndex = PS.miniRoomList.indexOf(PS.room.id) + 1;
+					if (newIndex >= PS.miniRoomList.length) {
+						newLoc = 'left';
+						// newIndex = 1 because MainMenu is at 0
+						newIndex = 1;
+					}
+					break;
+				}
+				}
+				if (newIndex !== null) {
+					PS.moveRoom(PS.room, newLoc, false, newIndex);
+					PS.update();
+				}
+			} else if (shiftKey && kc === 38) { // shift + up
+				if (PS.prefs.onepanel !== 'vertical') return;
+				let newIndex = PS.rightRoomList.indexOf(PS.room.id) - 1;
+				if (newIndex < 0) newIndex = PS.rightRoomList.length - 1;
+				PS.moveRoom(PS.room, 'right', false, newIndex);
+				PS.update();
+			} else if (shiftKey && kc === 40) { // shift + down
+				if (PS.prefs.onepanel !== 'vertical') return;
+				let newIndex = PS.rightRoomList.indexOf(PS.room.id) + 1;
+				if (newIndex >= PS.rightRoomList.length - 1) newIndex = 0;
+				PS.moveRoom(PS.room, 'right', false, newIndex);
+				PS.update();
 			}
+
 			if (modifierKey) return;
-			if (ev.keyCode === 37) { // left
+
+			if (kc === 37) { // left
 				PS.arrowKeysUsed = true;
 				PS.focusLeftRoom();
-			} else if (ev.keyCode === 39) { // right
+			} else if (kc === 39) { // right
 				PS.arrowKeysUsed = true;
 				PS.focusRightRoom();
-			} else if (ev.keyCode === 191 && !isTextInput && PS.room === PS.mainmenu) { // forward slash
+			} else if (kc === 191 && !isTextInput && PS.room === PS.mainmenu) { // forward slash
 				ev.stopImmediatePropagation();
 				ev.preventDefault();
 				PS.join('dm---' as RoomID);
@@ -733,7 +824,7 @@ export class PSView extends preact.Component {
 		}
 	}
 	static focusIfNoSelection = (ev: MouseEvent) => {
-		const room = PS.getRoom(ev.target as HTMLElement, true);
+		const room = PS.getRoom(ev.target, true);
 		if (!room) return;
 
 		if (window.getSelection?.()?.type === 'Range') return;

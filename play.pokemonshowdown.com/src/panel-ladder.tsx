@@ -12,6 +12,7 @@ import { Net } from "./client-connection";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { BattleLog } from "./battle-log";
 import { toID, type ID } from "./battle-dex";
+import { SanitizedHTML } from "./panel-page";
 
 type LadderData = {
 	formatid: ID,
@@ -45,8 +46,7 @@ export class LadderFormatRoom extends PSRoom {
 	loading = false;
 	error?: string;
 	ladderData?: LadderData;
-	// Local ladder returns HTML instead of JSON; stored here for direct rendering
-	ladderHTML: string | null = null;
+	ladderHTML?: string;
 
 	constructor(options: any) {
 		super(options);
@@ -64,15 +64,26 @@ export class LadderFormatRoom extends PSRoom {
 	setError = (error: Error) => {
 		this.loading = false;
 		this.error = error.message;
+		this.ladderData = undefined;
+		this.ladderHTML = undefined;
 		this.update(null);
 	};
 	setLadderData = (ladderData: string | undefined) => {
 		this.loading = false;
+		this.error = undefined;
+		this.ladderHTML = undefined;
 		if (ladderData) {
 			this.ladderData = JSON.parse(ladderData);
 		} else {
 			this.ladderData = undefined;
 		}
+		this.update(null);
+	};
+	setLadderHTML = (ladderHTML: string | undefined) => {
+		this.loading = false;
+		this.error = undefined;
+		this.ladderData = undefined;
+		this.ladderHTML = ladderHTML;
 		this.update(null);
 	};
 	requestLadderData = (searchValue: string) => {
@@ -81,10 +92,10 @@ export class LadderFormatRoom extends PSRoom {
 		this.loading = true;
 		this.error = undefined;
 		this.ladderData = undefined;
-		this.ladderHTML = null;
+		this.ladderHTML = undefined;
 		if (PS.teams.usesLocalLadder) {
-			// Use sendDirect to bypass the client-side /cmd filter which blocks system commands
-			this.sendDirect(`/cmd laddertop ${this.format} ${toID(this.searchValue)}`);
+			const prefix = toID(this.searchValue);
+			PS.send(`/cmd laddertop ${this.format}${prefix ? ` ,${prefix}` : ''}`);
 		} else if (this.format !== undefined) {
 			Net(`//pokemonshowdown.com/ladder/${this.format}.json`)
 				.get({
@@ -113,15 +124,10 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 				if (response) {
 					const [format, ladderData] = response;
 					if (room.format === format) {
-						room.loading = false;
 						if (!ladderData) {
 							room.setError(new Error('No data returned from server.'));
-						} else if (PS.teams.usesLocalLadder) {
-							// Local ladder returns HTML markup, not JSON
-							room.ladderHTML = ladderData;
-							room.ladderData = undefined;
 						} else {
-							room.setLadderData(ladderData);
+							room.setLadderHTML(ladderData);
 						}
 					}
 				}
@@ -163,17 +169,25 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 			<button type="submit" class="button">Search</button>
 		</p></form>;
 	}
-	renderTable() {
+	renderLocalLadder() {
 		const room = this.props.room;
 
-		// Loading state checked first so stale HTML/data isn't shown during re-fetch
 		if (room.loading || !BattleFormats) {
 			return <p><i class="fa fa-refresh fa-spin" aria-hidden></i> <em>Loading...</em></p>;
 		} else if (room.error !== undefined) {
 			return <p>Error: {room.error}</p>;
-		} else if (room.ladderHTML !== null) {
-			// Local ladder returns server-rendered HTML; render it directly (no JSON parsing)
-			return <div dangerouslySetInnerHTML={{ __html: room.ladderHTML }}></div>;
+		} else if (!room.ladderHTML) {
+			return null;
+		}
+		return <SanitizedHTML>{room.ladderHTML}</SanitizedHTML>;
+	}
+	renderTable() {
+		const room = this.props.room;
+
+		if (room.loading || !BattleFormats) {
+			return <p><i class="fa fa-refresh fa-spin" aria-hidden></i> <em>Loading...</em></p>;
+		} else if (room.error !== undefined) {
+			return <p>Error: {room.error}</p>;
 		} else if (!room.ladderData) {
 			return null;
 		}
@@ -215,6 +229,18 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 	}
 	override render() {
 		const room = this.props.room;
+		if (PS.teams.usesLocalLadder) {
+			return <PSPanelWrapper room={room}>
+				<div class="ladder pad">
+					<p>
+						<button class="button" data-href="ladder" data-target="replace">
+							<i class="fa fa-chevron-left" aria-hidden></i> Format List
+						</button>
+					</p>
+					{this.renderLocalLadder()}
+				</div>
+			</PSPanelWrapper>;
+		}
 		return <PSPanelWrapper room={room}>
 			<div class="ladder pad">
 				<p>

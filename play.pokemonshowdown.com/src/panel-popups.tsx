@@ -58,16 +58,18 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 
 		const group = PS.server.getGroup(room.name);
 		let groupName: preact.ComponentChild = group.name || null;
-		if (group.type === 'punishment') {
-			groupName = <span style="color:#777777">{groupName}</span>;
-		}
 
 		const globalGroup = PS.server.getGroup(user.group);
 		let globalGroupName: preact.ComponentChild = globalGroup.name && `Global ${globalGroup.name}` || null;
+		if (globalGroup.name === groupName) groupName = null;
+		let customGroup = toID(user.customgroup) !== toID(globalGroupName || groupName) ? user.customgroup : '';
+
+		if (group.type === 'punishment') {
+			groupName = <span style="color:#777777">{groupName}</span>;
+		}
 		if (globalGroup.type === 'punishment') {
 			globalGroupName = <span style="color:#777777">{globalGroupName}</span>;
 		}
-		if (globalGroup.name === group.name) groupName = null;
 
 		let roomsList: preact.ComponentChild = null;
 		if (user.rooms) {
@@ -176,7 +178,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			{status && <div class="userstatus">{status}</div>}
 			{groupName && <div class="usergroup roomgroup">{groupName}</div>}
 			{globalGroupName && <div class="usergroup globalgroup">{globalGroupName}</div>}
-			{user.customgroup && <div class="usergroup globalgroup">{user.customgroup}</div>}
+			{customGroup && <div class="usergroup globalgroup">{customGroup}</div>}
 			{!hideInteraction && roomsList}
 		</div>, buttonbar];
 	}

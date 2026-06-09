@@ -1902,7 +1902,9 @@ class TeamTextbox extends preact.Component<{
 							</div>;
 						}
 						const displayTypes = (editor.isRelumiTesting && set.customTypes?.length ? set.customTypes : species.types);
+						const spriteData = Dex.getTeambuilderSpriteData(set, editor.dex);
 						return [<div
+							class={spriteData.pixelated ? 'pixelated' : ''}
 							style={
 								`top:${prevOffset - 7}px;left:0;position:absolute;text-align:right;` +
 								`width:94px;padding:103px 5px 0 0;min-height:24px;pointer-events:none;` +
@@ -1968,7 +1970,7 @@ class TeamWizard extends preact.Component<{
 		const [rawType, i] = (target.value || '').split('|');
 		const setIndex = parseInt(i);
 		const type = rawType as SelectionType;
-		if (!target.value || editor.innerFocus && editor.innerFocus.setIndex === setIndex && editor.innerFocus.type === type) {
+		if (!target.value || editor.innerFocus?.setIndex === setIndex && editor.innerFocus.type === type) {
 			this.changeFocus(null);
 			return;
 		}
@@ -2056,6 +2058,7 @@ class TeamWizard extends preact.Component<{
 	renderSet(set: Dex.PokemonSet | undefined, i: number) {
 		const { editor } = this.props;
 		const sprite = Dex.getTeambuilderSprite(set, editor.dex);
+		const spriteClass = set && Dex.getTeambuilderSpriteData(set, editor.dex).pixelated ? ' pixelated' : '';
 		if (!set) {
 			return <div class="set-button">
 				<div style="text-align:right">
@@ -2069,7 +2072,7 @@ class TeamWizard extends preact.Component<{
 					<tr>
 						<td rowSpan={2} class="set-pokemon"><div class="border-collapse">
 							<button class="button button-first cur" onClick={this.setFocus} value={`pokemon|${i}`}>
-								<span class="sprite" style={sprite}><span class="sprite-inner">
+								<span class={`sprite${spriteClass}`} style={sprite}><span class="sprite-inner">
 									<strong class="label">Pokemon</strong> {}
 									<em>(choose species)</em>
 								</span></span>
@@ -2112,7 +2115,7 @@ class TeamWizard extends preact.Component<{
 				<tr>
 					<td rowSpan={2} class="set-pokemon"><div class="border-collapse">
 						<button class={`button button-first${cur('pokemon')}`} onClick={this.setFocus} value={`pokemon|${i}`}>
-							<span class="sprite" style={sprite}><span class="sprite-inner">
+							<span class={`sprite${spriteClass}`} style={sprite}><span class="sprite-inner">
 								<strong class="label">Pokemon</strong> {}
 								{set.species}
 							</span></span>
@@ -2447,7 +2450,7 @@ class TeamWizard extends preact.Component<{
 			this.setSearchBox = null;
 		}
 		const filters = this.base!.querySelector('.dexlist-filters');
-		if (searchBox && searchBox.name === 'value') {
+		if (searchBox?.name === 'value') {
 			if (filters) {
 				const { width } = filters.getBoundingClientRect();
 				searchBox.style.paddingLeft = `${width + 5}px`;

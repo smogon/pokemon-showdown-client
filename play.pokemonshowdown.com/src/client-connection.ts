@@ -166,9 +166,9 @@ export class PSConnection {
 		const url = `${server.protocol}://${server.host}:${connPort}${server.prefix}`;
 
 		try {
-			this.socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
-		} catch {
 			this.socket = new WebSocket(url.replace('http', 'ws') + '/websocket');
+		} catch {
+			this.socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
 		}
 
 		const socket = this.socket!;
@@ -352,6 +352,12 @@ export class PSStorage {
 		switch (data.charAt(0)) {
 		case 'c':
 			Config.server = JSON.parse(data.substr(1));
+			if (location.host === 'localhost.psim.us' || /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.psim\.us/.test(location.host)) {
+				// normally we assume HTTPS means HTTPS, but make an exception for
+				// localhost and IPs which generally can't have a signed cert anyway.
+				Config.server.port = 8000;
+				(Config.server as any).https = false;
+			}
 			if (Config.server.registered && Config.server.id !== 'showdown' && Config.server.id !== 'smogtours') {
 				const link = document.createElement('link');
 				link.rel = 'stylesheet';

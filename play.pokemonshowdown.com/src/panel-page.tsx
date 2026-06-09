@@ -7,13 +7,26 @@
  * @license MIT
  */
 
+import preact from "../js/lib/preact";
 import { PS, PSRoom, type RoomOptions } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { BattleLog } from "./battle-log";
 import type { Args } from "./battle-text-parser";
 
-export function SanitizedHTML(props: { children: string }) {
-	return <div dangerouslySetInnerHTML={{ __html: BattleLog.sanitizeHTML(props.children) }} />;
+export class SanitizedHTML extends preact.Component<{ children: string }> {
+	override componentDidMount() {
+		this.updateHTML(this.props.children);
+	}
+	override shouldComponentUpdate(nextProps: { children: string }) {
+		if (nextProps.children !== this.props.children) this.updateHTML(nextProps.children);
+		return false;
+	}
+	updateHTML(html: string) {
+		this.base!.innerHTML = BattleLog.sanitizeHTML(html);
+	}
+	override render() {
+		return <div></div>;
+	}
 }
 
 class PageRoom extends PSRoom {

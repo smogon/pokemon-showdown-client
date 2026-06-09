@@ -837,7 +837,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 
 interface PSGroup {
 	name?: string;
-	type?: 'leadership' | 'staff' | 'punishment' | 'normal';
+	type?: 'leadership' | 'staff' | 'punishment' | 'normal' | 'user';
 	order: number;
 }
 
@@ -916,8 +916,40 @@ class PSServer {
 	defaultGroup: PSGroup = {
 		order: 108,
 	};
+	defaultGroupSymbol = ' ';
 	getGroup(symbol: string | undefined) {
-		return this.groups[(symbol || ' ').charAt(0)] || this.defaultGroup;
+		return this.groups[(symbol || this.defaultGroupSymbol).charAt(0)] || this.defaultGroup;
+	}
+	parseGroups(groupsList: string) {
+		let data: { symbol?: string, name?: string, type?: PSGroup['type'] }[];
+		try {
+			data = JSON.parse(groupsList);
+		} catch {
+			return;
+		}
+		if (!data) return;
+
+		const groups: { [symbol: string]: PSGroup } = {};
+		this.defaultGroup = { order: 10006.5 };
+		this.defaultGroupSymbol = ' ';
+		for (let i = 0; i < data.length; i++) {
+			const entry = data[i];
+			if (!entry) continue;
+
+			const symbol = entry.symbol || ' ';
+			const groupName = entry.name;
+			const groupType = entry.type || 'user';
+
+			if (groupType === 'normal') this.defaultGroup = { order: i + 0.5 };
+			if (!groupName) this.defaultGroupSymbol = symbol;
+
+			groups[symbol] = {
+				name: groupName ? `${groupName} (${symbol})` : undefined,
+				type: groupType,
+				order: i + 1,
+			};
+		}
+		this.groups = groups;
 	}
 }
 
@@ -1523,10 +1555,16 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			this.add("||All PM windows cleared and closed.");
 		},
 		'unpackhidden'() {
+			if (PS.prefs.nounlink) {
+				this.add('||(Already visible.)');
+			}
 			PS.prefs.set('nounlink', true);
-			this.add('||Locked/banned users\' chat messages: ON');
+			this.add('||Locked/banned users\' chat messages: VISIBLE');
 		},
 		'packhidden'() {
+			if (!PS.prefs.nounlink) {
+				this.add('||(Already hidden.)');
+			}
 			PS.prefs.set('nounlink', false);
 			this.add('||Locked/banned users\' chat messages: HIDDEN');
 		},
@@ -2212,25 +2250,6 @@ export const PS = new class extends PSModel {
 				}
 				this.update();
 				continue;
-			} case 'customgroups': {
-				// Parse server-rank group configuration sent during /reconnect
-				try {
-					const rankList: { symbol: string; name?: string | null; type?: string | null }[] = JSON.parse(args[1]);
-					for (const rank of rankList) {
-						const existing = PS.server.groups[rank.symbol];
-						if (existing) {
-							if (rank.name) existing.name = rank.name;
-							if (rank.type) existing.type = rank.type as 'leadership' | 'staff' | 'punishment' | 'normal';
-						} else if (rank.name) {
-							PS.server.groups[rank.symbol] = {
-								name: rank.name,
-								type: (rank.type as 'leadership' | 'staff' | 'punishment' | 'normal') || undefined,
-								order: 108, // default order between driver and bot
-							};
-						}
-					}
-				} catch {}
-				continue;
 			} case 'nametaken': {
 				PS.join('login' as RoomID, { args: { error: `Someone is already using the name ${args[1]}.` } });
 				break;
@@ -2435,7 +2454,7 @@ export const PS = new class extends PSModel {
 		const rooms = this.leftRoomList.concat(this.rightRoomList);
 		const miniRoom = this.miniRoomList[0] !== 'news' ? this.miniRoomList[0] : null;
 		if (miniRoom) rooms.splice(1, 0, miniRoom);
-		const roomid = (room.location === 'mini-window' && miniRoom) || room.id;
+		const roomid = room.location === 'mini-window' ? (miniRoom || '' as RoomID) : room.id;
 
 		const index = rooms.indexOf(roomid);
 		// index === -1: popup or something
@@ -2443,9 +2462,7 @@ export const PS = new class extends PSModel {
 	}
 	verticalNav(room = this.room) {
 		if (this.leftPanelWidth === null) {
-			const rooms = ['' as RoomID, ...this.miniRoomList, ...this.leftRoomList.slice(1), ...this.rightRoomList];
-			const index = rooms.indexOf(room.id);
-			return { rooms, index };
+			return this.fullNav(room);
 		}
 		if (room.location !== 'mini-window') {
 			return { rooms: [], index: -1 };
@@ -2453,6 +2470,11 @@ export const PS = new class extends PSModel {
 		const rooms = this.miniRoomList;
 		const index = rooms.indexOf(room.id);
 		// index === -1: shouldn't happen
+		return { rooms, index };
+	}
+	fullNav(room = this.room) {
+		const rooms = ['' as RoomID, ...this.miniRoomList, ...this.leftRoomList.slice(1), ...this.rightRoomList];
+		const index = rooms.indexOf(room.id);
 		return { rooms, index };
 	}
 	focusLeftRoom() {
@@ -2492,7 +2514,7 @@ export const PS = new class extends PSModel {
 		return this.focusRoom(rooms[index + 1]);
 	}
 	focusUnreadRoom(direction: 'left' | 'right') {
-		const { rooms, index } = this.horizontalNav();
+		const { rooms, index } = this.fullNav();
 		if (index === -1) return;
 
 		const unreadRooms = rooms.filter((room, i) =>
@@ -2739,6 +2761,7 @@ export const PS = new class extends PSModel {
 			if (location === 'right') this.rightPanel = this.panel = room;
 			if (location === 'mini-window') this.leftPanel = this.panel = this.mainmenu;
 			this.room = room;
+			room.focusNextUpdate = true;
 		}
 	}
 	removeRoom(room: PSRoom) {
@@ -2809,7 +2832,7 @@ export const PS = new class extends PSModel {
 		// and any bugs (opening a popup while leaving a room) could lead to an infinite loop
 		// a for-loop doesn't have that problem
 		for (let i = this.popups.length - 1; i >= 0; i--) {
-			if (room && this.popups[i] === room.id) break;
+			if (this.popups[i] === room?.id) break;
 			this.removeRoom(PS.rooms[this.popups[i]]!);
 		}
 		if (!skipUpdate) this.update();
@@ -2839,8 +2862,8 @@ export const PS = new class extends PSModel {
 		if (!PS.server.registered) return;
 		let autojoins: string[] = [];
 		let autojoinCount = 0;
-		let rooms = this.rightRoomList;
-		for (let roomid of rooms) {
+		const rooms = [...this.miniRoomList, ...this.leftRoomList, ...this.rightRoomList];
+		for (const roomid of rooms) {
 			let room = PS.rooms[roomid] as ChatRoom;
 			if (!room) return;
 			if (room.type !== 'chat' || room.pmTarget) continue;
