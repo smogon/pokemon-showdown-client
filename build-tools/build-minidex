@@ -80,6 +80,65 @@ function updateSizes() {
 		}
 	}
 
+	// Process custom forms from the Relumi mod (gen8relumi) that aren't in the base Pokedex.
+	// The build-minidex script only processes base Gen 9 species and their cosmetic formes,
+	// so Relumi custom forms (like venusaur-clone) are missing from the sprite dimension tables.
+	let relumiModPokedex = {};
+	try {
+		relumiModPokedex = require('../caches/pokemon-showdown/dist/data/mods/gen8relumi/pokedex').Pokedex;
+	} catch {
+		// Mod not compiled yet, skip.
+	}
+	if (Object.keys(relumiModPokedex).length) {
+		const baseDexSpeciesIds = new Set(Object.keys(Dex.data.Pokedex));
+		for (const speciesId in relumiModPokedex) {
+			const data = relumiModPokedex[speciesId];
+			if (!data.baseSpecies || !data.forme) continue;
+			// Skip species that already exist in the base Pokedex or as cosmetic formes.
+			if (baseDexSpeciesIds.has(speciesId)) continue;
+			if (Dex.species.get(speciesId).exists) continue;
+
+			// Compute spriteid (mirrors Species constructor in battle-dex-data.ts)
+			const baseId = toID(data.baseSpecies);
+			const formeId = baseId === speciesId ? '' : '-' + toID(data.forme);
+			let spriteid = baseId + formeId;
+			if (spriteid.endsWith('totem')) spriteid = spriteid.slice(0, -5);
+			if (spriteid === 'greninja-bond') spriteid = 'greninja';
+			if (spriteid === 'rockruff-dusk') spriteid = 'rockruff';
+			if (spriteid.endsWith('-')) spriteid = spriteid.slice(0, -1);
+
+			const id = toID(spriteid);
+
+			// Gen 6+ animated sprites (ani/)
+			const row = { num: data.num || 0 };
+			const frontSize = sizeObj('sprites/ani/' + spriteid + '.gif');
+			if (frontSize) row.front = frontSize;
+			const frontSizeF = sizeObj('sprites/ani/' + spriteid + '-f.gif');
+			if (frontSizeF) row.frontf = frontSizeF;
+			const backSize = sizeObj('sprites/ani-back/' + spriteid + '.gif');
+			if (backSize) row.back = backSize;
+			const backSizeF = sizeObj('sprites/ani-back/' + spriteid + '-f.gif');
+			if (backSizeF) row.backf = backSizeF;
+			if (row.front || row.back || !row.forme) {
+				buf += `\t${id}:` + JSON.stringify(row).replace(/"/g, '') + `,\n`;
+			}
+
+			// Gen 5 animated sprites (gen5ani/)
+			const g5row = { num: data.num || 0 };
+			const g5frontSize = sizeObj('sprites/gen5ani/' + spriteid + '.gif');
+			if (g5frontSize) g5row.front = g5frontSize;
+			const g5frontSizeF = sizeObj('sprites/gen5ani/' + spriteid + '-f.gif');
+			if (g5frontSizeF) g5row.frontf = g5frontSizeF;
+			const g5backSize = sizeObj('sprites/gen5ani-back/' + spriteid + '.gif');
+			if (g5backSize) g5row.back = g5backSize;
+			const g5backSizeF = sizeObj('sprites/gen5ani-back/' + spriteid + '-f.gif');
+			if (g5backSizeF) g5row.backf = g5backSizeF;
+			if (g5row.front || g5row.back || !g5row.forme) {
+				g5buf += `\t${id}:` + JSON.stringify(g5row).replace(/"/g, '') + `,\n`;
+			}
+		}
+	}
+
 	buf = buf.slice(0, -2) + `
 };
 `;
