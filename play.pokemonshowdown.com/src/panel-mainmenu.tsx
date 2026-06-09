@@ -713,6 +713,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		const tinyLayout = this.props.room.width < 620 ? ' tiny-layout' : '';
 		return <PSPanelWrapper room={this.props.room} onDragEnter={this.handleDragEnter}>
 			<div class={`mainmenu-mini-windows${tinyLayout}`}>
+				{!PS.leftPanelWidth && Config.includes?.mainmenuHTML && (
+					<div dangerouslySetInnerHTML={{ __html: Config.includes.mainmenuHTML }} />
+				)}
 				{this.renderMiniRooms()}
 			</div>
 			<div class={`mainmenu${tinyLayout}`}>
@@ -752,9 +755,38 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 						<a href={`//${Config.routes.root}/credits`} target="_blank">Credits</a> | {}
 						<a href={`//${Config.routes.root}/privacy`} target="_blank">Privacy</a>
 					</small>
+					<CCPAIntercept />
 				</div>
 			</div>
 		</PSPanelWrapper>;
+	}
+}
+
+export class CCPAIntercept extends preact.Component {
+	intercepted = false;
+	override shouldComponentUpdate() {
+		this.intercept();
+		return false;
+	}
+	override componentDidMount() {
+		this.intercept();
+		setTimeout(() => this.intercept(), 500);
+		setTimeout(() => this.intercept(), 1000);
+		setTimeout(() => this.intercept(), 2000);
+		setTimeout(() => this.intercept(), 3000);
+		setTimeout(() => this.intercept(), 5000);
+		setTimeout(() => this.intercept(), 10000);
+	}
+	intercept() {
+		if (this.intercepted || !window.$) return;
+		const $ccpa = $('.fc-dns-dialog');
+		if (!$ccpa.length) return;
+		$ccpa.appendTo(this.base!);
+		// $ccpa.css({ position: 'relative', zIndex: 2 });
+		this.intercepted = true;
+	}
+	override render() {
+		return <div></div>;
 	}
 }
 

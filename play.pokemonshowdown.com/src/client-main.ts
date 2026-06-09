@@ -41,6 +41,11 @@ export interface ServerInfo {
 export interface PSConfig {
 	server: ServerInfo;
 	defaultserver: ServerInfo;
+	includes?: {
+		mainmenuHTML?: string,
+		roomlistTopHTML?: string,
+		roomlistAfterFirstHTML?: string,
+	} | null;
 	routes: {
 		root: string,
 		client: string,

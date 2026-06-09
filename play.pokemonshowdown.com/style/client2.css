@@ -747,11 +747,16 @@ p.or:after {
 .mainmenu-footer small small {
 	font-size: 8pt;
 }
-.mainmenu-footer a {
+.mainmenu-footer a, .mainmenu-footer button {
+	background: transparent;
+	border: 0;
+	padding: 0;
+	text-shadow: 0 0 3px black, 0 0 3px black, 0 0 3px black;
+
 	text-decoration: underline;
 	color: #99BBEE;
 }
-.mainmenu-footer a:hover {
+.mainmenu-footer a:hover, .mainmenu-footer button:hover {
 	text-decoration: underline;
 	color: #CCDDFF;
 }
