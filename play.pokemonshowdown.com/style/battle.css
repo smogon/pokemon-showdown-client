@@ -901,3 +901,15 @@ License: GPLv2
 		border-bottom: 2px solid #444444;
 	}
 }
+
+/* Relumi balance-change highlighting in battle tooltips */
+#tooltipwrapper .tooltip .relumi-change-up {
+	color: #117911;
+	font-weight: 600;
+}
+#tooltipwrapper .tooltip .relumi-change-down {
+	color: #991111;
+	font-weight: 600;
+}
+.dark #tooltipwrapper .tooltip .relumi-change-up { color: #117911; }
+.dark #tooltipwrapper .tooltip .relumi-change-down { color: #991111; }

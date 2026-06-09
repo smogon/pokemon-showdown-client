@@ -153,6 +153,229 @@ export class BattleTooltips {
 		this.battle = battle;
 	}
 
+	// Relumi balance-change highlighting helpers (mirrored from battle-searchresults.tsx)
+	private _relumiDiffCache: Record<string, any> = Object.create(null);
+
+	private getRelumiOverrides() {
+		return (window as any).BattleTeambuilderTable?.gen8relumi || null;
+	}
+	private shouldHighlightRelumiChanges() {
+		if (Dex.prefs('relumiHighlightBalanceChanges') === false) return false;
+		return toID(this.battle.tier).includes('relumi');
+	}
+	private resolveBaseSpeciesId(speciesId: ID): ID {
+		const species = this.battle.dex.species.get(speciesId);
+		if (!species?.exists) return '' as ID;
+		const baseId = toID(species.baseSpecies || speciesId);
+		return baseId !== speciesId ? baseId : speciesId;
+	}
+	private formsShareBaseStats(formStats: Dex.StatsTable, baseStats: Dex.StatsTable): boolean {
+		if (!formStats || !baseStats) return false;
+		return formStats.hp === baseStats.hp && formStats.atk === baseStats.atk &&
+			formStats.def === baseStats.def && formStats.spa === baseStats.spa &&
+			formStats.spd === baseStats.spd && formStats.spe === baseStats.spe;
+	}
+	private getRelumiDiffSourceSpeciesId(speciesId: ID): ID {
+		const cacheKey = 'diffSource|' + speciesId;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		const relumiTable = this.getRelumiOverrides();
+		let result: ID = speciesId;
+		if (relumiTable?.overrideSpeciesData) {
+			if (relumiTable.overrideSpeciesData[speciesId]) {
+				result = speciesId;
+			} else {
+				const baseId = this.resolveBaseSpeciesId(speciesId);
+				if (baseId && baseId !== speciesId && relumiTable.overrideSpeciesData[baseId]) {
+					const vanillaSpecies = Dex.forGen(9).species.get(speciesId);
+					if (!vanillaSpecies.exists) {
+						result = baseId;
+					} else {
+						const vanillaBase = Dex.forGen(9).species.get(baseId);
+						if (vanillaBase?.exists &&
+							!this.formsShareBaseStats(vanillaSpecies.baseStats, vanillaBase.baseStats)) {
+							result = speciesId;
+						} else {
+							result = baseId;
+						}
+					}
+				} else {
+					result = speciesId;
+				}
+			}
+		}
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
+	}
+	private getVanillaComparisonSpeciesId(speciesId: ID): ID {
+		const cacheKey = 'vanillaCmp|' + speciesId;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		const relumiTable = this.getRelumiOverrides();
+		const hasVanillaData = !!(relumiTable?.vanillaSpeciesData && speciesId in relumiTable.vanillaSpeciesData);
+		let result: ID;
+		if (hasVanillaData) {
+			result = speciesId;
+		} else if (relumiTable?.overrideSpeciesData && speciesId in relumiTable.overrideSpeciesData) {
+			result = this.resolveBaseSpeciesId(speciesId) || speciesId;
+		} else {
+			const vanillaSpecies = Dex.forGen(9).species.get(speciesId);
+			if (vanillaSpecies.exists) {
+				result = speciesId;
+			} else {
+				result = this.resolveBaseSpeciesId(speciesId) || speciesId;
+			}
+		}
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
+	}
+	private getVanillaSpeciesData(speciesId: ID): Dex.Species | null {
+		const cacheKey = 'vanillaSpecies|' + speciesId;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		const relumiTable = this.getRelumiOverrides();
+		let result: Dex.Species | null;
+		if (relumiTable?.vanillaSpeciesData?.[speciesId]) {
+			result = relumiTable.vanillaSpeciesData[speciesId];
+		} else if (relumiTable?.overrideSpeciesData && speciesId in relumiTable.overrideSpeciesData) {
+			result = null;
+		} else {
+			const vanillaSpecies = Dex.forGen(9).species.get(speciesId);
+			result = vanillaSpecies.exists ? vanillaSpecies : null;
+		}
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
+	}
+	private getStatDiff(speciesId: ID, statName: Dex.StatName, value: number): { vanilla: number, delta: number } | null {
+		const cacheKey = `statDiff|${speciesId}|${statName}|${value}`;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		let result: { vanilla: number, delta: number } | null = null;
+		if (!this.shouldHighlightRelumiChanges()) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		const relumiTable = this.getRelumiOverrides();
+		if (!relumiTable?.overrideSpeciesData) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		const diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
+		const relumiSpeciesDiff = relumiTable.overrideSpeciesData[diffSourceId];
+		if (!relumiSpeciesDiff) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+
+		let vanillaComparisonId: ID;
+		let vanillaSpecies: Dex.Species | null;
+		if (relumiSpeciesDiff.baseStats && relumiSpeciesDiff.baseStats[statName] !== undefined) {
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
+		} else if (!relumiSpeciesDiff.baseStats) {
+			if (this.getVanillaSpeciesData(speciesId)) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(speciesId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies?.baseStats) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
+		} else {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+
+		const vanillaStat = vanillaSpecies.baseStats[statName];
+		if (typeof vanillaStat !== 'number' || vanillaStat === value) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		result = { vanilla: vanillaStat, delta: value - vanillaStat };
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
+	}
+	private getStatClass(speciesId: ID, statName: Dex.StatName, value: number) {
+		const diff = this.getStatDiff(speciesId, statName, value);
+		if (!diff) return '';
+		return diff.delta > 0 ? 'relumi-change-up' : 'relumi-change-down';
+	}
+	private isNewRelumiAbility(speciesId: ID, abilityName: string): boolean {
+		if (!abilityName) return false;
+		const cacheKey = 'newAbility|' + speciesId + '|' + abilityName;
+		if (cacheKey in this._relumiDiffCache) return this._relumiDiffCache[cacheKey];
+		let result = false;
+		if (!this.shouldHighlightRelumiChanges()) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		const relumiTable = this.getRelumiOverrides();
+		if (!relumiTable?.overrideSpeciesData) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+		const diffSourceId = this.getRelumiDiffSourceSpeciesId(speciesId);
+		const relumiSpeciesDiff = relumiTable.overrideSpeciesData[diffSourceId];
+		if (!relumiSpeciesDiff) {
+			this._relumiDiffCache[cacheKey] = result;
+			return result;
+		}
+
+		let vanillaComparisonId: ID;
+		let vanillaSpecies: Dex.Species | null;
+		if (relumiSpeciesDiff.abilities) {
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(diffSourceId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
+		} else {
+			if (this.getVanillaSpeciesData(speciesId)) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
+			vanillaComparisonId = this.getVanillaComparisonSpeciesId(speciesId);
+			vanillaSpecies = this.getVanillaSpeciesData(vanillaComparisonId);
+			if (!vanillaSpecies) {
+				this._relumiDiffCache[cacheKey] = result;
+				return result;
+			}
+		}
+
+		const vanillaAbilities: Record<string, true> = Object.create(null);
+		for (const slot in vanillaSpecies.abilities) {
+			const vanillaAbilityName = vanillaSpecies.abilities[slot as '0' | '1' | 'H' | 'S'];
+			if (vanillaAbilityName) vanillaAbilities[vanillaAbilityName] = true;
+		}
+		result = !vanillaAbilities[abilityName];
+		this._relumiDiffCache[cacheKey] = result;
+		return result;
+	}
+	/** Renders a stat value with optional Relumi change highlighting. */
+	private renderStatWithHighlight(
+		speciesId: ID, statName: Dex.StatName, label: string, value: number
+	): string {
+		const statClass = this.getStatClass(speciesId, statName, value);
+		const diff = this.getStatDiff(speciesId, statName, value);
+		const sign = diff && diff.delta > 0 ? '+' : '';
+		const titleAttr = diff ?
+			` title="Vanilla: ${diff.vanilla} \u2192 ${value} (${sign}${diff.delta})"` : '';
+		if (statClass) {
+			return ` <span class="${statClass}"${titleAttr}>${label}: ${value}</span>`;
+		}
+		return ` ${label}: ${value}`;
+	}
+	/** Wraps an ability name in a span if it's new in Relumi. */
+	private renderAbilityWithHighlight(speciesId: ID | undefined, abilityName: string): string {
+		if (speciesId && this.isNewRelumiAbility(speciesId, abilityName)) {
+			return `<span class="relumi-change-up">${abilityName}</span>`;
+		}
+		return abilityName;
+	}
+
 	// tooltips
 	// Touch delay, pressing finger more than that time will cause the tooltip to open.
 	// Shorter time will cause the button to click
@@ -914,7 +1137,16 @@ export class BattleTooltips {
 				: this.getPokemonTypes(pokemon);
 			text += this.renderTypeEffectiveness(types);
 			if (species.exists) {
-				text += `<p class="tooltip-section"><small><strong>Base stats:</strong> HP: ${species.baseStats.hp} Atk: ${species.baseStats.atk} Def: ${species.baseStats.def} SpA: ${species.baseStats.spa} SpD: ${species.baseStats.spd} Spe: ${species.baseStats.spe}</small></p>`;
+				const speciesId = toID(species.id || species.name);
+				const stats = species.baseStats;
+				const statBuf =
+					this.renderStatWithHighlight(speciesId, 'hp', 'HP', stats.hp) +
+					this.renderStatWithHighlight(speciesId, 'atk', 'Atk', stats.atk) +
+					this.renderStatWithHighlight(speciesId, 'def', 'Def', stats.def) +
+					this.renderStatWithHighlight(speciesId, 'spa', 'SpA', stats.spa) +
+					this.renderStatWithHighlight(speciesId, 'spd', 'SpD', stats.spd) +
+					this.renderStatWithHighlight(speciesId, 'spe', 'Spe', stats.spe);
+				text += `<p class="tooltip-section"><small><strong>Base stats:</strong>${statBuf}</small></p>`;
 			}
 		}
 
@@ -959,7 +1191,8 @@ export class BattleTooltips {
 		let abilityText = '';
 		if (supportsAbilities) {
 			abilityText = this.getPokemonAbilityText(
-				clientPokemon, serverPokemon, isActive, !!illusionIndex && illusionIndex > 1
+				clientPokemon, serverPokemon, isActive, !!illusionIndex && illusionIndex > 1,
+				showExtraOpponentInfo ? toID(species.id || species.name) : undefined
 			);
 		}
 
@@ -2961,27 +3194,34 @@ export class BattleTooltips {
 		clientPokemon: Pokemon | null,
 		serverPokemon: ServerPokemon | null | undefined,
 		isActive: boolean | undefined,
-		hidePossible?: boolean
+		hidePossible?: boolean,
+		speciesId?: ID
 	) {
 		let text = '';
 		const abilityData = this.getPokemonAbilityData(clientPokemon, serverPokemon);
 		if (!isActive) {
 			// for switch tooltips, only show the original ability
 			const ability = abilityData.baseAbility || abilityData.ability;
-			if (ability) text = '<small>Ability:</small> ' + this.battle.dex.abilities.get(ability).name;
+			if (ability) {
+				const abilityName = this.battle.dex.abilities.get(ability).name;
+				text = '<small>Ability:</small> ' + this.renderAbilityWithHighlight(speciesId, abilityName);
+			}
 		} else {
 			if (abilityData.ability) {
 				const abilityName = this.battle.dex.abilities.get(abilityData.ability).name;
-				text = '<small>Ability:</small> ' + abilityName;
+				text = '<small>Ability:</small> ' + this.renderAbilityWithHighlight(speciesId, abilityName);
 				const baseAbilityName = this.battle.dex.abilities.get(abilityData.baseAbility).name;
-				if (baseAbilityName && baseAbilityName !== abilityName) text += ' (base: ' + baseAbilityName + ')';
+				if (baseAbilityName && baseAbilityName !== abilityName) {
+					text += ' (base: ' + this.renderAbilityWithHighlight(speciesId, baseAbilityName) + ')';
+				}
 			}
 		}
 		const tier = this.battle.tier;
 		if (!text && abilityData.possibilities.length && !hidePossible &&
 			!(tier.includes('Almost Any Ability') || tier.includes('Hackmons') ||
 				tier.includes('Inheritance') || tier.includes('Metronome'))) {
-			text = '<small>Possible abilities:</small> ' + abilityData.possibilities.join(', ');
+			const highlighted = abilityData.possibilities.map(a => this.renderAbilityWithHighlight(speciesId, a));
+			text = '<small>Possible abilities:</small> ' + highlighted.join(', ');
 		}
 		return text;
 	}
