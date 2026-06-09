@@ -4053,6 +4053,7 @@
 				var resize = (data.h ? 'background-size:' + data.h + 'px;' : '');
 				buf += '<button name="setForm" value="' + i + '" style="';
 				buf += 'background-image: url(' + Dex.resourcePrefix + data.spriteDir + '/' + spriteid + '.png); ' + spriteDim + resize + '" class="option';
+				if (data.pixelated) buf += ' pixelated';
 				buf += (toID(formName) === curSpeciesId ? ' cur' : '') + '"></button>';
 			}
 			buf += '<div style="clear:both"></div>';
