@@ -634,7 +634,7 @@ class OptionsPanel extends PSRoomPanel {
 		case 'noanim':
 		case 'nopastgens':
 		case 'useupstreamsprites':
-		case 'relumiHighlightBalanceChanges':
+		case 'relumiHighlightBalanceChangesTB':
 		case 'noselfhighlight':
 		case 'leavePopupRoom':
 		case 'inchatpm':
@@ -732,8 +732,8 @@ class OptionsPanel extends PSRoomPanel {
 			</p>
 			<p>
 				<label class="checkbox"><input
-					name="relumiHighlightBalanceChanges"
-					checked={PS.prefs.relumiHighlightBalanceChanges !== false}
+					name="relumiHighlightBalanceChangesTB"
+					checked={PS.prefs.relumiHighlightBalanceChangesTB !== false}
 					type="checkbox"
 					onChange={this.handleOnChange}
 				/> Highlight Relumi balance changes in Teambuilder</label>
@@ -1654,6 +1654,10 @@ class BattleOptionsPanel extends PSRoomPanel {
 			PS.prefs.set('extraoppinfo', value);
 			break;
 		}
+		case 'relumiHighlightBalanceChangesBT': {
+			PS.prefs.set('relumiHighlightBalanceChangesBT', value);
+			break;
+		}
 		}
 	};
 	getBattleRoom() {
@@ -1765,6 +1769,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 						name="extraoppinfo" checked={PS.prefs.extraoppinfo !== false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> Extra opponent info (hover tooltip)
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="relumiHighlightBalanceChangesBT" checked={PS.prefs.relumiHighlightBalanceChangesBT !== false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Highlight Relumi balance changes in battle tooltips
 				</label>
 			</p>
 			{!PS.prefs.onepanel && document.body.offsetWidth >= 800 && <p>

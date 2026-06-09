@@ -160,7 +160,7 @@ export class BattleTooltips {
 		return (window as any).BattleTeambuilderTable?.gen8relumi || null;
 	}
 	private shouldHighlightRelumiChanges() {
-		if (Dex.prefs('relumiHighlightBalanceChanges') === false) return false;
+		if (Dex.prefs('relumiHighlightBalanceChangesBT') === false) return false;
 		return toID(this.battle.tier).includes('relumi');
 	}
 	private resolveBaseSpeciesId(speciesId: ID): ID {

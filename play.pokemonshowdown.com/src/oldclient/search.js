@@ -338,7 +338,7 @@
 	};
 	Search.prototype.shouldHighlightRelumiChanges = function () {
 		if (this._relumiHighlightCached !== undefined) return this._relumiHighlightCached;
-		if (Dex.prefs('relumiHighlightBalanceChanges') === false) {
+		if (Dex.prefs('relumiHighlightBalanceChangesTB') === false) {
 			return (this._relumiHighlightCached = false);
 		}
 		if (this.engine && this.engine.dex && this.engine.dex.modid === 'gen8relumi') {

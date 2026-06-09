@@ -36,7 +36,7 @@ export class PSSearchResults extends preact.Component<{
 	}
 	private shouldHighlightRelumiChanges() {
 		if (this._relumiHighlightCached !== undefined) return this._relumiHighlightCached;
-		if (Dex.prefs('relumiHighlightBalanceChanges') === false) {
+		if (Dex.prefs('relumiHighlightBalanceChangesTB') === false) {
 			return (this._relumiHighlightCached = false);
 		}
 		if (this.props.search.dex.modid === 'gen8relumi') {
