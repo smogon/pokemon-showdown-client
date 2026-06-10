@@ -1775,14 +1775,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 					/> Extra opponent info (hover tooltip)
 				</label>
 			</p>
-			<p>
+			{document.body.offsetWidth >= 800 && <p>
 				<label class="checkbox">
 					<input
 						name="bigpicture" checked={PS.prefs.bigpicture || false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> Big Picture Mode (scale battle to full height)
 				</label>
-			</p>
+			</p>}
 			<p>
 				<label class="checkbox">
 					<input
