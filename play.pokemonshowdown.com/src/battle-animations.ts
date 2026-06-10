@@ -605,11 +605,13 @@ export class BattleScene implements BattleSceneStub {
 			bg = 'fx/bg-scl.png';
 			this.setBgm(-101);
 		} else {
+			const isRelumi = this.battle.tier && toID(this.battle.tier).includes('relumi');
 			if (gen <= 1) bg = 'fx/bg-gen1.png?';
 			else if (gen <= 2) bg = 'fx/bg-gen2.png?';
 			else if (gen <= 3) bg = `fx/${BattleBackdropsThree[this.numericId % BattleBackdropsThree.length]}?`;
 			else if (gen <= 4) bg = `fx/${BattleBackdropsFour[this.numericId % BattleBackdropsFour.length]}`;
 			else if (gen <= 5) bg = `fx/${BattleBackdropsFive[this.numericId % BattleBackdropsFive.length]}`;
+			else if (isRelumi) bg = BattleBackdropsRelumi[this.numericId % BattleBackdropsRelumi.length];
 			else bg = `sprites/gen6bgs/${BattleBackdrops[this.numericId % BattleBackdrops.length]}`;
 		}
 
@@ -3245,6 +3247,42 @@ const BattleBackdropsFive = [
 	'bg-deepsea.png',
 	'bg-icecave.png',
 	'bg-route.png',
+];
+const BattleBackdropsRelumi = [
+	'bg-beach.png',
+	'bg-beachshore.png',
+	'bg-desert.png',
+	'bg-meadow.png',
+	'bg-thunderplains.png',
+	'bg-city.png',
+	'bg-earthycave.png',
+	'bg-mountain.png',
+	'bg-volcanocave.png',
+	'bg-dampcave.png',
+	'bg-forest.png',
+	'bg-river.png',
+	'bg-deepsea.png',
+	'bg-icecave.png',
+	'bg-route.png',
+	'bg-aquacordetown.jpg',
+	'bg-beach.jpg',
+	'bg-city.jpg',
+	'bg-dampcave.jpg',
+	'bg-darkbeach.jpg',
+	'bg-darkcity.jpg',
+	'bg-darkmeadow.jpg',
+	'bg-deepsea.jpg',
+	'bg-desert.jpg',
+	'bg-earthycave.jpg',
+	'bg-elite4drake.jpg',
+	'bg-forest.jpg',
+	'bg-icecave.jpg',
+	'bg-leaderwallace.jpg',
+	'bg-library.jpg',
+	'bg-meadow.jpg',
+	'bg-orasdesert.jpg',
+	'bg-orassea.jpg',
+	'bg-skypillar.jpg',
 ];
 const BattleBackdrops = [
 	'bg-aquacordetown.jpg',
