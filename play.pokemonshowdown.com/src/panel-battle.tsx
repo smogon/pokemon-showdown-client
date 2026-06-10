@@ -241,7 +241,8 @@ class TimerButton extends preact.Component<{ room: BattleRoom }> {
 		}
 
 		return <button
-			style={{ position: "absolute", right: '10px' }} data-href="battletimer" class={`button${timerTicking}`} role="timer"
+			style={{ position: "absolute", right: '10px' }}
+			data-href="battletimer" class={`button${timerTicking}`} role="timer"
 		>
 			<i class="fa fa-hourglass-start" aria-hidden></i> {time}
 		</button>;
@@ -382,8 +383,14 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const scale = (width / 640);
 			room.battle?.scene.$frame!.css('transform', `scale(${scale})`);
 			this.battleHeight = Math.round(360 * scale);
+		} else if (PS.prefs.bigpicture && width >= 700) {
+			// Big Picture Mode: scale battle 2x for clean pixel-art rendering
+			room.battle?.scene.$frame!.css('transform', 'scale(2)');
+			room.battle?.scene.$frame!.css('image-rendering', 'pixelated');
+			this.battleHeight = 720;
 		} else {
 			room.battle?.scene.$frame!.css('transform', 'none');
+			room.battle?.scene.$frame!.css('image-rendering', '');
 			this.battleHeight = 360;
 		}
 	}
@@ -1118,16 +1125,27 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			</PSPanelWrapper>;
 		}
 
+		// Big Picture Mode: adjust chat panel offset and controls position when battle is scaled up
+		const bp = PS.prefs.bigpicture;
+		const chatLeft = bp ? 1280 : 640;
+		const controlsTop = bp ? 740 : 370;
+		const showTimer = room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid;
 		return <PSPanelWrapper room={room} focusClick noScroll="hidden">
 			{hardcoreStyle}
+			{bp && <style>{`
+				#${id} .controls { display: flex; flex-wrap: wrap; }
+				#${id} .controls > .whatdo { flex: 0 0 100%; }
+				#${id} .controls > .movecontrols,
+				#${id} .controls > .switchcontrols { flex: 1; min-width: 200px; }
+			`}</style>}
 			<BattleDiv room={room} />
 			<ChatLog
-				class="battle-log hasuserlist" room={room} left={640} noSubscription
+				class="battle-log hasuserlist" room={room} left={chatLeft} noSubscription
 			>
 				{}
 			</ChatLog>
-			<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={640} />
-			<ChatUserList room={room} left={640} minimized />
+			<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={chatLeft} />
+			<ChatUserList room={room} left={chatLeft} minimized />
 			<button
 				data-href="battleoptions" class="button"
 				style={{ position: 'absolute', right: '10px', top: '2px' }}
@@ -1135,9 +1153,11 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				Battle options
 			</button>
 			<div class="battle-controls-container">
-				<div class="battle-controls" role="complementary" aria-label="Battle Controls" style="top: 370px;">
-					{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
-						<TimerButton room={room} />}
+				<div
+					class="battle-controls" role="complementary" aria-label="Battle Controls"
+					style={`top: ${controlsTop}px;${bp ? ' width: 1280px;' : ''}`}
+				>
+					{showTimer && <TimerButton room={room} />}
 					{this.renderControls()}
 				</div>
 			</div>

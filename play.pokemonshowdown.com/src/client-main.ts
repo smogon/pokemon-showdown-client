@@ -122,6 +122,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	relumiHighlightBalanceChangesTB: boolean | null = null;
 	relumiHighlightBalanceChangesBT: boolean | null = null;
 	spectatefromstart: boolean | null = null;
+	bigpicture = false;
 	rightpanelbattles: boolean | null = null;
 	disallowspectators: boolean | null = null;
 	starredformats: { [formatid: string]: true | undefined } | null = null;
@@ -2070,21 +2071,23 @@ export const PS = new class extends PSModel {
 		const totalWidth = document.body.offsetWidth;
 		const totalHeight = document.body.offsetHeight;
 		const roomHeight = totalHeight - 56;
-		if (leftPanelWidth === null) {
+		// Big Picture Mode: give battle full viewport width when active
+		const effectiveLeftPanelWidth = (this.prefs.bigpicture && this.panel?.type === 'battle') ? 0 : leftPanelWidth;
+		if (effectiveLeftPanelWidth === null) {
 			this.panel.width = totalWidth - 200;
 			this.panel.height = totalHeight;
-		} else if (leftPanelWidth) {
-			this.leftPanel.width = leftPanelWidth;
+		} else if (effectiveLeftPanelWidth) {
+			this.leftPanel.width = effectiveLeftPanelWidth;
 			this.leftPanel.height = roomHeight;
-			this.rightPanel!.width = totalWidth + 1 - leftPanelWidth;
+			this.rightPanel!.width = totalWidth + 1 - effectiveLeftPanelWidth;
 			this.rightPanel!.height = roomHeight;
 		} else {
 			this.panel.width = totalWidth;
 			this.panel.height = roomHeight;
 		}
 
-		if (this.leftPanelWidth !== leftPanelWidth) {
-			this.leftPanelWidth = leftPanelWidth;
+		if (this.leftPanelWidth !== effectiveLeftPanelWidth) {
+			this.leftPanelWidth = effectiveLeftPanelWidth;
 			return true;
 		}
 		return false;

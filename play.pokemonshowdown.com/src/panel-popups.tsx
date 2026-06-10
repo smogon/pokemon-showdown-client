@@ -1654,6 +1654,10 @@ class BattleOptionsPanel extends PSRoomPanel {
 			PS.prefs.set('extraoppinfo', value);
 			break;
 		}
+		case 'bigpicture': {
+			PS.prefs.set('bigpicture', value);
+			break;
+		}
 		case 'relumiHighlightBalanceChangesBT': {
 			PS.prefs.set('relumiHighlightBalanceChangesBT', value);
 			break;
@@ -1769,6 +1773,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 						name="extraoppinfo" checked={PS.prefs.extraoppinfo !== false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> Extra opponent info (hover tooltip)
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="bigpicture" checked={PS.prefs.bigpicture || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Big Picture Mode (scale battle to full height)
 				</label>
 			</p>
 			<p>

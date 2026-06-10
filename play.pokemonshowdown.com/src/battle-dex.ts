@@ -816,6 +816,18 @@ export const Dex = new class implements ModdedDex {
 				dir = animDir + 'ani' + dir;
 				spriteData.w = animationData[facing].w;
 				spriteData.h = animationData[facing].h;
+				// Custom sprites in sprites/ani/ are 2x resolution for big picture mode.
+				if (animDir === '') {
+					const isUpstream = Dex.prefs('useupstreamsprites');
+					const isBigPicture = Dex.prefs('bigpicture');
+					if (isUpstream && isBigPicture) {
+						spriteData.w *= 2;
+						spriteData.h *= 2;
+					} else if (!isUpstream && !isBigPicture) {
+						spriteData.w = Math.floor(spriteData.w / 2);
+						spriteData.h = Math.floor(spriteData.h / 2);
+					}
+				}
 				spriteData.url += dir + '/' + name + '.gif';
 				animatedSprite = true;
 				break;
