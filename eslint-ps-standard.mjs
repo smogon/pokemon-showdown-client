@@ -188,7 +188,7 @@ export const defaultRules = {
 	"@stylistic/lines-between-class-members": "off",
 	"@stylistic/multiline-ternary": "off",
 	"@stylistic/object-curly-spacing": ["error", "always"],
-	"@stylistic/indent": ["error", "tab", { "flatTernaryExpressions": true }],
+	"@stylistic/indent": ["error", "tab", { "flatTernaryExpressions": true, "SwitchCase": 0 }],
 };
 
 /** @type {NonNullable<Config['rules']>} */

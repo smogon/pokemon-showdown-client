@@ -663,11 +663,16 @@ p.or:after {
 .mainmenufooter small small {
 	font-size: 8pt;
 }
-.mainmenufooter a {
+.mainmenufooter a, .mainmenufooter button {
+	background: transparent;
+	border: 0;
+	padding: 0;
+	text-shadow: 0 0 3px black, 0 0 3px black, 0 0 3px black;
+
 	text-decoration: underline;
 	color: #99bbee;
 }
-.mainmenufooter a:hover {
+.mainmenufooter a:hover, .mainmenufooter button:hover {
 	text-decoration: underline;
 	color: #ccddff;
 }
