@@ -400,6 +400,7 @@ function toId() {
 			window.app = this;
 			this.initializeRooms();
 			this.initializePopups();
+			this.initializeCCPAIntercept();
 
 			this.user = new User();
 			this.ignore = {};
@@ -1619,6 +1620,23 @@ function toId() {
 
 			$(window).on('resize', _.bind(this.resize, this));
 		},
+		initializeCCPAIntercept: function () {
+			var self = this;
+			self.interceptCCPA();
+			setTimeout(function () { self.interceptCCPA(); }, 1000);
+			setTimeout(function () { self.interceptCCPA(); }, 3000);
+			setTimeout(function () { self.interceptCCPA(); }, 5000);
+			setTimeout(function () { self.interceptCCPA(); }, 10000);
+		},
+		interceptCCPA: function () {
+			if (this.ccpaIntercepted) return;
+			var $ccpa = $('.fc-dns-dialog');
+			if (!$ccpa.length) return;
+			var $target = $('#room- .mainmenufooter');
+			if (!$target.length) return;
+			$ccpa.appendTo($target);
+			this.ccpaIntercepted = true;
+		},
 		fixedWidth: true,
 		resize: function () {
 			if (window.screen && screen.width && screen.width >= 320) {
@@ -1780,6 +1798,7 @@ function toId() {
 			}
 
 			room.focus(null, focusTextbox);
+			this.interceptCCPA();
 		},
 		focusRoomLeft: function (id) {
 			var room = this.rooms[id];
@@ -1805,6 +1824,7 @@ function toId() {
 			if (this.curRoom.id === id) this.navigate(id);
 
 			room.focus(null, true);
+			this.interceptCCPA();
 		},
 		focusRoomRight: function (id) {
 			var room = this.rooms[id];
@@ -1828,6 +1848,7 @@ function toId() {
 			// if (this.curRoom.id === id) this.navigate(id);
 
 			room.focus(null, true);
+			this.interceptCCPA();
 		},
 		/**
 		 * This is the function for handling the two-panel layout

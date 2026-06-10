@@ -10,7 +10,7 @@
   },
   "scripts": {
     "lint": "eslint --cache --cache-location caches/eslintcache.json",
-    "test": "node build && tsc && eslint --cache --cache-location caches/eslintcache.json --max-warnings 0 && mocha test/*.js",
+    "test": "node build && echo \"tsc... \\c\" && tsc && echo \"DONE\neslint... \\c\" && eslint --cache --cache-location caches/eslintcache.json --max-warnings 0 && echo \"DONE\" && node --test test/*.js",
     "fix": "eslint --cache --cache-location caches/eslintcache.json --fix",
     "build": "node build",
     "build-full": "node build full"
@@ -29,13 +29,11 @@
     "@stylistic/eslint-plugin": "^4.0.1",
     "@types/d3": "^3.5.53",
     "@types/jquery": "^3.5.3",
-    "@types/mocha": "^5.2.6",
     "eslint": "^9.20.1",
     "globals": "^16.0.0",
-    "mocha": "^6.0.2",
     "preact": "^10.29.2",
     "source-map": "^0.7.3",
-    "typescript": "^5.7.3",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.24.1"
   },
   "private": true

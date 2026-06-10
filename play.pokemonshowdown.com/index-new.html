@@ -47,7 +47,7 @@ https://psim.us/dev
 					<h3 class="mini-window-header"><button class="closebutton" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button>News</h3>
 					<div id="room-news" class="mini-window-contents ps-room-light scrollable" style="height: auto;" data-newsid="<!-- newsid -->">
 						<div class="readable-bg">
-							<!-- news -->
+							<!-- build-tools/news-embed.php -->
 						</div>
 					</div>
 				</div>
@@ -64,6 +64,11 @@ https://psim.us/dev
 			</div>
 		</div>
 	</div>
+	<script nomodule defer src="/js/lib/ps-polyfill.js"></script>
+	<script defer src="/config/config.js?"></script>
+	<script defer src="/js/client-core.js?"></script>
+	<!-- At this point, background and dark mode are loaded -->
+	<!-- config/head-custom.html -->
 	<script>
 		function linkStyle(url) {
 			var linkEl = document.createElement('link');
@@ -76,10 +81,6 @@ https://psim.us/dev
 		linkStyle("/style/battle-search.css?");
 		linkStyle("/style/font-awesome.css");
 	</script>
-	<script nomodule defer src="/js/lib/ps-polyfill.js"></script>
-	<script defer src="/config/config.js?"></script>
-	<script defer src="/js/client-core.js?"></script>
-	<!-- At this point, background and dark mode are loaded -->
 
 		<script defer src="/js/battle-dex-data.js?"></script>
 		<script defer src="/js/battle-dex.js?"></script>
