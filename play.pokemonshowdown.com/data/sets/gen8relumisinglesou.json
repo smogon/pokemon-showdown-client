@@ -21,46 +21,6 @@
           "spe": 8
         }
       },
-      "Thick Fat (Bulky Attacker) - ID 916": {
-        "species": "Abomasnow",
-        "moves": [
-          "Earthquake",
-          "Ice Shard",
-          "Seed Bomb",
-          "Rock Slide"
-        ],
-        "ability": "Thick Fat",
-        "item": "Focus Sash",
-        "nature": "Jolly",
-        "evs": {
-          "hp": 6,
-          "atk": 252,
-          "def": 0,
-          "spa": 0,
-          "spd": 0,
-          "spe": 252
-        }
-      },
-      "Snow Warning (Bulky Attacker) - ID 915": {
-        "species": "Abomasnow",
-        "moves": [
-          "Water Pulse",
-          "Energy Ball",
-          "Shadow Ball",
-          "Blizzard"
-        ],
-        "ability": "Snow Warning",
-        "item": "Focus Sash",
-        "nature": "Timid",
-        "evs": {
-          "hp": 0,
-          "atk": 0,
-          "def": 6,
-          "spa": 252,
-          "spd": 0,
-          "spe": 252
-        }
-      },
       "Snow Warning (Bulky Attacker) - ID 1055": {
         "species": "Abomasnow",
         "moves": [
@@ -98,6 +58,45 @@
           "def": 0,
           "spa": 252,
           "spd": 0,
+          "spe": 0
+        }
+      },
+      "Snow Warning (Bulky Attacker) - ID 452": {
+        "species": "Abomasnow",
+        "moves": [
+          "Blizzard",
+          "Energy Ball",
+          "Earth Power",
+          "Ice Shard"
+        ],
+        "ability": "Snow Warning",
+        "nature": "Quiet",
+        "evs": {
+          "hp": 252,
+          "atk": 6,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 0
+        }
+      },
+      "Snow Warning (Bulky Attacker) - ID 849": {
+        "species": "Abomasnow",
+        "moves": [
+          "Icicle Crash",
+          "Wood Hammer",
+          "Earthquake",
+          "Aurora Veil"
+        ],
+        "ability": "Snow Warning",
+        "item": "Occa Berry",
+        "nature": "Adamant",
+        "evs": {
+          "hp": 250,
+          "atk": 248,
+          "def": 0,
+          "spa": 0,
+          "spd": 12,
           "spe": 0
         }
       }
@@ -203,17 +202,17 @@
       }
     },
     "Accelgor": {
-      "Sheer Force (Fast Attacker) - ID 923": {
+      "Sheer Force (Fast Attacker) - ID 855": {
         "species": "Accelgor",
         "moves": [
           "Rain Dance",
           "Bug Buzz",
-          "Sludge Bomb",
-          "Energy Ball"
+          "Dark Pulse",
+          "Sludge Bomb"
         ],
         "ability": "Sheer Force",
         "item": "Focus Sash",
-        "nature": "Modest",
+        "nature": "Timid",
         "evs": {
           "hp": 6,
           "atk": 0,
@@ -221,26 +220,6 @@
           "spa": 252,
           "spd": 0,
           "spe": 252
-        }
-      },
-      "Sheer Force (Fast Attacker) - ID 855": {
-        "species": "Accelgor",
-        "moves": [
-          "Rain Dance",
-          "Bug Buzz",
-          "Sludge Bomb",
-          "Energy Ball"
-        ],
-        "ability": "Sheer Force",
-        "item": "Damp Rock",
-        "nature": "Calm",
-        "evs": {
-          "hp": 252,
-          "atk": 0,
-          "def": 0,
-          "spa": 202,
-          "spd": 0,
-          "spe": 56
         }
       },
       "Hydration (Bulky Support) - ID 329": {
@@ -365,26 +344,6 @@
           "spe": 6
         }
       },
-      "Rock Head (Fast Attacker) - ID 892": {
-        "species": "Aerodactyl",
-        "moves": [
-          "Earthquake",
-          "Thunder Fang",
-          "Brave Bird",
-          "Double-Edge"
-        ],
-        "ability": "Rock Head",
-        "item": "Assault Vest",
-        "nature": "Jolly",
-        "evs": {
-          "hp": 0,
-          "atk": 252,
-          "def": 202,
-          "spa": 0,
-          "spd": 0,
-          "spe": 56
-        }
-      },
       "Strong Jaw (Fast Attacker) - ID 1043": {
         "species": "Aerodactyl",
         "moves": [
@@ -442,6 +401,26 @@
           "def": 0,
           "spa": 0,
           "spd": 0,
+          "spe": 252
+        }
+      },
+      "Rock Head (Fast Attacker) - ID 1018": {
+        "species": "Aerodactyl",
+        "moves": [
+          "Brave Bird",
+          "Stone Edge",
+          "Crunch",
+          "Earthquake"
+        ],
+        "ability": "Rock Head",
+        "item": "Life Orb",
+        "nature": "Jolly",
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 6,
           "spe": 252
         }
       }
@@ -1091,13 +1070,13 @@
       }
     },
     "Annihilape": {
-      "Defiant (Fast Attacker) - ID 899": {
+      "Defiant (Fast Attacker) - ID 901": {
         "species": "Annihilape",
         "moves": [
           "Rage Fist",
           "Earthquake",
           "Drain Punch",
-          "Rock Slide"
+          "Stone Edge"
         ],
         "ability": "Defiant",
         "item": "Weakness Policy",
@@ -1214,12 +1193,12 @@
       }
     },
     "Araquanid": {
-      "Water Bubble (Bulky Attacker) - ID 925": {
+      "Water Bubble (Bulky Support) - ID 857": {
         "species": "Araquanid",
         "moves": [
           "Leech Life",
           "Liquidation",
-          "Crunch",
+          "Sticky Web",
           "Poison Jab"
         ],
         "ability": "Water Bubble",
@@ -1403,7 +1382,7 @@
         ],
         "ability": "Intimidate",
         "item": "Life Orb",
-        "nature": "Timid",
+        "nature": "Jolly",
         "evs": {
           "hp": 6,
           "atk": 252,
@@ -1455,7 +1434,7 @@
       }
     },
     "Arcanine-Hisui": {
-      "Rock Head (Fast Attacker) - ID 893": {
+      "Rock Head (Fast Attacker) - ID 891": {
         "species": "Arcanine-Hisui",
         "moves": [
           "Rock Climb",
@@ -1605,7 +1584,7 @@
         "moves": [
           "Acrobatics",
           "Earthquake",
-          "Rock Climb",
+          "Stone Edge",
           "Steel Wing"
         ],
         "ability": "Emergency Exit",
@@ -1707,10 +1686,10 @@
           "Bolt Beak",
           "Icicle Crash",
           "Stone Edge",
-          "Stomping Tantrum"
+          "Bulldoze"
         ],
         "ability": "Slush Rush",
-        "item": "Wide Lens",
+        "item": "Focus Sash",
         "nature": "Adamant",
         "evs": {
           "hp": 0,
@@ -1843,6 +1822,26 @@
           "spe": 166
         }
       },
+      "Tough Claws (Bulky Attacker) - ID 857": {
+        "species": "Armaldo",
+        "moves": [
+          "Accelerock",
+          "Aqua Jet",
+          "First Impression",
+          "Brick Break"
+        ],
+        "ability": "Tough Claws",
+        "item": "Weakness Policy",
+        "nature": "Adamant",
+        "evs": {
+          "hp": 252,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 6,
+          "spe": 0
+        }
+      },
       "Swift Swim (Bulky Attacker) - ID 1107": {
         "species": "Armaldo",
         "moves": [
@@ -1858,26 +1857,6 @@
           "hp": 252,
           "atk": 6,
           "def": 252,
-          "spa": 0,
-          "spd": 0,
-          "spe": 0
-        }
-      },
-      "Battle Armor (Bulky Attacker) - ID 857": {
-        "species": "Armaldo",
-        "moves": [
-          "Earthquake",
-          "Aqua Tail",
-          "X-Scissor",
-          "Stone Edge"
-        ],
-        "ability": "Battle Armor",
-        "item": "Wide Lens",
-        "nature": "Adamant",
-        "evs": {
-          "hp": 252,
-          "atk": 252,
-          "def": 6,
           "spa": 0,
           "spd": 0,
           "spe": 0
@@ -1976,7 +1955,7 @@
           "Hidden Power"
         ],
         "ability": "Snow Warning",
-        "item": "Weakness Policy",
+        "item": "Heavy-Duty Boots",
         "nature": "Timid",
         "evs": {
           "hp": 6,
@@ -2009,7 +1988,7 @@
       }
     },
     "Articuno-Galar": {
-      "Competitive (Fast Attacker) - ID 935": {
+      "Competitive (Fast Attacker) - ID 936": {
         "species": "Articuno-Galar",
         "moves": [
           "Ancient Power",
@@ -2053,26 +2032,6 @@
       }
     },
     "Aurorus": {
-      "Snow Warning (Bulky Attacker) - ID 891": {
-        "species": "Aurorus",
-        "moves": [
-          "Aurora Veil",
-          "Blizzard",
-          "Thunderbolt",
-          "Earth Power"
-        ],
-        "ability": "Snow Warning",
-        "item": "Focus Sash",
-        "nature": "Timid",
-        "evs": {
-          "hp": 252,
-          "atk": 0,
-          "def": 0,
-          "spa": 252,
-          "spd": 0,
-          "spe": 6
-        }
-      },
       "Refrigerate (Bulky Attacker) - ID 376": {
         "species": "Aurorus",
         "moves": [
@@ -2273,15 +2232,15 @@
           "spe": 252
         }
       },
-      "Competitive (Fast Attacker) - ID 935": {
+      "Levitate (Fast Attacker) - ID 936": {
         "species": "Azelf",
         "moves": [
           "Flamethrower",
-          "Dazzling Gleam",
+          "Moonblast",
           "Thunderbolt",
-          "Expanding Force"
+          "Psychic"
         ],
-        "ability": "Competitive",
+        "ability": "Levitate",
         "item": "Focus Sash",
         "nature": "Modest",
         "evs": {
@@ -2289,6 +2248,26 @@
           "atk": 0,
           "def": 0,
           "spa": 252,
+          "spd": 0,
+          "spe": 252
+        }
+      },
+      "Levitate (Bulky Support) - ID 814": {
+        "species": "Azelf",
+        "moves": [
+          "Stealth Rock",
+          "Taunt",
+          "U-turn",
+          "Knock Off"
+        ],
+        "ability": "Levitate",
+        "item": "Focus Sash",
+        "nature": "Jolly",
+        "evs": {
+          "hp": 6,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
           "spd": 0,
           "spe": 252
         }
@@ -2311,26 +2290,6 @@
           "spa": 252,
           "spd": 252,
           "spe": 6
-        }
-      },
-      "Levitate (Bulky Support) - ID 814": {
-        "species": "Azelf",
-        "moves": [
-          "Stealth Rock",
-          "Taunt",
-          "U-turn",
-          "Knock Off"
-        ],
-        "ability": "Levitate",
-        "item": "Focus Sash",
-        "nature": "Jolly",
-        "evs": {
-          "hp": 6,
-          "atk": 252,
-          "def": 0,
-          "spa": 0,
-          "spd": 0,
-          "spe": 252
         }
       },
       "Levitate (Bulky Support) - ID 811": {
@@ -3193,15 +3152,15 @@
           "Night Slash"
         ],
         "ability": "Slush Rush",
-        "item": "Focus Sash",
+        "item": "Life Orb",
         "nature": "Adamant",
         "evs": {
-          "hp": 252,
+          "hp": 112,
           "atk": 252,
           "def": 0,
           "spa": 0,
           "spd": 0,
-          "spe": 6
+          "spe": 146
         }
       },
       "Snow Cloak (Bulky Attacker) - ID 632": {
@@ -4226,7 +4185,7 @@
       }
     },
     "Blitzle": {
-      "Sap Sipper (Bulky Attacker) - ID 44": {
+      "Motor Drive (Bulky Attacker) - ID 44": {
         "species": "Blitzle",
         "moves": [
           "Pursuit",
@@ -4234,7 +4193,7 @@
           "Discharge",
           "Stomp"
         ],
-        "ability": "Sap Sipper",
+        "ability": "Motor Drive",
         "nature": "Hardy",
         "evs": {
           "hp": 84,
@@ -5269,10 +5228,10 @@
         "item": "Assault Vest",
         "nature": "Jolly",
         "evs": {
-          "hp": 4,
+          "hp": 6,
           "atk": 252,
           "def": 0,
-          "spa": 2,
+          "spa": 0,
           "spd": 0,
           "spe": 252
         }
@@ -5360,26 +5319,6 @@
       }
     },
     "Calyrex": {
-      "Unnerve (Bulky Attacker) - ID 915": {
-        "species": "Calyrex",
-        "moves": [
-          "Glacial Lance",
-          "High Horsepower",
-          "Zen Headbutt",
-          "Body Press"
-        ],
-        "ability": "Unnerve",
-        "item": "Weakness Policy",
-        "nature": "Adamant",
-        "evs": {
-          "hp": 252,
-          "atk": 6,
-          "def": 0,
-          "spa": 0,
-          "spd": 252,
-          "spe": 0
-        }
-      },
       "Unnerve (Bulky Attacker) - ID 895": {
         "species": "Calyrex",
         "moves": [
@@ -5407,8 +5346,8 @@
         "moves": [
           "Glacial Lance",
           "High Horsepower",
-          "Zen Headbutt",
-          "Body Press"
+          "Trick Room",
+          "Zen Headbutt"
         ],
         "ability": "As One (Glastrier)",
         "item": "Weakness Policy",
@@ -5419,6 +5358,28 @@
           "def": 0,
           "spa": 0,
           "spd": 252,
+          "spe": 0
+        }
+      }
+    },
+    "Calyrex-Shadow": {
+      "As One (Spectrier) (Fast Attacker) - ID 900": {
+        "species": "Calyrex-Shadow",
+        "moves": [
+          "Astral Barrage",
+          "Psychic",
+          "Energy Ball",
+          "Dark Pulse"
+        ],
+        "ability": "As One (Spectrier)",
+        "item": "Assault Vest",
+        "nature": "Bold",
+        "evs": {
+          "hp": 6,
+          "atk": 0,
+          "def": 252,
+          "spa": 252,
+          "spd": 0,
           "spe": 0
         }
       }
@@ -5830,17 +5791,17 @@
       }
     },
     "Centiskorch": {
-      "Flame Body (Bulky Attacker) - ID 858": {
+      "White Smoke (Bulky Attacker) - ID 858": {
         "species": "Centiskorch",
         "moves": [
-          "Crunch",
           "Fire Lash",
+          "Leech Life",
           "Power Whip",
-          "Lunge"
+          "Crunch"
         ],
-        "ability": "Flame Body",
-        "item": "Life Orb",
-        "nature": "Adamant",
+        "ability": "White Smoke",
+        "item": "Focus Sash",
+        "nature": "Jolly",
         "evs": {
           "hp": 6,
           "atk": 252,
@@ -5956,11 +5917,11 @@
           "Energy Ball",
           "Flamethrower",
           "Shadow Ball",
-          "Trick Room"
+          "Dazzling Gleam"
         ],
         "ability": "Levitate",
-        "item": "Passho Berry",
-        "nature": "Calm",
+        "item": "Weakness Policy",
+        "nature": "Modest",
         "evs": {
           "hp": 252,
           "atk": 0,
@@ -6129,16 +6090,17 @@
           "spe": 252
         }
       },
-      "Blaze (Bulky Support) - ID 163": {
+      "Drought (Fast Attacker) - ID 863": {
         "species": "Charizard",
         "moves": [
-          "Hurricane",
           "Flamethrower",
-          "Scorching Sands",
-          "Will-O-Wisp"
+          "Solar Beam",
+          "Dragon Pulse",
+          "Scorching Sands"
         ],
-        "ability": "Blaze",
-        "nature": "Hardy",
+        "ability": "Drought",
+        "item": "Focus Sash",
+        "nature": "Timid",
         "evs": {
           "hp": 6,
           "atk": 0,
@@ -8633,6 +8595,26 @@
       }
     },
     "Cresselia": {
+      "Levitate (Bulky Attacker) - ID 937": {
+        "species": "Cresselia",
+        "moves": [
+          "Ice Beam",
+          "Moonblast",
+          "Psychic",
+          "Energy Ball"
+        ],
+        "ability": "Levitate",
+        "item": "Weakness Policy",
+        "nature": "Timid",
+        "evs": {
+          "hp": 6,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
+        }
+      },
       "Levitate (Bulky Support) - ID 652": {
         "species": "Cresselia",
         "moves": [
@@ -9157,6 +9139,26 @@
           "spe": 6
         }
       },
+      "Bad Dreams (Fast Attacker) - ID 899": {
+        "species": "Darkrai",
+        "moves": [
+          "Dark Void",
+          "Hidden Power",
+          "Ice Beam",
+          "Dark Pulse"
+        ],
+        "ability": "Bad Dreams",
+        "item": "Wide Lens",
+        "nature": "Modest",
+        "evs": {
+          "hp": 6,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
+        }
+      },
       "Bad Dreams (Fast Attacker) - ID 947": {
         "species": "Darkrai",
         "moves": [
@@ -9226,7 +9228,7 @@
           "Icicle Crash",
           "Zen Headbutt",
           "Earthquake",
-          "Fire Punch"
+          "Blaze Kick"
         ],
         "ability": "Zen Mode",
         "item": "Focus Sash",
@@ -9381,26 +9383,6 @@
       }
     },
     "Decidueye": {
-      "Long Reach (Bulky Attacker) - ID 901": {
-        "species": "Decidueye",
-        "moves": [
-          "Spirit Shackle",
-          "Leaf Blade",
-          "Brick Break",
-          "Acrobatics"
-        ],
-        "ability": "Long Reach",
-        "item": "Weakness Policy",
-        "nature": "Jolly",
-        "evs": {
-          "hp": 6,
-          "atk": 0,
-          "def": 252,
-          "spa": 0,
-          "spd": 0,
-          "spe": 252
-        }
-      },
       "Overgrow (Bulky Support) - ID 431": {
         "species": "Decidueye",
         "moves": [
@@ -9687,26 +9669,6 @@
       }
     },
     "Dewgong": {
-      "Snow Warning (Bulky Attacker) - ID 916": {
-        "species": "Dewgong",
-        "moves": [
-          "Blizzard",
-          "Surf",
-          "Hidden Power",
-          "Ice Beam"
-        ],
-        "ability": "Snow Warning",
-        "item": "Weakness Policy",
-        "nature": "Timid",
-        "evs": {
-          "hp": 6,
-          "atk": 0,
-          "def": 252,
-          "spa": 0,
-          "spd": 0,
-          "spe": 252
-        }
-      },
       "Snow Warning (Bulky Attacker) - ID 847": {
         "species": "Dewgong",
         "moves": [
@@ -9851,7 +9813,7 @@
       }
     },
     "Diancie": {
-      "Clear Body (Bulky Attacker) - ID 892": {
+      "Filter (Bulky Attacker) - ID 892": {
         "species": "Diancie",
         "moves": [
           "Diamond Storm",
@@ -9859,15 +9821,15 @@
           "Trick Room",
           "Bulldoze"
         ],
-        "ability": "Clear Body",
+        "ability": "Filter",
         "item": "Babiri Berry",
         "nature": "Adamant",
         "evs": {
           "hp": 252,
-          "atk": 0,
-          "def": 130,
+          "atk": 252,
+          "def": 6,
           "spa": 0,
-          "spd": 128,
+          "spd": 0,
           "spe": 0
         }
       }
@@ -10108,6 +10070,26 @@
           "spe": 0
         }
       },
+      "Sturdy (Bulky Setup) - ID 862": {
+        "species": "Donphan",
+        "moves": [
+          "Earthquake",
+          "Seed Bomb",
+          "Ice Shard",
+          "Rock Polish"
+        ],
+        "ability": "Sturdy",
+        "item": "Weakness Policy",
+        "nature": "Careful",
+        "evs": {
+          "hp": 56,
+          "atk": 0,
+          "def": 0,
+          "spa": 0,
+          "spd": 252,
+          "spe": 202
+        }
+      },
       "Sturdy (Bulky Attacker) - ID 186": {
         "species": "Donphan",
         "moves": [
@@ -10138,25 +10120,6 @@
         ],
         "ability": "Sturdy",
         "nature": "Bashful",
-        "evs": {
-          "hp": 84,
-          "atk": 88,
-          "def": 84,
-          "spa": 84,
-          "spd": 84,
-          "spe": 86
-        }
-      },
-      "Sturdy (Bulky Support) - ID 344": {
-        "species": "Donphan",
-        "moves": [
-          "Knock Off",
-          "Magnitude",
-          "Slam",
-          "Fury Attack"
-        ],
-        "ability": "Sturdy",
-        "nature": "Docile",
         "evs": {
           "hp": 84,
           "atk": 88,
@@ -10468,24 +10431,24 @@
           "spe": 6
         }
       },
-      "Infiltrator (Setup Sweeper) - ID 1010": {
+      "Infiltrator (Fast Attacker) - ID 900": {
         "species": "Dragapult",
         "moves": [
           "Dragon Darts",
+          "Shadow Claw",
           "Psychic Fangs",
-          "Sucker Punch",
-          "Dragon Dance"
+          "Sucker Punch"
         ],
         "ability": "Infiltrator",
-        "item": "Life Orb",
+        "item": "Weakness Policy",
         "nature": "Adamant",
         "evs": {
-          "hp": 0,
+          "hp": 202,
           "atk": 252,
           "def": 0,
           "spa": 0,
-          "spd": 6,
-          "spe": 252
+          "spd": 0,
+          "spe": 56
         }
       },
       "Infiltrator (Fast Attacker) - ID 433": {
@@ -10507,6 +10470,26 @@
           "spe": 86
         }
       },
+      "Infiltrator (Setup Sweeper) - ID 1010": {
+        "species": "Dragapult",
+        "moves": [
+          "Dragon Darts",
+          "Psychic Fangs",
+          "Sucker Punch",
+          "Dragon Dance"
+        ],
+        "ability": "Infiltrator",
+        "item": "Life Orb",
+        "nature": "Adamant",
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 6,
+          "spe": 252
+        }
+      },
       "Clear Body (Fast Attacker) - ID 533": {
         "species": "Dragapult",
         "moves": [
@@ -10514,25 +10497,6 @@
           "Take Down",
           "Dragon Rush",
           "Double-Edge"
-        ],
-        "ability": "Clear Body",
-        "nature": "Hardy",
-        "evs": {
-          "hp": 84,
-          "atk": 88,
-          "def": 84,
-          "spa": 84,
-          "spd": 84,
-          "spe": 86
-        }
-      },
-      "Clear Body (Setup Sweeper) - ID 201": {
-        "species": "Dragapult",
-        "moves": [
-          "Dragon Dance",
-          "Phantom Force",
-          "Take Down",
-          "Dragon Rush"
         ],
         "ability": "Clear Body",
         "nature": "Hardy",
@@ -10767,16 +10731,16 @@
       }
     },
     "Drapion": {
-      "Battle Armor (Fast Attacker) - ID 923": {
+      "Battle Armor (Setup Sweeper) - ID 923": {
         "species": "Drapion",
         "moves": [
-          "Night Slash",
-          "Poison Jab",
-          "Ice Fang",
+          "Swords Dance",
+          "Crunch",
+          "Rock Climb",
           "Earthquake"
         ],
         "ability": "Battle Armor",
-        "item": "Assault Vest",
+        "item": "Shuca Berry",
         "nature": "Jolly",
         "evs": {
           "hp": 0,
@@ -10826,6 +10790,26 @@
           "spe": 252
         }
       },
+      "Sniper (Fast Attacker) - ID 855": {
+        "species": "Drapion",
+        "moves": [
+          "Aqua Tail",
+          "Night Slash",
+          "Cross Poison",
+          "Earthquake"
+        ],
+        "ability": "Sniper",
+        "item": "Assault Vest",
+        "nature": "Jolly",
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 6,
+          "spe": 252
+        }
+      },
       "Battle Armor (Fast Attacker) - ID 622": {
         "species": "Drapion",
         "moves": [
@@ -10843,26 +10827,6 @@
           "spa": 84,
           "spd": 84,
           "spe": 86
-        }
-      },
-      "Battle Armor (Fast Attacker) - ID 1911": {
-        "species": "Drapion",
-        "moves": [
-          "Cross Poison",
-          "Night Slash",
-          "Aqua Tail",
-          "Earthquake"
-        ],
-        "ability": "Battle Armor",
-        "item": "Scope Lens",
-        "nature": "Docile",
-        "evs": {
-          "hp": 0,
-          "atk": 252,
-          "def": 0,
-          "spa": 0,
-          "spd": 6,
-          "spe": 252
         }
       }
     },
@@ -10907,26 +10871,6 @@
       }
     },
     "Drednaw": {
-      "Strong Jaw (Bulky Attacker) - ID 891": {
-        "species": "Drednaw",
-        "moves": [
-          "Stone Edge",
-          "Earthquake",
-          "Jaw Lock",
-          "Ice Fang"
-        ],
-        "ability": "Strong Jaw",
-        "item": "Focus Sash",
-        "nature": "Jolly",
-        "evs": {
-          "hp": 6,
-          "atk": 252,
-          "def": 0,
-          "spa": 0,
-          "spd": 0,
-          "spe": 252
-        }
-      },
       "Strong Jaw (Bulky Attacker) - ID 641": {
         "species": "Drednaw",
         "moves": [
@@ -11002,6 +10946,26 @@
           "spa": 84,
           "spd": 84,
           "spe": 86
+        }
+      },
+      "Swift Swim (Bulky Setup) - ID 841": {
+        "species": "Drednaw",
+        "moves": [
+          "Liquidation",
+          "Stone Edge",
+          "Megahorn",
+          "Swords Dance"
+        ],
+        "ability": "Swift Swim",
+        "item": "Lum Berry",
+        "nature": "Adamant",
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 6,
+          "spe": 252
         }
       }
     },
@@ -11529,15 +11493,15 @@
       }
     },
     "Dugtrio-Alola": {
-      "Sand Force (Fast Attacker) - ID 859": {
+      "Technician (Fast Attacker) - ID 860": {
         "species": "Dugtrio-Alola",
         "moves": [
-          "Earthquake",
-          "Iron Head",
+          "Bulldoze",
+          "Magnet Bomb",
           "Aerial Ace",
-          "Shadow Claw"
+          "Rock Tomb"
         ],
-        "ability": "Sand Force",
+        "ability": "Technician",
         "item": "Focus Sash",
         "nature": "Adamant",
         "evs": {
@@ -11672,35 +11636,15 @@
       }
     },
     "Durant": {
-      "Swarm (Fast Attacker) - ID 926": {
+      "Heatproof (Fast Attacker) - ID 855": {
         "species": "Durant",
         "moves": [
           "Iron Head",
           "X-Scissor",
-          "Rock Slide",
-          "Beat Up"
+          "Rock Climb",
+          "Crunch"
         ],
-        "ability": "Swarm",
-        "item": "Focus Sash",
-        "nature": "Adamant",
-        "evs": {
-          "hp": 56,
-          "atk": 202,
-          "def": 0,
-          "spa": 0,
-          "spd": 0,
-          "spe": 252
-        }
-      },
-      "Hustle (Fast Attacker) - ID 855": {
-        "species": "Durant",
-        "moves": [
-          "Iron Head",
-          "X-Scissor",
-          "Rock Slide",
-          "Beat Up"
-        ],
-        "ability": "Hustle",
+        "ability": "Heatproof",
         "item": "Life Orb",
         "nature": "Adamant",
         "evs": {
@@ -11733,26 +11677,6 @@
       }
     },
     "Dusclops": {
-      "Levitate (Bulky Support) - ID 899": {
-        "species": "Dusclops",
-        "moves": [
-          "Night Shade",
-          "Will-O-Wisp",
-          "Leech Life",
-          "Power-Up Punch"
-        ],
-        "ability": "Levitate",
-        "item": "Eviolite",
-        "nature": "Careful",
-        "evs": {
-          "hp": 252,
-          "atk": 0,
-          "def": 130,
-          "spa": 0,
-          "spd": 128,
-          "spe": 0
-        }
-      },
       "Pressure (Bulky Support) - ID 1047": {
         "species": "Dusclops",
         "moves": [
@@ -11834,26 +11758,6 @@
       }
     },
     "Dusknoir": {
-      "Iron Fist (Bulky Support) - ID 901": {
-        "species": "Dusknoir",
-        "moves": [
-          "Ice Punch",
-          "Drain Punch",
-          "Shadow Sneak",
-          "Will-O-Wisp"
-        ],
-        "ability": "Iron Fist",
-        "item": "Assault Vest",
-        "nature": "Adamant",
-        "evs": {
-          "hp": 252,
-          "atk": 130,
-          "def": 128,
-          "spa": 0,
-          "spd": 0,
-          "spe": 0
-        }
-      },
       "Iron Fist (Bulky Attacker) - ID 815": {
         "species": "Dusknoir",
         "moves": [
@@ -11930,6 +11834,26 @@
           "spa": 0,
           "spd": 0,
           "spe": 6
+        }
+      },
+      "Pressure (Bulky Attacker) - ID 1080": {
+        "species": "Dusknoir",
+        "moves": [
+          "Shadow Punch",
+          "Thunder Punch",
+          "Ice Punch",
+          "Drain Punch"
+        ],
+        "ability": "Pressure",
+        "item": "Lum Berry",
+        "nature": "Timid",
+        "evs": {
+          "hp": 84,
+          "atk": 88,
+          "def": 84,
+          "spa": 84,
+          "spd": 84,
+          "spe": 86
         }
       }
     },
@@ -12117,6 +12041,26 @@
           "spe": 6
         }
       },
+      "Surge Surfer (Bulky Attacker) - ID 921": {
+        "species": "Eelektross",
+        "moves": [
+          "Thunderbolt",
+          "Giga Drain",
+          "Flamethrower",
+          "Dragon Pulse"
+        ],
+        "ability": "Surge Surfer",
+        "item": "Focus Sash",
+        "nature": "Modest",
+        "evs": {
+          "hp": 6,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
+        }
+      },
       "Levitate (Bulky Attacker) - ID 982": {
         "species": "Eelektross",
         "moves": [
@@ -12135,26 +12079,6 @@
           "spa": 252,
           "spd": 6,
           "spe": 0
-        }
-      },
-      "Levitate (Bulky Support) - ID 874": {
-        "species": "Eelektross",
-        "moves": [
-          "Thunderbolt",
-          "Giga Drain",
-          "Flamethrower",
-          "Volt Switch"
-        ],
-        "ability": "Levitate",
-        "item": "Assault Vest",
-        "nature": "Modest",
-        "evs": {
-          "hp": 252,
-          "atk": 0,
-          "def": 0,
-          "spa": 252,
-          "spd": 0,
-          "spe": 6
         }
       },
       "Levitate (Bulky Attacker) - ID 637": {
@@ -12176,21 +12100,22 @@
           "spe": 86
         }
       },
-      "Levitate (Bulky Attacker) - ID 159": {
+      "Levitate (Bulky Support) - ID 874": {
         "species": "Eelektross",
         "moves": [
-          "Aqua Tail",
-          "Dragon Claw",
-          "Wild Charge",
-          "Crunch"
+          "Thunderbolt",
+          "Giga Drain",
+          "Flamethrower",
+          "Volt Switch"
         ],
         "ability": "Levitate",
-        "nature": "Hardy",
+        "item": "Assault Vest",
+        "nature": "Modest",
         "evs": {
           "hp": 252,
-          "atk": 252,
+          "atk": 0,
           "def": 0,
-          "spa": 0,
+          "spa": 252,
           "spd": 0,
           "spe": 6
         }
@@ -12788,26 +12713,6 @@
       }
     },
     "Emboar": {
-      "Reckless (Bulky Attacker) - ID 865": {
-        "species": "Emboar",
-        "moves": [
-          "Earthquake",
-          "Flare Blitz",
-          "Brick Break",
-          "Wild Charge"
-        ],
-        "ability": "Reckless",
-        "item": "Life Orb",
-        "nature": "Adamant",
-        "evs": {
-          "hp": 252,
-          "atk": 252,
-          "def": 0,
-          "spa": 0,
-          "spd": 0,
-          "spe": 6
-        }
-      },
       "Reckless (Bulky Attacker) - ID 117": {
         "species": "Emboar",
         "moves": [
@@ -13033,26 +12938,6 @@
       }
     },
     "Escavalier": {
-      "Shell Armor (Bulky Attacker) - ID 925": {
-        "species": "Escavalier",
-        "moves": [
-          "Drill Run",
-          "Iron Head",
-          "Aerial Ace",
-          "Megahorn"
-        ],
-        "ability": "Shell Armor",
-        "item": "Wide Lens",
-        "nature": "Adamant",
-        "evs": {
-          "hp": 252,
-          "atk": 252,
-          "def": 0,
-          "spa": 0,
-          "spd": 6,
-          "spe": 0
-        }
-      },
       "Swarm (Bulky Setup) - ID 297": {
         "species": "Escavalier",
         "moves": [
@@ -13103,14 +12988,14 @@
         ],
         "ability": "Magic Bounce",
         "item": "Life Orb",
-        "nature": "Timid",
+        "nature": "Modest",
         "evs": {
           "hp": 0,
           "atk": 0,
-          "def": 158,
+          "def": 6,
           "spa": 252,
           "spd": 0,
-          "spe": 100
+          "spe": 252
         }
       },
       "Synchronize (Setup Sweeper) - ID 699": {
@@ -13153,6 +13038,26 @@
           "spe": 252
         }
       },
+      "Magic Bounce (Fast Attacker) - ID 868": {
+        "species": "Espeon",
+        "moves": [
+          "Psychic",
+          "Dazzling Gleam",
+          "Power Gem",
+          "Aura Sphere"
+        ],
+        "ability": "Magic Bounce",
+        "item": "Life Orb",
+        "nature": "Timid",
+        "evs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 158,
+          "spa": 252,
+          "spd": 0,
+          "spe": 100
+        }
+      },
       "Synchronize (Fast Attacker) - ID 188": {
         "species": "Espeon",
         "moves": [
@@ -13168,25 +13073,6 @@
           "hp": 0,
           "atk": 0,
           "def": 6,
-          "spa": 252,
-          "spd": 0,
-          "spe": 252
-        }
-      },
-      "Synchronize (Bulky Support) - ID 166": {
-        "species": "Espeon",
-        "moves": [
-          "Dazzling Gleam",
-          "Psychic",
-          "Wish",
-          "Yawn"
-        ],
-        "ability": "Synchronize",
-        "nature": "Hardy",
-        "evs": {
-          "hp": 6,
-          "atk": 0,
-          "def": 0,
           "spa": 252,
           "spd": 0,
           "spe": 252
@@ -13243,7 +13129,7 @@
           "Brick Break"
         ],
         "ability": "Sand Rush",
-        "item": "Expert Belt",
+        "item": "Focus Sash",
         "nature": "Adamant",
         "evs": {
           "hp": 6,
@@ -13263,15 +13149,15 @@
           "Brick Break"
         ],
         "ability": "Sand Rush",
-        "item": "Expert Belt",
+        "item": "Assault Vest",
         "nature": "Adamant",
         "evs": {
-          "hp": 4,
+          "hp": 6,
           "atk": 252,
-          "def": 0,
-          "spa": 2,
+          "def": 252,
+          "spa": 0,
           "spd": 0,
-          "spe": 252
+          "spe": 0
         }
       },
       "Sand Rush (Bulky Attacker) - ID 564": {
@@ -13716,7 +13602,7 @@
       }
     },
     "Farigiraf": {
-      "Sap Sipper (Bulky Attacker) - ID 935": {
+      "Sap Sipper (Bulky Attacker) - ID 869": {
         "species": "Farigiraf",
         "moves": [
           "Psychic",
@@ -14292,19 +14178,19 @@
         "moves": [
           "Megahorn",
           "Earthquake",
-          "Iron Tail",
+          "Stone Edge",
           "Dragon Rush"
         ],
         "ability": "Compound Eyes",
         "item": "Life Orb",
         "nature": "Jolly",
         "evs": {
-          "hp": 56,
+          "hp": 6,
           "atk": 252,
           "def": 0,
           "spa": 0,
           "spd": 0,
-          "spe": 202
+          "spe": 252
         }
       },
       "Levitate (Setup Sweeper) - ID 812": {
@@ -14468,26 +14354,6 @@
           "spe": 0
         }
       },
-      "Sturdy (Bulky Support) - ID 856": {
-        "species": "Forretress",
-        "moves": [
-          "Gyro Ball",
-          "Toxic Spikes",
-          "Light Screen",
-          "Reflect"
-        ],
-        "ability": "Sturdy",
-        "item": "Light Clay",
-        "nature": "Careful",
-        "evs": {
-          "hp": 252,
-          "atk": 0,
-          "def": 130,
-          "spa": 0,
-          "spd": 128,
-          "spe": 0
-        }
-      },
       "Sturdy (Bulky Support) - ID 807": {
         "species": "Forretress",
         "moves": [
@@ -14505,6 +14371,26 @@
           "def": 0,
           "spa": 0,
           "spd": 252,
+          "spe": 0
+        }
+      },
+      "Sturdy (Bulky Support) - ID 1909": {
+        "species": "Forretress",
+        "moves": [
+          "Gyro Ball",
+          "Bug Bite",
+          "Drill Run",
+          "Toxic Spikes"
+        ],
+        "ability": "Sturdy",
+        "item": "Leftovers",
+        "nature": "Serious",
+        "evs": {
+          "hp": 252,
+          "atk": 0,
+          "def": 252,
+          "spa": 0,
+          "spd": 6,
           "spe": 0
         }
       }
@@ -14595,13 +14481,13 @@
       }
     },
     "Froslass": {
-      "Cursed Body (Fast Attacker) - ID 901": {
+      "Cursed Body (Fast Attacker) - ID 915": {
         "species": "Froslass",
         "moves": [
           "Ice Beam",
           "Shadow Ball",
           "Thunderbolt",
-          "Chilling Water"
+          "Water Pulse"
         ],
         "ability": "Cursed Body",
         "item": "Focus Sash",
@@ -14715,23 +14601,23 @@
           "spe": 86
         }
       },
-      "Ice Scales (Bulky Attacker) - ID 855": {
+      "Ice Scales (Bulky Attacker) - ID 858": {
         "species": "Frosmoth",
         "moves": [
+          "Giga Drain",
           "Ice Beam",
-          "Hurricane",
-          "Tailwind",
-          "Bug Buzz"
+          "Bug Buzz",
+          "Dazzling Gleam"
         ],
         "ability": "Ice Scales",
-        "item": "Focus Sash",
-        "nature": "Modest",
+        "item": "Weakness Policy",
+        "nature": "Timid",
         "evs": {
-          "hp": 0,
+          "hp": 6,
           "atk": 0,
-          "def": 0,
-          "spa": 252,
-          "spd": 6,
+          "def": 252,
+          "spa": 0,
+          "spd": 0,
           "spe": 252
         }
       },
@@ -14996,15 +14882,15 @@
           "spe": 6
         }
       },
-      "Justified (Bulky Attacker) - ID 937": {
+      "Sharpness (Bulky Attacker) - ID 935": {
         "species": "Gallade",
         "moves": [
-          "Zen Headbutt",
+          "Psycho Cut",
           "Close Combat",
           "Night Slash",
           "Leaf Blade"
         ],
-        "ability": "Justified",
+        "ability": "Sharpness",
         "item": "Focus Sash",
         "nature": "Jolly",
         "evs": {
@@ -15083,7 +14969,7 @@
         "moves": [
           "Thunder",
           "Bug Buzz",
-          "Giga Drain",
+          "Energy Ball",
           "Hidden Power"
         ],
         "ability": "Compound Eyes",
@@ -15092,26 +14978,6 @@
         "evs": {
           "hp": 6,
           "atk": 0,
-          "def": 0,
-          "spa": 252,
-          "spd": 0,
-          "spe": 252
-        }
-      },
-      "Compound Eyes (Fast Attacker) - ID 856": {
-        "species": "Galvantula",
-        "moves": [
-          "Thunder",
-          "Bug Buzz",
-          "Giga Drain",
-          "Hidden Power"
-        ],
-        "ability": "Compound Eyes",
-        "item": "Throat Spray",
-        "nature": "Modest",
-        "evs": {
-          "hp": 4,
-          "atk": 2,
           "def": 0,
           "spa": 252,
           "spd": 0,
@@ -15515,26 +15381,6 @@
           "spe": 86
         }
       },
-      "Storm Drain (Bulky Attacker) - ID 862": {
-        "species": "Gastrodon",
-        "moves": [
-          "Earth Power",
-          "Sludge Bomb",
-          "Surf",
-          "Ice Beam"
-        ],
-        "ability": "Storm Drain",
-        "item": "Rindo Berry",
-        "nature": "Modest",
-        "evs": {
-          "hp": 252,
-          "atk": 0,
-          "def": 0,
-          "spa": 252,
-          "spd": 6,
-          "spe": 0
-        }
-      },
       "Sticky Hold (Bulky Support) - ID 474": {
         "species": "Gastrodon",
         "moves": [
@@ -15553,9 +15399,49 @@
           "spd": 84,
           "spe": 86
         }
+      },
+      "Storm Drain (Bulky Attacker) - ID 840": {
+        "species": "Gastrodon",
+        "moves": [
+          "Earth Power",
+          "Sludge Bomb",
+          "Surf",
+          "Ice Beam"
+        ],
+        "ability": "Storm Drain",
+        "item": "Leftovers",
+        "nature": "Modest",
+        "evs": {
+          "hp": 244,
+          "atk": 0,
+          "def": 12,
+          "spa": 250,
+          "spd": 0,
+          "spe": 4
+        }
       }
     },
     "Genesect": {
+      "Download (Fast Attacker) - ID 925": {
+        "species": "Genesect",
+        "moves": [
+          "Flamethrower",
+          "Thunderbolt",
+          "Techno Blast",
+          "Ice Beam"
+        ],
+        "ability": "Download",
+        "item": "Douse Drive",
+        "nature": "Modest",
+        "evs": {
+          "hp": 6,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
+        }
+      },
       "Download (Fast Attacker) - ID 923": {
         "species": "Genesect",
         "moves": [
@@ -15568,17 +15454,17 @@
         "item": "Douse Drive",
         "nature": "Timid",
         "evs": {
-          "hp": 56,
+          "hp": 6,
           "atk": 0,
           "def": 0,
           "spa": 252,
           "spd": 0,
-          "spe": 202
+          "spe": 252
         }
       }
     },
     "Gengar": {
-      "Cursed Body (Fast Attacker) - ID 900": {
+      "Cursed Body (Fast Attacker) - ID 902": {
         "species": "Gengar",
         "moves": [
           "Shadow Ball",
@@ -15801,6 +15687,26 @@
       }
     },
     "Gigalith": {
+      "Sand Stream (Bulky Attacker) - ID 892": {
+        "species": "Gigalith",
+        "moves": [
+          "Power Gem",
+          "Earth Power",
+          "Flash Cannon",
+          "Hidden Power"
+        ],
+        "ability": "Sand Stream",
+        "item": "Weakness Policy",
+        "nature": "Modest",
+        "evs": {
+          "hp": 56,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 202,
+          "spe": 0
+        }
+      },
       "Sand Stream (Bulky Support) - ID 168": {
         "species": "Gigalith",
         "moves": [
@@ -15995,11 +15901,11 @@
         "item": "Assault Vest",
         "nature": "Modest",
         "evs": {
-          "hp": 202,
+          "hp": 252,
           "atk": 0,
           "def": 0,
-          "spa": 56,
-          "spd": 252,
+          "spa": 252,
+          "spd": 6,
           "spe": 0
         }
       },
@@ -16203,6 +16109,26 @@
       }
     },
     "Gliscor": {
+      "Hyper Cutter (Fast Attacker) - ID 930": {
+        "species": "Gliscor",
+        "moves": [
+          "Acrobatics",
+          "Earthquake",
+          "Thunder Fang",
+          "Sky Uppercut"
+        ],
+        "ability": "Hyper Cutter",
+        "item": "Flying Gem",
+        "nature": "Adamant",
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 6,
+          "spe": 252
+        }
+      },
       "Hyper Cutter (Bulky Support) - ID 697": {
         "species": "Gliscor",
         "moves": [
@@ -16279,26 +16205,6 @@
           "spa": 0,
           "spd": 252,
           "spe": 12
-        }
-      },
-      "Sand Veil (Fast Attacker) - ID 860": {
-        "species": "Gliscor",
-        "moves": [
-          "Acrobatics",
-          "Earthquake",
-          "Thunder Fang",
-          "Sky Uppercut"
-        ],
-        "ability": "Sand Veil",
-        "item": "Flying Gem",
-        "nature": "Adamant",
-        "evs": {
-          "hp": 0,
-          "atk": 252,
-          "def": 0,
-          "spa": 0,
-          "spd": 6,
-          "spe": 252
         }
       }
     },
@@ -16881,15 +16787,15 @@
       }
     },
     "Golisopod": {
-      "Emergency Exit (Bulky Attacker) - ID 857": {
+      "Run Away (Bulky Attacker) - ID 857": {
         "species": "Golisopod",
         "moves": [
           "Aqua Jet",
           "Liquidation",
-          "Brick Break",
-          "Poison Jab"
+          "Sucker Punch",
+          "First Impression"
         ],
-        "ability": "Emergency Exit",
+        "ability": "Run Away",
         "item": "Assault Vest",
         "nature": "Adamant",
         "evs": {
@@ -16989,7 +16895,7 @@
           "Phantom Force"
         ],
         "ability": "No Guard",
-        "item": "Weakness Policy",
+        "item": "Assault Vest",
         "nature": "Jolly",
         "evs": {
           "hp": 6,
@@ -18537,6 +18443,26 @@
           "spe": 6
         }
       },
+      "Guts (Bulky Attacker) - ID 904": {
+        "species": "Hariyama",
+        "moves": [
+          "Fake Out",
+          "Bullet Punch",
+          "Drain Punch",
+          "Payback"
+        ],
+        "ability": "Guts",
+        "item": "Flame Orb",
+        "nature": "Sassy",
+        "evs": {
+          "hp": 252,
+          "atk": 6,
+          "def": 0,
+          "spa": 0,
+          "spd": 252,
+          "spe": 0
+        }
+      },
       "Thick Fat (Bulky Attacker) - ID 1097": {
         "species": "Hariyama",
         "moves": [
@@ -18587,25 +18513,6 @@
         ],
         "ability": "Thick Fat",
         "nature": "Bashful",
-        "evs": {
-          "hp": 84,
-          "atk": 88,
-          "def": 84,
-          "spa": 84,
-          "spd": 84,
-          "spe": 86
-        }
-      },
-      "Thick Fat (Bulky Attacker) - ID 182": {
-        "species": "Hariyama",
-        "moves": [
-          "Seismic Toss",
-          "Close Combat",
-          "Heavy Slam",
-          "Reversal"
-        ],
-        "ability": "Thick Fat",
-        "nature": "Serious",
         "evs": {
           "hp": 84,
           "atk": 88,
@@ -19106,16 +19013,16 @@
       }
     },
     "Heracross": {
-      "Moxie (Bulky Attacker) - ID 924": {
+      "Moxie (Bulky Attacker) - ID 906": {
         "species": "Heracross",
         "moves": [
-          "Megahorn",
-          "Stone Edge",
-          "Earthquake",
-          "Brick Break"
+          "Pin Missile",
+          "Rock Blast",
+          "Arm Thrust",
+          "Earthquake"
         ],
         "ability": "Moxie",
-        "item": "Wide Lens",
+        "item": "Loaded Dice",
         "nature": "Jolly",
         "evs": {
           "hp": 6,
@@ -19250,26 +19157,6 @@
       }
     },
     "Hippowdon": {
-      "Sand Stream (Bulky Attacker) - ID 927": {
-        "species": "Hippowdon",
-        "moves": [
-          "Earthquake",
-          "Stone Edge",
-          "Thunder Fang",
-          "Ice Fang"
-        ],
-        "ability": "Sand Stream",
-        "item": "Weakness Policy",
-        "nature": "Sassy",
-        "evs": {
-          "hp": 252,
-          "atk": 6,
-          "def": 0,
-          "spa": 0,
-          "spd": 252,
-          "spe": 0
-        }
-      },
       "Sand Stream (Bulky Support) - ID 697": {
         "species": "Hippowdon",
         "moves": [
@@ -19309,24 +19196,24 @@
           "spe": 0
         }
       },
-      "Sand Stream (Bulky Support) - ID 860": {
+      "Sand Stream (Bulky Attacker) - ID 859": {
         "species": "Hippowdon",
         "moves": [
           "Earthquake",
-          "Stealth Rock",
+          "Stone Edge",
           "Thunder Fang",
-          "Ice Fang"
+          "Fire Fang"
         ],
         "ability": "Sand Stream",
         "item": "Weakness Policy",
         "nature": "Sassy",
         "evs": {
           "hp": 252,
-          "atk": 4,
+          "atk": 6,
           "def": 0,
           "spa": 0,
           "spd": 252,
-          "spe": 2
+          "spe": 0
         }
       },
       "Sand Stream (Bulky Support) - ID 186": {
@@ -19340,6 +19227,26 @@
         "ability": "Sand Stream",
         "item": "Leftovers",
         "nature": "Naughty",
+        "evs": {
+          "hp": 252,
+          "atk": 0,
+          "def": 80,
+          "spa": 0,
+          "spd": 178,
+          "spe": 0
+        }
+      },
+      "Sand Stream (Bulky Support) - ID 702": {
+        "species": "Hippowdon",
+        "moves": [
+          "Earthquake",
+          "Crunch",
+          "Stealth Rock",
+          "Slack Off"
+        ],
+        "ability": "Sand Stream",
+        "item": "Sitrus Berry",
+        "nature": "Docile",
         "evs": {
           "hp": 252,
           "atk": 0,
@@ -19529,6 +19436,26 @@
       }
     },
     "Hitmontop": {
+      "Contrary (Bulky Attacker) - ID 903": {
+        "species": "Hitmontop",
+        "moves": [
+          "Earthquake",
+          "Close Combat",
+          "Stone Edge",
+          "Sucker Punch"
+        ],
+        "ability": "Contrary",
+        "item": "Weakness Policy",
+        "nature": "Jolly",
+        "evs": {
+          "hp": 252,
+          "atk": 0,
+          "def": 6,
+          "spa": 0,
+          "spd": 0,
+          "spe": 252
+        }
+      },
       "Intimidate (Bulky Support) - ID 1097": {
         "species": "Hitmontop",
         "moves": [
@@ -19607,28 +19534,29 @@
           "spd": 84,
           "spe": 86
         }
-      },
-      "Intimidate (Bulky Support) - ID 285": {
-        "species": "Hitmontop",
-        "moves": [
-          "Endeavor",
-          "Detect",
-          "Quick Guard",
-          "Wide Guard"
-        ],
-        "ability": "Intimidate",
-        "nature": "Bashful",
-        "evs": {
-          "hp": 84,
-          "atk": 88,
-          "def": 84,
-          "spa": 84,
-          "spd": 84,
-          "spe": 86
-        }
       }
     },
     "Honchkrow": {
+      "Moxie (Bulky Support) - ID 887": {
+        "species": "Honchkrow",
+        "moves": [
+          "Brave Bird",
+          "Sucker Punch",
+          "Defog",
+          "Roost"
+        ],
+        "ability": "Moxie",
+        "item": "Heavy-Duty Boots",
+        "nature": "Jolly",
+        "evs": {
+          "hp": 6,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 252
+        }
+      },
       "Moxie (Bulky Support) - ID 309": {
         "species": "Honchkrow",
         "moves": [
@@ -19730,7 +19658,7 @@
       }
     },
     "Hoopa": {
-      "Magician (Bulky Attacker) - ID 935": {
+      "Magician (Bulky Attacker) - ID 901": {
         "species": "Hoopa",
         "moves": [
           "Hyperspace Hole",
@@ -20303,7 +20231,7 @@
         "species": "Indeedee",
         "moves": [
           "Expanding Force",
-          "Shadow Ball",
+          "Aura Sphere",
           "Energy Ball",
           "Hyper Voice"
         ],
@@ -20336,6 +20264,26 @@
           "spa": 88,
           "spd": 84,
           "spe": 86
+        }
+      },
+      "Psychic Surge (Fast Attacker) - ID 867": {
+        "species": "Indeedee",
+        "moves": [
+          "Expanding Force",
+          "Shadow Ball",
+          "Energy Ball",
+          "Hyper Voice"
+        ],
+        "ability": "Psychic Surge",
+        "item": "Terrain Extender",
+        "nature": "Timid",
+        "evs": {
+          "hp": 52,
+          "atk": 0,
+          "def": 0,
+          "spa": 250,
+          "spd": 8,
+          "spe": 200
         }
       }
     },
@@ -21073,26 +21021,6 @@
           "spe": 6
         }
       },
-      "Sharpness (Bulky Attacker) - ID 894": {
-        "species": "Kabutops",
-        "moves": [
-          "Night Slash",
-          "Aqua Cutter",
-          "Rock Climb",
-          "Aerial Ace"
-        ],
-        "ability": "Sharpness",
-        "item": "Focus Sash",
-        "nature": "Jolly",
-        "evs": {
-          "hp": 6,
-          "atk": 252,
-          "def": 0,
-          "spa": 0,
-          "spd": 0,
-          "spe": 252
-        }
-      },
       "Swift Swim (Bulky Support) - ID 260": {
         "species": "Kabutops",
         "moves": [
@@ -21476,6 +21404,26 @@
           "spd": 0,
           "spe": 252
         }
+      },
+      "Supreme Overlord (Bulky Attacker) - ID 887": {
+        "species": "Kingambit",
+        "moves": [
+          "Aerial Ace",
+          "Kowtow Cleave",
+          "Sucker Punch",
+          "Stone Edge"
+        ],
+        "ability": "Supreme Overlord",
+        "item": "Focus Sash",
+        "nature": "Jolly",
+        "evs": {
+          "hp": 6,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 252
+        }
       }
     },
     "Kingdra": {
@@ -21737,6 +21685,26 @@
       }
     },
     "Kleavor": {
+      "Sharpness (Bulky Attacker) - ID 923": {
+        "species": "Kleavor",
+        "moves": [
+          "Stone Axe",
+          "Night Slash",
+          "Psycho Cut",
+          "X-Scissor"
+        ],
+        "ability": "Sharpness",
+        "item": "Focus Sash",
+        "nature": "Jolly",
+        "evs": {
+          "hp": 6,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 252
+        }
+      },
       "Sharpness (Bulky Attacker) - ID 894": {
         "species": "Kleavor",
         "moves": [
@@ -21751,26 +21719,6 @@
         "evs": {
           "hp": 252,
           "atk": 6,
-          "def": 0,
-          "spa": 0,
-          "spd": 0,
-          "spe": 252
-        }
-      },
-      "Sharpness (Bulky Attacker) - ID 856": {
-        "species": "Kleavor",
-        "moves": [
-          "Stone Axe",
-          "Night Slash",
-          "Psycho Cut",
-          "X-Scissor"
-        ],
-        "ability": "Sharpness",
-        "item": "Weakness Policy",
-        "nature": "Jolly",
-        "evs": {
-          "hp": 6,
-          "atk": 252,
           "def": 0,
           "spa": 0,
           "spd": 0,
@@ -22076,7 +22024,27 @@
       }
     },
     "Kommo-o": {
-      "Bulletproof (Bulky Attacker) - ID 903": {
+      "Bulletproof (Bulky Attacker) - ID 904": {
+        "species": "Kommo-o",
+        "moves": [
+          "Boomburst",
+          "Clanging Scales",
+          "Flash Cannon",
+          "Aura Sphere"
+        ],
+        "ability": "Bulletproof",
+        "item": "Throat Spray",
+        "nature": "Timid",
+        "evs": {
+          "hp": 6,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
+        }
+      },
+      "Bulletproof (Bulky Attacker) - ID 941": {
         "species": "Kommo-o",
         "moves": [
           "Flash Cannon",
@@ -22086,25 +22054,6 @@
         ],
         "ability": "Bulletproof",
         "item": "Throat Spray",
-        "nature": "Timid",
-        "evs": {
-          "hp": 0,
-          "atk": 0,
-          "def": 0,
-          "spa": 252,
-          "spd": 6,
-          "spe": 252
-        }
-      },
-      "Bulletproof (Bulky Attacker) - ID 437": {
-        "species": "Kommo-o",
-        "moves": [
-          "Clanging Scales",
-          "Aura Sphere",
-          "Flamethrower",
-          "Flash Cannon"
-        ],
-        "ability": "Bulletproof",
         "nature": "Timid",
         "evs": {
           "hp": 0,
@@ -22154,22 +22103,22 @@
           "spe": 252
         }
       },
-      "Soundproof (Bulky Attacker) - ID 294": {
+      "Bulletproof (Bulky Attacker) - ID 437": {
         "species": "Kommo-o",
         "moves": [
-          "Boomburst",
           "Clanging Scales",
-          "Focus Blast",
-          "Flamethrower"
+          "Aura Sphere",
+          "Flamethrower",
+          "Flash Cannon"
         ],
-        "ability": "Soundproof",
-        "nature": "Hardy",
+        "ability": "Bulletproof",
+        "nature": "Timid",
         "evs": {
-          "hp": 6,
+          "hp": 0,
           "atk": 0,
           "def": 0,
           "spa": 252,
-          "spd": 0,
+          "spd": 6,
           "spe": 252
         }
       }
@@ -22333,6 +22282,26 @@
       }
     },
     "Krookodile": {
+      "Moxie (Fast Attacker) - ID 930": {
+        "species": "Krookodile",
+        "moves": [
+          "Earthquake",
+          "Rock Climb",
+          "Beat Up",
+          "Fire Fang"
+        ],
+        "ability": "Moxie",
+        "item": "Focus Sash",
+        "nature": "Jolly",
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 6,
+          "spe": 252
+        }
+      },
       "Moxie (Fast Attacker) - ID 987": {
         "species": "Krookodile",
         "moves": [
@@ -22351,26 +22320,6 @@
           "spa": 0,
           "spd": 0,
           "spe": 6
-        }
-      },
-      "Moxie (Fast Attacker) - ID 860": {
-        "species": "Krookodile",
-        "moves": [
-          "Earthquake",
-          "Brick Break",
-          "Crunch",
-          "Outrage"
-        ],
-        "ability": "Moxie",
-        "item": "Focus Sash",
-        "nature": "Adamant",
-        "evs": {
-          "hp": 0,
-          "atk": 252,
-          "def": 0,
-          "spa": 0,
-          "spd": 8,
-          "spe": 250
         }
       },
       "Moxie (Setup Sweeper) - ID 306": {
@@ -22410,6 +22359,26 @@
           "spd": 0,
           "spe": 6
         }
+      },
+      "Moxie (Fast Attacker) - ID 945": {
+        "species": "Krookodile",
+        "moves": [
+          "Earthquake",
+          "Brick Break",
+          "Crunch",
+          "Outrage"
+        ],
+        "ability": "Moxie",
+        "item": "Focus Sash",
+        "nature": "Adamant",
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 8,
+          "spe": 250
+        }
       }
     },
     "Kubfu": {
@@ -22430,6 +22399,28 @@
           "spa": 84,
           "spd": 84,
           "spe": 86
+        }
+      }
+    },
+    "Kyurem": {
+      "Pressure (Fast Attacker) - ID 915": {
+        "species": "Kyurem",
+        "moves": [
+          "Dragon Pulse",
+          "Ice Beam",
+          "Earth Power",
+          "Psychic"
+        ],
+        "ability": "Pressure",
+        "item": "Weakness Policy",
+        "nature": "Timid",
+        "evs": {
+          "hp": 6,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
         }
       }
     },
@@ -22756,13 +22747,13 @@
       }
     },
     "Latias": {
-      "Levitate (Fast Attacker) - ID 936": {
+      "Levitate (Fast Attacker) - ID 935": {
         "species": "Latias",
         "moves": [
           "Aura Sphere",
           "Surf",
           "Ice Beam",
-          "Shadow Ball"
+          "Dragon Pulse"
         ],
         "ability": "Levitate",
         "item": "Weakness Policy",
@@ -23548,9 +23539,9 @@
         "species": "Lopunny",
         "moves": [
           "Ice Punch",
-          "Thunder Punch",
-          "Dizzy Punch",
-          "Jump Kick"
+          "Blaze Kick",
+          "Strength",
+          "High Jump Kick"
         ],
         "ability": "Adaptability",
         "item": "Wide Lens",
@@ -24266,32 +24257,32 @@
       }
     },
     "Luxray": {
-      "Guts (Bulky Attacker) - ID 919": {
-        "species": "Luxray",
-        "moves": [
-          "Facade",
-          "Wild Charge",
-          "Crunch",
-          "Ice Fang"
-        ],
-        "ability": "Guts",
-        "item": "Flame Orb",
-        "nature": "Adamant",
-        "evs": {
-          "hp": 6,
-          "atk": 0,
-          "def": 252,
-          "spa": 0,
-          "spd": 0,
-          "spe": 252
-        }
-      },
       "Guts (Bulky Support) - ID 1048": {
         "species": "Luxray",
         "moves": [
           "Sucker Punch",
           "Wild Charge",
           "Volt Switch",
+          "Ice Fang"
+        ],
+        "ability": "Guts",
+        "item": "Flame Orb",
+        "nature": "Jolly",
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 6
+        }
+      },
+      "Guts (Bulky Attacker) - ID 947": {
+        "species": "Luxray",
+        "moves": [
+          "Wild Charge",
+          "Sucker Punch",
+          "Crunch",
           "Ice Fang"
         ],
         "ability": "Guts",
@@ -24326,26 +24317,6 @@
           "spe": 252
         }
       },
-      "Guts (Bulky Attacker) - ID 947": {
-        "species": "Luxray",
-        "moves": [
-          "Wild Charge",
-          "Sucker Punch",
-          "Crunch",
-          "Ice Fang"
-        ],
-        "ability": "Guts",
-        "item": "Flame Orb",
-        "nature": "Jolly",
-        "evs": {
-          "hp": 0,
-          "atk": 252,
-          "def": 0,
-          "spa": 252,
-          "spd": 0,
-          "spe": 6
-        }
-      },
       "Guts (Bulky Attacker) - ID 1057": {
         "species": "Luxray",
         "moves": [
@@ -24364,6 +24335,26 @@
           "spa": 252,
           "spd": 6,
           "spe": 0
+        }
+      },
+      "Guts (Bulky Attacker) - ID 683": {
+        "species": "Luxray",
+        "moves": [
+          "Wild Charge",
+          "Swagger",
+          "Superpower",
+          "Sucker Punch"
+        ],
+        "ability": "Guts",
+        "item": "Life Orb",
+        "nature": "Serious",
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 6,
+          "spe": 252
         }
       }
     },
@@ -25310,7 +25301,7 @@
           "spe": 6
         }
       },
-      "Thick Fat (Bulky Attacker) - ID 916": {
+      "Thick Fat (Bulky Attacker) - ID 928": {
         "species": "Mamoswine",
         "moves": [
           "Earthquake",
@@ -25319,7 +25310,7 @@
           "Iron Head"
         ],
         "ability": "Thick Fat",
-        "item": "Wide Lens",
+        "item": "Assault Vest",
         "nature": "Jolly",
         "evs": {
           "hp": 0,
@@ -25328,6 +25319,26 @@
           "spa": 0,
           "spd": 8,
           "spe": 250
+        }
+      },
+      "Thick Fat (Bulky Attacker) - ID 915": {
+        "species": "Mamoswine",
+        "moves": [
+          "Ice Shard",
+          "Earthquake",
+          "Icicle Crash",
+          "Rock Climb"
+        ],
+        "ability": "Thick Fat",
+        "item": "Assault Vest",
+        "nature": "Jolly",
+        "evs": {
+          "hp": 6,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 252
         }
       },
       "Thick Fat (Bulky Attacker) - ID 1070": {
@@ -25368,26 +25379,6 @@
           "spa": 0,
           "spd": 0,
           "spe": 0
-        }
-      },
-      "Thick Fat (Bulky Attacker) - ID 1067": {
-        "species": "Mamoswine",
-        "moves": [
-          "Ice Shard",
-          "Earthquake",
-          "Body Slam",
-          "Detect"
-        ],
-        "ability": "Thick Fat",
-        "item": "Leftovers",
-        "nature": "Jolly",
-        "evs": {
-          "hp": 0,
-          "atk": 252,
-          "def": 0,
-          "spa": 252,
-          "spd": 0,
-          "spe": 6
         }
       }
     },
@@ -25870,12 +25861,12 @@
         "item": "Life Orb",
         "nature": "Adamant",
         "evs": {
-          "hp": 112,
+          "hp": 64,
           "atk": 252,
           "def": 0,
           "spa": 0,
           "spd": 0,
-          "spe": 146
+          "spe": 194
         }
       }
     },
@@ -25921,6 +25912,26 @@
       }
     },
     "Masquerain": {
+      "Intimidate (Bulky Support) - ID 925": {
+        "species": "Masquerain",
+        "moves": [
+          "Bug Buzz",
+          "Sticky Web",
+          "Surf",
+          "Energy Ball"
+        ],
+        "ability": "Intimidate",
+        "item": "Focus Sash",
+        "nature": "Modest",
+        "evs": {
+          "hp": 6,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
+        }
+      },
       "Intimidate (Bulky Support) - ID 821": {
         "species": "Masquerain",
         "moves": [
@@ -25997,25 +26008,6 @@
           "spa": 88,
           "spd": 84,
           "spe": 86
-        }
-      },
-      "Intimidate (Bulky Attacker) - ID 298": {
-        "species": "Masquerain",
-        "moves": [
-          "Stun Spore",
-          "Bug Buzz",
-          "Air Slash",
-          "Silver Wind"
-        ],
-        "ability": "Intimidate",
-        "nature": "Timid",
-        "evs": {
-          "hp": 6,
-          "atk": 0,
-          "def": 0,
-          "spa": 252,
-          "spd": 0,
-          "spe": 252
         }
       }
     },
@@ -26101,7 +26093,7 @@
       }
     },
     "Medicham": {
-      "Pure Power (Bulky Attacker) - ID 904": {
+      "Pure Power (Bulky Attacker) - ID 906": {
         "species": "Medicham",
         "moves": [
           "High Jump Kick",
@@ -26566,15 +26558,15 @@
           "spe": 6
         }
       },
-      "Friend Guard (Bulky Attacker) - ID 938": {
+      "Levitate (Bulky Attacker) - ID 938": {
         "species": "Mesprit",
         "moves": [
-          "Expanding Force",
-          "Draining Kiss",
+          "Psychic",
+          "Moonblast",
           "Ice Beam",
           "Shadow Ball"
         ],
-        "ability": "Friend Guard",
+        "ability": "Levitate",
         "item": "Weakness Policy",
         "nature": "Timid",
         "evs": {
@@ -26648,7 +26640,7 @@
       }
     },
     "Metagross": {
-      "Clear Body (Bulky Attacker) - ID 936": {
+      "Clear Body (Bulky Attacker) - ID 935": {
         "species": "Metagross",
         "moves": [
           "Earthquake",
@@ -27261,14 +27253,14 @@
         ],
         "ability": "Disguise",
         "item": "Life Orb",
-        "nature": "Adamant",
+        "nature": "Jolly",
         "evs": {
-          "hp": 6,
+          "hp": 56,
           "atk": 252,
           "def": 0,
           "spa": 0,
           "spd": 0,
-          "spe": 252
+          "spe": 202
         }
       },
       "Disguise (Setup Sweeper) - ID 992": {
@@ -27481,7 +27473,7 @@
           "Moonblast"
         ],
         "ability": "Levitate",
-        "item": "Expert Belt",
+        "item": "Focus Sash",
         "nature": "Timid",
         "evs": {
           "hp": 6,
@@ -28022,24 +28014,24 @@
       }
     },
     "Mr. Rime": {
-      "Screen Cleaner (Bulky Attacker) - ID 915": {
+      "Screen Cleaner (Bulky Attacker) - ID 917": {
         "species": "Mr. Rime",
         "moves": [
-          "Ice Beam",
           "Thunderbolt",
+          "Ice Beam",
           "Psychic",
-          "Hidden Power"
+          "Scald"
         ],
         "ability": "Screen Cleaner",
-        "item": "Weakness Policy",
-        "nature": "Timid",
+        "item": "Focus Sash",
+        "nature": "Modest",
         "evs": {
           "hp": 0,
           "atk": 0,
-          "def": 202,
-          "spa": 108,
+          "def": 6,
+          "spa": 252,
           "spd": 0,
-          "spe": 200
+          "spe": 252
         }
       },
       "Tangled Feet (Bulky Attacker) - ID 867": {
@@ -28127,19 +28119,39 @@
         "species": "Mudsdale",
         "moves": [
           "Earthquake",
-          "Body Press",
           "Heavy Slam",
-          "Rock Slide"
+          "Low Sweep",
+          "Stone Edge"
         ],
         "ability": "Stamina",
         "item": "Assault Vest",
         "nature": "Adamant",
         "evs": {
-          "hp": 6,
+          "hp": 252,
           "atk": 252,
           "def": 0,
           "spa": 0,
-          "spd": 252,
+          "spd": 6,
+          "spe": 0
+        }
+      },
+      "Stamina (Bulky Attacker) - ID 861": {
+        "species": "Mudsdale",
+        "moves": [
+          "Earthquake",
+          "Heavy Slam",
+          "Low Sweep",
+          "Stone Edge"
+        ],
+        "ability": "Stamina",
+        "item": "Assault Vest",
+        "nature": "Adamant",
+        "evs": {
+          "hp": 252,
+          "atk": 252,
+          "def": 6,
+          "spa": 0,
+          "spd": 0,
           "spe": 0
         }
       },
@@ -28543,6 +28555,28 @@
         }
       }
     },
+    "Necrozma": {
+      "Prism Armor (Bulky Attacker) - ID 935": {
+        "species": "Necrozma",
+        "moves": [
+          "Earth Power",
+          "Photon Geyser",
+          "Power Gem",
+          "Heat Wave"
+        ],
+        "ability": "Prism Armor",
+        "item": "Weakness Policy",
+        "nature": "Timid",
+        "evs": {
+          "hp": 6,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
+        }
+      }
+    },
     "Nickit": {
       "Run Away (Bulky Setup) - ID 962": {
         "species": "Nickit",
@@ -28666,7 +28700,7 @@
       }
     },
     "Nidoqueen": {
-      "Sheer Force (Bulky Attacker) - ID 862": {
+      "Sheer Force (Bulky Attacker) - ID 859": {
         "species": "Nidoqueen",
         "moves": [
           "Earthquake",
@@ -28912,18 +28946,18 @@
           "Power Gem",
           "Dazzling Gleam",
           "Thunderbolt",
-          "Sludge Bomb"
+          "Sludge Wave"
         ],
         "ability": "Beast Boost",
-        "item": "Air Balloon",
+        "item": "Focus Sash",
         "nature": "Timid",
         "evs": {
-          "hp": 0,
+          "hp": 6,
           "atk": 0,
-          "def": 252,
-          "spa": 94,
+          "def": 0,
+          "spa": 252,
           "spd": 0,
-          "spe": 164
+          "spe": 252
         }
       }
     },
@@ -29967,7 +30001,7 @@
           "spe": 86
         }
       },
-      "Inner Focus (Bulky Attacker) - ID 870": {
+      "Trace (Bulky Attacker) - ID 870": {
         "species": "Oranguru",
         "moves": [
           "Energy Ball",
@@ -29975,7 +30009,7 @@
           "Thunderbolt",
           "Psychic"
         ],
-        "ability": "Inner Focus",
+        "ability": "Trace",
         "item": "Weakness Policy",
         "nature": "Modest",
         "evs": {
@@ -30008,36 +30042,16 @@
       }
     },
     "Orbeetle": {
-      "Filter (Fast Attacker) - ID 925": {
+      "Filter (Fast Attacker) - ID 923": {
         "species": "Orbeetle",
         "moves": [
-          "Trick Room",
+          "Psychic",
           "Hidden Power",
           "Bug Buzz",
           "Shadow Ball"
         ],
         "ability": "Filter",
         "item": "Weakness Policy",
-        "nature": "Calm",
-        "evs": {
-          "hp": 252,
-          "atk": 0,
-          "def": 130,
-          "spa": 0,
-          "spd": 128,
-          "spe": 0
-        }
-      },
-      "Swarm (Bulky Support) - ID 857": {
-        "species": "Orbeetle",
-        "moves": [
-          "Trick Room",
-          "Light Screen",
-          "Bug Buzz",
-          "Shadow Ball"
-        ],
-        "ability": "Swarm",
-        "item": "Light Clay",
         "nature": "Calm",
         "evs": {
           "hp": 252,
@@ -30371,26 +30385,6 @@
           "spe": 2
         }
       },
-      "Water Compaction (Bulky Support) - ID 862": {
-        "species": "Palossand",
-        "moves": [
-          "Earth Power",
-          "Giga Drain",
-          "Shadow Ball",
-          "Shore Up"
-        ],
-        "ability": "Water Compaction",
-        "item": "Leftovers",
-        "nature": "Modest",
-        "evs": {
-          "hp": 160,
-          "atk": 0,
-          "def": 0,
-          "spa": 252,
-          "spd": 98,
-          "spe": 0
-        }
-      },
       "Water Compaction (Bulky Support) - ID 156": {
         "species": "Palossand",
         "moves": [
@@ -30426,6 +30420,26 @@
           "def": 0,
           "spa": 252,
           "spd": 6,
+          "spe": 0
+        }
+      },
+      "Water Compaction (Bulky Support) - ID 945": {
+        "species": "Palossand",
+        "moves": [
+          "Earth Power",
+          "Giga Drain",
+          "Shadow Ball",
+          "Shore Up"
+        ],
+        "ability": "Water Compaction",
+        "item": "Leftovers",
+        "nature": "Modest",
+        "evs": {
+          "hp": 160,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 98,
           "spe": 0
         }
       }
@@ -31002,7 +31016,7 @@
       }
     },
     "Pheromosa": {
-      "Beast Boost (Fast Attacker) - ID 903": {
+      "Beast Boost (Fast Attacker) - ID 924": {
         "species": "Pheromosa",
         "moves": [
           "Poison Jab",
@@ -31012,7 +31026,7 @@
         ],
         "ability": "Beast Boost",
         "item": "Focus Sash",
-        "nature": "Adamant",
+        "nature": "Lonely",
         "evs": {
           "hp": 0,
           "atk": 252,
@@ -32125,22 +32139,22 @@
       }
     },
     "Polteageist-Antique": {
-      "Cursed Body (Bulky Setup) - ID 899": {
+      "Cursed Body (Bulky Attacker) - ID 901": {
         "species": "Polteageist-Antique",
         "moves": [
           "Giga Drain",
           "Shadow Ball",
-          "Shell Smash",
+          "Dazzling Gleam",
           "Psychic"
         ],
         "ability": "Cursed Body",
-        "item": "White Herb",
+        "item": "Focus Sash",
         "nature": "Timid",
         "evs": {
           "hp": 6,
           "atk": 0,
-          "def": 252,
-          "spa": 0,
+          "def": 0,
+          "spa": 252,
           "spd": 0,
           "spe": 252
         }
@@ -33379,7 +33393,7 @@
         "species": "Raichu",
         "moves": [
           "Fake Out",
-          "Extreme Speed",
+          "Giga Impact",
           "Ice Punch",
           "Brick Break"
         ],
@@ -33554,7 +33568,7 @@
       }
     },
     "Raikou": {
-      "Inner Focus (Fast Attacker) - ID 920": {
+      "Volt Absorb (Fast Attacker) - ID 920": {
         "species": "Raikou",
         "moves": [
           "Thunderbolt",
@@ -33562,16 +33576,16 @@
           "Shadow Ball",
           "Hidden Power"
         ],
-        "ability": "Inner Focus",
-        "item": "Air Balloon",
+        "ability": "Volt Absorb",
+        "item": "Focus Sash",
         "nature": "Modest",
         "evs": {
-          "hp": 0,
+          "hp": 6,
           "atk": 0,
-          "def": 252,
-          "spa": 112,
+          "def": 0,
+          "spa": 252,
           "spd": 0,
-          "spe": 146
+          "spe": 252
         }
       }
     },
@@ -33617,27 +33631,27 @@
           "spe": 6
         }
       },
-      "Mold Breaker (Bulky Attacker) - ID 893": {
+      "Mold Breaker (Bulky Setup) - ID 891": {
         "species": "Rampardos",
         "moves": [
           "Rock Climb",
           "Earthquake",
-          "Ancient Power",
+          "Rock Polish",
           "Zen Headbutt"
         ],
         "ability": "Mold Breaker",
-        "item": "Choice Scarf",
+        "item": "Weakness Policy",
         "nature": "Jolly",
         "evs": {
-          "hp": 6,
-          "atk": 252,
+          "hp": 252,
+          "atk": 6,
           "def": 0,
           "spa": 0,
           "spd": 0,
           "spe": 252
         }
       },
-      "Sheer Force (Bulky Attacker) - ID 891": {
+      "Sheer Force (Bulky Attacker) - ID 892": {
         "species": "Rampardos",
         "moves": [
           "Stone Edge",
@@ -34002,30 +34016,8 @@
         }
       }
     },
-    "Regice": {
-      "Filter (Bulky Attacker) - ID 917": {
-        "species": "Regice",
-        "moves": [
-          "Blizzard",
-          "Thunderbolt",
-          "Body Press",
-          "Thunder Wave"
-        ],
-        "ability": "Filter",
-        "item": "Weakness Policy",
-        "nature": "Modest",
-        "evs": {
-          "hp": 6,
-          "atk": 0,
-          "def": 252,
-          "spa": 252,
-          "spd": 0,
-          "spe": 0
-        }
-      }
-    },
     "Regieleki": {
-      "Transistor (Fast Attacker) - ID 921": {
+      "Transistor (Fast Attacker) - ID 919": {
         "species": "Regieleki",
         "moves": [
           "Ancient Power",
@@ -34089,24 +34081,24 @@
       }
     },
     "Regirock": {
-      "Solid Rock (Bulky Attacker) - ID 892": {
+      "Solid Rock (Bulky Attacker) - ID 891": {
         "species": "Regirock",
         "moves": [
-          "Brick Break",
+          "Drain Punch",
           "Earthquake",
           "Ice Punch",
           "Thunder Punch"
         ],
         "ability": "Solid Rock",
         "item": "Weakness Policy",
-        "nature": "Adamant",
+        "nature": "Jolly",
         "evs": {
           "hp": 252,
           "atk": 6,
           "def": 0,
           "spa": 0,
-          "spd": 252,
-          "spe": 0
+          "spd": 0,
+          "spe": 252
         }
       }
     },
@@ -34374,6 +34366,26 @@
       }
     },
     "Rhyperior": {
+      "Solid Rock (Bulky Attacker) - ID 927": {
+        "species": "Rhyperior",
+        "moves": [
+          "Earthquake",
+          "Thunder Punch",
+          "Rock Climb",
+          "Brick Break"
+        ],
+        "ability": "Solid Rock",
+        "item": "Weakness Policy",
+        "nature": "Careful",
+        "evs": {
+          "hp": 252,
+          "atk": 148,
+          "def": 0,
+          "spa": 0,
+          "spd": 110,
+          "spe": 0
+        }
+      },
       "Solid Rock (Bulky Setup) - ID 1044": {
         "species": "Rhyperior",
         "moves": [
@@ -34392,6 +34404,26 @@
           "spa": 252,
           "spd": 0,
           "spe": 6
+        }
+      },
+      "Solid Rock (Bulky Attacker) - ID 930": {
+        "species": "Rhyperior",
+        "moves": [
+          "Rock Climb",
+          "Crunch",
+          "Earthquake",
+          "Horn Drill"
+        ],
+        "ability": "Solid Rock",
+        "item": "Choice Scarf",
+        "nature": "Jolly",
+        "evs": {
+          "hp": 6,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 252
         }
       },
       "Reckless (Bulky Attacker) - ID 697": {
@@ -34423,46 +34455,6 @@
           "Fire Punch"
         ],
         "ability": "Solid Rock",
-        "item": "Choice Band",
-        "nature": "Quirky",
-        "evs": {
-          "hp": 250,
-          "atk": 16,
-          "def": 0,
-          "spa": 0,
-          "spd": 244,
-          "spe": 0
-        }
-      },
-      "Reckless (Bulky Attacker) - ID 186": {
-        "species": "Rhyperior",
-        "moves": [
-          "Earthquake",
-          "Stone Edge",
-          "Megahorn",
-          "Ice Punch"
-        ],
-        "ability": "Reckless",
-        "item": "Choice Band",
-        "nature": "Naughty",
-        "evs": {
-          "hp": 250,
-          "atk": 16,
-          "def": 0,
-          "spa": 0,
-          "spd": 244,
-          "spe": 0
-        }
-      },
-      "Reckless (Bulky Attacker) - ID 702": {
-        "species": "Rhyperior",
-        "moves": [
-          "Earthquake",
-          "Stone Edge",
-          "Megahorn",
-          "Thunder Punch"
-        ],
-        "ability": "Reckless",
         "item": "Choice Band",
         "nature": "Quirky",
         "evs": {
@@ -34986,6 +34978,26 @@
           "spe": 6
         }
       },
+      "Levitate (Bulky Support) - ID 887": {
+        "species": "Rotom-Frost",
+        "moves": [
+          "Blizzard",
+          "Nasty Plot",
+          "Thunderbolt",
+          "Substitute"
+        ],
+        "ability": "Levitate",
+        "item": "Leftovers",
+        "nature": "Timid",
+        "evs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 6,
+          "spe": 252
+        }
+      },
       "Levitate (Bulky Support) - ID 309": {
         "species": "Rotom-Frost",
         "moves": [
@@ -35277,19 +35289,39 @@
         "species": "Runerigus",
         "moves": [
           "Trick Room",
-          "Disable",
           "Earthquake",
-          "Night Shade"
+          "Night Shade",
+          "Guard Split"
         ],
         "ability": "Cursed Body",
-        "item": "Leftovers",
+        "item": "Lum Berry",
+        "nature": "Adamant",
+        "evs": {
+          "hp": 252,
+          "atk": 6,
+          "def": 0,
+          "spa": 0,
+          "spd": 252,
+          "spe": 0
+        }
+      },
+      "Cursed Body (Bulky Support) - ID 861": {
+        "species": "Runerigus",
+        "moves": [
+          "Trick Room",
+          "Earthquake",
+          "Night Shade",
+          "Guard Split"
+        ],
+        "ability": "Cursed Body",
+        "item": "Lum Berry",
         "nature": "Adamant",
         "evs": {
           "hp": 252,
           "atk": 0,
-          "def": 130,
+          "def": 6,
           "spa": 0,
-          "spd": 128,
+          "spd": 252,
           "spe": 0
         }
       },
@@ -35334,26 +35366,6 @@
       }
     },
     "Sableye": {
-      "Prankster (Bulky Support) - ID 902": {
-        "species": "Sableye",
-        "moves": [
-          "Fake Out",
-          "Recover",
-          "Sucker Punch",
-          "Drain Punch"
-        ],
-        "ability": "Prankster",
-        "item": "Life Orb",
-        "nature": "Adamant",
-        "evs": {
-          "hp": 252,
-          "atk": 252,
-          "def": 0,
-          "spa": 2,
-          "spd": 0,
-          "spe": 4
-        }
-      },
       "Prankster (Bulky Support) - ID 817": {
         "species": "Sableye",
         "moves": [
@@ -35432,6 +35444,25 @@
           "spa": 36,
           "spd": 114,
           "spe": 36
+        }
+      },
+      "Magic Bounce (Bulky Support) - ID 254": {
+        "species": "Sableye",
+        "moves": [
+          "Punishment",
+          "Detect",
+          "Shadow Sneak",
+          "Knock Off"
+        ],
+        "ability": "Magic Bounce",
+        "nature": "Hardy",
+        "evs": {
+          "hp": 154,
+          "atk": 0,
+          "def": 0,
+          "spa": 0,
+          "spd": 104,
+          "spe": 252
         }
       }
     },
@@ -35775,22 +35806,22 @@
           "spe": 4
         }
       },
-      "Sand Spit (Bulky Support) - ID 862": {
+      "Sand Spit (Bulky Attacker) - ID 862": {
         "species": "Sandaconda",
         "moves": [
-          "Earthquake",
-          "Stealth Rock",
+          "Earth Power",
           "Glare",
-          "Rock Slide"
+          "Flash Cannon",
+          "Dragon Pulse"
         ],
         "ability": "Sand Spit",
         "item": "Weakness Policy",
-        "nature": "Jolly",
+        "nature": "Timid",
         "evs": {
-          "hp": 6,
-          "atk": 252,
+          "hp": 252,
+          "atk": 0,
           "def": 0,
-          "spa": 0,
+          "spa": 6,
           "spd": 0,
           "spe": 252
         }
@@ -36216,6 +36247,26 @@
       }
     },
     "Scizor": {
+      "Technician (Bulky Attacker) - ID 925": {
+        "species": "Scizor",
+        "moves": [
+          "Bug Bite",
+          "Dual Wingbeat",
+          "Brick Break",
+          "Iron Head"
+        ],
+        "ability": "Technician",
+        "item": "Focus Sash",
+        "nature": "Jolly",
+        "evs": {
+          "hp": 6,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 252
+        }
+      },
       "Technician (Bulky Support) - ID 818": {
         "species": "Scizor",
         "moves": [
@@ -36234,26 +36285,6 @@
           "spa": 0,
           "spd": 0,
           "spe": 6
-        }
-      },
-      "Swarm (Bulky Attacker) - ID 923": {
-        "species": "Scizor",
-        "moves": [
-          "X-Scissor",
-          "Night Slash",
-          "Brick Break",
-          "Iron Head"
-        ],
-        "ability": "Swarm",
-        "item": "Focus Sash",
-        "nature": "Jolly",
-        "evs": {
-          "hp": 6,
-          "atk": 252,
-          "def": 0,
-          "spa": 0,
-          "spd": 0,
-          "spe": 252
         }
       },
       "Swarm (Bulky Attacker) - ID 696": {
@@ -36333,6 +36364,26 @@
           "spa": 84,
           "spd": 84,
           "spe": 86
+        }
+      },
+      "Speed Boost (Fast Attacker) - ID 856": {
+        "species": "Scolipede",
+        "moves": [
+          "Rock Climb",
+          "Poison Tail",
+          "Earthquake",
+          "X-Scissor"
+        ],
+        "ability": "Speed Boost",
+        "item": "Assault Vest",
+        "nature": "Adamant",
+        "evs": {
+          "hp": 252,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 6
         }
       },
       "Poison Point (Bulky Support) - ID 571": {
@@ -36815,26 +36866,6 @@
       }
     },
     "Seismitoad": {
-      "Water Absorb (Bulky Attacker) - ID 927": {
-        "species": "Seismitoad",
-        "moves": [
-          "Hyper Voice",
-          "Surf",
-          "Sludge Bomb",
-          "Hidden Power"
-        ],
-        "ability": "Water Absorb",
-        "item": "Focus Sash",
-        "nature": "Timid",
-        "evs": {
-          "hp": 6,
-          "atk": 0,
-          "def": 0,
-          "spa": 252,
-          "spd": 0,
-          "spe": 252
-        }
-      },
       "Swift Swim (Bulky Attacker) - ID 479": {
         "species": "Seismitoad",
         "moves": [
@@ -36854,22 +36885,22 @@
           "spe": 86
         }
       },
-      "Water Absorb (Bulky Attacker) - ID 859": {
+      "Water Absorb (Bulky Attacker) - ID 862": {
         "species": "Seismitoad",
         "moves": [
-          "Hyper Voice",
-          "Surf",
-          "Sludge Bomb",
-          "Hidden Power"
+          "Poison Jab",
+          "Earthquake",
+          "Drain Punch",
+          "Rock Slide"
         ],
         "ability": "Water Absorb",
-        "item": "Throat Spray",
-        "nature": "Timid",
+        "item": "Focus Sash",
+        "nature": "Jolly",
         "evs": {
-          "hp": 2,
-          "atk": 4,
+          "hp": 6,
+          "atk": 252,
           "def": 0,
-          "spa": 252,
+          "spa": 0,
           "spd": 0,
           "spe": 252
         }
@@ -36910,6 +36941,26 @@
           "spa": 84,
           "spd": 84,
           "spe": 86
+        }
+      },
+      "Swift Swim (Bulky Support) - ID 842": {
+        "species": "Seismitoad",
+        "moves": [
+          "Weather Ball",
+          "Earth Power",
+          "Focus Blast",
+          "Stealth Rock"
+        ],
+        "ability": "Swift Swim",
+        "item": "Wise Glasses",
+        "nature": "Modest",
+        "evs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 6,
+          "spe": 252
         }
       }
     },
@@ -37484,7 +37535,7 @@
       }
     },
     "Shiftry": {
-      "Pickpocket (Bulky Setup) - ID 206": {
+      "Chlorophyll (Bulky Setup) - ID 206": {
         "species": "Shiftry",
         "moves": [
           "Leaf Storm",
@@ -37492,7 +37543,7 @@
           "Heat Wave",
           "Nasty Plot"
         ],
-        "ability": "Pickpocket",
+        "ability": "Chlorophyll",
         "nature": "Timid",
         "evs": {
           "hp": 2,
@@ -37684,23 +37735,23 @@
       }
     },
     "Shuckle": {
-      "Contrary (Bulky Support) - ID 858": {
+      "Contrary (Bulky Support) - ID 891": {
         "species": "Shuckle",
         "moves": [
-          "Shell Smash",
-          "Stealth Rock",
           "Sticky Web",
-          "Gyro Ball"
+          "Stealth Rock",
+          "Final Gambit",
+          "Power Trick"
         ],
         "ability": "Contrary",
-        "item": "Sitrus Berry",
-        "nature": "Impish",
+        "item": "Lum Berry",
+        "nature": "Bold",
         "evs": {
-          "hp": 6,
+          "hp": 252,
           "atk": 0,
-          "def": 252,
+          "def": 56,
           "spa": 0,
-          "spd": 252,
+          "spd": 202,
           "spe": 0
         }
       },
@@ -37954,7 +38005,7 @@
           "spe": 252
         }
       },
-      "RKS System (Bulky Support) - ID 887": {
+      "Serene Grace (Bulky Support) - ID 309": {
         "species": "Silvally-Water",
         "moves": [
           "Surf",
@@ -37962,7 +38013,7 @@
           "Thunderbolt",
           "U-turn"
         ],
-        "ability": "RKS System",
+        "ability": "Serene Grace",
         "item": "Choice Specs",
         "nature": "Timid",
         "evs": {
@@ -37974,16 +38025,16 @@
           "spe": 252
         }
       },
-      "Serene Grace (Bulky Support) - ID 309": {
+      "RKS System (Bulky Support) - ID 887": {
         "species": "Silvally-Water",
         "moves": [
           "Surf",
-          "Flamethrower",
           "Thunderbolt",
+          "Flamethrower",
           "U-turn"
         ],
-        "ability": "Serene Grace",
-        "item": "Choice Specs",
+        "ability": "RKS System",
+        "item": "Water Memory",
         "nature": "Timid",
         "evs": {
           "hp": 0,
@@ -39654,7 +39705,27 @@
       }
     },
     "Spectrier": {
-      "Grim Neigh (Fast Attacker) - ID 902": {
+      "Grim Neigh (Fast Attacker) - ID 899": {
+        "species": "Spectrier",
+        "moves": [
+          "Shadow Ball",
+          "Psychic",
+          "Draining Kiss",
+          "Dark Pulse"
+        ],
+        "ability": "Grim Neigh",
+        "item": "Focus Sash",
+        "nature": "Modest",
+        "evs": {
+          "hp": 6,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
+        }
+      },
+      "Grim Neigh (Fast Attacker) - ID 1002": {
         "species": "Spectrier",
         "moves": [
           "Psychic",
@@ -39901,23 +39972,23 @@
       }
     },
     "Stakataka": {
-      "Beast Boost (Bulky Attacker) - ID 891": {
+      "Beast Boost (Bulky Attacker) - ID 892": {
         "species": "Stakataka",
         "moves": [
           "Trick Room",
-          "Body Press",
-          "Heat Crash",
-          "Rock Slide"
+          "Gyro Ball",
+          "Stone Edge",
+          "Heat Crash"
         ],
         "ability": "Beast Boost",
         "item": "Air Balloon",
-        "nature": "Adamant",
+        "nature": "Lonely",
         "evs": {
           "hp": 252,
-          "atk": 6,
+          "atk": 252,
           "def": 0,
           "spa": 0,
-          "spd": 252,
+          "spd": 6,
           "spe": 0
         }
       }
@@ -40425,23 +40496,23 @@
           "spe": 0
         }
       },
-      "Sheer Force (Bulky Attacker) - ID 862": {
+      "Sturdy (Bulky Attacker) - ID 861": {
         "species": "Steelix",
         "moves": [
-          "Crunch",
           "Earthquake",
           "Thunder Fang",
+          "Rock Climb",
           "Iron Head"
         ],
-        "ability": "Sheer Force",
-        "item": "Life Orb",
+        "ability": "Sturdy",
+        "item": "Weakness Policy",
         "nature": "Adamant",
         "evs": {
-          "hp": 252,
+          "hp": 6,
           "atk": 252,
           "def": 0,
           "spa": 0,
-          "spd": 6,
+          "spd": 252,
           "spe": 0
         }
       },
@@ -40493,7 +40564,7 @@
         "moves": [
           "Body Press",
           "Heat Crash",
-          "Rock Slide",
+          "Stone Edge",
           "Earthquake"
         ],
         "ability": "Quick Draw",
@@ -41636,12 +41707,12 @@
           "spe": 252
         }
       },
-      "Gale Wings (Fast Attacker) - ID 864": {
+      "Gale Wings (Bulky Support) - ID 864": {
         "species": "Talonflame",
         "moves": [
           "Acrobatics",
           "Flare Blitz",
-          "Tailwind",
+          "U-turn",
           "Steel Wing"
         ],
         "ability": "Gale Wings",
@@ -41675,6 +41746,26 @@
           "spe": 252
         }
       },
+      "Gale Wings (Fast Attacker) - ID 946": {
+        "species": "Talonflame",
+        "moves": [
+          "Acrobatics",
+          "Flare Blitz",
+          "Tailwind",
+          "Steel Wing"
+        ],
+        "ability": "Gale Wings",
+        "item": "Flying Gem",
+        "nature": "Adamant",
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 76,
+          "spa": 0,
+          "spd": 80,
+          "spe": 102
+        }
+      },
       "Gale Wings (Bulky Support) - ID 401": {
         "species": "Talonflame",
         "moves": [
@@ -41693,25 +41784,6 @@
           "spa": 0,
           "spd": 8,
           "spe": 252
-        }
-      },
-      "Gale Wings (Bulky Support) - ID 331": {
-        "species": "Talonflame",
-        "moves": [
-          "Flame Charge",
-          "Acrobatics",
-          "Tailwind",
-          "Me First"
-        ],
-        "ability": "Gale Wings",
-        "nature": "Quirky",
-        "evs": {
-          "hp": 84,
-          "atk": 88,
-          "def": 84,
-          "spa": 84,
-          "spd": 84,
-          "spe": 86
         }
       }
     },
@@ -42048,26 +42120,6 @@
           "spd": 6,
           "spe": 252
         }
-      },
-      "Intimidate (Fast Attacker) - ID 906": {
-        "species": "Tauros-Paldea-Combat",
-        "moves": [
-          "Earthquake",
-          "Wild Charge",
-          "Raging Bull",
-          "Iron Head"
-        ],
-        "ability": "Intimidate",
-        "item": "Weakness Policy",
-        "nature": "Adamant",
-        "evs": {
-          "hp": 0,
-          "atk": 252,
-          "def": 0,
-          "spa": 0,
-          "spd": 6,
-          "spe": 252
-        }
       }
     },
     "Tentacool": {
@@ -42190,17 +42242,17 @@
       }
     },
     "Terrakion": {
-      "Sharpness (Fast Attacker) - ID 903": {
+      "Solid Rock (Fast Attacker) - ID 891": {
         "species": "Terrakion",
         "moves": [
           "Earthquake",
           "Sacred Sword",
-          "Aerial Ace",
-          "Rock Slide"
+          "X-Scissor",
+          "Stone Edge"
         ],
-        "ability": "Sharpness",
-        "item": "Expert Belt",
-        "nature": "Adamant",
+        "ability": "Solid Rock",
+        "item": "Weakness Policy",
+        "nature": "Jolly",
         "evs": {
           "hp": 6,
           "atk": 252,
@@ -42303,15 +42355,15 @@
           "Hidden Power"
         ],
         "ability": "Volt Absorb",
-        "item": "Weakness Policy",
+        "item": "Focus Sash",
         "nature": "Timid",
         "evs": {
-          "hp": 128,
+          "hp": 6,
           "atk": 0,
-          "def": 202,
-          "spa": 0,
-          "spd": 52,
-          "spe": 128
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
         }
       }
     },
@@ -42420,7 +42472,7 @@
       }
     },
     "Tirtouga": {
-      "Solid Rock (Bulky Support) - ID 146": {
+      "Swift Swim (Bulky Support) - ID 146": {
         "species": "Tirtouga",
         "moves": [
           "Rock Slide",
@@ -42428,7 +42480,7 @@
           "Rain Dance",
           "Hydro Pump"
         ],
-        "ability": "Solid Rock",
+        "ability": "Swift Swim",
         "nature": "Hardy",
         "evs": {
           "hp": 84,
@@ -43136,6 +43188,26 @@
       "Punk Rock (Bulky Attacker) - ID 922": {
         "species": "Toxtricity",
         "moves": [
+          "Hyper Voice",
+          "Overdrive",
+          "Sludge Bomb",
+          "Snarl"
+        ],
+        "ability": "Punk Rock",
+        "item": "Throat Spray",
+        "nature": "Timid",
+        "evs": {
+          "hp": 6,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
+        }
+      },
+      "Punk Rock (Bulky Attacker) - ID 986": {
+        "species": "Toxtricity",
+        "moves": [
           "Boomburst",
           "Overdrive",
           "Sludge Bomb",
@@ -43521,24 +43593,24 @@
       }
     },
     "Turtonator": {
-      "Shell Armor (Bulky Attacker) - ID 865": {
+      "Shell Armor (Bulky Setup) - ID 865": {
         "species": "Turtonator",
         "moves": [
           "Dragon Pulse",
           "Scorching Sands",
-          "Fire Blast",
-          "Flash Cannon"
+          "Flamethrower",
+          "Shell Smash"
         ],
         "ability": "Shell Armor",
-        "item": "Assault Vest",
+        "item": "White Herb",
         "nature": "Modest",
         "evs": {
           "hp": 252,
           "atk": 0,
           "def": 0,
-          "spa": 252,
+          "spa": 0,
           "spd": 6,
-          "spe": 0
+          "spe": 252
         }
       },
       "Shell Armor (Bulky Support) - ID 162": {
@@ -43823,26 +43895,6 @@
       }
     },
     "Typhlosion-Hisui": {
-      "Cursed Body (Fast Attacker) - ID 900": {
-        "species": "Typhlosion-Hisui",
-        "moves": [
-          "Flamethrower",
-          "Shadow Ball",
-          "Scorching Sands",
-          "Thunderbolt"
-        ],
-        "ability": "Cursed Body",
-        "item": "Weakness Policy",
-        "nature": "Modest",
-        "evs": {
-          "hp": 6,
-          "atk": 0,
-          "def": 0,
-          "spa": 252,
-          "spd": 0,
-          "spe": 252
-        }
-      },
       "Flash Fire (Fast Attacker) - ID 873": {
         "species": "Typhlosion-Hisui",
         "moves": [
@@ -43884,41 +43936,21 @@
       }
     },
     "Tyranitar": {
-      "Sand Stream (Bulky Attacker) - ID 927": {
+      "Sand Stream (Bulky Setup) - ID 893": {
         "species": "Tyranitar",
         "moves": [
           "Earthquake",
-          "Brick Break",
-          "Crunch",
-          "Ice Punch"
+          "Rock Climb",
+          "Dragon Dance",
+          "Thunder Punch"
         ],
         "ability": "Sand Stream",
         "item": "Weakness Policy",
         "nature": "Jolly",
         "evs": {
-          "hp": 202,
-          "atk": 56,
-          "def": 0,
-          "spa": 0,
-          "spd": 0,
-          "spe": 252
-        }
-      },
-      "Sand Stream (Bulky Attacker) - ID 891": {
-        "species": "Tyranitar",
-        "moves": [
-          "Earthquake",
-          "Crunch",
-          "Thunder Punch",
-          "Rock Climb"
-        ],
-        "ability": "Sand Stream",
-        "item": "Weakness Policy",
-        "nature": "Adamant",
-        "evs": {
-          "hp": 56,
+          "hp": 252,
           "atk": 0,
-          "def": 202,
+          "def": 6,
           "spa": 0,
           "spd": 0,
           "spe": 252
@@ -43982,6 +44014,26 @@
           "spa": 0,
           "spd": 0,
           "spe": 6
+        }
+      },
+      "Sand Stream (Bulky Attacker) - ID 697": {
+        "species": "Tyranitar",
+        "moves": [
+          "Stone Edge",
+          "Crunch",
+          "Fire Punch",
+          "Thunder Punch"
+        ],
+        "ability": "Sand Stream",
+        "item": "Expert Belt",
+        "nature": "Bashful",
+        "evs": {
+          "hp": 226,
+          "atk": 32,
+          "def": 0,
+          "spa": 0,
+          "spd": 252,
+          "spe": 0
         }
       }
     },
@@ -44307,6 +44359,26 @@
           "spe": 0
         }
       },
+      "Guts (Bulky Attacker) - ID 861": {
+        "species": "Ursaluna",
+        "moves": [
+          "Earthquake",
+          "Hammer Arm",
+          "Drain Punch",
+          "Body Slam"
+        ],
+        "ability": "Guts",
+        "item": "Flame Orb",
+        "nature": "Adamant",
+        "evs": {
+          "hp": 252,
+          "atk": 6,
+          "def": 0,
+          "spa": 0,
+          "spd": 252,
+          "spe": 0
+        }
+      },
       "Guts (Bulky Attacker) - ID 958": {
         "species": "Ursaluna",
         "moves": [
@@ -44560,22 +44632,22 @@
       }
     },
     "Vanilluxe": {
-      "Snow Warning (Bulky Attacker) - ID 918": {
+      "Snow Warning (Bulky Attacker) - ID 916": {
         "species": "Vanilluxe",
         "moves": [
-          "Flash Cannon",
           "Blizzard",
-          "Hyper Voice",
+          "Aurora Veil",
+          "Water Pulse",
           "Hidden Power"
         ],
         "ability": "Snow Warning",
-        "item": "Focus Sash",
+        "item": "Weakness Policy",
         "nature": "Timid",
         "evs": {
-          "hp": 6,
+          "hp": 76,
           "atk": 0,
-          "def": 0,
-          "spa": 252,
+          "def": 182,
+          "spa": 0,
           "spd": 0,
           "spe": 252
         }
@@ -45303,24 +45375,24 @@
       }
     },
     "Vikavolt": {
-      "Levitate (Bulky Attacker) - ID 855": {
+      "Speed Boost (Bulky Attacker) - ID 855": {
         "species": "Vikavolt",
         "moves": [
           "Thunderbolt",
           "Bug Buzz",
-          "Thunder Wave",
+          "Protect",
           "Energy Ball"
         ],
-        "ability": "Levitate",
+        "ability": "Speed Boost",
         "item": "Charti Berry",
-        "nature": "Modest",
+        "nature": "Timid",
         "evs": {
-          "hp": 202,
+          "hp": 0,
           "atk": 0,
           "def": 0,
           "spa": 252,
-          "spd": 56,
-          "spe": 0
+          "spd": 60,
+          "spe": 198
         }
       },
       "Levitate (Bulky Setup) - ID 579": {
@@ -45562,6 +45634,26 @@
       }
     },
     "Volbeat": {
+      "Dazzling (Bulky Attacker) - ID 858": {
+        "species": "Volbeat",
+        "moves": [
+          "Thunderbolt",
+          "Bug Buzz",
+          "Water Pulse",
+          "Dazzling Gleam"
+        ],
+        "ability": "Dazzling",
+        "item": "Focus Sash",
+        "nature": "Modest",
+        "evs": {
+          "hp": 6,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
+        }
+      },
       "Prankster (Bulky Support) - ID 48": {
         "species": "Volbeat",
         "moves": [
@@ -45653,15 +45745,15 @@
           "Hidden Power"
         ],
         "ability": "Flame Body",
-        "item": "Life Orb",
+        "item": "Heavy-Duty Boots",
         "nature": "Timid",
         "evs": {
-          "hp": 202,
+          "hp": 0,
           "atk": 0,
           "def": 0,
-          "spa": 108,
-          "spd": 0,
-          "spe": 200
+          "spa": 252,
+          "spd": 6,
+          "spe": 252
         }
       },
       "Flame Body (Setup Sweeper) - ID 453": {
@@ -45892,21 +45984,21 @@
       "Slush Rush (Bulky Attacker) - ID 918": {
         "species": "Walrein",
         "moves": [
-          "Earthquake",
-          "Waterfall",
-          "Rock Slide",
-          "Blizzard"
+          "Super Fang",
+          "Brine",
+          "Ice Beam",
+          "Hidden Power"
         ],
         "ability": "Slush Rush",
         "item": "Weakness Policy",
-        "nature": "Adamant",
+        "nature": "Modest",
         "evs": {
-          "hp": 6,
+          "hp": 0,
           "atk": 0,
-          "def": 252,
-          "spa": 0,
-          "spd": 252,
-          "spe": 0
+          "def": 140,
+          "spa": 216,
+          "spd": 142,
+          "spe": 12
         }
       },
       "Ice Body (Bulky Attacker) - ID 984": {
@@ -46051,23 +46143,23 @@
       }
     },
     "Weavile": {
-      "Technician (Fast Attacker) - ID 917": {
+      "Pressure (Fast Attacker) - ID 916": {
         "species": "Weavile",
         "moves": [
           "Brick Break",
-          "Assurance",
-          "Icicle Spear",
-          "Fake Out"
+          "Icicle Crash",
+          "Fake Out",
+          "Throat Chop"
         ],
-        "ability": "Technician",
+        "ability": "Pressure",
         "item": "Focus Sash",
         "nature": "Adamant",
         "evs": {
-          "hp": 6,
+          "hp": 0,
           "atk": 252,
           "def": 0,
           "spa": 0,
-          "spd": 0,
+          "spd": 6,
           "spe": 252
         }
       },
@@ -46131,23 +46223,23 @@
           "spe": 252
         }
       },
-      "Technician (Bulky Support) - ID 308": {
+      "Technician (Bulky Support) - ID 887": {
         "species": "Weavile",
         "moves": [
-          "Knock Off",
-          "Ice Shard",
           "Aerial Ace",
-          "Icicle Spear"
+          "Icicle Spear",
+          "Ice Shard",
+          "Knock Off"
         ],
         "ability": "Technician",
         "item": "Loaded Dice",
         "nature": "Jolly",
         "evs": {
-          "hp": 0,
+          "hp": 6,
           "atk": 252,
           "def": 0,
           "spa": 0,
-          "spd": 6,
+          "spd": 0,
           "spe": 252
         }
       }
@@ -46416,19 +46508,19 @@
         "moves": [
           "Earthquake",
           "Dragon Dance",
-          "Liquidation",
-          "Rock Slide"
+          "Aqua Tail",
+          "Zen Headbutt"
         ],
         "ability": "Simple",
-        "item": "Rindo Berry",
+        "item": "Focus Sash",
         "nature": "Jolly",
         "evs": {
-          "hp": 252,
+          "hp": 6,
           "atk": 252,
           "def": 0,
           "spa": 0,
           "spd": 0,
-          "spe": 6
+          "spe": 252
         }
       },
       "Oblivious (Bulky Attacker) - ID 128": {
@@ -47283,26 +47375,6 @@
           "spe": 252
         }
       },
-      "Speed Boost (Fast Attacker) - ID 858": {
-        "species": "Yanmega",
-        "moves": [
-          "Bug Buzz",
-          "Air Slash",
-          "Ancient Power",
-          "Giga Drain"
-        ],
-        "ability": "Speed Boost",
-        "item": "Assault Vest",
-        "nature": "Modest",
-        "evs": {
-          "hp": 6,
-          "atk": 0,
-          "def": 0,
-          "spa": 252,
-          "spd": 0,
-          "spe": 252
-        }
-      },
       "Speed Boost (Fast Attacker) - ID 185": {
         "species": "Yanmega",
         "moves": [
@@ -47375,6 +47447,28 @@
         ],
         "ability": "Intrepid Sword",
         "item": "Rusted Sword",
+        "nature": "Adamant",
+        "evs": {
+          "hp": 158,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 100
+        }
+      }
+    },
+    "Zamazenta": {
+      "Dauntless Shield (Fast Attacker) - ID 903": {
+        "species": "Zamazenta",
+        "moves": [
+          "Iron Head",
+          "Play Rough",
+          "Stone Edge",
+          "Close Combat"
+        ],
+        "ability": "Dauntless Shield",
+        "item": "White Herb",
         "nature": "Adamant",
         "evs": {
           "hp": 158,
@@ -47509,16 +47603,16 @@
       }
     },
     "Zapdos-Galar": {
-      "Defiant (Setup Sweeper) - ID 904": {
+      "Defiant (Fast Attacker) - ID 903": {
         "species": "Zapdos-Galar",
         "moves": [
           "Drill Peck",
           "Thunderous Kick",
           "Stomping Tantrum",
-          "Trailblaze"
+          "Throat Chop"
         ],
         "ability": "Defiant",
-        "item": "Expert Belt",
+        "item": "Weakness Policy",
         "nature": "Jolly",
         "evs": {
           "hp": 6,
@@ -47592,6 +47686,25 @@
           "spe": 252
         }
       },
+      "Reckless (Setup Sweeper) - ID 258": {
+        "species": "Zebstrika",
+        "moves": [
+          "Discharge",
+          "Agility",
+          "Wild Charge",
+          "Thrash"
+        ],
+        "ability": "Reckless",
+        "nature": "Hardy",
+        "evs": {
+          "hp": 84,
+          "atk": 88,
+          "def": 84,
+          "spa": 84,
+          "spd": 84,
+          "spe": 86
+        }
+      },
       "Sap Sipper (Fast Attacker) - ID 781": {
         "species": "Zebstrika",
         "moves": [
@@ -47634,6 +47747,26 @@
       }
     },
     "Zeraora": {
+      "Volt Absorb (Fast Attacker) - ID 920": {
+        "species": "Zeraora",
+        "moves": [
+          "Plasma Fists",
+          "Drain Punch",
+          "Play Rough",
+          "Fire Punch"
+        ],
+        "ability": "Volt Absorb",
+        "item": "Air Balloon",
+        "nature": "Adamant",
+        "evs": {
+          "hp": 202,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 56
+        }
+      },
       "Volt Absorb (Fast Attacker) - ID 919": {
         "species": "Zeraora",
         "moves": [
@@ -47652,6 +47785,26 @@
           "spa": 0,
           "spd": 0,
           "spe": 6
+        }
+      },
+      "Volt Absorb (Fast Attacker) - ID 921": {
+        "species": "Zeraora",
+        "moves": [
+          "Plasma Fists",
+          "Drain Punch",
+          "Play Rough",
+          "Fire Punch"
+        ],
+        "ability": "Volt Absorb",
+        "item": "Focus Sash",
+        "nature": "Adamant",
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 6,
+          "spe": 252
         }
       }
     },
@@ -47718,6 +47871,26 @@
           "spe": 252
         }
       },
+      "Illusion (Fast Attacker) - ID 899": {
+        "species": "Zoroark-Hisui",
+        "moves": [
+          "Flamethrower",
+          "Hyper Voice",
+          "Shadow Ball",
+          "Hidden Power"
+        ],
+        "ability": "Illusion",
+        "item": "Focus Sash",
+        "nature": "Modest",
+        "evs": {
+          "hp": 6,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
+        }
+      },
       "Illusion (Bulky Support) - ID 485": {
         "species": "Zoroark-Hisui",
         "moves": [
@@ -47765,26 +47938,6 @@
           "Sludge Bomb",
           "U-turn",
           "Trick"
-        ],
-        "ability": "Illusion",
-        "item": "Choice Specs",
-        "nature": "Timid",
-        "evs": {
-          "hp": 0,
-          "atk": 0,
-          "def": 0,
-          "spa": 252,
-          "spd": 6,
-          "spe": 252
-        }
-      },
-      "Illusion (Bulky Support) - ID 874": {
-        "species": "Zoroark-Hisui",
-        "moves": [
-          "Shadow Ball",
-          "Grass Knot",
-          "Flamethrower",
-          "U-turn"
         ],
         "ability": "Illusion",
         "item": "Choice Specs",
@@ -47921,22 +48074,22 @@
       }
     },
     "Zygarde": {
-      "Aura Break (Fast Attacker) - ID 928": {
+      "Power Construct (Fast Attacker) - ID 927": {
         "species": "Zygarde",
         "moves": [
-          "Core Enforcer",
-          "Earth Power",
-          "Sludge Wave",
-          "Shock Wave"
+          "Thousand Arrows",
+          "Stone Edge",
+          "Brick Break",
+          "Outrage"
         ],
-        "ability": "Aura Break",
-        "item": "Assault Vest",
-        "nature": "Timid",
+        "ability": "Power Construct",
+        "item": "Focus Sash",
+        "nature": "Jolly",
         "evs": {
           "hp": 6,
-          "atk": 0,
+          "atk": 252,
           "def": 0,
-          "spa": 252,
+          "spa": 0,
           "spd": 0,
           "spe": 252
         }
