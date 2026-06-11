@@ -730,7 +730,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					<div class="menugroup">
 						<p><a class="mainmenu2 mainmenu button" href="teambuilder">Teambuilder</a></p>
 						<p><a class={"mainmenu3 mainmenu" + onlineButton} href="ladder">Ladder</a></p>
-						<p><a class="mainmenu4 mainmenu button" href="stats.html" style="pointer-events: none; opacity: 0.5; cursor: not-allowed;">Stats</a></p>
+						<p><a class="mainmenu4 mainmenu button" href="battlestats">Stats</a></p>
 						<p><a class="mainmenu5 mainmenu button" href="https://calc.relumishowdown.dpdns.org/" target="_blank" rel="noopener noreferrer">Damage Calc</a></p>
 					</div>
 
