@@ -816,12 +816,20 @@ export const Dex = new class implements ModdedDex {
 				dir = animDir + 'ani' + dir;
 				spriteData.w = animationData[facing].w;
 				spriteData.h = animationData[facing].h;
-				// Custom sprites in sprites/ani/ are 2x resolution.
-				// The scene coordinate system stays the same regardless of big picture mode;
-				// big picture's CSS transform: scale(2) handles the 2x display scaling.
-				if (animDir === '' && !Dex.prefs('useupstreamsprites')) {
-					spriteData.w = Math.floor(spriteData.w / 2);
-					spriteData.h = Math.floor(spriteData.h / 2);
+				if (animDir === '') {
+					if (Dex.prefs('useupstreamsprites')) {
+						// Restore original 1x dimensions when using upstream sprites,
+						// since relumi-overrides patches BattlePokemonSprites to 2x for local GIFs.
+						const origDims = (window as any).__originalBattlePokemonSpriteDims?.[speciesid]?.[facing];
+						if (origDims) {
+							spriteData.w = origDims.w;
+							spriteData.h = origDims.h;
+						}
+					} else {
+						// Custom sprites in sprites/ani/ are 2x resolution.
+						spriteData.w = Math.floor(spriteData.w / 2);
+						spriteData.h = Math.floor(spriteData.h / 2);
+					}
 				}
 				spriteData.url += dir + '/' + name + '.gif';
 				animatedSprite = true;
