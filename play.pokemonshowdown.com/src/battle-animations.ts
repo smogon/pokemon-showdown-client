@@ -613,8 +613,8 @@ export class BattleScene implements BattleSceneStub {
 			else if (gen <= 5) bg = `fx/${BattleBackdropsFive[this.numericId % BattleBackdropsFive.length]}`;
 			else if (isRelumi) {
 				const relumiBg = BattleBackdropsRelumi[this.numericId % BattleBackdropsRelumi.length];
-				// gen5-style .png backgrounds are in the fx/ folder
-				bg = relumiBg.includes('.png') ? `fx/${relumiBg}` : relumiBg;
+				// .png backgrounds are gen5-style (in fx/), .jpg are gen6-style (in sprites/gen6bgs/)
+				bg = relumiBg.includes('.png') ? `fx/${relumiBg}` : `sprites/gen6bgs/${relumiBg}`;
 			} else bg = `sprites/gen6bgs/${BattleBackdrops[this.numericId % BattleBackdrops.length]}`;
 		}
 
