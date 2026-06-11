@@ -1199,9 +1199,10 @@ export class BattleTextParser {
 			return template.replace('[POKEMON]', this.pokemon(pokemon));
 		}
 
-		case '-zbroken': {
+		case '-zbroken':
+		case '-brokeprotect': {
 			const [, pokemon] = args;
-			const template = this.template('zBroken');
+			const template = this.template('brokeProtect');
 			return template.replace('[POKEMON]', this.pokemon(pokemon));
 		}
 
