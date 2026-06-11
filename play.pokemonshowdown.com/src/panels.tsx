@@ -853,6 +853,16 @@ export class PSView extends preact.Component {
 			if (room === PS.panel) return {};
 		} else {
 			// both panels visible
+			// Big Picture Mode: right panel overlays battle chat when viewport is too narrow
+			// to comfortably fit the 2x scaled battle canvas (1280px) + right panel side-by-side.
+			// Threshold ~2000px separates 1080p (~1920px → overlay) from 1440p+ (~2560px → push).
+			if (PS.prefs.bigpicture && PS.leftPanel?.type === 'battle' && document.body.offsetWidth < 2000) {
+				// 1280 = battle canvas 640 (panel-battle.tsx) * 2 (big picture scale)
+				if (room === PS.leftPanel) return {};
+				if (room === PS.rightPanel) return {
+					top: 56, left: '1280px', right: 0, zIndex: 10,
+				};
+			}
 			if (room === PS.leftPanel) return { width: `${PS.leftPanelWidth}px`, right: 'auto' };
 			if (room === PS.rightPanel) return { top: 56, left: PS.leftPanelWidth + 1 };
 		}

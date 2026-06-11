@@ -382,7 +382,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		}
 		battle.subscribe(() => this.forceUpdate());
 	}
-	battleHeight = 360;
+	battleHeight = 360; // battle canvas height (see battle.css .battle)
 	updateLayout() {
 		if (!this.base) return;
 		const room = this.props.room;
@@ -391,15 +391,15 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const scale = (width / 640);
 			room.battle?.scene.$frame!.css('transform', `scale(${scale})`);
 			this.battleHeight = Math.round(360 * scale);
-		} else if (PS.prefs.bigpicture && width >= 700) {
+		} else if (PS.prefs.bigpicture && width >= 700) { // min width for big picture mode
 			// Big Picture Mode: scale battle 2x for clean pixel-art rendering
 			room.battle?.scene.$frame!.css('transform', 'scale(2)');
 			room.battle?.scene.$frame!.css('image-rendering', 'pixelated');
-			this.battleHeight = 720;
+			this.battleHeight = 720; // 360 * 2
 		} else {
 			room.battle?.scene.$frame!.css('transform', 'none');
 			room.battle?.scene.$frame!.css('image-rendering', '');
-			this.battleHeight = 360;
+			this.battleHeight = 360; // battle canvas height
 		}
 	}
 	fastForwardIfRejoining() {
@@ -1135,8 +1135,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		// Big Picture Mode: adjust chat panel offset and controls position when battle is scaled up
 		const bp = PS.prefs.bigpicture;
-		const chatLeft = bp ? 1280 : 640;
-		const controlsTop = bp ? 740 : 370;
+		const chatLeft = bp ? 1280 : 640; // 640 * 2 vs base canvas width
+		const controlsTop = bp ? 740 : 370; // 720 + 20 vs 360 + 10
 		const showTimer = room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid;
 		return <PSPanelWrapper room={room} focusClick noScroll="hidden">
 			{hardcoreStyle}
