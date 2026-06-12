@@ -776,6 +776,78 @@ export class TeamEditorState extends PSModel {
 		}
 		return counters;
 	}
+	/**
+	 * Offensive coverage for a single set: which defending types can this
+	 * Pokémon hit super-effectively (with STAB or non-STAB), and which
+	 * types can it at least hit for neutral damage.
+	 */
+	pokemonOffensiveCoverage(set: Dex.PokemonSet) {
+		const species = this.dex.species.get(set.species);
+		const pokemonTypes = species.types;
+		const seTypes: Record<Dex.TypeName, boolean> = {} as any;
+		const stabTypes: Record<Dex.TypeName, boolean> = {} as any;
+		const neutralTypes: Record<Dex.TypeName, boolean> = {} as any;
+
+		// Collect unique damaging move types (skip status moves and empty slots).
+		const moveTypes: Record<Dex.TypeName, boolean> = {} as any;
+		for (const moveName of set.moves) {
+			if (!moveName) continue;
+			const move = this.dex.moves.get(moveName);
+			if (move.category === 'Status') continue;
+			moveTypes[move.type] = true;
+		}
+
+		// For each move type, check offensive effectiveness against all defending types.
+		for (const moveType of Object.keys(moveTypes) as Dex.TypeName[]) {
+			const isStab = pokemonTypes.includes(moveType);
+			for (const defType of this.dex.types.names()) {
+				const multiplier = this.getTypeWeakness(defType, moveType);
+				if (multiplier > 1) {
+					seTypes[defType] = true;
+					if (isStab) stabTypes[defType] = true;
+				} else if (multiplier === 1) {
+					neutralTypes[defType] = true;
+				}
+			}
+		}
+
+		return { seTypes, stabTypes, neutralTypes };
+	}
+	/**
+	 * Team-wide offensive coverage: for each defending type, count how many
+	 * Pokémon can hit it super-effectively (with STAB badge), hit for
+	 * neutral, or can't hit at all (all damaging moves are resisted/immune).
+	 */
+	teamOffensiveCoverage() {
+		type OffCounter = { type: Dex.TypeName, se: number, stab: number, neutral: number, blanked: number };
+		const counters: Record<Dex.TypeName, OffCounter> = {} as any;
+		for (const type of this.dex.types.names()) {
+			counters[type] = { type, se: 0, stab: 0, neutral: 0, blanked: 0 };
+		}
+		for (const set of this.sets) {
+			const cov = this.pokemonOffensiveCoverage(set);
+			// If a Pokémon has no damaging moves, it blanks all types.
+			const hasSE = Object.keys(cov.seTypes).length > 0;
+			const hasNeutral = Object.keys(cov.neutralTypes).length > 0;
+			if (!hasSE && !hasNeutral) {
+				for (const type of this.dex.types.names()) {
+					counters[type].blanked++;
+				}
+				continue;
+			}
+			for (const type of this.dex.types.names()) {
+				if (cov.seTypes[type]) {
+					counters[type].se++;
+					if (cov.stabTypes[type]) counters[type].stab++;
+				} else if (cov.neutralTypes[type]) {
+					counters[type].neutral++;
+				} else {
+					counters[type].blanked++;
+				}
+			}
+		}
+		return counters;
+	}
 	getDefaultAbility(set: Dex.PokemonSet) {
 		if (this.gen < 3 || this.isLetsGo || this.formeLegality === 'custom') return set.ability;
 		const species = this.dex.species.get(set.species);
@@ -973,6 +1045,46 @@ export class TeamEditor extends preact.Component<{
 			<table class="table">{bad}{medium}{good}</table>
 		</details>;
 	}
+	renderOffensiveCoverage() {
+		const { editor } = this;
+		if (editor.team.isBox) return null;
+		if (!editor.sets.length) return null;
+
+		const counters = Object.values(editor.teamOffensiveCoverage());
+		PSUtils.sortBy(counters, counter => [counter.se, -counter.blanked]);
+		const good = [] as preact.ComponentChildren[], medium = [] as preact.ComponentChildren[], bad = [] as preact.ComponentChildren[];
+		const renderTypeOffensive = (counter: typeof counters[number]) => (
+			<tr>
+				<th>{counter.type}</th>
+				<td>
+					{counter.se}
+					{counter.stab > 0 && <small class="gray"> (+{counter.stab} STAB)</small>}
+					<small class="gray"> SE</small>
+				</td>
+				<td>{counter.neutral} <small class="gray">neutral</small></td>
+				<td>{counter.blanked} <small class="gray">blank</small></td>
+			</tr>
+		);
+		for (const counter of counters) {
+			if (counter.se > 0) {
+				good.push(renderTypeOffensive(counter));
+			} else if (counter.blanked <= 0) {
+				medium.push(renderTypeOffensive(counter));
+			} else {
+				bad.push(renderTypeOffensive(counter));
+			}
+		}
+		return <details class="details">
+			<summary>
+				<strong>Offensive coverage</strong>
+				<table class="details-preview table">
+					{bad}
+					<tr><td colSpan={4}><span class="details-preview ilink"><small>See all</small></span></td></tr>
+				</table>
+			</summary>
+			<table class="table">{bad}{medium}{good}</table>
+		</details>;
+	}
 	cancelClipboard = () => {
 		TeamEditorState.clipboard = null;
 		this.forceUpdate();
@@ -1015,6 +1127,7 @@ export class TeamEditor extends preact.Component<{
 				<div class="team-resources">
 					<br /><hr /><br />
 					{this.renderDefensiveCoverage()}
+					{this.renderOffensiveCoverage()}
 					{this.props.resources}
 				</div>
 			</>}
