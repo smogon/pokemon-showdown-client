@@ -836,7 +836,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 
 interface PSGroup {
 	name?: string;
-	type?: 'leadership' | 'staff' | 'punishment';
+	type?: 'leadership' | 'staff' | 'punishment' | 'normal';
 	order: number;
 }
 
@@ -2210,6 +2210,25 @@ export const PS = new class extends PSModel {
 					}
 				}
 				this.update();
+				continue;
+			} case 'customgroups': {
+				// Parse server-rank group configuration sent during /reconnect
+				try {
+					const rankList: { symbol: string; name?: string | null; type?: string | null }[] = JSON.parse(args[1]);
+					for (const rank of rankList) {
+						const existing = PS.server.groups[rank.symbol];
+						if (existing) {
+							if (rank.name) existing.name = rank.name;
+							if (rank.type) existing.type = rank.type as 'leadership' | 'staff' | 'punishment' | 'normal';
+						} else if (rank.name) {
+							PS.server.groups[rank.symbol] = {
+								name: rank.name,
+								type: (rank.type as 'leadership' | 'staff' | 'punishment' | 'normal') || undefined,
+								order: 108, // default order between driver and bot
+							};
+						}
+					}
+				} catch {}
 				continue;
 			} case 'nametaken': {
 				PS.join('login' as RoomID, { args: { error: `Someone is already using the name ${args[1]}.` } });

@@ -45,6 +45,8 @@ export class LadderFormatRoom extends PSRoom {
 	loading = false;
 	error?: string;
 	ladderData?: LadderData;
+	// Local ladder returns HTML instead of JSON; stored here for direct rendering
+	ladderHTML: string | null = null;
 
 	constructor(options: any) {
 		super(options);
@@ -77,8 +79,12 @@ export class LadderFormatRoom extends PSRoom {
 		if (!this.format) return;
 		this.searchValue = searchValue;
 		this.loading = true;
+		this.error = undefined;
+		this.ladderData = undefined;
+		this.ladderHTML = null;
 		if (PS.teams.usesLocalLadder) {
-			this.send(`/cmd laddertop ${this.format} ${toID(this.searchValue)}`);
+			// Use sendDirect to bypass the client-side /cmd filter which blocks system commands
+			this.sendDirect(`/cmd laddertop ${this.format} ${toID(this.searchValue)}`);
 		} else if (this.format !== undefined) {
 			Net(`//pokemonshowdown.com/ladder/${this.format}.json`)
 				.get({
@@ -107,8 +113,13 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 				if (response) {
 					const [format, ladderData] = response;
 					if (room.format === format) {
+						room.loading = false;
 						if (!ladderData) {
 							room.setError(new Error('No data returned from server.'));
+						} else if (PS.teams.usesLocalLadder) {
+							// Local ladder returns HTML markup, not JSON
+							room.ladderHTML = ladderData;
+							room.ladderData = undefined;
 						} else {
 							room.setLadderData(ladderData);
 						}
@@ -155,10 +166,14 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 	renderTable() {
 		const room = this.props.room;
 
+		// Loading state checked first so stale HTML/data isn't shown during re-fetch
 		if (room.loading || !BattleFormats) {
 			return <p><i class="fa fa-refresh fa-spin" aria-hidden></i> <em>Loading...</em></p>;
 		} else if (room.error !== undefined) {
 			return <p>Error: {room.error}</p>;
+		} else if (room.ladderHTML !== null) {
+			// Local ladder returns server-rendered HTML; render it directly (no JSON parsing)
+			return <div dangerouslySetInnerHTML={{ __html: room.ladderHTML }}></div>;
 		} else if (!room.ladderData) {
 			return null;
 		}
