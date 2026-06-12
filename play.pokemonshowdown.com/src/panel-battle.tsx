@@ -1145,6 +1145,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				#${id} .controls > .whatdo { flex: 0 0 100%; }
 				#${id} .controls > .movecontrols,
 				#${id} .controls > .switchcontrols { flex: 1; min-width: 200px; }
+				/* Big Picture Mode: override pixelated rendering for photographic JPG backgrounds
+					so they interpolate smoothly instead of showing nearest-neighbor artifacts */
+				#${id} .backdrop { image-rendering: auto !important; }
 			`}</style>}
 			<BattleDiv room={room} />
 			<ChatLog

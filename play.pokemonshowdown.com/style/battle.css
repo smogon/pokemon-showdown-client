@@ -29,6 +29,7 @@ License: GPLv2
 	top: -90px;
 	left: -50px;
 	background: transparent url(../fx/bg-beach.png) no-repeat scroll left top;
+	background-size: cover;
 	opacity: 0.8;
 }
 .battle a {
