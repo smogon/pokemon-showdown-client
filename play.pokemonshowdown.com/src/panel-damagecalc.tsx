@@ -31,12 +31,13 @@ class DamageCalcPanel extends PSRoomPanel<DamageCalcRoom> {
 	override render() {
 		return <PSPanelWrapper room={this.props.room} noScroll>
 			<div style="display:flex;flex-direction:column;height:100%">
-				<div class="pad" style="flex-shrink:0;display:flex;align-items:center;gap:8px">
-					<strong>Damage Calculator</strong>
-					<button class="button" onClick={this.openFullSite} style="margin-left:auto">
-						<i class="fa fa-external-link" aria-hidden></i> Open full site
-					</button>
-				</div>
+		<div class="pad" style="flex-shrink:0;display:flex;align-items:center;gap:8px">
+			<strong>Damage Calculator</strong>
+			<small><em>Tip: Export your current team in battle chat using <code>/showteam</code></em></small>
+			<button class="button" onClick={this.openFullSite} style="margin-left:auto">
+				<i class="fa fa-external-link" aria-hidden></i> Open full site
+			</button>
+		</div>
 				<iframe
 					src={FULL_CALC_URL}
 					style="flex:1;width:100%;border:none;min-height:0"
