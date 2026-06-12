@@ -50,6 +50,7 @@ interface StatsState {
 	sortAsc: boolean;
 	expandedSpecies: string | null;
 	searchQuery: string;
+	showPersonal: boolean;
 }
 
 // ---- Panel ----
@@ -73,6 +74,7 @@ class StatsPanel extends PSRoomPanel<StatsRoom> {
 		sortAsc: false,
 		expandedSpecies: null,
 		searchQuery: '',
+		showPersonal: false,
 	};
 
 	override componentDidMount() {
@@ -83,8 +85,12 @@ class StatsPanel extends PSRoomPanel<StatsRoom> {
 	fetchData = async () => {
 		this.setState({ loading: true, error: null, searchQuery: '' });
 		try {
-			const { format, range } = this.state;
-			const url = `${API_URL}?format=${encodeURIComponent(format)}&range=${encodeURIComponent(range)}`;
+			const { format, range, showPersonal } = this.state;
+			let url = `${API_URL}?format=${encodeURIComponent(format)}&range=${encodeURIComponent(range)}`;
+			// Append user filter when personal stats toggle is on
+			if (showPersonal && PS.user.userid) {
+				url += `&user=${encodeURIComponent(PS.user.userid)}`;
+			}
 			const res = await fetch(url);
 			if (!res.ok) {
 				// Try to parse error body for more detail
@@ -158,6 +164,17 @@ class StatsPanel extends PSRoomPanel<StatsRoom> {
 			<button class="button" onClick={this.fetchData}>
 				<i class="fa fa-refresh"></i> Refresh
 			</button>
+			{' '}
+			{' '}
+			<label class="checkbox" style="display:inline-block;vertical-align:middle;margin-left:4px">
+				<input
+					type="checkbox"
+					checked={this.state.showPersonal}
+					onChange={(ev: Event) => {
+						this.setState({ showPersonal: (ev.target as HTMLInputElement).checked }, this.fetchData);
+					}}
+				/> My stats only
+			</label>
 			{' '}
 			<input
 				class="textbox stats-search"
@@ -423,6 +440,24 @@ class StatsPanel extends PSRoomPanel<StatsRoom> {
 			</ul>;
 		};
 
+		// Helper: render counters list
+		const renderCounters = (counters: any[]) => {
+			if (!counters || !counters.length) return <p class="stats-empty">Not enough data</p>;
+			return <ul class="stats-detail-list">
+				{counters.map((c: any) => (
+					<li class="stats-detail-item" key={c.species}>
+						<span class="stats-detail-label">
+							<PSIcon pokemon={c.species} />
+							{c.species}
+						</span>
+						<span class="stats-detail-pct" title={`${c.encounters} encounters`}>
+							{c.lossRate.toFixed(0)}% loss
+						</span>
+					</li>
+				))}
+			</ul>;
+		};
+
 		return <tr class="stats-expanded-row" key={`${p.species}-detail`}>
 			<td colSpan={9} class="stats-expanded-cell">
 				<div class="stats-detail-grid">
@@ -437,6 +472,10 @@ class StatsPanel extends PSRoomPanel<StatsRoom> {
 					<div class="stats-detail-col">
 						<h5>Moves</h5>
 						{renderSimpleList(p.moves, false)}
+					</div>
+					<div class="stats-detail-col">
+						<h5>Counters</h5>
+						{renderCounters(p.counters)}
 					</div>
 				</div>
 			</td>

@@ -495,7 +495,7 @@ export class PSView extends preact.Component {
 					let roomid = PS.router.extractRoomID(href);
 
 					// keep this in sync with .htaccess
-					const shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|forgotpassword|bugs?(reports?)?|formatsuggestions|rules?|faq|credits?|privacy|contact|dex|(damage)?calc|insecure|replays?|devdiscord|smogdex|smogcord|forums?|trustworthy-dlc-link)$/;
+					const shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|forgotpassword|bugs?(reports?)?|formatsuggestions|rules?|faq|credits?|privacy|contact|dex|insecure|replays?|devdiscord|smogdex|smogcord|forums?|trustworthy-dlc-link)$/;
 					if (roomid === 'appeal' || roomid === 'appeals') roomid = 'view-help-request--appeal' as RoomID;
 					if (roomid === 'report') roomid = 'view-help-request--report' as RoomID;
 					if (roomid === 'requesthelp') roomid = 'view-help-request--other' as RoomID;

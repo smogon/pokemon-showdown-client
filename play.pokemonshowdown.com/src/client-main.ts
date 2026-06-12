@@ -2058,6 +2058,12 @@ export const PS = new class extends PSModel {
 				width: 956,
 				maxWidth: 1180,
 			};
+		case 'damagecalc':
+			return {
+				minWidth: 660,
+				width: 1000,
+				maxWidth: 1400,
+			};
 		}
 		return {
 			minWidth: 640,
