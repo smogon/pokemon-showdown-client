@@ -42,7 +42,7 @@ class DamageCalcPanel extends PSRoomPanel<DamageCalcRoom> {
 					src={FULL_CALC_URL}
 					style="flex:1;width:100%;border:none;min-height:0"
 					title="Damage Calculator"
-					sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+					sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
 				/>
 			</div>
 		</PSPanelWrapper>;
