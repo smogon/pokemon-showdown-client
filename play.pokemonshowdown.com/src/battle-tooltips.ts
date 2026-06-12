@@ -1079,6 +1079,8 @@ export class BattleTooltips {
 	) {
 		const pokemon = clientPokemon || serverPokemon!;
 		const showExtraOpponentInfo = this.shouldShowExtraOpponentInfo(clientPokemon);
+		// Whether to show own-Pokémon extra info in the tooltip.
+		const showExtraOwnInfo = !showExtraOpponentInfo && this.shouldShowExtraOwnInfo(clientPokemon, serverPokemon);
 		const species = clientPokemon?.getSpecies(serverPokemon || undefined) ||
 			this.battle.dex.species.get(pokemon.speciesForme);
 		let text = '';
@@ -1096,7 +1098,7 @@ export class BattleTooltips {
 
 		let levelBuf = (pokemon.level !== 100 ? ` <small>L${pokemon.level}</small>` : ``);
 		const dimensionsBuf =
-			showExtraOpponentInfo && species.exists
+			(showExtraOpponentInfo || showExtraOwnInfo) && species.exists
 				? ` <small>${species.heightm.toFixed(2)}m ${species.weightkg}kg</small>`
 				: "";
 		if (!illusionIndex || illusionIndex === 1) {
@@ -1131,12 +1133,20 @@ export class BattleTooltips {
 			text += `<p class="tooltip-section"><strong>Possible Illusion #${illusionIndex}</strong>${levelBuf}</p>`;
 		}
 
-		if (showExtraOpponentInfo) {
+		if (showExtraOpponentInfo || showExtraOwnInfo) {
+			// Determine the effective ability for factoring into the type summary.
+			let abilityId: ID = '' as ID;
+			if (clientPokemon) {
+				const eff = clientPokemon.effectiveAbility(serverPokemon || undefined);
+				if (eff) abilityId = toID(eff);
+			} else if (serverPokemon) {
+				abilityId = toID(serverPokemon.ability || serverPokemon.baseAbility);
+			}
 			const types: readonly Dex.TypeName[] = serverPokemon?.terastallized
 				? [serverPokemon.teraType as Dex.TypeName]
 				: this.getPokemonTypes(pokemon);
-			text += this.renderTypeEffectiveness(types);
-			if (species.exists) {
+			text += this.renderTypeEffectiveness(types, abilityId);
+			if (showExtraOpponentInfo && species.exists) {
 				const speciesId = toID(species.id || species.name);
 				const stats = species.baseStats;
 				const statBuf =
@@ -1267,7 +1277,7 @@ export class BattleTooltips {
 					}
 				}
 				text += `${moveName}`;
-				if (showExtraOpponentInfo && usedMove) {
+				if (showExtraOwnInfo || (showExtraOpponentInfo && usedMove)) {
 					text += this.renderMoveExtraInfo(move);
 				}
 				text += `<br />`;
@@ -1279,7 +1289,7 @@ export class BattleTooltips {
 			for (const [moveName] of clientPokemon.moveTrack) {
 				const move = this.battle.dex.moves.get(moveName);
 				text += `&#8226; ${move.name}`;
-				if (showExtraOpponentInfo) {
+				if (showExtraOpponentInfo || showExtraOwnInfo) {
 					text += this.renderMoveExtraInfo(move);
 				}
 				text += `<br />`;
@@ -1290,7 +1300,7 @@ export class BattleTooltips {
 			text += `<p class="tooltip-section">`;
 			for (const row of clientPokemon.moveTrack) {
 				text += `${this.getPPUseText(row)}`;
-				if (showExtraOpponentInfo) {
+				if (showExtraOpponentInfo || showExtraOwnInfo) {
 					const moveName = row[0].startsWith("*") ? row[0].slice(1) : row[0];
 					const move = this.battle.dex.moves.get(moveName);
 					text += this.renderMoveExtraInfo(move);
@@ -1322,6 +1332,17 @@ export class BattleTooltips {
 		return clientPokemon.side !== this.battle.mySide;
 	}
 
+	// Whether to show type effectiveness summary for the user's own Pokémon.
+	private shouldShowExtraOwnInfo(clientPokemon: Pokemon | null, serverPokemon?: ServerPokemon | null) {
+		if (!clientPokemon && !serverPokemon) return false;
+		if (Dex.prefs("extraowninfo") === false) return false;
+		if (!this.battle.mySide) return false;
+		// Only show for own side Pokémon (including ally in multi battles).
+		if (clientPokemon) return clientPokemon.side === this.battle.mySide || clientPokemon.side === this.battle.mySide.ally;
+		// For switch-ins with only serverPokemon: they're always yours.
+		return true;
+	}
+
 	private shouldShowRelumiOwnSetInfo(clientPokemon: Pokemon | null, serverPokemon?: ServerPokemon | null) {
 		if (!serverPokemon) return false;
 		if (!this.battle.mySide) return false;
@@ -1343,17 +1364,23 @@ export class BattleTooltips {
 		return 1;
 	}
 
-	private getWeaknessMultiplier(types: readonly Dex.TypeName[], attackType: Dex.TypeName): 0 | 0.25 | 0.5 | 1 | 2 | 4 {
-		let multiplier: 0 | 0.25 | 0.5 | 1 | 2 | 4 = 1;
+	private getWeaknessMultiplier(types: readonly Dex.TypeName[], attackType: Dex.TypeName, abilityId?: ID): number {
+		let multiplier = 1;
 		for (const type of types) {
 			const weakness = this.getTypeWeakness(type, attackType);
 			if (!weakness) return 0;
-			multiplier = (multiplier * weakness) as 0 | 0.25 | 0.5 | 1 | 2 | 4;
+			multiplier *= weakness;
+		}
+		// Factor in ability-based immunities and resistances.
+		if (abilityId) {
+			const abilityFactor = BattleTooltips.getTypeAbilityWeakness(attackType, abilityId, this.battle.dex);
+			if (abilityFactor === 0) return 0;
+			multiplier *= abilityFactor;
 		}
 		return multiplier;
 	}
 
-	private renderTypeEffectiveness(types: readonly Dex.TypeName[]) {
+	private renderTypeEffectiveness(types: readonly Dex.TypeName[], abilityId?: ID) {
 		const buckets: Record<"4" | "2" | "0.5" | "0.25" | "0", Dex.TypeName[]> = {
 			"4": [],
 			"2": [],
@@ -1363,12 +1390,13 @@ export class BattleTooltips {
 		};
 
 		for (const attackType of this.battle.dex.types.names()) {
-			const multiplier = this.getWeaknessMultiplier(types, attackType);
-			if (multiplier === 4) buckets["4"].push(attackType);
-			if (multiplier === 2) buckets["2"].push(attackType);
-			if (multiplier === 0.5) buckets["0.5"].push(attackType);
-			if (multiplier === 0.25) buckets["0.25"].push(attackType);
-			if (multiplier === 0) buckets["0"].push(attackType);
+			const multiplier = this.getWeaknessMultiplier(types, attackType, abilityId);
+			// Use >= comparisons so ability-boosted multipliers (e.g. 8x from Fluffy) still bucket correctly.
+			if (multiplier >= 4) buckets["4"].push(attackType);
+			else if (multiplier >= 2) buckets["2"].push(attackType);
+			else if (multiplier === 0.5) buckets["0.5"].push(attackType);
+			else if (multiplier > 0 && multiplier < 0.5) buckets["0.25"].push(attackType);
+			else if (multiplier === 0) buckets["0"].push(attackType);
 		}
 
 		let text = `<p class="tooltip-section"><small><strong>Effectiveness:</strong></small><br />`;

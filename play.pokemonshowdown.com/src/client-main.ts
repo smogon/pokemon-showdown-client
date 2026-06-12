@@ -124,6 +124,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	autotimer: boolean | null = null;
 	autohardcore: boolean | null = null;
 	extraoppinfo = true;
+	extraowninfo = true;
 	relumiHighlightBalanceChangesTB: boolean | null = null;
 	relumiHighlightBalanceChangesBT: boolean | null = null;
 	spectatefromstart: boolean | null = null;

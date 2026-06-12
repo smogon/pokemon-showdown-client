@@ -1654,6 +1654,10 @@ class BattleOptionsPanel extends PSRoomPanel {
 			PS.prefs.set('extraoppinfo', value);
 			break;
 		}
+		case 'extraowninfo': {
+			PS.prefs.set('extraowninfo', value);
+			break;
+		}
 		case 'bigpicture': {
 			PS.prefs.set('bigpicture', value);
 			break;
@@ -1773,6 +1777,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 						name="extraoppinfo" checked={PS.prefs.extraoppinfo !== false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> Extra opponent info (hover tooltip)
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="extraowninfo" checked={PS.prefs.extraowninfo !== false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Extra own info (hover tooltip)
 				</label>
 			</p>
 			{document.body.offsetWidth >= 800 && <p>
