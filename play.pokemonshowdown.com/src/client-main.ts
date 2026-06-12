@@ -2062,7 +2062,7 @@ export const PS = new class extends PSModel {
 			return {
 				minWidth: 660,
 				width: 1000,
-				maxWidth: 1400,
+				maxWidth: 1300,
 			};
 		}
 		return {
