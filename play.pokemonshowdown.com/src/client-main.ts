@@ -2170,6 +2170,7 @@ export const PS = new class extends PSModel {
 				} else {
 					room.type = type;
 					this.updateRoomTypes();
+					room = this.rooms[roomid2] || room; // Re-fetch room ref after updateRoomTypes() may have recreated it
 				}
 				if (room) {
 					if (room.connected === 'autoreconnect') {
