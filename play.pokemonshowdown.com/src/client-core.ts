@@ -198,7 +198,7 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 		case 'relumi':
 			menuColors = [
 				"320,55%",
-				"150,35%",
+				"82.8169014084507,34.63414634146342%",
 				"190,45%",
 				"220,42%",
 				"250,40%",
