@@ -885,6 +885,11 @@ export class TeamEditorState extends PSModel {
 		return undefined;
 	}
 	save() {
+		// Sync happiness before packing so Frustration/Return work correctly.
+		for (const set of this.sets) {
+			const happiness = this.defaultHappiness(set);
+			if (happiness !== undefined) set.happiness = happiness;
+		}
 		this.team.packedTeam = Teams.pack(this.sets);
 		this.lastPackedTeam = this.team.packedTeam;
 		this.team.iconCache = null;
@@ -3313,7 +3318,7 @@ class DetailsForm extends preact.Component<{
 							class="textbox inputform numform default-placeholder" style="width: 50px"
 							onInput={this.changeHappiness} onChange={this.changeHappiness}
 						/></label></p>
-					) : (editor.gen < 8 || editor.isNatDex) && (
+					) : (editor.gen < 8 || editor.isNatDex || editor.isRelumi) && (
 						<p><label class="label">Happiness: <input
 							name="happiness" value={set.happiness ?? ''} placeholder="255"
 							type="number" inputMode="numeric" min="0" max="255" step="1"
