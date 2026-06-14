@@ -16,7 +16,7 @@ import { ChatRoom } from './panel-chat';
 import type { MainMenuRoom } from './panel-mainmenu';
 import { Dex, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
-import type { BattleRoom } from './panel-battle';
+import { BattleRoom } from './panel-battle';
 import { Teams } from './battle-teams';
 import type preact from '../js/lib/preact';
 
@@ -122,6 +122,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	ignoreopp: boolean | null = null;
 	autotimer: boolean | null = null;
 	autohardcore: boolean | null = null;
+	autoTeamSheet: boolean | null = null;
 	spectatefromstart: boolean | null = null;
 	rightpanelbattles: boolean | null = null;
 	disallowspectators: boolean | null = null;
@@ -2646,6 +2647,10 @@ export const PS = new class extends PSModel {
 
 		const oldid = room.id;
 		room.id = id;
+		if (room.classType === 'battle') {
+			(room as BattleRoom).isHiddenBattle = BattleRoom.checkHiddenBattle(id);
+			if ((room as BattleRoom).battle) (room as BattleRoom).battle.roomid = id;
+		}
 		this.rooms[id] = room;
 		delete this.rooms[oldid];
 
