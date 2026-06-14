@@ -211,6 +211,13 @@ export class TeamEditorState extends PSModel {
 		set.species = species.name;
 		set.ability = this.getDefaultAbility(set);
 		set.item = this.getDefaultItem(species.name) ?? set.item;
+		if (!set.gender && species.genderRatio) {
+			const ratio = species.genderRatio;
+			const total = ratio.M + ratio.F;
+			if (total > 0) {
+				set.gender = Math.random() < ratio.M / total ? 'M' : 'F';
+			}
+		} 
 
 		if (toID(speciesName) === 'Cathy') {
 			set.name = "Cathy";
