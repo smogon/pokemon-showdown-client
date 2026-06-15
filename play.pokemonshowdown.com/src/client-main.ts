@@ -670,6 +670,12 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		this.away = fullName.endsWith('@!');
 		this.update(null);
 		if (loggingIn) {
+			// Restore locally saved avatar preference if it differs from the
+			// server's default (the server only persists avatars for users
+			// with custom avatar entries).
+			if (PS.prefs.avatar && PS.prefs.avatar !== avatar) {
+				PS.send(`/avatar ${PS.prefs.avatar},1`);
+			}
 			for (const roomid in PS.rooms) {
 				const room = PS.rooms[roomid]!;
 				if (room.connectWhenLoggedIn) room.connect();
