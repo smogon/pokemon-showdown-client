@@ -1601,7 +1601,7 @@ export class BattleTooltips {
 		} else if (tier.includes('Champions')) {
 			min = tr(0.9 * (baseSpe + 20));
 			ev0 = tr(baseSpe + 20);
-			ev84 = tr(baseSpe + 13 + 20);
+			ev84 = tr((2 * baseSpe + 31 + 21) * level / 100) + 5;
 			ev252 = tr(baseSpe + 32 + 20);
 			max = tr(1.1 * (baseSpe + 32 + 20));
 		} else if (gen < 3) {
