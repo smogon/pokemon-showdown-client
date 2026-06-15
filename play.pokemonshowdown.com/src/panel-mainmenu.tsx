@@ -149,7 +149,9 @@ export class MainMenuRoom extends PSRoom {
 				PS.prefs.set('serversettings', { ...PS.prefs.serversettings, ...JSON.parse(settingsJSON) });
 			}
 			PS.user.setName(fullName, named, avatar);
-			PS.teams.loadRemoteTeams();
+			// Only load remote teams when logged in (named), otherwise
+			// the server returns 'Not logged in' for guest users.
+			if (named) PS.teams.loadRemoteTeams();
 			return;
 		} case 'updatechallenges': {
 			const [, challengesBuf] = args;
