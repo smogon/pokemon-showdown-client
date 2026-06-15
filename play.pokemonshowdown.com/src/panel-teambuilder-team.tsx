@@ -301,7 +301,8 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 					</> : team.uploaded ? <>
 						<small>Share URL:</small> {}
 						<CopyableURLBox
-							url={`https://psim.us/t/${team.uploaded.teamid}${team.uploaded.private ? '-' + team.uploaded.private : ''}`}
+							url={`https://${location.host}/viewteam-${team.uploaded.teamid}${team.uploaded.private ? '-' +
+							team.uploaded.private : ''}`}
 						/> {}
 						{unsaved && <div style="padding-top:5px">
 							<button class="button" onClick={this.uploadTeam}>
@@ -399,7 +400,7 @@ class ViewTeamPanel extends PSRoomPanel {
 		return <PSPanelWrapper room={room}><div class="pad">
 			<h1>{team.name || "Untitled team"}</h1>
 			<CopyableURLBox
-				url={`https://psim.us/t/${team.teamid!}${teamData.private ? '-' + teamData.private : ''}`}
+				url={`https://${location.host}/viewteam-${team.teamid!}${teamData.private ? '-' + teamData.private : ''}`}
 			/> {}
 			<p>Uploaded by: <strong>{teamData.ownerid}</strong></p>
 			<p>Format: <strong>{teamData.format}</strong></p>
