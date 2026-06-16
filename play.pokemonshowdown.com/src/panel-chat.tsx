@@ -8,7 +8,7 @@
 import preact from "../js/lib/preact";
 import type { PSSubscription } from "./client-core";
 import { PS, PSRoom, type RoomOptions, type RoomID, type Team, Config } from "./client-main";
-import { PSView, PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSView, PSPanelWrapper, PSRoomPanel, ReconnectTimer } from "./panels";
 import { TeamForm } from "./panel-mainmenu";
 import { BattleLog } from "./battle-log";
 import type { Battle } from "./battle";
@@ -208,15 +208,10 @@ export class ChatRoom extends PSRoom {
 					if (!lines[i - 1]) cutOffEnd = i - 1;
 				}
 			}
-			console.log(`Reconnection log splice: (cutoff: ${cutOffTime})`);
-			console.log([
-				...lines.slice(0, cutOffStart),
-				'====================',
-				...lines.slice(cutOffStart, cutOffEnd),
-				'====================',
-				...lines.slice(cutOffEnd),
-			].join('\n'));
 			lines = lines.slice(cutOffStart, cutOffEnd);
+			if (lines[0]?.startsWith('|init|')) {
+				lines[0] = `||Note: Scrollback doesn't go all the way back to when you disconnected.`;
+			}
 
 			if (lines.length) {
 				const timestamp = BattleLog.renderTimestamp(cutOffTime, PS.prefs.timestamps?.chatrooms);
@@ -1417,7 +1412,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 				<button class="button" data-cmd="/reconnect">
 					<i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong>
 				</button> {}
-				{PS.connection?.reconnectTimer && <small>(Autoreconnect in {Math.round(PS.connection.reconnectDelay / 1000)}s)</small>}
+				<ReconnectTimer />
 			</p>}
 		</>;
 	}
