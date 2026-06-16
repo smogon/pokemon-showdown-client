@@ -9,7 +9,7 @@ import preact from "../js/lib/preact";
 import { PSLoginServer } from "./client-connection";
 import { PSBackground } from "./client-core";
 import { Config, PS, PSRoom, type RoomID, type RoomOptions, type Team } from "./client-main";
-import { PSIcon, PSPanelErrorBoundary, PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSIcon, PSPanelErrorBoundary, PSPanelWrapper, PSRoomPanel, ReconnectTimer } from "./panels";
 import type { BattlesRoom } from "./panel-battle";
 import type { ChatRoom } from "./panel-chat";
 import type { LadderFormatRoom } from "./panel-ladder";
@@ -676,7 +676,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					<button class="button" data-cmd="/reconnect">
 						<i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong>
 					</button> {}
-					{PS.connection?.reconnectTimer && <small>(Autoreconnect in {Math.round(PS.connection.reconnectDelay / 1000)}s)</small>}
+					<ReconnectTimer />
 				</p>}
 			</TeamForm>;
 		}
