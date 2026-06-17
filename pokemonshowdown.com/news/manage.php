@@ -17,7 +17,7 @@ $newsCache = '.var_export($GLOBALS['newsCache'], true).';
 ');
 
 	date_default_timezone_set('America/Los_Angeles');
-	$indexData = file_get_contents('../../play.pokemonshowdown.com/index.html');
+	$indexData = file_get_contents('../../play.pokemonshowdown.com/caches/index-old.html');
 	$indexData = preg_replace('/					<div class="pm-log" style="max-height:none">
 						.*?
 					<\/div>
@@ -26,7 +26,18 @@ $newsCache = '.var_export($GLOBALS['newsCache'], true).';
 					</div>
 ', $indexData, 1);
 	$indexData = preg_replace('/ data-newsid="[^"]*">/', ' data-newsid="'.getNewsId().'">', $indexData, 1);
-	file_put_contents('../../play.pokemonshowdown.com/index.html', $indexData);
+	file_put_contents('../../play.pokemonshowdown.com/caches/index-old.html', $indexData);
+
+	$indexData = file_get_contents('../../play.pokemonshowdown.com/caches/index-new.html');
+	$indexData = preg_replace('/						<div class="readable-bg">
+							.*?
+						<\/div>
+/', '						<div class="readable-bg">
+							'.renderNews().'
+						</div>
+', $indexData, 1);
+	$indexData = preg_replace('/ data-newsid="[^"]*">/', ' data-newsid="'.getNewsId().'">', $indexData, 1);
+	file_put_contents('../../play.pokemonshowdown.com/caches/index-new.html', $indexData);
 }
 
 include '../style/wrapper.inc.php';
