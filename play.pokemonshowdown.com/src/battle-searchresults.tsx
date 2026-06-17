@@ -428,6 +428,54 @@ export class PSSearchResults extends preact.Component<{
 		if (next) return toID(next);
 		return '' as ID;
 	}
+	private getMoveFlagsTooltip(move: Dex.Move): string {
+		if (!move?.flags) return '';
+		const parts: string[] = [];
+		if (move.flags.contact) parts.push('Contact');
+		if (move.flags.slicing) parts.push('Slicing');
+		if (move.flags.sound) parts.push('Sound');
+		if (move.flags.punch) parts.push('Punch');
+		if (move.flags.bite) parts.push('Bite');
+		if (move.flags.pulse) parts.push('Pulse');
+		if (move.flags.bullet) parts.push('Bullet');
+		if (move.flags.powder) parts.push('Powder');
+		if (move.flags.wind) parts.push('Wind');
+		if (move.flags.dance) parts.push('Dance');
+		if (move.flags.bypasssub) parts.push('Bypasses Sub');
+		return parts.join(', ');
+	}
+	private parseMethodCode(methodCode: string): string | null {
+		if (!methodCode) return null;
+		// Handle pipe-delimited vanilla format: "genavail|L25,M"
+		// Handle Relumi format: "9l25,9m,9e" (lowercase, prefixed with '9')
+		let methods: string[];
+		if (methodCode.includes('|')) {
+			methods = methodCode.split('|')[1].split(',');
+		} else if (/^\d/.test(methodCode)) {
+			// Relumi format: "9l25,9m" → strip gen prefix, uppercase
+			methods = methodCode.split(',').map(m => m.replace(/^\d+/, '').toUpperCase());
+		} else {
+			methods = methodCode.split(',');
+		}
+		const parts: string[] = [];
+		for (const m of methods) {
+			const levelMatch = m.match(/^L(\d+)$/);
+			if (levelMatch) {
+				const lvl = parseInt(levelMatch[1]);
+				parts.push(lvl === 0 ? 'Lv1' : `Lv${levelMatch[1]}`);
+			} else if (m === 'M') {
+				parts.push('TM');
+			} else if (m === 'T') {
+				parts.push('Tutor');
+			} else if (m === 'E') {
+				parts.push('Egg');
+			} else if (m === 'V') {
+				parts.push('Event');
+			}
+		}
+		return parts.length ? parts.join(' / ') : null;
+	}
+
 	private parseDescriptionTags(desc: string): preact.ComponentChild {
 		if (!desc) return '';
 		// [buff]text[/buff] → relumi-change-up, [nerf]text[/nerf] → relumi-change-down.
@@ -719,6 +767,36 @@ export class PSSearchResults extends preact.Component<{
 		const moveAccuracyDiff = this.getMoveDiff(id, 'accuracy', move.accuracy);
 		const isNewLearnset = this.isNewRelumiLearnset(id);
 		const moveNameClass = isNewLearnset ? 'relumi-change-up' : '';
+		const flagsTooltip = this.getMoveFlagsTooltip(move);
+		const typedSearch = this.props.search.typedSearch;
+		const speciesId = typedSearch?.species || '' as ID;
+		let methodCode = '';
+		const showLearnsetMethods = Dex.prefs('relumiShowLearnsetMethods') !== false;
+		if (speciesId && showLearnsetMethods) {
+			const isRelumi = this.props.search.dex.modid === 'gen8relumi' ||
+				(this.props.search.typedSearch?.format || '').includes('relumi');
+			const table = isRelumi
+				? (window as any).BattleTeambuilderTable?.gen8relumi
+				: (window as any).BattleTeambuilderTable;
+			const rawLearnsets = table?.learnsets;
+			if (rawLearnsets) {
+				// Walk the learnset chain (like canLearnInChain) so egg moves
+				// show for evolved Pokémon, not just the base form.
+				let cur: ID = this.getFirstLearnsetId(speciesId, rawLearnsets);
+				const visited: Record<string, true> = Object.create(null);
+				while (cur) {
+					if (visited[cur]) break;
+					visited[cur] = true;
+					const entry = rawLearnsets[cur]?.[id];
+					if (entry) {
+						methodCode = entry;
+						break;
+					}
+					cur = this.getNextLearnsetId(cur, speciesId, rawLearnsets);
+				}
+			}
+		}
+		const method = this.parseMethodCode(methodCode);
 		const fmtValue = (v: number | true) => v === true ? 'always' : String(v);
 		type MoveDiff = { vanilla: number | true, delta: number };
 		const fmtMoveTitle = (label: string, diff: MoveDiff | null, current: number | true) => {
@@ -731,7 +809,11 @@ export class PSSearchResults extends preact.Component<{
 			data-target="push" data-entry={entry}
 		>
 			<span class="col movenamecol">
-				<span class={moveNameClass}>{this.renderName(move.name, matchStart, matchEnd, tagStart)}</span>
+				<span
+					class={`${moveNameClass}${flagsTooltip ? ' has-move-flags' : ''}`}
+					title={flagsTooltip || undefined}
+				>{this.renderName(move.name, matchStart, matchEnd, tagStart)}</span>
+				{method && <span class="move-method-badge">{method}</span>}
 			</span>
 
 			<span class="col typecol">
@@ -793,6 +875,17 @@ export class PSSearchResults extends preact.Component<{
 					<img src={`${Dex.resourcePrefix}sprites/categories/${name}.png`} alt={name} height="14" width="32" class="pixelated" />
 				</span>
 
+				{errorMessage}
+			</a>
+		</li>;
+	}
+
+	renderFlagRow(id: ID, matchStart: number, matchEnd: number, errorMessage?: preact.ComponentChildren) {
+		const name = id.charAt(0).toUpperCase() + id.slice(1);
+		return <li class="result">
+			<a href="#" data-target="push" data-entry={`flag|${id}`}>
+				<span class="col namecol">{this.renderName(name, matchStart, matchEnd)}</span>
+				<span class="col movedesccol">(flag)</span>
 				{errorMessage}
 			</a>
 		</li>;
@@ -903,6 +996,8 @@ export class PSSearchResults extends preact.Component<{
 			return this.renderCategoryRow(id, matchStart, matchEnd, errorMessage);
 		case 'article':
 			return this.renderArticleRow(id, matchStart, matchEnd, errorMessage);
+		case 'flag':
+			return this.renderFlagRow(id, matchStart, matchEnd, errorMessage);
 		}
 		return <li>Error: not found</li>;
 	}

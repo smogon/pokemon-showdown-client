@@ -126,6 +126,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	extraoppinfo = true;
 	extraowninfo = true;
 	relumiHighlightBalanceChangesTB: boolean | null = null;
+	relumiShowLearnsetMethods: boolean | null = null;
 	relumiHighlightBalanceChangesBT: boolean | null = null;
 	spectatefromstart: boolean | null = null;
 	bigpicture = false;

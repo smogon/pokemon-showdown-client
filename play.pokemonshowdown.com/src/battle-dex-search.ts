@@ -14,8 +14,15 @@
 import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
 
 export type SearchType = (
-	'pokemon' | 'type' | 'tier' | 'move' | 'item' | 'ability' | 'egggroup' | 'category' | 'article'
+	'pokemon' | 'type' | 'tier' | 'move' | 'item' | 'ability' | 'egggroup' | 'category' | 'article' | 'flag'
 );
+
+/** Display names for move flag filters (query text = flag key) */
+const MOVE_FLAG_NAMES: Record<string, string> = {
+	contact: 'Contact', slicing: 'Slicing', sound: 'Sound',
+	punch: 'Punch', bite: 'Bite', pulse: 'Pulse',
+	bullet: 'Bullet', powder: 'Powder', wind: 'Wind', dance: 'Dance',
+};
 
 export type SearchRow = (
 	[SearchType, ID, number?, number?] | ['sortpokemon' | 'sortmove', ''] | ['header' | 'html', string]
@@ -55,6 +62,7 @@ export class DexSearch {
 		egggroup: 7,
 		category: 8,
 		article: 9,
+		flag: 10,
 	};
 	static typeName = {
 		pokemon: 'Pok\u00e9mon',
@@ -66,6 +74,7 @@ export class DexSearch {
 		egggroup: 'Egg group',
 		category: 'Category',
 		article: 'Article',
+		flag: 'Flag',
 	};
 	firstPokemonColumn: 'Tier' | 'Number' = 'Number';
 
@@ -162,10 +171,11 @@ export class DexSearch {
 			return true;
 		} else if (this.typedSearch.searchType === 'move') {
 			if (type === this.sortCol) this.sortCol = null;
-			if (!['type', 'category', 'pokemon'].includes(type)) return false;
+			if (!['type', 'category', 'pokemon', 'flag'].includes(type)) return false;
 			if (type === 'type') entry[1] = this.capitalizeFirst(entry[1]);
 			if (type === 'category') entry[1] = this.capitalizeFirst(entry[1]);
 			if (type === 'pokemon') entry[1] = toID(entry[1]);
+			if (type === 'flag') entry[1] = toID(entry[1]);
 			if (!this.filters) this.filters = [];
 			this.filters.push(entry.slice(0, 2) as SearchFilter);
 			this.results = null;
@@ -320,12 +330,15 @@ export class DexSearch {
 
 		// Notes:
 		// - if we have a searchType, that searchType's buffer will be on top
-		let bufs: SearchRow[][] = [[], [], [], [], [], [], [], [], [], []];
+		let bufs: SearchRow[][] = [[], [], [], [], [], [], [], [], [], [], []];
 		let seenInBuf: Record<string, boolean>[] = bufs.map(() => Object.create(null));
 		let topbufIndex = -1;
 
 		let count = 0;
 		let nearMatch = false;
+
+		/** Saved before the loop, since passes can overwrite `query` */
+		const queryForFlags = query;
 
 		/** [type, id, typeIndex] */
 		let instafilter: [SearchType, ID, number] | null = null;
@@ -508,6 +521,22 @@ export class DexSearch {
 			bufs[0] = [];
 		}
 
+		// Detect move flag filter queries (partial prefix match, like type filters)
+		if (searchType === 'move' && queryForFlags.length >= 2) {
+			for (const flagKey in MOVE_FLAG_NAMES) {
+				if (flagKey.startsWith(queryForFlags)) {
+					const flagTypeIndex = 10;
+					if (!bufs[flagTypeIndex].length) {
+						bufs[flagTypeIndex] = [['header', 'Flag']];
+					}
+					bufs[flagTypeIndex].push(['flag', flagKey as ID, 0, queryForFlags.length]);
+					if (!instafilter) {
+						instafilter = ['flag', flagKey as ID, flagTypeIndex];
+					}
+				}
+			}
+		}
+
 		if (instafilter && count < 20) {
 			// Result count is less than 20, so we can instafilter
 			bufs.push(this.instafilter(searchType, instafilter[0], instafilter[1]));
@@ -559,6 +588,15 @@ export class DexSearch {
 				buf.push(['header', `${category} moves`]);
 				for (let id in BattleMovedex) {
 					if (BattleMovedex[id].category === category) {
+						(illegal && id in illegal ? illegalBuf : buf).push(['move', id as ID]);
+					}
+				}
+				break;
+			case 'flag':
+				let flagName = MOVE_FLAG_NAMES[fId] || fId;
+				buf.push(['header', `${flagName} moves`]);
+				for (let id in BattleMovedex) {
+					if (BattleMovedex[id].flags && (BattleMovedex[id].flags as any)[fId]) {
 						(illegal && id in illegal ? illegalBuf : buf).push(['move', id as ID]);
 					}
 				}
@@ -2202,6 +2240,9 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				break;
 			case 'category':
 				if (move.category !== value) return false;
+				break;
+			case 'flag':
+				if (!move.flags || !(move.flags as any)[value]) return false;
 				break;
 			case 'pokemon':
 				if (!this.canLearn(value as ID, move.id)) return false;

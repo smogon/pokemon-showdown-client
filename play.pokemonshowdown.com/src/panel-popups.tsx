@@ -637,6 +637,7 @@ class OptionsPanel extends PSRoomPanel {
 		case 'nopastgens':
 		case 'useupstreamsprites':
 		case 'relumiHighlightBalanceChangesTB':
+		case 'relumiShowLearnsetMethods':
 		case 'noselfhighlight':
 		case 'leavePopupRoom':
 		case 'inchatpm':
@@ -739,6 +740,14 @@ class OptionsPanel extends PSRoomPanel {
 					type="checkbox"
 					onChange={this.handleOnChange}
 				/> Highlight Relumi balance changes in Teambuilder</label>
+			</p>
+			<p>
+				<label class="checkbox"><input
+					name="relumiShowLearnsetMethods"
+					checked={PS.prefs.relumiShowLearnsetMethods !== false}
+					type="checkbox"
+					onChange={this.handleOnChange}
+				/> Show learnset methods (Lvl, TM, Egg, etc.) in move list</label>
 			</p>
 			<hr />
 			<h3>Chat</h3>

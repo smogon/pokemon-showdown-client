@@ -300,6 +300,40 @@
 .dexlist .movedesccol {
 	width: 284px;
 }
+
+/* Move flags hover indicator */
+.dexlist .has-move-flags {
+	border-bottom: 1px dotted #888;
+	cursor: help;
+}
+.dexlist .has-move-flags:hover {
+	border-bottom-style: solid;
+}
+.dark .dexlist .has-move-flags {
+	border-bottom-color: #666;
+}
+
+/* Learnset method badge */
+.dexlist .move-method-badge {
+	display: inline-block;
+	font-size: 7pt;
+	font-family: Verdana, sans-serif;
+	font-weight: bold;
+	vertical-align: 1px;
+	margin-left: 3px;
+	padding: 0 2px;
+	border-radius: 2px;
+	line-height: 12px;
+	white-space: nowrap;
+	background: #E8E8E8;
+	color: #555;
+	border: 1px solid #CCC;
+}
+.dark .dexlist .move-method-badge {
+	background: #3A3A3A;
+	color: #BBB;
+	border-color: #555;
+}
 .dexlist .itemdesccol {
 	width: 464px;
 }
