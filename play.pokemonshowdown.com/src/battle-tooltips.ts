@@ -1965,12 +1965,6 @@ export class BattleTooltips {
 		let tier = this.battle.tier;
 		let gen = this.battle.gen;
 		let isCGT = tier.includes('Computer-Generated Teams');
-		let isRandomBattle = tier.includes('Random Battle') ||
-			(tier.includes('Random') && tier.includes('Battle') && gen >= 6) || isCGT;
-
-		let minNature = (isRandomBattle || gen < 3) ? 1 : 0.9;
-		let maxNature = (isRandomBattle || gen < 3) ? 1 : 1.1;
-		let maxIv = (gen < 3) ? 30 : 31;
 
 		let min;
 		let ev0;
@@ -1978,32 +1972,31 @@ export class BattleTooltips {
 		let ev252;
 		let max;
 		if (tier.includes("Let's Go")) {
-			min = tr(tr(tr(2 * baseSpe * level / 100 + 5) * minNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
+			min = tr(tr(tr(2 * baseSpe * level / 100 + 5) * 0.9) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			ev0 = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			ev84 = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			ev252 = tr(tr(tr((2 * baseSpe + 31 + 63) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
-			max = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5) * maxNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
+			max = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5) * 1.1) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			if (tier.includes('No Restrictions')) max += 200;
 			else if (tier.includes('Random')) max += 20;
 		} else if (tier.includes('Champions')) {
-			min = tr(minNature * (baseSpe + 20));
+			min = tr(0.9 * (baseSpe + 20));
 			ev0 = tr(baseSpe + 20);
 			ev84 = tr(baseSpe + 13 + 20);
 			ev252 = tr(baseSpe + 32 + 20);
-			max = tr(maxNature * (baseSpe + 32 + 20));
+			max = tr(1.1 * (baseSpe + 32 + 20));
 		} else if (gen < 3) {
-			max = tr((2 * baseSpe + maxIv + 63) * level / 100 + 5);
+			max = tr((2 * baseSpe + 30 + 63) * level / 100 + 5);
 			ev252 = max;
 			ev84 = 0;
-			ev0 = tr((2 * baseSpe + maxIv) * level / 100 + 5);
+			ev0 = tr((2 * baseSpe + 30) * level / 100 + 5);
 			min = isCGT ? max : tr(2 * baseSpe * level / 100 + 5);
 		} else {
-			let maxIvEvOffset = maxIv + (isRandomBattle ? 21 : 63);
-			max = tr(tr((2 * baseSpe + maxIvEvOffset) * level / 100 + 5) * maxNature);
-			ev252 = tr(tr((2 * baseSpe + maxIvEvOffset) * level / 100 + 5));
+			max = tr(tr((2 * baseSpe + 94) * level / 100 + 5) * 1.1);
+			ev252 = tr(tr((2 * baseSpe + 94) * level / 100 + 5));
 			ev84 = tr(tr((2 * baseSpe + 31 + 21) * level / 100 + 5));
 			ev0 = tr(tr((2 * baseSpe + 31) * level / 100 + 5));
-			min = isCGT ? max : tr(tr(2 * baseSpe * level / 100 + 5) * minNature);
+			min = isCGT ? max : tr(tr(2 * baseSpe * level / 100 + 5) * 0.9);
 		}
 		return { min, ev0, ev84, ev252, max };
 	}
