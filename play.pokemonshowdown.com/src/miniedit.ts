@@ -158,6 +158,8 @@ const HTML_BLOCK_TAGS = [
 	'HEADER', 'HR', 'LI', 'MAIN', 'NAV', 'OL', 'P', 'PRE', 'SECTION', 'TABLE',
 	'TBODY', 'TD', 'TFOOT', 'TH', 'THEAD', 'TR', 'UL',
 ];
+// Pasting can disrupt newlines, so they get manually processed here.
+// Unfortunately, this is massively complicated by an Android Chrome bug.
 export class MiniEditPastePlugin {
 	constructor(editor: MiniEdit) {
 		editor.element.addEventListener('paste', e => {
@@ -176,7 +178,7 @@ export class MiniEditPastePlugin {
 		if (!html || text.includes('\n')) return text;
 
 		const htmlText = this.htmlToPlainText(html);
-		return htmlText.includes('\n') ? htmlText : text;
+		return htmlText.trim().includes('\n') ? htmlText : text;
 	}
 
 	htmlToPlainText(html: string): string {
@@ -188,7 +190,7 @@ export class MiniEditPastePlugin {
 			.replace(/<!--[\s\S]*?-->/g, '')
 			.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, '')
 			// handle newlines
-			.replace(/\n/g, '<br>') // in case they're in <pre>?
+			// .replace(/\n/g, '<br>') // in case they're in <pre>?
 			.replace(new RegExp(`</?(?:${HTML_BLOCK_TAGS.join('|')})\\b[^>]*>`, 'gi'), '\n')
 			.replace(/\n{2,}/g, '\n')
 			.replace(/<br\b[^>]*>\n?/gi, '\n')

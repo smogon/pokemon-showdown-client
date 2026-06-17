@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 'use strict';
 
-const fs = require("fs");
-const path = require('path');
-const child_process = require("child_process");
+const fs = require('node:fs');
+const child_process = require('node:child_process');
 
-const rootDir = path.resolve(__dirname, '..');
-process.chdir(rootDir);
+process.chdir(__dirname + '/..');
 
 if (!fs.existsSync('caches/pokemon-showdown')) {
 	child_process.execSync('git clone https://github.com/smogon/pokemon-showdown.git', {
