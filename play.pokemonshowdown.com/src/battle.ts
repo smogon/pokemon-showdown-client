@@ -237,7 +237,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 				}
 				// parse the absolute health information
 				let ret = this.healthParse(hpstring);
-				if (ret && (ret[1] === 100)) {
+				if (ret?.[1] === 100) {
 					// support for old replays with nearest-100th damage and health
 					return [damage, 100, damage];
 				}
@@ -704,7 +704,7 @@ export class Side {
 			this.setAvatar(avatar);
 		} else {
 			this.rollTrainerSprites();
-			if (this.foe && this.avatar === this.foe.avatar) this.rollTrainerSprites();
+			if (this.avatar === this.foe?.avatar) this.rollTrainerSprites();
 		}
 	}
 	addSideCondition(effect: Dex.Effect, persist: boolean) {
@@ -4000,7 +4000,7 @@ export class Battle {
 		let interruptionCount: number;
 		do {
 			// modified in this.run() but idk how to tell TS that
-			this.waitForAnimations = true as this['waitForAnimations'];
+			this.waitForAnimations = true;
 			if (this.currentStep >= this.stepQueue.length) {
 				this.atQueueEnd = true;
 				if (!this.ended && this.isReplay) this.prematureEnd();

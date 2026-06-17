@@ -169,6 +169,10 @@ export class MainMenuRoom extends PSRoom {
 			let sideRoom = PS.rightPanel as ChatRoom;
 			if (sideRoom?.type === "chat" && PS.prefs.inchatpm) sideRoom?.log?.add(args);
 			return;
+		} case 'customgroups': {
+			const [, groupsList] = args;
+			PS.server.parseGroups(groupsList);
+			return;
 		} case 'formats': {
 			this.parseFormats(args);
 			return;
@@ -498,17 +502,25 @@ class NewsPanel extends PSRoomPanel {
 	static readonly location = 'mini-window';
 	change = (ev: Event) => {
 		const target = ev.currentTarget as HTMLInputElement;
-		if (target.value === '1') {
-			document.cookie = "preactalpha=1; expires=Thu, 1 Jul 2026 12:00:00 UTC; path=/";
+		this.setClient(target.value as '0' | '1' | 'leave');
+	};
+	setClient(setting: '0' | '1' | 'leave') {
+		if (setting === '1') {
+			document.cookie = "preactalpha=1; expires=Thu, 1 Aug 2026 12:00:00 UTC; path=/";
+		} else if (setting === '0') {
+			document.cookie = "preactalpha=0; expires=Thu, 1 Aug 2026 12:00:00 UTC; path=/";
 		} else {
 			document.cookie = "preactalpha=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 		}
-		if (target.value === 'leave') {
+		if (setting === 'leave') {
 			document.location.href = `/`;
 		}
-	};
+	}
+	override componentDidMount() {
+		if (!document.cookie.includes('preactalpha=')) this.setClient('1');
+	}
 	override render() {
-		const cookieSet = document.cookie.includes('preactalpha=1');
+		const cookieSet = !document.cookie.includes('preactalpha=0');
 		return <PSPanelWrapper room={this.props.room} fullSize>
 			<div class="construction">
 				This is the client rewrite beta test.
@@ -567,7 +579,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		const draggingRoom = PS.dragging.roomid;
 		if (draggingRoom === null) return;
 
-		const draggedOverRoom = PS.getRoom(e.target as HTMLElement);
+		const draggedOverRoom = PS.getRoom(e.target);
 		if (draggingRoom === draggedOverRoom?.id) return;
 
 		const index = PS.miniRoomList.indexOf(draggedOverRoom?.id as any);
@@ -679,14 +691,14 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 				</button></p>
 			{PS.mainmenu.searchCountdown ? (
 				<>
-					<button class="mainmenu1 mainmenu big button disabled" type="submit"><strong>
+					<button class="mainmenu1 mainmenu big button disabled" disabled><strong>
 						<i class="fa fa-refresh fa-spin" aria-hidden></i> Searching in {PS.mainmenu.searchCountdown.countdown}...
 					</strong></button>
 					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">Cancel</button></p>
 				</>
 			) : PS.mainmenu.searchingFormat() ? (
 				<>
-					<button class="mainmenu1 mainmenu big button disabled" type="submit">
+					<button class="mainmenu1 mainmenu big button disabled" disabled>
 						<strong><i class="fa fa-refresh fa-spin" aria-hidden></i> Searching...</strong>
 					</button>
 					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">Cancel</button></p>

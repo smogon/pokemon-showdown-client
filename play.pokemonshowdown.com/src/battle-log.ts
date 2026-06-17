@@ -1079,33 +1079,27 @@ export class BattleLog {
 		lastChild.appendChild(button);
 	}
 
-	static unlinkNodeList(nodeList: ArrayLike<HTMLElement>, classStart: string) {
+	static unlinkNodeList(nodeList: ArrayLike<HTMLElement>) {
 		for (const node of nodeList as HTMLElement[]) {
-			if (node.className && (node.className + ' ').startsWith(classStart)) {
-				const linkList = node.getElementsByTagName('a');
-				// iterate in reverse because linkList will update as links are removed
-				for (let i = linkList.length - 1; i >= 0; i--) {
-					const linkNode = linkList[i];
-					const parent = linkNode.parentElement;
-					if (!parent) continue;
-					for (const childNode of linkNode.childNodes as any) {
-						parent.insertBefore(childNode, linkNode);
-					}
-					parent.removeChild(linkNode);
+			const linkList = node.getElementsByTagName('a');
+			// iterate in reverse because linkList will update as links are removed
+			for (let i = linkList.length - 1; i >= 0; i--) {
+				const linkNode = linkList[i];
+				const parent = linkNode.parentElement;
+				if (!parent) continue;
+				for (const childNode of linkNode.childNodes as any) {
+					parent.insertBefore(childNode, linkNode);
 				}
+				parent.removeChild(linkNode);
 			}
 		}
 	}
 
 	unlinkChatFrom(userid: ID) {
-		const classStart = 'chat chatmessage-' + userid + ' ';
-		const innerNodeList = this.innerElem.childNodes;
-		BattleLog.unlinkNodeList(innerNodeList as NodeListOf<HTMLElement>, classStart);
-
-		if (this.preemptElem) {
-			const preemptNodeList = this.preemptElem.childNodes;
-			BattleLog.unlinkNodeList(preemptNodeList as NodeListOf<HTMLElement>, classStart);
-		}
+		// unlinks from everywhere, not just this log
+		// this is how oldclient works and it's probably intentional
+		const nodeList = document.getElementsByClassName('chatmessage-' + userid);
+		BattleLog.unlinkNodeList(nodeList as any as ArrayLike<HTMLElement>);
 	}
 
 	preemptCatchup() {

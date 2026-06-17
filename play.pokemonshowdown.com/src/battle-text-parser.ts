@@ -48,7 +48,7 @@ export class BattleTextParser {
 		case 'chatmsg': case 'chatmsg-raw': case 'raw': case 'error': case 'html':
 		case 'inactive': case 'inactiveoff': case 'warning':
 		case 'fieldhtml': case 'controlshtml': case 'pagehtml': case 'bigerror':
-		case 'debug': case 'tier': case 'challstr': case 'popup': case '':
+		case 'debug': case 'tier': case 'challstr': case 'customgroups': case 'popup': case '':
 			return [cmd, line.slice(index + 1)];
 		case 'c': case 'chat': case 'uhtml': case 'uhtmlchange': case 'queryresponse': case 'showteam':
 			// three parts
@@ -365,7 +365,7 @@ export class BattleTextParser {
 			}
 			let id = BattleTextParser.effectId(namespace);
 			if (BattleText[id] && type in BattleText[id]) {
-				if (BattleText[id][type].charAt(1) === '.') type = BattleText[id][type].slice(2) as ID;
+				if (BattleText[id][type].charAt(1) === '.') type = BattleText[id][type].slice(2);
 				if (BattleText[id][type].startsWith('#')) id = BattleText[id][type].slice(1) as ID;
 				if (!BattleText[id][type]) return '';
 				let template = BattleText[id][type];
