@@ -8795,7 +8795,6 @@ export const BattleMoveAnims: AnimTable = {
 	},
 	ragefist: {
 		anim(scene, [attacker, defender]) {
-
 			scene.backgroundEffect('#000000', 900, 0.3);
 			scene.showEffect('angry', {
 				x: attacker.x + 20,

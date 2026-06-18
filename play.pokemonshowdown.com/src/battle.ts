@@ -542,7 +542,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		if (item === 'ironball') {
 			return true;
 		}
-		if (ability === 'levitate') {
+		if (ability === 'levitate' || ability === 'eelevate') {
 			return false;
 		}
 		if (this.volatiles['magnetrise'] || this.volatiles['telekinesis']) {
@@ -948,6 +948,9 @@ export class Side {
 		}
 		pokemon.statusData.toxicTurns = 0;
 		if (this.battle.gen === 5) pokemon.statusData.sleepTurns = 0;
+		if (this.battle.tier.includes('Champions')) {
+			pokemon.timesAttacked = 0;
+		}
 		this.lastPokemon = pokemon;
 		this.active[slot] = null;
 
