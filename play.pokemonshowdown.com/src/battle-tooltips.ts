@@ -1459,7 +1459,7 @@ export class BattleTooltips {
 		const isTransformed = clientPokemon?.volatiles.transform;
 		if (!serverPokemon || isTransformed) {
 			if (!clientPokemon) throw new Error('Must pass either clientPokemon or serverPokemon');
-			let { min, ev0, ev0plus, ev84, ev252minus, ev252, max } = this.getSpeedRange(clientPokemon);
+			let { min, ev0, ev84, ev252, max } = this.getSpeedRange(clientPokemon);
 			if (this.battle.gen < 3) {
 				if (this.battle.tier.includes('Random')) {
 					return `<p><small>Spe</small> ${max} <small>(before stat stage changes)</small></p>`;
@@ -1471,23 +1471,11 @@ export class BattleTooltips {
 			} else if (this.battle.tier.includes("Let's Go")) {
 				return `<p><small>Spe</small> ${min}<small class="gray">&ndash;${ev0}&ndash;</small>${max} <small>(before external modifiers)</small></p>`;
 			} else if (clientPokemon.nature) {
-				let natureVals = BattleNatures[clientPokemon.nature];
-				let natureMin;
-				let natureMax;
-				if (natureVals.minus === 'spe') {
-					natureMin = min;
-					natureMax = ev252minus;
-				} else if (natureVals.plus === 'spe') {
-					natureMin = ev0plus;
-					natureMax = max;
-				} else {
-					natureMin = ev0;
-					natureMax = ev252;
-				}
-				return `<p><small>Spe</small> ${natureMin} to ${natureMax}<br><small>(before external modifiers)</small></p>`;
+				// Nature already taken into account in min/max
+				return `<p><small>Spe</small> ${min} to ${max}<br><small>(before external modifiers)</small></p>`;
 			} else {
 				return `<p><small>Spe</small> ${min}<small class="gray">&ndash;${ev0}&ndash;${ev252}&ndash;</small>${max}<br><small>(before external modifiers)</small></p>`;
-			};
+			}
 		}
 		const stats = serverPokemon.stats;
 		const modifiedStats = this.calculateModifiedStats(clientPokemon, serverPokemon);
@@ -1571,8 +1559,7 @@ export class BattleTooltips {
 	/**
 	 * Calculates possible Speed stat range of an opponent
 	 */
-	getSpeedRange(pokemon: Pokemon):
-	{ min: number, ev0: number, ev0plus: number, ev84: number, ev252minus: number, ev252: number, max: number } {
+	getSpeedRange(pokemon: Pokemon): { min: number, ev0: number, ev84: number, ev252: number, max: number } {
 		const tr = Math.trunc || Math.floor;
 		const species = pokemon.getSpecies();
 		let rules = this.battle.rules;
@@ -1607,49 +1594,52 @@ export class BattleTooltips {
 		let gen = this.battle.gen;
 		let isCGT = tier.includes('Computer-Generated Teams');
 
+		let minNatureMult = 0.9;
+		let maxNatureMult = 1.1;
+		if (pokemon.nature) {
+			let natureVals = BattleNatures[pokemon.nature];
+			if (natureVals.minus === 'spe') {
+				minNatureMult = 0.9;
+				maxNatureMult = 0.9;
+			} else if (natureVals.plus === 'spe') {
+				minNatureMult = 1.1;
+				maxNatureMult = 1.1;
+			}
+		}
+
 		let min;
 		let ev0;
-		let ev0plus;
 		let ev84;
-		let ev252minus;
 		let ev252;
 		let max;
 		if (tier.includes("Let's Go")) {
-			min = tr(tr(tr(2 * baseSpe * level / 100 + 5) * 0.9) * tr((70 / 255 / 10 + 1) * 100) / 100);
+			min = tr(tr(tr(2 * baseSpe * level / 100 + 5) * minNatureMult) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			ev0 = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
-			ev0plus = tr(tr(tr(2 * baseSpe * level / 100 + 5) * 1.1) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			ev84 = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
-			ev252minus = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5) * 0.9) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			ev252 = tr(tr(tr((2 * baseSpe + 31 + 63) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
-			max = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5) * 1.1) * tr((70 / 255 / 10 + 1) * 100) / 100);
+			max = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5) * maxNatureMult) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			if (tier.includes('No Restrictions')) max += 200;
 			else if (tier.includes('Random')) max += 20;
 		} else if (tier.includes('Champions')) {
-			min = tr(0.9 * (baseSpe + 20));
+			min = tr(minNatureMult * (baseSpe + 20));
 			ev0 = tr((2 * baseSpe + 31) * level / 100) + 5;
-			ev0plus = tr(1.1 * (baseSpe + 20));
 			ev84 = tr((2 * baseSpe + 31 + 21) * level / 100) + 5;
-			ev252minus = tr(0.9 * (baseSpe + 32 + 20));
 			ev252 = tr(baseSpe + 32 + 20);
-			max = tr(1.1 * (baseSpe + 32 + 20));
+			max = tr(maxNatureMult * (baseSpe + 32 + 20));
 		} else if (gen < 3) {
 			max = tr((2 * baseSpe + 30 + 63) * level / 100 + 5);
 			ev252 = max;
-			ev252minus = max;
 			ev84 = 0;
 			ev0 = tr((2 * baseSpe + 30) * level / 100 + 5);
-			ev0plus = ev0;
 			min = isCGT ? max : tr(2 * baseSpe * level / 100 + 5);
 		} else {
-			max = tr(tr((2 * baseSpe + 94) * level / 100 + 5) * 1.1);
+			max = tr(tr((2 * baseSpe + 94) * level / 100 + 5) * maxNatureMult);
 			ev252 = tr(tr((2 * baseSpe + 94) * level / 100 + 5));
-			ev252minus = tr(tr((2 * baseSpe + 94) * level / 100 + 5) * 0.9);
 			ev84 = tr(tr((2 * baseSpe + 31 + 21) * level / 100 + 5));
-			ev0plus = tr(tr(2 * baseSpe * level / 100 + 5) * 1.1);
 			ev0 = tr(tr((2 * baseSpe + 31) * level / 100 + 5));
-			min = isCGT ? max : tr(tr(2 * baseSpe * level / 100 + 5) * 0.9);
+			min = isCGT ? max : tr(tr(2 * baseSpe * level / 100 + 5) * minNatureMult);
 		}
-		return { min, ev0, ev0plus, ev84, ev252minus, ev252, max };
+		return { min, ev0, ev84, ev252, max };
 	}
 
 	/**
