@@ -261,8 +261,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const LC = GENS.map(num => num + 0.7);
 	const STADIUM = [2.04, 1.04];
 	const NATDEX = [9.1, 8.1];
+	// 68 = natdex champs
+	const CHAMPIONS = [9.67, 9.68];
 	const OTHER = [
-		9.9, 9.67, 9.6, 9.411, 9.41, 9.401, 9.4, 9.33, 9.2, -9.4, -9.401,
+		9.9, 9.6, 9.411, 9.41, 9.401, 9.4, 9.33, 9.2, -9.4, -9.401,
 		8.6, 8.4, 8.2, -8.4, -8.6,
 		7.1,
 		5.1,
@@ -270,7 +272,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	];
 
 	// process.stdout.write("\n  ");
-	for (const genIdent of [...GENS, ...DOUBLES, ...VGC, ...NFE, ...STADIUM, ...OTHER, ...NATDEX, ...LC]) {
+	for (const genIdent of [...GENS, ...DOUBLES, ...VGC, ...NFE, ...STADIUM, ...OTHER, ...NATDEX, ...CHAMPIONS, ...LC]) {
 		const isLetsGo = (genIdent === 7.1);
 		const isBDSP = (genIdent === 8.6 || genIdent === -8.6);
 		const isMetBattle = ('' + genIdent).endsWith('.2');
@@ -286,6 +288,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const isGen9BH = genIdent === 9.9;
 		const isSSB = genIdent === 9.6;
 		const isChampions = genIdent === 9.67;
+		const isNDChampions = genIdent === 9.68;
 		const genNum = Math.floor(isDoubles ? -genIdent : genIdent);
 		const isBW1 = genIdent === 5.1;
 		const isRS = genIdent === 3.1;
@@ -302,7 +305,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isBW1) genStr += 'bw1';
 			if (isRS) genStr += 'rs';
 			if (isFRLG) genStr += 'frlg';
-			if (isChampions) genStr = 'champions';
+			if (isChampions || isNDChampions) genStr = 'champions';
 			return genStr;
 		})();
 		// process.stdout.write("" + gen + (isDoubles ? " doubles" : "") + "... ");
@@ -412,6 +415,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 				if (isNatDex || (isPreDLC && genNum === 9.41) || (isSVDLC1 && genNum === 9.411)) {
 					return species.natDexTier;
+				}
+				if (isNDChampions) {
+					if (species.tier === 'Illegal') return Dex.mod('gen9').species.get(species.id).natDexTier;
+					return species.tier;
 				}
 				return species.tier;
 			})();
@@ -536,6 +543,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['champions'].metagameBans = metagameBans;
 			BattleTeambuilderTable['champions'].overrideTier = overrideTier;
 			BattleTeambuilderTable['champions'].formatSlices = formatSlices;
+		} else if (isNDChampions) {
+			BattleTeambuilderTable['natdexchampions'] = {};
+			BattleTeambuilderTable['natdexchampions'].learnsets = {};
+			BattleTeambuilderTable['natdexchampions'].tiers = tiers;
+			BattleTeambuilderTable['natdexchampions'].items = items;
+			BattleTeambuilderTable['natdexchampions'].metagameBans = metagameBans;
+			BattleTeambuilderTable['natdexchampions'].overrideTier = overrideTier;
+			BattleTeambuilderTable['natdexchampions'].formatSlices = formatSlices;
 		} else if (isVGC) {
 			BattleTeambuilderTable[gen + 'vgc'] = {};
 			BattleTeambuilderTable[gen + 'vgc'].tiers = tiers;
@@ -649,7 +664,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				continue;
 			}
 			if (item.isNonstandard && !isMetBattle) {
-				if (isNatDex) {
+				if (isNatDex || isNDChampions) {
 					let curItem = item;
 					let curGen = genNum;
 					while (curItem.isNonstandard && curGen >= 7) {
@@ -1034,6 +1049,21 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable['champions'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['champions'].learnsets[id][moveid] = '9a';
+		}
+	}
+	for (const id in learnsets) {
+		BattleTeambuilderTable['natdexchampions'].learnsets[id] = Object.assign({}, learnsets[id]);
+		const species = Dex.mod('champions').species.get(id);
+		if (species.isNonstandard) continue;
+		const learnset = ChampionsLearnsets[id].learnset;
+		if (!learnset) continue;
+		for (const moveid in learnset) {
+			if (moveid in BattleTeambuilderTable['natdexchampions'].learnsets[id]) {
+				if (BattleTeambuilderTable['natdexchampions'].learnsets[id][moveid].includes('9')) continue;
+				BattleTeambuilderTable['natdexchampions'].learnsets[id][moveid] += '9a';
+			} else {
+				BattleTeambuilderTable['natdexchampions'].learnsets[id][moveid] = '9a';
+			}
 		}
 	}
 	const SSDLC1Learnsets = Dex.mod('gen8dlc1').data.Learnsets;
