@@ -1052,7 +1052,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		}
 	}
 	for (const id in learnsets) {
-		BattleTeambuilderTable['natdexchampions'].learnsets[id] = Object.assign({}, learnsets[id]);
+		BattleTeambuilderTable['natdexchampions'].learnsets[id] = { ...learnsets[id] };
 		const species = Dex.mod('champions').species.get(id);
 		if (species.isNonstandard) continue;
 		const learnset = ChampionsLearnsets[id].learnset;
