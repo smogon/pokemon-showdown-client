@@ -1420,10 +1420,11 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	override render() {
 		const room = this.props.room;
 		const tinyLayout = room.width < 450;
+		const challengeOpen = room.challengeMenuOpen || room.challenging || room.challenged;
 
 		return <PSPanelWrapper room={room} focusClick noScroll fullSize>
 			<ChatLog
-				class={`chat-log${tinyLayout ? '' : ' hasuserlist'}`} room={this.props.room}
+				class={`chat-log${tinyLayout ? '' : ' hasuserlist'}${challengeOpen ? ' challenge-open' : ''}`} room={this.props.room}
 				left={tinyLayout ? 0 : 146} top={room.tour?.info.isActive ? 30 : 0}
 			>
 				{this.renderControls()}
