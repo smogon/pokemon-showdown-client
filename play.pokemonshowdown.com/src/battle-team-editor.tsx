@@ -3151,7 +3151,7 @@ class DetailsForm extends preact.Component<{
 						)}
 					</label>
 				</p>}
-				{editor.gen !== 8 && !editor.isBDSP && !species.cannotDynamax && (
+				{editor.gen === 8 && !editor.isBDSP && !species.cannotDynamax && (
 					<p>
 						<label class="label" style="display:inline">Dynamax Level: <input
 							name="dynamaxlevel" value={set.dynamaxLevel ?? ''} placeholder="10"
