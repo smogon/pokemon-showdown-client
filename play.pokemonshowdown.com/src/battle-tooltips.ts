@@ -1472,7 +1472,7 @@ export class BattleTooltips {
 				return `<p><small>Spe</small> ${min}<small class="gray">&ndash;${ev0}&ndash;</small>${max} <small>(before external modifiers)</small></p>`;
 			} else if (clientPokemon.nature) {
 				// Nature already taken into account in min/max
-				return `<p><small>Spe</small> ${min} to ${max}<br><small>(before external modifiers)</small></p>`;
+				return `<p><small>Spe</small> ${min} to ${max} <small>(before external modifiers)</small></p>`;
 			} else {
 				return `<p><small>Spe</small> ${min}<small class="gray">&ndash;${ev0}&ndash;${ev252}&ndash;</small>${max}<br><small>(before external modifiers)</small></p>`;
 			}
