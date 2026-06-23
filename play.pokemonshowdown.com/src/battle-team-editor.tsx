@@ -1995,7 +1995,7 @@ class TeamWizard extends preact.Component<{
 								<strong class="label">Types</strong> {}
 								{species.types.map(type => <div><PSIcon type={type} /></div>)}
 							</span>
-							<span class="detailcell detailcell-info">
+							<span class="detailcell">
 								<strong class="label">Info</strong> {}
 								{set.level || editor.defaultLevel}
 								{set.gender && set.gender !== 'N' && <>
