@@ -1152,16 +1152,9 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			const relumiBasePokemonBans: string[] = relumiBanConfig.basePokemonBans || [];
 			const relumiGen9Allowed: string[] = relumiBanConfig.gen9Allowlist || [];
 			const relumiOUBans: string[] = relumiBanConfig.ouPokemonBans || [];
-			const pikachuCapFormes = [
-				"Original",
-				"Hoenn",
-				"Sinnoh",
-				"Unova",
-				"Kalos",
-				"Alola",
-				"Partner",
-				"World",
-			];
+			const bannedSpeciesByTag: Record<string, string[]> =
+				relumiBanConfig.bannedSpeciesByTag || {};
+
 			const results: SearchRow[] = [];
 			const relumiSpeciesRows: {
 				id: ID,
@@ -1171,6 +1164,15 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				isBase: boolean,
 				forme: string,
 			}[] = [];
+
+			// Pre-computed tag-ban check to avoid arrow-function closures in the species loop
+			const checkTagBan = (speciesId: string): boolean => {
+				for (let ti = 0; ti < relumiBaseTagBans.length; ti++) {
+					const tagId = toID(relumiBaseTagBans[ti].replace(/^tag:/, ''));
+					if (bannedSpeciesByTag[tagId]?.includes(speciesId)) return true;
+				}
+				return false;
+			};
 
 			for (const id in BattlePokedex) {
 				if (id === "missingno") continue;
@@ -1188,28 +1190,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				const isRevavroomCustomForm =
 					species.baseSpecies === "Revavroom" &&
 					species.id !== "revavroom";
-				const isGigantamaxForm =
-					species.id.endsWith("gmax") ||
-					species.id.includes("gigantamax") ||
-					species.forme === "Gigantamax" ||
-					species.forme.startsWith("Gigantamax ") ||
-					species.forme === "Gmax";
-				const isMegaForm =
-					species.id.endsWith('megaz') ||
-					species.forme.toLowerCase().includes('mega');
-				const isTeraForm =
-					species.forme.endsWith('Tera') ||
-					species.forme.endsWith('Terastal');
-				const isStellarForm = species.forme.endsWith('Stellar');
-				const isPikachuCapForm =
-					species.baseSpecies === "Pikachu" &&
-					pikachuCapFormes.includes(species.forme);
-				const hasRelumiBaseTagBan =
-					(relumiBaseTagBans.includes("pokemontag:mega") && isMegaForm) ||
-					(relumiBaseTagBans.includes("pokemontag:gigantamax") && isGigantamaxForm) ||
-					(relumiBaseTagBans.includes("pokemontag:teraforme") && isTeraForm) ||
-					(relumiBaseTagBans.includes("pokemontag:stellarforme") && isStellarForm) ||
-					(relumiBaseTagBans.includes("pokemontag:pikachucap") && isPikachuCapForm);
+				const hasRelumiBaseTagBan = checkTagBan(species.id);
 				const hasRelumiBasePokemonBan =
 					relumiBasePokemonBans.includes(species.id) ||
 					relumiBasePokemonBans.includes(toID(species.name));
