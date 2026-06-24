@@ -1720,6 +1720,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		case 'temperflare':
 			return (!moves.includes('flareblitz') && !moves.includes('pyroball') && !moves.includes('sacredfire') &&
 				!moves.includes('bitterblade') && !moves.includes('firepunch')) || this.isDoubles;
+		case 'terablast':
+         return !(dex.gen === 9 && !this.formatType && ['ou', 'uu', 'ru', 'nu', 'pu', 'zu'].includes(format));
 		case 'terrainpulse': case 'waterpulse':
 			return ['megalauncher', 'technician'].includes(abilityid) && !moves.includes('originpulse');
 		case 'thief':
