@@ -329,9 +329,6 @@ export const Teams = new class {
 					text += `- ${move || ''}\n`;
 				}
 			}
-			for (let i = set.moves?.length || 0; i < 4; i++) {
-				text += `- \n`;
-			}
 		}
 
 		// stats
@@ -401,9 +398,6 @@ export const Teams = new class {
 					move = !newFormat ? `${move}[${hpType}]` : `${move}${hpType}`;
 				}
 				text += `- ${move}\n`;
-			}
-			for (let i = set.moves?.length || 0; i < 4; i++) {
-				text += `- \n`;
 			}
 		}
 
