@@ -140,6 +140,8 @@ export class BattleRoom extends ChatRoom {
 	declare challengeMenuOpen: false;
 	declare challengingFormat: null;
 	declare challengedFormat: null;
+	isHiddenBattle = false;
+	hideBattleToggled = false;
 
 	override battle: Battle = null!;
 	/** null if spectator, otherwise current player's info */
@@ -151,6 +153,16 @@ export class BattleRoom extends ChatRoom {
 	  * and true if we refreshed and rejoined a battle.
 		* null = initializing, we don't know yet */
 	rejoining: boolean | null = null;
+	autoTeamSheetAccepted: boolean | null = null;
+
+	static checkHiddenBattle(id: RoomID) {
+		return /^battle-[a-z0-9]+-\d+-[^-]+$/.test(id);
+	}
+	constructor(options: RoomOptions) {
+		super(options);
+		this.isHiddenBattle = BattleRoom.checkHiddenBattle(this.id);
+		this.hideBattleToggled = this.isHiddenBattle;
+	}
 
 	override interruptClose(explicit?: boolean, elem?: HTMLElement | null) {
 		if (!this.battle.ended && this.users[PS.user.userid]?.startsWith('☆') && !this.battle.isReplay) {
@@ -437,6 +449,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (PS.prefs.autotimer && !room.battle.kickingInactive && !room.autoTimerActivated) {
 			this.send('/timer on');
 			room.autoTimerActivated = true;
+		}
+		if (PS.prefs.autoTeamSheet && !room.autoTeamSheetAccepted) {
+			this.send('/acceptopenteamsheets');
+			room.autoTeamSheetAccepted = true;
 		}
 
 		BattleChoiceBuilder.fixRequest(request, room.battle);
