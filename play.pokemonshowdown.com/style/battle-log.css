@@ -209,6 +209,16 @@ select.button {
 	text-shadow: none;
 	box-shadow: 0 1px 2px rgba(0,0,0,.1);
 }
+.dark .button.disabled,
+.dark .button.disabled:hover,
+.dark .button.disabled:active,
+.dark .button:disabled,
+.dark .button:disabled:hover,
+.dark .button:disabled:active,
+.dark .button.cur,
+.dark .button.cur:hover {
+	text-shadow: none;
+}
 .button.cur,
 .button.cur:hover,
 .button.cur:disabled,
@@ -240,7 +250,7 @@ select.button {
 	background: linear-gradient(to bottom, #393d46, #2b2c31);
 	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45), inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
 	border-color: #34373b;
-	text-shadow: none;
+	text-shadow: 0px 1px 0 black;
 	color: #F9F9F9;
 }
 .dark .button:hover {

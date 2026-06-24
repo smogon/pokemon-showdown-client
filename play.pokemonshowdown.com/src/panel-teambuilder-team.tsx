@@ -264,7 +264,8 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 				/>
 			</label>
 			<TeamEditor
-				team={team} onChange={this.save} readOnly={!!team.teamid && !team.uploadedPackedTeam} resources={this.renderResources()}
+				team={team} onChange={this.save} readOnly={!!team.teamid && !team.uploadedPackedTeam}
+				tiny={room.width < 620} resources={this.renderResources()}
 			>
 				{!!(team.packedTeam && team.format.length > 4) && <p>
 					<button data-cmd="/validate" class="button"><i class="fa fa-check"></i> Validate</button>
@@ -379,7 +380,7 @@ class ViewTeamPanel extends PSRoomPanel {
 			<p>Format: <strong>{teamData.format}</strong></p>
 			<p>Views: <strong>{teamData.views}</strong></p>
 			{team.key && <p><a class="button" href={`team-${team.key}`}>Edit</a></p>}
-			<TeamEditor team={team} readOnly></TeamEditor>
+			<TeamEditor team={team} readOnly tiny={room.width < 620}></TeamEditor>
 		</div></PSPanelWrapper>;
 	}
 }

@@ -539,6 +539,7 @@ you can't delete it by pressing Backspace */
 .set-button {
 	position: relative;
 	max-width: 660px;
+	margin: 8px 0;
 }
 .set-button.cur {
 	opacity: 0.5;
@@ -563,7 +564,7 @@ you can't delete it by pressing Backspace */
 	margin: 0;
 	width: 100%;
 	text-align: left;
-	height: 100px;
+	height: 121px;
 	white-space: nowrap;
 	overflow: hidden;
 	padding: 3px;
@@ -574,6 +575,11 @@ you can't delete it by pressing Backspace */
 }
 .set-button .label {
 	color: #2f4f6e;
+	margin-bottom: 3px;
+}
+.set-button .set-nickname .label,
+.set-button .set-pokemon .label {
+	margin-bottom: 1px;
 }
 .dark .set-button .label {
 	color: #a1b0be;
@@ -581,26 +587,31 @@ you can't delete it by pressing Backspace */
 
 .set-button .set-nickname {
 	position: absolute;
-	height: 32px;
+	height: 35px;
 	width: 120px;
-	top: 5px;
+	top: 2px;
 	left: -5px;
 	padding: 0 3px;
 }
 .tiny-layout .set-button .set-nickname {
 	width: 90px;
 }
+.compact .set-button .set-nickname,
+.tiny-layout .set-button .set-nickname {
+	top: 5px;
+	height: 32px;
+}
 
 .set-button .sprite {
 	display: block;
 	width: 100%;
-	height: 97px;
+	height: 119px;
 }
 .set-button .sprite-inner {
 	display: block;
-	padding: 68px 0 0 2px;
+	padding: 88px 0 0 2px;
 	margin-left: 1px;
-	height: 29px;
+	height: 31px;
 	border-bottom-left-radius: 3px;
 	background: linear-gradient(to bottom, transparent 0%, transparent 70%, #d3d3d3 100%);
 }
@@ -615,7 +626,8 @@ you can't delete it by pressing Backspace */
 }
 .set-button .detailcell {
 	float: left;
-	height: 50px;
+	padding: 4px 0;
+	height: 55px;
 }
 .dark .set-button .button-first.cur,
 .dark .set-button .button-middle.cur,
@@ -624,7 +636,7 @@ you can't delete it by pressing Backspace */
 }
 .set-button .detailcell + .detailcell {
 	border-left: 1px solid #888;
-	margin-left: 20px;
+	margin-left: 7px;
 	padding-left: 3px;
 }
 .tiny-layout .set-button .detailcell + .detailcell {
@@ -634,25 +646,111 @@ you can't delete it by pressing Backspace */
 	padding: 0;
 }
 .set-button .set-ability .button, .set-button .set-item .button {
-	height: 40px;
+	height: 48px;
 }
 .set-item .itemicon {
 	float: right;
 }
-.set-button .set-moves .button {
-	line-height: 18px;
+.set-button .set-moves .button div {
+	line-height: 22px;
 }
-.set-button .set-moves .button.overfull {
+.set-button .set-moves .button.overfull div {
 	line-height: normal;
 }
 .set-button .set-details .button {
-	height: 61px;
+	height: 74px;
 }
 .set-button .set-stats, .set-button .set-stats .button {
 	width: 138px;
 }
 .set-button .set-stats .button {
+	padding: 10px 3px 3px;
+}
+.set-button .set-stats .statrow {
+	height: 18px;
+}
+.set-button .set-stats .statrow label {
+	height: 9px;
+	line-height: 12px;
+}
+.set-button .set-stats .statgraph {
+	height: 9px;
+}
+.set-button .set-stats .statgraph span {
+	margin-top: 1px;
+	height: 8px;
+}
+.set-button .set-stats .statrow em {
+	height: 9px;
+}
+.compact .set-button,
+.tiny-layout .set-button,
+.team-focus-editor .set-button {
+	margin: 0;
+}
+.compact .set-button .label,
+.tiny-layout .set-button .label {
+	margin-bottom: 0;
+}
+.compact .set-button td .button,
+.tiny-layout .set-button td .button {
+	height: 100px;
+}
+.compact .set-button .sprite,
+.tiny-layout .set-button .sprite {
+	height: 97px;
+}
+.compact .set-button .sprite-inner,
+.tiny-layout .set-button .sprite-inner {
+	padding-top: 68px;
+	height: 29px;
+}
+.compact .set-button .detailcell,
+.tiny-layout .set-button .detailcell {
+	padding-top: 0;
+	padding-bottom: 0;
+	height: 50px;
+}
+.compact .set-button .set-ability .button, .compact .set-button .set-item .button,
+.tiny-layout .set-button .set-ability .button, .tiny-layout .set-button .set-item .button {
+	height: 40px;
+}
+.compact .set-button .set-moves .button:not(.overfull) div,
+.tiny-layout .set-button .set-moves .button:not(.overfull) div {
+	line-height: 18px;
+}
+.compact .set-button .set-details .button,
+.tiny-layout .set-button .set-details .button {
+	height: 61px;
+}
+.compact .set-button .set-stats .button,
+.tiny-layout .set-button .set-stats .button {
 	padding: 3px;
+}
+.compact .set-button .set-stats .statrow,
+.tiny-layout .set-button .set-stats .statrow {
+	height: 15px;
+}
+.compact .set-button .set-stats .statrow label,
+.tiny-layout .set-button .set-stats .statrow label {
+	height: 5px;
+}
+.compact .set-button .set-stats .statgraph,
+.tiny-layout .set-button .set-stats .statgraph {
+	height: 5px;
+}
+.compact .set-button .set-stats .statgraph span,
+.tiny-layout .set-button .set-stats .statgraph span {
+	margin-top: 3px;
+	height: 6px;
+}
+.compact .set-button .set-stats .statrow em,
+.tiny-layout .set-button .set-stats .statrow em {
+	height: 5px;
+}
+.compact .set-button .set-stats .statrow small,
+.tiny-layout .set-button .set-stats .statrow small {
+	line-height: normal;
 }
 .tiny-layout .set-button .set-stats, .tiny-layout .set-button .set-stats .button {
 	width: 40px;
@@ -725,13 +823,17 @@ you can't delete it by pressing Backspace */
 }
 .wizardsearchresults {
 	position: absolute;
-	top: 230px;
+	top: 242px;
 	left: 0;
 	right: 0;
 	bottom: 0;
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 	overscroll-behavior-block: contain;
+}
+.compact .wizardsearchresults,
+.tiny-layout .wizardsearchresults {
+	top: 230px;
 }
 .wizardsearchresults .dexlist, .searchresults .dexlist {
 	min-width: 624px;

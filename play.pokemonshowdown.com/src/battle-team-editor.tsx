@@ -27,6 +27,12 @@ type SampleSets = {
 };
 type SampleSetsTable = { dex?: SampleSets, stats?: SampleSets };
 
+function TypeIcon({ type, tera }: { type: string, tera?: boolean }) {
+	return <strong
+		class={`typeicon typeicon-${type}${tera ? ' tera' : ''}`}
+	>{type}</strong>;
+}
+
 export class TeamEditorState extends PSModel {
 	static clipboard: {
 		teams: {
@@ -913,8 +919,9 @@ export class TeamEditorState extends PSModel {
 
 export class TeamEditor extends preact.Component<{
 	team: Team, narrow?: boolean, onChange?: () => void, readOnly?: boolean,
-	children?: preact.ComponentChildren, resources?: preact.ComponentChildren,
+	tiny?: boolean, children?: preact.ComponentChildren, resources?: preact.ComponentChildren,
 }> {
+	static compactMetrics = true;
 	wizard = true;
 	editor!: TeamEditorState;
 	setTab = (ev: Event) => {
@@ -922,6 +929,11 @@ export class TeamEditor extends preact.Component<{
 		const wizard = target.value === 'wizard';
 		this.wizard = wizard;
 		this.forceUpdate();
+	};
+	changeCompactMetrics = (ev: Event) => {
+		TeamEditor.compactMetrics = (ev.currentTarget as HTMLInputElement).checked;
+		this.forceUpdate();
+		window.PS?.update();
 	};
 	static probablyMobile() {
 		return document.body.offsetWidth < 500;
@@ -982,6 +994,8 @@ export class TeamEditor extends preact.Component<{
 		if (this.props.team.format !== editor.format) {
 			editor.setFormat(this.props.team.format);
 		}
+		const tiny = this.props.tiny ?? !!this.base?.closest('.tiny-layout');
+		const compactMetrics = TeamEditor.compactMetrics && !tiny;
 
 		return <div class="teameditor">
 			<ul class="tabbar">
@@ -993,8 +1007,14 @@ export class TeamEditor extends preact.Component<{
 				</button></li>
 			</ul>
 			{TeamEditorState.renderClipboard(this.cancelClipboard)}
+			{this.wizard && !tiny && !editor.innerFocus && <p>
+				<label class="checkbox inline"><input
+					type="checkbox" name="compactMetrics" checked={TeamEditor.compactMetrics}
+					onChange={this.changeCompactMetrics}
+				/> Compact</label>
+			</p>}
 			{this.wizard ? (
-				<TeamWizard editor={editor} onChange={this.props.onChange} onUpdate={this.update} />
+				<TeamWizard editor={editor} onChange={this.props.onChange} onUpdate={this.update} compact={compactMetrics} />
 			) : (
 				<TeamTextbox editor={editor} onChange={this.props.onChange} onUpdate={this.update} />
 			)}
@@ -1827,7 +1847,7 @@ class TeamTextbox extends preact.Component<{
 }
 
 class TeamWizard extends preact.Component<{
-	editor: TeamEditorState, onChange?: () => void, onUpdate: () => void,
+	editor: TeamEditorState, onChange?: () => void, onUpdate: () => void, compact: boolean,
 }> {
 	setSearchBox: string | null = null;
 	windowing = true;
@@ -1993,7 +2013,7 @@ class TeamWizard extends preact.Component<{
 						<button class={`button button-middle${cur('details')}`} onClick={this.setFocus} value={`details|${i}`}>
 							<span class="detailcell">
 								<strong class="label">Types</strong> {}
-								{species.types.map(type => <div><PSIcon type={type} /></div>)}
+								{species.types.map(type => <div><TypeIcon type={type} /></div>)}
 							</span>
 							<span class="detailcell">
 								<strong class="label">Level</strong> {}
@@ -2013,11 +2033,11 @@ class TeamWizard extends preact.Component<{
 							</span>}
 							{editor.gen === 9 && !editor.isChampions && <span class="detailcell">
 								<strong class="label">Tera</strong> {}
-								<PSIcon type={set.teraType || species.requiredTeraType || species.types[0]} />
+								<TypeIcon type={set.teraType || species.requiredTeraType || species.types[0]} tera />
 							</span>}
 							{editor.hpTypeMatters(set) && <span class="detailcell">
 								<strong class="label">H.P.</strong> {}
-								<PSIcon type={editor.getHPType(set)} />
+								<TypeIcon type={editor.getHPType(set)} />
 							</span>}
 						</button>
 					</div></td>
@@ -2334,7 +2354,7 @@ class TeamWizard extends preact.Component<{
 		const cur = (i: number) => setIndex === i ? ' cur' : '';
 		const sampleSets = type === 'ability' ? editor.getSampleSets(set!) : [];
 		const userSets = type === 'ability' ? editor.getUserSets(set!) : null;
-		return <div class="team-focus-editor">
+		return <div class={`team-focus-editor${this.props.compact ? ' compact' : ''}`}>
 			<ul class="tabbar">
 				<li class="home-li"><button class="button" onClick={this.setFocus}>
 					<i class="fa fa-chevron-left" aria-hidden></i> Back
@@ -2434,7 +2454,7 @@ class TeamWizard extends preact.Component<{
 				<i class="fa fa-undo" aria-hidden></i> Undo delete
 			</button>
 		</p> : null;
-		return <div class="teameditor">
+		return <div class={`teameditor${this.props.compact ? ' compact' : ''}`}>
 			{editor.sets.map((set, i) => [
 				pasteControls(i),
 				this.renderSet(set, i),

@@ -219,6 +219,9 @@ li::marker {
 	display: inline-block;
 	line-height: 12px;
 }
+.dark .mini-header i.text, .dark .tablist i.text {
+	border-color: #999;
+}
 .tablist .roomtab-battle i.text {
 	display: block;
 	border: 0;
