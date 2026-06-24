@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 'use strict';
 
-const fs = require("fs");
-const path = require("path");
-process.chdir(path.resolve(__dirname, '../play.pokemonshowdown.com'));
-const imageSize = require('image-size');
+import fs from 'node:fs';
+import imageSize from 'image-size';
 
-const Dex = require('./../caches/pokemon-showdown/dist/sim/dex').Dex;
+import dexModule from '../caches/pokemon-showdown/dist/sim/dex.js';
+
+process.chdir(import.meta.dirname + '/..');
+
+const { Dex } = dexModule;
 const toID = Dex.toID;
 
 process.stdout.write("Updating animated sprite dimensions... ");
@@ -50,13 +52,13 @@ function updateSizes() {
 
 			{
 				const row = { num: species.num };
-				const frontSize = sizeObj('sprites/ani/' + spriteid + '.gif');
+				const frontSize = sizeObj('play.pokemonshowdown.com/sprites/ani/' + spriteid + '.gif');
 				if (frontSize) row.front = frontSize;
-				const frontSizeF = sizeObj('sprites/ani/' + spriteid + '-f.gif');
+				const frontSizeF = sizeObj('play.pokemonshowdown.com/sprites/ani/' + spriteid + '-f.gif');
 				if (frontSizeF) row.frontf = frontSizeF;
-				const backSize = sizeObj('sprites/ani-back/' + spriteid + '.gif');
+				const backSize = sizeObj('play.pokemonshowdown.com/sprites/ani-back/' + spriteid + '.gif');
 				if (backSize) row.back = backSize;
-				const backSizeF = sizeObj('sprites/ani-back/' + spriteid + '-f.gif');
+				const backSizeF = sizeObj('play.pokemonshowdown.com/sprites/ani-back/' + spriteid + '-f.gif');
 				if (backSizeF) row.backf = backSizeF;
 				if (row.front || row.back || !row.forme) {
 					buf += `\t${id}:` + JSON.stringify(row).replace(/"/g, '') + `,\n`;
@@ -65,13 +67,13 @@ function updateSizes() {
 
 			{
 				const g5row = { num: species.num };
-				const frontSize = sizeObj('sprites/gen5ani/' + spriteid + '.gif');
+				const frontSize = sizeObj('play.pokemonshowdown.com/sprites/gen5ani/' + spriteid + '.gif');
 				if (frontSize) g5row.front = frontSize;
-				const frontSizeF = sizeObj('sprites/gen5ani/' + spriteid + '-f.gif');
+				const frontSizeF = sizeObj('play.pokemonshowdown.com/sprites/gen5ani/' + spriteid + '-f.gif');
 				if (frontSizeF) g5row.frontf = frontSizeF;
-				const backSize = sizeObj('sprites/gen5ani-back/' + spriteid + '.gif');
+				const backSize = sizeObj('play.pokemonshowdown.com/sprites/gen5ani-back/' + spriteid + '.gif');
 				if (backSize) g5row.back = backSize;
-				const backSizeF = sizeObj('sprites/gen5ani-back/' + spriteid + '-f.gif');
+				const backSizeF = sizeObj('play.pokemonshowdown.com/sprites/gen5ani-back/' + spriteid + '-f.gif');
 				if (backSizeF) g5row.backf = backSizeF;
 				if (g5row.front || g5row.back || !g5row.forme) {
 					g5buf += `\t${id}:` + JSON.stringify(g5row).replace(/"/g, '') + `,\n`;
@@ -146,17 +148,17 @@ function updateSizes() {
 };
 `;
 
-	fs.writeFileSync('data/pokedex-mini.js', buf);
-	fs.writeFileSync('data/pokedex-mini-bw.js', g5buf);
+	fs.writeFileSync('play.pokemonshowdown.com/data/pokedex-mini.js', buf);
+	fs.writeFileSync('play.pokemonshowdown.com/data/pokedex-mini-bw.js', g5buf);
 }
 
-if (fs.existsSync('sprites/ani/')) {
+if (fs.existsSync('play.pokemonshowdown.com/sprites/ani/')) {
 	updateSizes();
 	console.log('DONE');
 } else {
 	try {
-		fs.unlinkSync('data/pokedex-mini.js');
-		fs.unlinkSync('data/pokedex-mini-bw.js');
+		fs.unlinkSync('play.pokemonshowdown.com/data/pokedex-mini.js');
+		fs.unlinkSync('play.pokemonshowdown.com/data/pokedex-mini-bw.js');
 	} catch {}
 	console.log('SKIPPED');
 }

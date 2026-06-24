@@ -9,7 +9,7 @@ import preact from "../js/lib/preact";
 import { PSLoginServer } from "./client-connection";
 import { PSBackground } from "./client-core";
 import { Config, PS, PSRoom, type RoomID, type RoomOptions, type Team } from "./client-main";
-import { PSIcon, PSPanelErrorBoundary, PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSIcon, PSPanelErrorBoundary, PSPanelWrapper, PSRoomPanel, ReconnectTimer } from "./panels";
 import type { BattlesRoom } from "./panel-battle";
 import type { ChatRoom } from "./panel-chat";
 import type { LadderFormatRoom } from "./panel-ladder";
@@ -263,7 +263,7 @@ export class MainMenuRoom extends PSRoom {
 				let challengeShow = true;
 				let tournamentShow = true;
 				let partner = false;
-				let bestOfDefault = false;
+				let bestOfDefault = true;
 				let teraPreviewDefault = false;
 				let itemClauseDefault = false;
 				let team: 'preset' | null = null;
@@ -681,7 +681,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					<button class="button" data-cmd="/reconnect">
 						<i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong>
 					</button> {}
-					{PS.connection?.reconnectTimer && <small>(Autoreconnect in {Math.round(PS.connection.reconnectDelay / 1000)}s)</small>}
+					<ReconnectTimer />
 				</p>}
 			</TeamForm>;
 		}
@@ -823,6 +823,7 @@ export class FormatDropdown extends preact.Component<{
 	render() {
 		this.format = this.props.format || this.format || this.props.defaultFormat || '';
 		let [formatName, customRules] = this.format.split('@@@');
+		customRules = customRules?.replace(/,/g, ', ');
 		if (window.BattleLog) formatName = BattleLog.formatName(formatName);
 		if (this.props.format && !this.props.onChange) {
 			// There's intentionally no `disabled` prop. If this is out of sync
@@ -901,15 +902,64 @@ export class TeamForm extends preact.Component<{
 	format = '';
 	teraPreview = false;
 	bestOf = false;
+	bestOfValue = '3';
+	customRules = false;
+	customRuleText = '';
 	itemClause = false;
 	changeFormat = (ev: Event) => {
-		this.format = (ev.target as HTMLButtonElement).value;
+		this.setFormat((ev.target as HTMLButtonElement).value);
 	};
+	setFormat(format: string) {
+		const [baseFormat, customRules] = format.split('@@@');
+		this.format = baseFormat;
+		this.loadCustomRules(customRules);
+	};
+	loadCustomRules(customRules: string) {
+		this.bestOf = false;
+		this.bestOfValue = '3';
+		this.teraPreview = false;
+		this.itemClause = false;
+		if (!customRules) {
+			this.customRules = false;
+			this.customRuleText = '';
+			return;
+		}
+
+		this.customRules = true;
+		const unknownRules: string[] = [];
+		for (const rule of customRules.split(',')) {
+			const trimmedRule = rule.trim();
+			if (!trimmedRule) continue;
+			const bestOfMatch = /^best[-\s]*of\s*=\s*(\d+)$/i.exec(trimmedRule);
+			if (bestOfMatch) {
+				this.bestOf = true;
+				this.bestOfValue = bestOfMatch[1];
+			} else if (/^tera\s+type\s+preview$/i.test(trimmedRule)) {
+				this.teraPreview = true;
+			} else if (/^item\s+clause\s*=\s*1$/i.test(trimmedRule)) {
+				this.itemClause = true;
+			} else {
+				unknownRules.push(trimmedRule);
+			}
+		}
+		this.customRuleText = unknownRules.join('\n');
+	};
+	changeBestOfValue = (ev: Event) => {
+		this.bestOfValue = (ev.target as HTMLInputElement).value;
+	};
+	changeCustomRules = (ev: Event) => {
+		this.customRuleText = (ev.target as HTMLTextAreaElement).value;
+	};
+	addCustomRules(format: string, rules: string[]) {
+		if (!rules.length) return format;
+		const hasCustomRules = format.includes('@@@');
+		return `${format}${hasCustomRules ? ', ' : '@@@ '}${rules.join(', ')}`;
+	}
 	submit = (ev: Event, validate?: 'validate') => {
 		ev.preventDefault();
 		let format = this.format;
 		// in tournaments, format is the custom name & teamFormat is the original format.
-		const teambuilderFormat = PS.teams.teambuilderFormat(this.props.teamFormat || format);
+		const teambuilderFormat = this.props.teamFormat || PS.teams.teambuilderFormat(format);
 		const teamElement = this.base!.querySelector<HTMLButtonElement>('button[name=team]');
 		const teamKey = teamElement!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
@@ -919,19 +969,18 @@ export class TeamForm extends preact.Component<{
 			});
 			return;
 		}
-		if (this.teraPreview) {
-			const hasCustomRules = format.includes('@@@');
-			format = `${format}${hasCustomRules ? ', Tera Type Preview' : '@@@ Tera Type Preview'}`;
-		}
-		if (this.bestOf) {
-			const hasCustomRules = format.includes('@@@');
-			const value = this.base?.querySelector<HTMLInputElement>('input[name=bestofvalue]')?.value;
-			format = `${format}${hasCustomRules ? `, Best of = ${value!}` : `@@@ Best of = ${value!}`}`;
+		const customRules: string[] = [];
+		if (this.customRules) {
+			if (this.bestOf) {
+				customRules.push(`Best of = ${this.bestOfValue || '3'}`);
+			}
+			if (this.teraPreview) customRules.push('Tera Type Preview');
+			customRules.push(...this.customRuleText.split('\n').map(rule => rule.trim()).filter(Boolean));
 		}
 		if (this.itemClause) {
-			const hasCustomRules = format.includes('@@@');
-			format = `${format}${hasCustomRules ? ', Item Clause = 1' : '@@@ Item Clause = 1'}`;
+			customRules.push('Item Clause = 1');
 		}
+		format = this.addCustomRules(format, customRules);
 		PS.teams.loadTeam(team).then(() => {
 			(validate === 'validate' ? this.props.onValidate : this.props.onSubmit)?.(ev, format, team);
 		});
@@ -941,7 +990,15 @@ export class TeamForm extends preact.Component<{
 		const rule = (ev.target as HTMLInputElement)?.name;
 		if (rule === 'terapreview') this.teraPreview = checked;
 		if (rule === 'bestof') this.bestOf = checked;
-		if (rule === 'itemclause=1') this.itemClause = checked;
+		if (rule === 'customrules') {
+			this.customRules = checked;
+			if (!checked) {
+				this.bestOf = false;
+				this.teraPreview = false;
+			}
+			this.forceUpdate();
+		}
+		if (rule === 'itemclause') this.itemClause = checked;
 	};
 	handleClick = (ev: Event) => {
 		let target = ev.target as HTMLButtonElement | null;
@@ -954,7 +1011,6 @@ export class TeamForm extends preact.Component<{
 		}
 	};
 	render() {
-		const formatId = toID(this.format.split('@@@')[0]);
 		if (window.BattleFormats) {
 			this.format ||= this.props.defaultFormat || '';
 			// Default format
@@ -978,9 +1034,13 @@ export class TeamForm extends preact.Component<{
 		if (this.props.defaultFormat?.startsWith('!!')) {
 			// The !! means that it overrides any current format, and will only be
 			// sent as a prop once
-			this.format = this.props.defaultFormat.slice(2);
+			this.setFormat(this.props.defaultFormat.slice(2));
 		}
 		if (this.props.format) this.format = this.props.format;
+		if (!this.props.format && this.format.includes('@@@')) this.setFormat(this.format);
+		const formatId = toID(this.format.split('@@@')[0]);
+		const format = window.BattleFormats[formatId];
+		const showCustomRules = this.props.selectType === 'challenge' && !this.props.format;
 		return <form class={this.props.class} onSubmit={this.submit} onClick={this.handleClick}>
 			{!this.props.hideFormat && <p>
 				<label class="label">
@@ -997,23 +1057,44 @@ export class TeamForm extends preact.Component<{
 					<TeamDropdown format={this.props.teamFormat || this.format} />
 				</label>
 			</p>
-			{this.props.selectType === 'challenge' &&
-				window.BattleFormats[formatId]?.teraPreviewDefault && <p>
-				<label class="checkbox">
-					<input type="checkbox" name="terapreview" onChange={this.toggleCustomRule} />
-					<abbr title="Start a battle with Tera Type Preview">Tera Type Preview</abbr></label></p>}
-			{this.props.selectType === 'challenge' && <p>
-				<label class="checkbox"><input type="checkbox" name="bestof" onChange={this.toggleCustomRule} />
-					<abbr title="Start a team-locked best-of-n series">
-						Best-of-<input
-							name="bestofvalue" type="number" min="3" max="9" step="2" value="3" style="width: 28px; vertical-align: initial;"
+			{showCustomRules && (!this.customRules ? <p>
+				<label class="checkbox"><input
+					type="checkbox" name="customrules" checked={this.customRules} onChange={this.toggleCustomRule}
+				/> Custom rules</label>
+			</p> : <fieldset>
+				<legend><label class="checkbox"><input
+					type="checkbox" name="customrules" checked={this.customRules} onChange={this.toggleCustomRule}
+				/> Custom rules</label></legend>
+				{(format?.bestOfDefault || this.bestOf) && <p>
+					<label class="checkbox">
+						<input
+							type="checkbox" name="bestof" checked={this.bestOf} onChange={this.toggleCustomRule}
 						/>
-					</abbr></label></p>}
-			{this.props.selectType === 'challenge' &&
-				window.BattleFormats[formatId]?.itemClauseDefault && <p>
-				<label class="checkbox">
-					<input type="checkbox" name="itemclause" onChange={this.toggleCustomRule} />
-					<abbr title="Start a battle with Item Clause">Item Clause</abbr></label></p>}
+						<abbr title="Start a team-locked best-of-n series">Best-of-<input
+							name="bestofvalue" type="number" min="3" max="9" step="2" value={this.bestOfValue}
+							onInput={this.changeBestOfValue}
+							style="width: 28px; vertical-align: initial;"
+						/></abbr></label>
+				</p>}
+				{(format?.teraPreviewDefault || this.teraPreview) && <p>
+					<label class="checkbox"><input
+						type="checkbox" name="terapreview" checked={this.teraPreview} onChange={this.toggleCustomRule}
+					/> Tera Type Preview</label>
+				</p>}
+				{(format?.itemClauseDefault || this.itemClause) && <p>
+					<label class="checkbox"><input
+						type="checkbox" name="itemclause" checked={this.itemClause} onChange={this.toggleCustomRule}
+					/> Item Clause</label>
+				</p>}
+				<textarea
+					name="customrules" class="textbox" rows={3} placeholder="Rules separated by commas or lines"
+					value={this.customRuleText} onInput={this.changeCustomRules}
+					style="width: 100%; box-sizing: border-box; resize: none; field-sizing: content; min-height: 3em;"
+				/>
+				<small><a
+					href="https://github.com/smogon/pokemon-showdown/blob/master/config/CUSTOM-RULES.md" target="_blank"
+				>Custom rules guide</a></small>
+			</fieldset>)}
 			<p>{this.props.children}</p>
 		</form>;
 	}

@@ -9,6 +9,8 @@ import { Config, PS } from "./client-main";
 
 declare const SockJS: any;
 declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
+const KEEPALIVE_INTERVAL = 25000;
+const KEEPALIVE_RANGE = 20000;
 
 /**
  * LOCAL DEV BYPASS — Relumi Showdown
@@ -52,10 +54,13 @@ export class PSConnection {
 	lastMessageTimeBeforeReconnect = 0;
 	queue: string[] = [];
 	reconnectDelay = 1000;
-	private reconnectCap = 15000;
+	private reconnectCap = 60000;
 	private shouldReconnect = true;
 	reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 	private worker: Worker | null = null;
+	lastReceiveTime = Date.now();
+	/** the next time we'll attempt a reconnect; 0 means we're not scheduled to retry */
+	nextRetryTime = 0;
 
 	constructor() {
 		const loading = PSStorage.init();
@@ -65,6 +70,26 @@ export class PSConnection {
 			});
 		} else {
 			this.initConnection();
+		}
+		setInterval(() => this.keepAlive(), KEEPALIVE_INTERVAL);
+	}
+
+	/**
+	 * Keepalive for direct (non-worker) connections; see the worker for
+	 * the full explanation. Worker connections use the worker's own
+	 * keepalive timer, which has the advantage of not being throttled
+	 * in background tabs.
+	 */
+	keepAlive() {
+		if (this.worker) return;
+		if (!this.connected) return;
+		if (Date.now() - this.lastReceiveTime > 3 * KEEPALIVE_INTERVAL) {
+			// zombie connection; close it so the reconnect logic kicks in
+			this.socket?.close();
+			return;
+		}
+		if (Date.now() - this.lastReceiveTime >= KEEPALIVE_RANGE) {
+			this.send(`|/cmd ping`);
 		}
 	}
 
@@ -119,19 +144,16 @@ export class PSConnection {
 				const { type, data } = event.data;
 				switch (type) {
 				case 'connected':
-					console.log('\u2705 (CONNECTED via worker)');
-					this.lastMessageTimeBeforeReconnect = parseInt(PS.lastMessageTime) || 0;
-					this.connected = true;
-					if (PS.prefs.avatar) worker.postMessage({ type: 'send', data: `/avatar ${PS.prefs.avatar},1` });
-					this.queue.forEach(msg => worker.postMessage({ type: 'send', data: msg }));
-					this.queue = [];
-					PS.update();
+					this.handleConnect();
 					break;
 				case 'message':
 					PS.receive(data);
 					break;
 				case 'disconnected':
 					this.handleDisconnect();
+					break;
+				case 'retrying':
+					this.nextRetryTime = data;
 					break;
 				case 'error':
 					console.warn(`Worker connection error: ${data}`);
@@ -166,26 +188,22 @@ export class PSConnection {
 		const url = `${server.protocol}://${server.host}:${connPort}${server.prefix}`;
 
 		try {
-			this.socket = new WebSocket(url.replace('http', 'ws') + '/websocket');
-		} catch {
 			this.socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
+		} catch {
+			this.socket = new WebSocket(url.replace('http', 'ws') + '/websocket');
 		}
 
 		const socket = this.socket!;
 
 		socket.onopen = () => {
-			console.log('\u2705 (CONNECTED)');
-			this.lastMessageTimeBeforeReconnect = parseInt(PS.lastMessageTime) || 0;
-			this.connected = true;
-			this.reconnectDelay = 1000;
-			if (PS.prefs.avatar) socket.send(`/avatar ${PS.prefs.avatar},1`);
-			this.queue.forEach(msg => socket.send(msg));
-			this.queue = [];
-			PS.update();
+			this.handleConnect();
 		};
 
 		socket.onmessage = (ev: MessageEvent) => {
-			PS.receive('' + ev.data);
+			const data = '' + ev.data;
+			this.lastReceiveTime = Date.now();
+			if (data.startsWith('|queryresponse|ping|')) return;
+			PS.receive(data);
 		};
 
 		socket.onclose = () => {
@@ -211,6 +229,16 @@ export class PSConnection {
 	}
 
 	private handleDisconnect() {
+		this.markDisconnected();
+		if (this.worker) {
+			// worker handles reconnect timer
+			if (!this.canReconnect()) this.worker.postMessage({ type: 'disconnect' });
+		} else {
+			this.retryConnection();
+		}
+	}
+
+	private markDisconnected() {
 		this.connected = false;
 		PS.isOffline = true;
 		this.socket = null;
@@ -218,7 +246,28 @@ export class PSConnection {
 			const room = PS.rooms[roomid]!;
 			if (room.connected === true) room.connected = 'autoreconnect';
 		}
-		this.retryConnection();
+		PS.update();
+	}
+
+	/**
+	 * Happens on connect and reconnect for worker and direct connections
+	 */
+	private handleConnect() {
+		console.log(`\u2705 (CONNECTED${this.worker ? ' via worker' : ''})`);
+		this.lastMessageTimeBeforeReconnect = parseInt(PS.lastMessageTime) || 0;
+		this.connected = true;
+		PS.isOffline = false;
+		this.reconnectDelay = 1000;
+		this.nextRetryTime = 0;
+		this.lastReceiveTime = Date.now();
+
+		if (PS.prefs.avatar) this.send(`/avatar ${PS.prefs.avatar},1`);
+		const queue = this.queue;
+		this.queue = [];
+		for (const msg of queue) this.send(msg);
+
+		PS.prefs.doAutojoin();
+
 		PS.update();
 	}
 
@@ -226,6 +275,7 @@ export class PSConnection {
 		if (!this.canReconnect()) return;
 		if (this.reconnectTimer) return;
 
+		this.nextRetryTime = Date.now() + this.reconnectDelay;
 		this.reconnectTimer = setTimeout(() => {
 			this.reconnectTimer = null;
 			if (!this.connected && this.canReconnect()) {
@@ -270,7 +320,6 @@ export class PSConnection {
 		} else {
 			PS.connection.reconnect();
 		}
-		PS.prefs.doAutojoin();
 	}
 }
 

@@ -1981,8 +1981,8 @@ export class BattleTooltips {
 			else if (tier.includes('Random')) max += 20;
 		} else if (tier.includes('Champions')) {
 			min = tr(0.9 * (baseSpe + 20));
-			ev0 = tr(baseSpe + 20);
-			ev84 = tr(baseSpe + 13 + 20);
+			ev0 = tr((2 * baseSpe + 31) * level / 100) + 5;
+			ev84 = tr((2 * baseSpe + 31 + 21) * level / 100) + 5;
 			ev252 = tr(baseSpe + 32 + 20);
 			max = tr(1.1 * (baseSpe + 32 + 20));
 		} else if (gen < 3) {
@@ -2208,7 +2208,7 @@ export class BattleTooltips {
 		return [moveType, category];
 	}
 	static getTypeAbilityWeakness(attackType: Dex.TypeName, abilityid: ID, dex: ModdedDex = Dex, strict?: boolean) {
-		if (attackType === 'Ground' && abilityid === 'levitate') return 0;
+		if (attackType === 'Ground' && ['levitate', 'eelevate'].includes(abilityid)) return 0;
 		if (attackType === 'Water' && abilityid === 'dryskin') return 0;
 		if (attackType === 'Fire' && abilityid === 'flashfire') return 0;
 		if (attackType === 'Electric' && abilityid === 'lightningrod' && dex.gen >= 5) return 0;
@@ -2275,7 +2275,7 @@ export class BattleTooltips {
 		if (category === 'Status' && dex.gen <= 3) otherFactor = 1;
 
 		let factor = 1;
-		if (!otherFactor && targetAbility === "Levitate") {
+		if (!otherFactor && (targetAbility === "Levitate" || targetAbility === "Eelevate")) {
 			otherFactor = 1;
 			if (!target.isGrounded() && move.id !== 'thousandarrows' && !hardcoreMode) {
 				factor = 0; // Levitate acts as a type-based immunity (doesn't affect most status moves)

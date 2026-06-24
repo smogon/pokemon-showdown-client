@@ -5,46 +5,45 @@
  * It can be removed once replays/manage is ported to New Replays.
  */
 
-const fs = require('fs');
-const crypto = require('crypto');
+import crypto from 'node:crypto';
+import fs from 'node:fs';
 
-process.chdir(__dirname + '/../replay.pokemonshowdown.com');
+process.chdir(import.meta.dirname + '/..');
 
 function updateIndex() {
-	let indexContents = fs.readFileSync('theme/wrapper.inc.template.php', { encoding: 'utf8' });
+	let indexContents = fs.readFileSync('replay.pokemonshowdown.com/theme/wrapper.inc.template.php', { encoding: 'utf8' });
 
 	// add hashes to js and css files
 	process.stdout.write("Updating hashes... ");
 	// Check for <script, <link or <img so we don't add useless hashes to <a
 	indexContents = indexContents.replace(
-		/(<script[^>]+?src|<link[^>]+?href|<img[^>]+?src)="\/(.*?)(\?[a-z0-9]*?)?"/g, runReplace
+		/(<script[^>]+?src|<link[^>]+?href|<img[^>]+?src)="\/(.*?)(\?[a-z0-9]*?)?"/g,
+		(_, tagStart, url) => {
+			let hash = Math.random(); // just in case creating the hash fails
+			const routes = JSON.parse(fs.readFileSync('config/routes.json'));
+			try {
+				let filepath = 'replay.pokemonshowdown.com/' + url;
+				if (url.includes('/' + routes.client + '/')) {
+					const filename = url.replace('/' + routes.client + '/', '');
+					filepath = filename;
+				}
+				const fstr = fs.readFileSync(filepath, { encoding: 'utf8' });
+				hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
+			} catch {}
+			url = url.replace('/replay.pokemonshowdown.com/', '/' + routes.replays + '/');
+			url = url.replace('/dex.pokemonshowdown.com/', '/' + routes.dex + '/');
+			url = url.replace('/play.pokemonshowdown.com/', '/' + routes.client + '/');
+			url = url.replace('/pokemonshowdown.com/users/', '/' + routes.users + '/');
+			url = url.replace('/pokemonshowdown.com/', '/' + routes.root + '/');
+
+			return tagStart + '="/' + url + '?' + hash + '"';
+		}
 	);
 	console.log("DONE");
 
 	process.stdout.write("Writing new `wrapper.inc.php` file... ");
-	fs.writeFileSync('theme/wrapper.inc.php', indexContents);
+	fs.writeFileSync('replay.pokemonshowdown.com/theme/wrapper.inc.php', indexContents);
 	console.log("DONE");
-}
-
-function runReplace(a, b, c) {
-	let hash = Math.random(); // just in case creating the hash fails
-	const routes = JSON.parse(fs.readFileSync('../config/routes.json'));
-	try {
-		let filepath = c;
-		if (c.includes('/' + routes.client + '/')) {
-			const filename = c.replace('/' + routes.client + '/', '');
-			filepath = '../' + filename;
-		}
-		const fstr = fs.readFileSync(filepath, { encoding: 'utf8' });
-		hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
-	} catch {}
-	c = c.replace('/replay.pokemonshowdown.com/', '/' + routes.replays + '/');
-	c = c.replace('/dex.pokemonshowdown.com/', '/' + routes.dex + '/');
-	c = c.replace('/play.pokemonshowdown.com/', '/' + routes.client + '/');
-	c = c.replace('/pokemonshowdown.com/users/', '/' + routes.users + '/');
-	c = c.replace('/pokemonshowdown.com/', '/' + routes.root + '/');
-
-	return b + '="/' + c + '?' + hash + '"';
 }
 
 updateIndex();

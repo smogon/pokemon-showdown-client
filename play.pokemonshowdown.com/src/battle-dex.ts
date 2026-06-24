@@ -328,7 +328,9 @@ export const Dex = new class implements ModdedDex {
 		if (avatar.startsWith('#')) {
 			return Dex.resourcePrefix + 'sprites/trainers-custom/' + toID(avatar.substr(1)) + '.png';
 		}
-		if (avatar.includes('.') && window.Config?.server?.registered) {
+		if (avatar.includes('.')) {
+			// previously checked `&& window.Config?.server?.registered`
+			// currently doesn't, bc server registration isn't a thing anymore
 			// custom avatar served by the server
 			const protocol = (Config.server.port === 443) ? 'https' : 'http';
 			const server = `${protocol}://${Config.server.host}:${Config.server.port}`;

@@ -1085,6 +1085,22 @@ export class PSView extends preact.Component {
 	}
 }
 
+export class ReconnectTimer extends preact.Component {
+	timer: ReturnType<typeof setInterval> | null = null;
+	override componentDidMount() {
+		this.timer = setInterval(() => this.forceUpdate(), 1000);
+	}
+	override componentWillUnmount() {
+		if (this.timer) clearInterval(this.timer);
+	}
+	override render() {
+		const nextRetryTime = PS.connection?.nextRetryTime;
+		if (!nextRetryTime) return null;
+		const secs = Math.ceil((nextRetryTime - Date.now()) / 1000);
+		return <small>{secs > 0 ? `(Autoreconnect in ${secs}s)` : `(Reconnecting...)`}</small>;
+	}
+}
+
 export function PSIcon(
 	props: { pokemon: string | Pokemon | ServerPokemon | Dex.PokemonSet | null } |
 		{ item: string | null } | { type: string, b?: boolean } | { category: string }

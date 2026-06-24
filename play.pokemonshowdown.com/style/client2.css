@@ -961,6 +961,10 @@ p.or:after {
 	background: #052f68;
 	color: #b3d2fc;
 }
+.challenge.outgoing fieldset {
+	border: 1px solid #217bf5;
+	border-radius: 5px;
+}
 .challenge p {
 	margin: 4px 0;
 }
@@ -1319,6 +1323,9 @@ form.menugroup {
 .mini-window-flex .chat-log {
 	min-height: 80px;
 	max-height: 300px;
+}
+.mini-window-flex .chat-log.challenge-open {
+	max-height: 520px;
 }
 .debug {
 	display: none;
@@ -2233,7 +2240,6 @@ pre.textbox.textbox-empty[placeholder]:before {
 	text-align: left;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 	text-decoration: none;
-	white-space: nowrap;
 	cursor: pointer;
 
 	border-radius: 4px;
@@ -2249,6 +2255,11 @@ pre.textbox.textbox-empty[placeholder]:before {
 .team {
 	height: 49px;
 	overflow: hidden;
+	white-space: nowrap;
+}
+.select {
+	min-height: 32px;
+	height: auto;
 }
 .team.pc-box {
 	min-height: 74px;
@@ -2355,9 +2366,6 @@ button.team:active {
 }
 .select:disabled:before {
 	color: #aaaaaa;
-}
-.select:disabled small {
-	opacity: 0.7;
 }
 .select.preselected,
 .select:disabled.preselected {

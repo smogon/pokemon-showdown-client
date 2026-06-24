@@ -8,15 +8,12 @@
 
 "use strict";
 
-const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
-const child_process = require('child_process');
-const compiler = require('./compiler');
+const fs = require('node:fs');
+const crypto = require('node:crypto');
+const child_process = require('node:child_process');
+const compiler = require('./compiler.mjs');
 
-const thisDir = __dirname;
-const rootDir = path.resolve(thisDir, '..');
-process.chdir(rootDir);
+process.chdir(__dirname + '/..');
 
 const AUTOCONFIG_START = '/*** Begin automatically generated configuration ***/';
 const AUTOCONFIG_END = '/*** End automatically generated configuration ***/';
@@ -217,7 +214,7 @@ let stdout = '';
 let newsid = 0;
 let news = '[failed to retrieve news]';
 try {
-	stdout = child_process.execSync('php ' + path.resolve(thisDir, 'news-embed.php'), {
+	stdout = child_process.execSync('php build-tools/news-embed.php', {
 		stdio: 'pipe',
 	});
 } catch (e) {
