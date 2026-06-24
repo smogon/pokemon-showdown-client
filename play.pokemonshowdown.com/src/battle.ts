@@ -2183,8 +2183,8 @@ export class Battle {
 			this.log(args, kwArgs);
 			break;
 		}
-		case '-center': case '-notarget': case '-ohko':
-		case '-combine': case '-hitcount': case '-waiting': case '-zbroken': {
+		case '-center': case '-notarget': case '-ohko': case '-combine':
+		case '-hitcount': case '-waiting': case '-zbroken': case '-brokeprotect': {
 			this.log(args, kwArgs);
 			break;
 		}
