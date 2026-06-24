@@ -764,6 +764,31 @@ export class TeamEditorState extends PSModel {
 		}
 		return counters;
 	}
+	teamOffensiveCoverage() {
+		type OCounter = {
+			type: Dex.TypeName,
+			superEffective: number,
+			neutral: number,
+			resisted: number,
+		};
+		const counters = {} as Record<Dex.TypeName, OCounter>;
+		for (const type of this.dex.types.names()) {
+			counters[type] = {type, superEffective: 0, neutral: 0, resisted: 0};
+		}
+		for (const set of this.sets) {
+			for (const moveName of set.moves) {
+				const move = this.dex.moves.get(moveName);
+				if (!move.exists || move.category === 'Status') continue;
+				for (const defType of this.dex.types.names()) {
+					const w = this.getTypeWeakness(defType, move.type);
+					if (w === 0 || w < 1) counters[defType].resisted++;
+					else if (w === 1) counters[defType].neutral++;
+					else counters[defType].superEffective++;
+				}
+			}
+		}
+		return counters;
+	}
 	getDefaultAbility(set: Dex.PokemonSet) {
 		if (this.gen < 3 || this.isLetsGo || this.formeLegality === 'custom') return set.ability;
 		const species = this.dex.species.get(set.species);
@@ -961,6 +986,42 @@ export class TeamEditor extends preact.Component<{
 			<table class="table">{bad}{medium}{good}</table>
 		</details>;
 	}
+	renderOffensiveCoverage() {
+		const { editor } = this;
+		if (editor.team.isBox) return null;
+		if (!editor.sets.length) return null;
+
+		const counters = Object.values(editor.teamOffensiveCoverage());
+		PSUtils.sortBy(counters, counter => [counter.superEffective, counter.neutral]);
+		const good = [], medium = [], bad = [];
+		const renderTypeCoverage = (counter: typeof counters[number]) => (
+			<tr>
+				<th>{counter.type}</th>
+				<td>{counter.resisted} <small class="gray">resisted</small></td>
+				<td>{counter.neutral} <small class="gray">neutral</small></td>
+				<td>{counter.superEffective} <small class="gray">super effective</small></td>
+			</tr>
+		);
+		for (const counter of counters) {
+			if (counter.superEffective > 0) {
+				good.push(renderTypeCoverage(counter));
+			} else if (counter.neutral === 0) {
+				bad.push(renderTypeCoverage(counter));
+			} else {
+				medium.push(renderTypeCoverage(counter));
+			}
+		}
+		return <details class="details">
+			<summary>
+				<strong>Offensive coverage</strong>
+				<table class="details-preview table">
+					{bad}
+					<tr><td colSpan={4}><span class="details-preview ilink"><small>See all</small></span></td></tr>
+				</table>
+			</summary>
+			<table class="table">{bad}{medium}{good}</table>
+		</details>;
+	}
 	cancelClipboard = () => {
 		TeamEditorState.clipboard = null;
 		this.forceUpdate();
@@ -1003,6 +1064,7 @@ export class TeamEditor extends preact.Component<{
 				<div class="team-resources">
 					<br /><hr /><br />
 					{this.renderDefensiveCoverage()}
+					{this.renderOffensiveCoverage()}
 					{this.props.resources}
 				</div>
 			</>}
