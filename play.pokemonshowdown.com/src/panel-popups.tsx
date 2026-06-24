@@ -3,7 +3,7 @@ import { toID, toRoomid, toUserid, Dex, PSUtils } from "./battle-dex";
 import type { ID } from "./battle-dex-data";
 import { BattleLog } from "./battle-log";
 import { PSLoginServer } from "./client-connection";
-import { PSBackground } from "./client-core";
+import { DEFAULT_SOLID_BG, PSBackground, SOLID_BG_ID } from "./client-core";
 import {
 	PS, PSRoom, Config, type RoomOptions, type PSLoginState, type RoomID, type TimestampOptions,
 } from "./client-main";
@@ -13,6 +13,14 @@ import { PSRoomPanel, PSPanelWrapper, PSView } from "./panels";
 import { PSHeader } from "./panel-topbar";
 
 const WARNING_SECONDS = 5;
+
+const BUTTON_COLOR_OPTIONS = [
+	{ value: 1, label: '1 color' },
+	{ value: 3, label: '3 colors' },
+	{ value: 8, label: '8 colors' },
+	{ value: 'rainbow', label: 'Rainbow!' },
+] as const;
+const SOLID_COLOR_REGEX = /^#[0-9A-F]{6}$/i;
 
 /**
  * User popup
@@ -1259,7 +1267,25 @@ class BackgroundListPanel extends PSRoomPanel {
 		}
 	}
 
-	declare state: { status?: string, bgUrl?: string };
+	declare state: {
+		status?: string,
+		bgUrl?: string,
+		solidColor?: string,
+	};
+
+	normalizeSolidColor(color: string | undefined) {
+		return SOLID_COLOR_REGEX.test(color || '') ? color! : DEFAULT_SOLID_BG;
+	}
+
+	getSolidColor() {
+		const currentColor = PSBackground.id === SOLID_BG_ID ? PSBackground.bgUrl : undefined;
+		return this.normalizeSolidColor(this.state.solidColor || currentColor);
+	}
+
+	getSolidColorInputValue() {
+		const currentColor = PSBackground.id === SOLID_BG_ID ? PSBackground.bgUrl : undefined;
+		return (this.state.solidColor || currentColor || DEFAULT_SOLID_BG).toUpperCase();
+	}
 
 	setBg = (ev: Event) => {
 		let curtarget = ev.currentTarget as HTMLButtonElement;
@@ -1267,11 +1293,23 @@ class BackgroundListPanel extends PSRoomPanel {
 		if (bg === 'custom') {
 			PSBackground.set(this.props.room.args?.bgUrl as string || '', 'custom');
 			this.close();
+		} else if (bg === SOLID_BG_ID) {
+			PSBackground.set(this.getSolidColor(), SOLID_BG_ID);
 		} else {
 			PSBackground.set('', bg);
 		}
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
+		this.forceUpdate();
+	};
+
+	setSolidColor = (ev: Event) => {
+		const solidColor = (ev.currentTarget as HTMLInputElement).value.trim().toUpperCase();
+		this.setState({ solidColor });
+	};
+	setButtonColorMode = (ev: Event) => {
+		const value = (ev.currentTarget as HTMLButtonElement).value;
+		PSBackground.setButtonColorMode(value);
 		this.forceUpdate();
 	};
 
@@ -1344,6 +1382,8 @@ class BackgroundListPanel extends PSRoomPanel {
 	override render() {
 		const room = this.props.room;
 		const option = (val: string) => val === PSBackground.id ? 'option cur' : 'option';
+		const solidColor = this.getSolidColor();
+		const solidColorInput = this.getSolidColorInputValue();
 		return this.renderUpload() || <PSPanelWrapper room={room} width={480}><div class="pad">
 			<p><strong>Default</strong></p>
 			<div class="bglist">
@@ -1371,19 +1411,55 @@ class BackgroundListPanel extends PSRoomPanel {
 					Horizon
 				</button>
 				<button onClick={this.setBg} value="ocean" class={option('ocean')}>
-					<span class="bg" style="background-position: 0 -270px"></span>{}
+					<span class="bg" style="background-position: 0 -180px"></span>{}
 					Ocean
 				</button>
 				<button onClick={this.setBg} value="shaymin" class={option('shaymin')}>
-					<span class="bg" style="background-position: 0 -360px"></span>{}
+					<span class="bg" style="background-position: 0 -270px"></span>{}
 					Shaymin
 				</button>
-				<button onClick={this.setBg} value="solidblue" class={option('solidblue')}>
-					<span class="bg" style="background: #344b6c"></span>{}
-					Solid blue
+				<button onClick={this.setBg} value="psday" class={option('psday')}>
+					<span class="bg" style="background-position: 0 -360px"></span>{}
+					PS! Day
 				</button>
 			</div>
 			<div style="clear: left"></div>
+			<p><strong>Solid color</strong></p>
+			<div class="solidcolorpicker">
+				<div class="solidcolorpreview bglist">
+					<button onClick={this.setBg} value={SOLID_BG_ID} class={option(SOLID_BG_ID)}>
+						<span class="bg" style={`background: ${solidColor}`}></span>{}
+						Use {solidColor.toUpperCase()}
+					</button>
+				</div>
+				<div class="solidcolorpicker-left">
+					<label>
+						Color: <input
+							type="color" value={solidColor}
+							onInput={this.setSolidColor} onChange={this.setSolidColor}
+						/>
+					</label>
+					<label>
+						Hex: <input
+							class="textbox"
+							type="text" inputMode="text" maxLength={7}
+							placeholder="#344B6C" value={solidColorInput}
+							onInput={this.setSolidColor} onChange={this.setSolidColor}
+						/>
+					</label>
+				</div>
+				<div class="buttoncolorpicker">
+					<strong>Button colors:</strong>
+					{BUTTON_COLOR_OPTIONS.map(colorOption => <button
+						type="button"
+						class={'button' + (PSBackground.buttonColorMode === colorOption.value ? ' disabled' : '')}
+						value={colorOption.value}
+						onClick={this.setButtonColorMode}
+					>
+						<strong>{colorOption.label}</strong>
+					</button>)}
+				</div>
+			</div>
 			<p><strong>Custom</strong></p>
 			<p>
 				Upload:
