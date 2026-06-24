@@ -109,7 +109,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 
 	/** [[moveName, ppUsed]] */
 	moveTrack: [string, PPState][] = [];
-	statusData = { sleepTurns: 0, toxicTurns: 0 };
+	statusData = { sleepTurns: 0, toxicTurns: 0, freezeTurns: 0 };
 	timesAttacked = 0;
 
 	sprite: PokemonSprite;
@@ -1682,6 +1682,7 @@ export class Battle {
 			break;
 		case 'frz':
 			this.scene.resultAnim(pokemon, 'Frozen', 'frz');
+			if (this.tier.includes('Champions')) pokemon.statusData.freezeTurns++;
 			break;
 		case 'slp':
 			this.scene.resultAnim(pokemon, 'Asleep', 'slp');
@@ -1854,6 +1855,7 @@ export class Battle {
 					poke.side.wisher = null;
 					poke.statusData.sleepTurns = 0;
 					poke.statusData.toxicTurns = 0;
+					poke.statusData.freezeTurns = 0;
 					break;
 				case 'wish':
 					this.scene.runResidualAnim('wish' as ID, poke);
@@ -2289,6 +2291,7 @@ export class Battle {
 					break;
 				case 'frz':
 					this.scene.resultAnim(poke, 'Thawed', 'good');
+					poke.statusData.freezeTurns = 0;
 					break;
 				default:
 					poke.removeVolatile('confusion' as ID);

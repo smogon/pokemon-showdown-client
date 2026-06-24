@@ -925,6 +925,8 @@ export class BattleTooltips {
 					}
 				} else if (pokemon.status === 'slp') {
 					text += ` Turns asleep: ${clientPokemon.statusData.sleepTurns}`;
+				} else if (pokemon.status === 'frz' && this.battle.tier.includes('Champions')) {
+					text += ` Turns frozen: ${clientPokemon.statusData.freezeTurns}`;
 				}
 			}
 			text += '</p>';
