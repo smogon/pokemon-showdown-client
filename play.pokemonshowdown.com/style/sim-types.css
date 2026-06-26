@@ -409,3 +409,139 @@
 	background: linear-gradient(90deg, hsl(330, 65%, 45%), hsl(126, 71%, 73%), hsl(231, 100%, 86%));
 	border-color: linear-gradient(90deg, hsl(330, 66%, 58%), hsl(126, 79%, 65%), hsl(231, 98%, 65%));
 }
+
+.typetile, .typeicon {
+	color: white;
+	background: #68A090;
+	display: inline-block;
+	width: 45px;
+	height: 13px;
+	border-radius: 9px;
+	font: 9px Helvetica, Arial, sans-serif;
+	text-shadow: none;
+	text-align: center;
+	padding: 2px 4px 0 4px;
+	font-weight: bold;
+	text-transform: uppercase;
+}
+.typetile.tera, .typeicon.tera {
+	border-radius: 0;
+}
+.typeicon {
+	padding-left: 16px;
+}
+
+.typetile-Normal {
+	background-color:#9f9f9e;
+}
+.typetile-Fire {
+	background-color:#e72324;
+}
+.typetile-Fighting {
+	background-color:#f08104;
+}
+.typetile-Water {
+	background-color:#4881f0;
+}
+.typetile-Flying {
+	background-color:#81B9EF;
+}
+.typetile-Grass {
+	background-color:#3FA129;
+}
+.typetile-Poison {
+	background-color:#9141CB;
+}
+.typetile-Electric {
+	background-color:#f4c220;
+}
+.typetile-Ground {
+	background-color:#915121;
+}
+.typetile-Psychic {
+	background-color:#ef3e7a;
+}
+.typetile-Rock {
+	background-color:#AFA981;
+}
+.typetile-Ice {
+	background-color:#3DCEF3;
+}
+.typetile-Bug {
+	background-color:#91A119;
+}
+.typetile-Dragon {
+	background-color:#5060E1;
+}
+.typetile-Ghost {
+	background-color:#704170;
+}
+.typetile-Dark {
+	background-color:#4f3f3c;
+}
+.typetile-Steel {
+	background-color:#60A1B8;
+}
+.typetile-Fairy {
+	background-color:#EF70EF;
+}
+.typetile-Stellar {
+	background: linear-gradient(90deg, hsl(330, 66%, 58%), hsl(126, 79%, 45%) 40%, hsl(231, 98%, 65%));
+}
+.typeicon-Normal {
+	background: scroll #9FA19F url(../sprites/typeicons/Normal.png) no-repeat 2px center / 16px;
+}
+.typeicon-Fire {
+	background: scroll #E62829 url(../sprites/typeicons/Fire.png) no-repeat 2px center / 16px;
+}
+.typeicon-Fighting {
+	background: scroll #FF8000 url(../sprites/typeicons/Fighting.png) no-repeat 2px center / 16px;
+}
+.typeicon-Water {
+	background: scroll #2980EF url(../sprites/typeicons/Water.png) no-repeat 2px center / 16px;
+}
+.typeicon-Flying {
+	background: scroll #81B9EF url(../sprites/typeicons/Flying.png) no-repeat 2px center / 16px;
+}
+.typeicon-Grass {
+	background: scroll #3FA129 url(../sprites/typeicons/Grass.png) no-repeat 2px center / 16px;
+}
+.typeicon-Poison {
+	background: scroll #9141CB url(../sprites/typeicons/Poison.png) no-repeat 2px center / 16px;
+}
+.typeicon-Electric {
+	background: scroll #FAC000 url(../sprites/typeicons/Electric.png) no-repeat 2px center / 16px;
+}
+.typeicon-Ground {
+	background: scroll #915121 url(../sprites/typeicons/Ground.png) no-repeat 2px center / 16px;
+}
+.typeicon-Psychic {
+	background: scroll #EF4179 url(../sprites/typeicons/Psychic.png) no-repeat 2px center / 16px;
+}
+.typeicon-Rock {
+	background: scroll #AFA981 url(../sprites/typeicons/Rock.png) no-repeat 2px center / 16px;
+}
+.typeicon-Ice {
+	background: scroll #3DCEF3 url(../sprites/typeicons/Ice.png) no-repeat 2px center / 16px;
+}
+.typeicon-Bug {
+	background: scroll #91A119 url(../sprites/typeicons/Bug.png) no-repeat 2px center / 16px;
+}
+.typeicon-Dragon {
+	background: scroll #5060E1 url(../sprites/typeicons/Dragon.png) no-repeat 2px center / 16px;
+}
+.typeicon-Ghost {
+	background: scroll #704170 url(../sprites/typeicons/Ghost.png) no-repeat 2px center / 16px;
+}
+.typeicon-Dark {
+	background: scroll #624D4E url(../sprites/typeicons/Dark.png) no-repeat 2px center / 16px;
+}
+.typeicon-Steel {
+	background: scroll #60A1B8 url(../sprites/typeicons/Steel.png) no-repeat 2px center / 16px;
+}
+.typeicon-Fairy {
+	background: scroll #EF70EF url(../sprites/typeicons/Fairy.png) no-repeat 2px center / 16px;
+}
+.typeicon-Stellar {
+	background: linear-gradient(90deg, hsl(330, 66%, 58%), hsl(126, 79%, 45%) 40%, hsl(231, 98%, 65%)), scroll url(../sprites/typeicons/Stellar.png) no-repeat 2px center / 16px;
+}
