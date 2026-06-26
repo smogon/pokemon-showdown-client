@@ -656,6 +656,8 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 	renderTeamPane() {
 		const room = this.props.room;
 
+		/** the null team is for a placeholder for a possible team being dragged
+		 *  in from the computer, or an undelete button for a deleted team */
 		let teams: (Team | null)[] = PS.teams.list.slice();
 		let isDragging = false;
 		if (PS.dragging?.type === 'team' && typeof PS.dragging.team === 'number') {
@@ -680,6 +682,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		}
 
 		const filteredTeams = this.visibleTeams(teams);
+		const filteredTeamCount = filteredTeams.filter(Boolean).length;
 
 		if (room.exportMode) {
 			return <div class="teampane">
@@ -706,7 +709,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			{window.TeamEditorState && TeamEditorState.renderClipboard(this.cancelClipboard)}
 			{filterFolder ? (
 				<h2>
-					<i class="fa fa-folder-open" aria-hidden></i> {filterFolder} {}
+					<i class="fa fa-folder-open" aria-hidden></i> {filterFolder} <small>({filteredTeamCount})</small>
 					<button class="button small" style="margin-left:5px" onClick={this.renameFolder}>
 						<i class="fa fa-pencil" aria-hidden></i> Rename
 					</button> {}
@@ -717,7 +720,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			) : filterFolder === '' ? (
 				<h2><i class="fa fa-folder-open-o" aria-hidden></i> Teams not in any folders</h2>
 			) : filterFormat ? (
-				<h2><i class="fa fa-folder-open-o" aria-hidden></i> {filterFormat} <small>({teams.length})</small></h2>
+				<h2><i class="fa fa-folder-open-o" aria-hidden></i> {filterFormat} <small>({filteredTeamCount})</small></h2>
 			) : (
 				<h2>All Teams <small>({teams.length})</small></h2>
 			)}

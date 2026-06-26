@@ -2503,7 +2503,7 @@ export const PS = new class extends PSModel {
 		if (index === -1) return;
 
 		const unreadRooms = rooms.filter((room, i) =>
-			PS.rooms[room]?.isSubtleNotifying &&
+			(PS.rooms[room]?.isSubtleNotifying || PS.rooms[room]?.notifications.length) &&
 			(direction === 'left' ? i < index : i > index)
 		);
 
