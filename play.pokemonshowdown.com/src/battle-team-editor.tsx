@@ -497,7 +497,7 @@ export class TeamEditorState extends PSModel {
 	};
 	hpTypeMatters(set: Dex.PokemonSet): boolean {
 		if (this.gen < 2) return false;
-		if (this.gen > 7) return false;
+		if (this.gen > 7 && !this.isNatDex) return false;
 		for (const move of set.moves) {
 			const moveid = toID(move);
 			if (moveid.startsWith('hiddenpower')) return true;
@@ -1996,21 +1996,21 @@ class TeamWizard extends preact.Component<{
 								{species.types.map(type => <div><PSIcon type={type} /></div>)}
 							</span>
 							<span class="detailcell">
-								<strong class="label">Level</strong> {}
+								<strong class="label">Info</strong> {}
 								{set.level || editor.defaultLevel}
-								{editor.narrow && set.shiny && <><br />
-									<img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Shiny" />
-								</>}
-								{!editor.narrow && set.gender && set.gender !== 'N' && <>
-									<br /><img
+								{set.gender && set.gender !== 'N' && <>
+									{' '}<img
 										src={`${Dex.fxPrefix}gender-${set.gender.toLowerCase()}.png`} alt={set.gender} width="7" height="10" class="pixelated"
 									/>
 								</>}
+								{set.shiny && <><br />
+									<img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Shiny" />
+								</>}
+								{set.gigantamax && <>
+									{set.shiny ? ' ' : <br />}
+									<img src={`${Dex.resourcePrefix}sprites/misc/gmax.png`} width={25} height={17.5} alt="Gigantamax" />
+								</>}
 							</span>
-							{!!(!editor.narrow && (set.shiny || editor.gen >= 2)) && <span class="detailcell">
-								<strong class="label">Shiny</strong> {}
-								{set.shiny ? <img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Yes" /> : '\u2014'}
-							</span>}
 							{editor.gen === 9 && !editor.isChampions && <span class="detailcell">
 								<strong class="label">Tera</strong> {}
 								<PSIcon type={set.teraType || species.requiredTeraType || species.types[0]} />
@@ -3134,6 +3134,23 @@ class DetailsForm extends preact.Component<{
 					)}
 				</>
 				)}
+				{editor.gen === 9 && !editor.isChampions && <p>
+					<label class="label" title="Tera Type">
+						Tera Type: {}
+						{species.requiredTeraType && editor.formeLegality === 'normal' ? (
+							<select name="teratype" class="button cur" disabled><option>{species.requiredTeraType}</option></select>
+						) : (
+							<select
+								name="teratype" class="button" onChange={this.changeTera}
+								value={set.teraType || species.requiredTeraType || species.types[0]}
+							>
+								{Dex.types.all().map(type => (
+									<option value={type.name}>{type.name}</option>
+								))}
+							</select>
+						)}
+					</label>
+				</p>}
 				{editor.gen === 8 && !editor.isBDSP && !species.cannotDynamax && (
 					<p>
 						<label class="label" style="display:inline">Dynamax Level: <input
@@ -3143,9 +3160,9 @@ class DetailsForm extends preact.Component<{
 						/></label> {}
 						{species.canGigantamax ? (
 							<label class="checkbox inline"><input
-								type="checkbox" name="gigantamax" value="true" checked={set.gigantamax}
+								type="checkbox" name="gigantamax" value="true" checked={!!set.gigantamax}
 								onInput={this.changeGigantamax} onChange={this.changeGigantamax}
-							/> Gigantamax</label>
+							/> <img src={`${Dex.resourcePrefix}sprites/misc/gmax.png`} width={25} height={17.5} alt="Gigantamax" /> Gigantamax</label>
 						) : species.forme === 'Gmax' && (
 							<label class="checkbox inline"><input
 								type="checkbox" checked disabled
@@ -3163,23 +3180,6 @@ class DetailsForm extends preact.Component<{
 							</option>
 						))}
 					</select></label>
-				</p>}
-				{editor.gen === 9 && !editor.isChampions && <p>
-					<label class="label" title="Tera Type">
-						Tera Type: {}
-						{species.requiredTeraType && editor.formeLegality === 'normal' ? (
-							<select name="teratype" class="button cur" disabled><option>{species.requiredTeraType}</option></select>
-						) : (
-							<select
-								name="teratype" class="button" onChange={this.changeTera}
-								value={set.teraType || species.requiredTeraType || species.types[0]}
-							>
-								{Dex.types.all().map(type => (
-									<option value={type.name}>{type.name}</option>
-								))}
-							</select>
-						)}
-					</label>
 				</p>}
 				{species.cosmeticFormes && <div>
 					<p><strong>Form:</strong></p>
