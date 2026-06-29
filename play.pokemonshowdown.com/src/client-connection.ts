@@ -215,6 +215,7 @@ export class PSConnection {
 		for (const msg of queue) this.send(msg);
 
 		PS.prefs.doAutojoin();
+		PS.prefs.setPersistentStatus();
 
 		PS.update();
 	}
