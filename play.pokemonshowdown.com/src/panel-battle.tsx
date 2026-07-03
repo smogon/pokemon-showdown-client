@@ -115,7 +115,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 
 				<form class="search" onSubmit={this.applyFilters}>
 					<p>
-						<input type="text" name="prefixsearch" class="textbox" placeholder="Username prefix" />
+						<input type="text" name="prefixsearch" class="textbox" placeholder="Username prefix" autocomplete="off" />
 						<button type="submit" class="button">Search</button>
 					</p>
 				</form>
