@@ -1459,8 +1459,9 @@ export class Battle {
 				if (ability) {
 					this.activateAbility(poke, ability.name);
 				}
-				this.weatherTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 8;
-				this.weatherMinTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 5;
+				const isPermanent = this.gen <= 5 || isExtremeWeather || this.rules['Permanent Ability Weather Mod'];
+				this.weatherTimeLeft = (isPermanent) ? 0 : 8;
+				this.weatherMinTimeLeft = (isPermanent) ? 0 : 5;
 			} else if (isExtremeWeather) {
 				this.weatherTimeLeft = 0;
 				this.weatherMinTimeLeft = 0;
