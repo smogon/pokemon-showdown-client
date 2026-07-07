@@ -247,6 +247,20 @@ li::marker {
 .dark .mini-header-left.notifying {
 	color: #72bcda;
 }
+.notification-badge {
+	position: absolute;
+	top: 2px;
+	left: 13px;
+	width: 15px;
+	height: 15px;
+	background: #e9790d;
+	color: white;
+	font-size: 9px;
+	font-weight: bold;
+	line-height: 14px;
+	text-align: center;
+	border-radius: 50%;
+}
 
 /* for debugging */
 /* .scroll-snap-enabled .maintabbarbottom {
@@ -597,6 +611,9 @@ summary:hover .expandbutton,
 	z-index: 20;
 	overscroll-behavior-block: contain;
 }
+.dark .ps-overlay {
+	background: rgba(40, 40, 40, .5);
+}
 .ps-popup {
 	position: absolute;
 	top: auto; right: auto; left: auto; bottom: auto;
@@ -609,6 +626,14 @@ summary:hover .expandbutton,
 	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
 	z-index: 20;
 }
+.dark .ps-popup {
+	background: #0D151E;
+	color: #DDD;
+	border-color: #34373b;
+
+	box-shadow: 2px 2px 3px rgba(0,0,0,.5), inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
+}
+
 .ps-overlay .ps-popup {
 	position: static;
 	margin: 80px auto 20px auto;
@@ -747,11 +772,16 @@ p.or:after {
 .mainmenu-footer small small {
 	font-size: 8pt;
 }
-.mainmenu-footer a {
+.mainmenu-footer a, .mainmenu-footer button {
+	background: transparent;
+	border: 0;
+	padding: 0;
+	text-shadow: 0 0 3px black, 0 0 3px black, 0 0 3px black;
+
 	text-decoration: underline;
 	color: #99BBEE;
 }
-.mainmenu-footer a:hover {
+.mainmenu-footer a:hover, .mainmenu-footer button:hover {
 	text-decoration: underline;
 	color: #CCDDFF;
 }
@@ -862,10 +892,13 @@ p.or:after {
 	word-wrap: break-word;
 	border: 1px solid #AAAAAA;
 	border-top: 0;
-}
-.mini-window-body {
 	border-bottom-left-radius: 5px;
 	border-bottom-right-radius: 5px;
+}
+.dark .mini-window-body {
+	background: rgba(0,0,0,.9);
+	color: #DDD;
+	backdrop-filter: blur(4px);
 }
 .pm-buttonbar {
 	padding-bottom: 3px;
@@ -878,6 +911,11 @@ p.or:after {
 .mini-window.focused .mini-window-contents,
 .mini-window.focused .mini-window-body {
 	border-color: #555555;
+}
+.dark .mini-window.focused .mini-window-header,
+.dark .mini-window.focused .mini-window-body,
+.dark .mini-window.focused .mini-window-contents {
+	border-color: #CCC;
 }
 .mini-window.focused .mini-window-header,
 .mini-window.focused .mini-window-header:hover {
@@ -917,6 +955,10 @@ p.or:after {
 .dark .challenge.outgoing {
 	background: #052f68;
 	color: #b3d2fc;
+}
+.challenge.outgoing fieldset {
+	border: 1px solid #217bf5;
+	border-radius: 5px;
 }
 .challenge p {
 	margin: 4px 0;
@@ -1154,6 +1196,11 @@ form.menugroup {
 	background: rgba(242,247,250,.5);
 	color: black;
 }
+.dark .chat-log, .dark .readable-bg {
+	background: rgba(0,0,0,.5);
+	color: #DDD;
+	backdrop-filter: blur(4px);
+}
 .chat-log-add {
 	position: absolute;
 	bottom: 0;
@@ -1170,11 +1217,11 @@ form.menugroup {
 	min-height: 80px;
 	max-height: 300px;
 }
+.mini-window-flex .chat-log.challenge-open {
+	max-height: 520px;
+}
 .debug {
 	display: none;
-}
-.highlighted {
-	background: rgba(255,200,80,0.33);
 }
 .chat.highlighted {
 	margin-left: -8px;
@@ -1185,8 +1232,14 @@ form.menugroup {
 .revealed {
 	background-color: #C8FDEA;
 }
+.dark .revealed {
+	background: rgba(0,255,200,0.18);
+}
 .message-pm {
 	color: #007100;
+}
+.dark .message-pm {
+	color: #00af00;
 }
 .message-pm .pmnote {
 	cursor: pointer;
@@ -1561,8 +1614,14 @@ pre.textbox.textbox-empty[placeholder]:before {
 .userlist li button:hover {
 	background: #dce4ec;
 }
+.dark .userlist li button:hover {
+	background: #222222;
+}
 .userlist li button:active {
 	background: #ccd4dc;
+}
+.dark .userlist li button:active {
+	background: black;
 }
 .userlist li.cur {
 	background: white;
@@ -1760,6 +1819,9 @@ pre.textbox.textbox-empty[placeholder]:before {
 	line-height: 2;
 	color: #555555;
 }
+.dark .battle-controls .whatdo {
+	color: #999999;
+}
 .battle-controls .whatdo small {
 	padding: 1px 2px;
 	border: 1px solid #999999;
@@ -1810,14 +1872,17 @@ pre.textbox.textbox-empty[placeholder]:before {
 	margin: 0;
 	padding: 9px 7px 0 7px;
 }
-.shiftselect {
-	color: #445588;
-}
 .moveselect {
 	color: #884422;
 }
-.switchselect {
+.switchselect, .shiftselect {
 	color: #445588;
+}
+.dark .moveselect {
+	color: #e48d61;
+}
+.dark .switchselect, .dark .shiftselect {
+	color: #7c94dd;
 }
 .switchmenu button {
 	position: relative;
@@ -1937,6 +2002,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	top: 6px;
 	left: -7px;
 	padding: 2px;
+	line-height: 1em;
 	text-align: center;
 
 	cursor: pointer;
@@ -2053,7 +2119,6 @@ pre.textbox.textbox-empty[placeholder]:before {
 	text-align: left;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 	text-decoration: none;
-	white-space: nowrap;
 	cursor: pointer;
 
 	border-radius: 4px;
@@ -2069,6 +2134,17 @@ pre.textbox.textbox-empty[placeholder]:before {
 .team {
 	height: 49px;
 	overflow: hidden;
+	white-space: nowrap;
+}
+.select {
+	min-height: 32px;
+	height: auto;
+}
+.dark .select, .dark .team {
+	border-color: #000000;
+	box-shadow: none;
+	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.85), rgba(118, 128, 140, 0.85));
+	color: black;
 }
 .team.pc-box {
 	min-height: 74px;
@@ -2134,6 +2210,17 @@ pre.textbox.textbox-empty[placeholder]:before {
 	box-shadow: none;
 	background: linear-gradient(to bottom,  #bbc4cd,  #e7edf2);
 }
+.dark .select:hover, .dark .select:hover .team, .dark a.team:hover, .dark button.team:hover {
+	border-color: #000000;
+	background: #FFFFFF;
+	color: black;
+	background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(161, 175, 189, 0.85));
+}
+.dark .select:active, .dark .select:active .team, .dark a.team:active, .dark button.team:active {
+	border-color: #000000;
+	box-shadow: none;
+	background: linear-gradient(to bottom, rgba(141, 153, 165, 0.85), rgba(255, 255, 255, 0.85));
+}
 .select:before {
 	position: absolute;
 	top: 8px;
@@ -2146,6 +2233,9 @@ pre.textbox.textbox-empty[placeholder]:before {
 	-webkit-font-smoothing: antialiased;
 	color: #777777;
 }
+.dark .select:before {
+	color: #000000;
+}
 .select.teamselect:before {
 	top: 16px;
 }
@@ -2155,15 +2245,24 @@ pre.textbox.textbox-empty[placeholder]:before {
 	color: #555555;
 	box-shadow: none;
 }
+.dark .select:disabled {
+	border-color: #888888;
+	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.6), rgba(193, 199, 207, 0.6));
+	color: #444444;
+	box-shadow: none;
+}
 .select:disabled .team, .select:disabled:hover .team, .select:disabled:active .team {
 	border-color: #999999;
 	cursor: default;
 }
+.dark .select:disabled .team, .dark .select:disabled:hover .team, .dark .select:disabled:active .team {
+	border-color: #888888;
+}
 .select:disabled:before {
 	color: #AAAAAA;
 }
-.select:disabled small {
-	opacity: 0.7;
+.dark .select:disabled:before {
+	color: #888888;
 }
 .select.preselected,
 .select:disabled.preselected {
@@ -2319,111 +2418,10 @@ pre.textbox.textbox-empty[placeholder]:before {
 	color: #DDD;
 }
 
-.dark .mini-window-body {
-	background: rgba(0,0,0,.9);
-	color: #DDD;
-	backdrop-filter: blur(4px);
-}
-
-.dark .userlist-maximized {
-	background: #333333;
-	color: #DDD;
-}
 .dark .ps-room.ps-room-opaque,
 .dark .battle-log-add {
 	background: #444444;
 	color: #DDD;
-}
-.dark .userlist-minimized {
-	background: #444444;
-	color: #4488EE;
-}
-.dark .userlist-minimized .userlist-count:hover,
-.dark .userlist-maximized .userlist-count:hover {
-	background: #666666;
-}
-
-.dark .moveselect button {
-	color: #AA6644;
-}
-.dark .switchselect button {
-	color: #6677AA;
-}
-.dark .whatdo {
-	color: #999999;
-}
-
-.dark .chat-log, .dark .readable-bg {
-	background: rgba(0,0,0,.5);
-	color: #DDD;
-	backdrop-filter: blur(4px);
-}
-
-/* popups */
-
-.dark .ps-popup {
-	background: #0D151E;
-	color: #DDD;
-	border-color: #34373b;
-
-	box-shadow: 2px 2px 3px rgba(0,0,0,.5), inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
-}
-
-.dark .changeform i {
-	border-color: #bbb;
-	color: #bbb;
-	background: rgba(0,0,0,.5);
-}
-.dark .changeform i:hover {
-	border-color: #EEE;
-	color: #EEE;
-}
-
-.dark .ps-overlay {
-	background: rgba(40, 40, 40, .5);
-}
-
-/* semi-generic */
-
-.dark .select, .dark .team {
-	border-color: #000000;
-	box-shadow: none;
-	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.85), rgba(118, 128, 140, 0.85));
-	color: black;
-}
-.dark .select:hover, .dark .select:hover .team, .dark a.team:hover, .dark button.team:hover {
-	border-color: #000000;
-	background: #FFFFFF;
-	color: black;
-	background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(161, 175, 189, 0.85));
-}
-.dark .select:active, .dark .select:active .team, .dark a.team:active, .dark button.team:active {
-	border-color: #000000;
-	box-shadow: none;
-	background: linear-gradient(to bottom, rgba(141, 153, 165, 0.85), rgba(255, 255, 255, 0.85));
-}
-.dark .select:disabled {
-	border-color: #888888;
-	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.6), rgba(193, 199, 207, 0.6));
-	color: #444444;
-	box-shadow: none;
-}
-.dark .select:disabled .team, .dark .select:disabled:hover .team, .dark .select:disabled:active .team {
-	border-color: #888888;
-}
-.dark .select:before {
-	color: #000000;
-}
-.dark .select:disabled:before {
-	color: #888888;
-}
-
-/* main menu */
-
-.dark .mini-window.focused .mini-window-header,
-.dark .mini-window.focused .mini-window-body,
-.dark .mini-window.focused .mini-window-contents {
-	border-color: #CCC;
 }
 
 /* chat */
@@ -2431,41 +2429,4 @@ pre.textbox.textbox-empty[placeholder]:before {
 .dark .userlist strong,
 .dark .userlist span {
 	text-shadow: 1px 1px 0 #222222;
-}
-.dark .userlist li button:hover {
-	background: #222222;
-}
-.dark .userlist li button:active {
-	background: black;
-}
-
-.dark .highlighted {
-	background: rgba(120,220,255,0.28);
-}
-.dark .message-pm {
-	color: #00af00;
-}
-.dark .revealed {
-	background: rgba(0,255,200,0.18);
-}
-.dark a.ilink {
-	color: #81AAF2;
-}
-.dark .chat.mine {
-	background: rgba(255,255,255,0.05);
-}
-
-.notification-badge {
-	position: absolute;
-	top: 2px;
-	left: 13px;
-	width: 15px;
-	height: 15px;
-	background: #e9790d;
-	color: white;
-	font-size: 9px;
-	font-weight: bold;
-	line-height: 14px;
-	text-align: center;
-	border-radius: 50%;
 }

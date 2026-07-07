@@ -11,6 +11,7 @@
 	border-left: 5px solid #d7e3ec;
 	width: 154px;
 	overflow: auto;
+	-webkit-overflow-scrolling: touch;
 	overflow-x: hidden;
 }
 .teampane {
@@ -23,6 +24,22 @@
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 	overscroll-behavior-block: contain;
+}
+.teambuilder-folder-select {
+	display: inline-block;
+	max-width: calc(100% - 10px);
+	font-size: 12pt;
+	font-weight: bold;
+}
+.teambuilder-format-folder-source {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	opacity: 0;
+	pointer-events: none;
 }
 @media (max-width:649px) {
 	.folderpane {
@@ -301,6 +318,7 @@
 	right: -14px;
 	min-height: 150px;
 	overflow: auto;
+	-webkit-overflow-scrolling: touch;
 	max-height: 80vh;
 }
 .searchresults, .team-focus-editor {
@@ -435,11 +453,14 @@
 	width: 52px;
 	height: 100px;
 } */
-.setdetails .detailcell {
+.setdetails .detailcell, .set-form .detailcell {
 	padding: 2px 4px;
 	display: block;
 	font-size: 9pt;
 	text-align: center;
+}
+.set-form .detailcell {
+	padding-top: 1px;
 }
 .setdetails .detailcell + .detailcell {
 	border-top: 1px solid #CCC;
@@ -447,7 +468,7 @@
 .dark .setdetails .detailcell + .detailcell {
 	border-color: #555;
 }
-.setdetails label {
+.setdetails label, .set-form .detailcell label {
 	float: none;
 	display: block;
 	font-weight: normal;
@@ -468,11 +489,12 @@
 	display: block;
 	height: 15px;
 }
-.statrow label {
+.statrow em {
 	float: left;
 	width: 20px;
 	height: 5px;
 	text-align: right;
+	font-style: normal;
 	font-weight: normal;
 	font-size: 7pt;
 	padding: 0;
@@ -491,17 +513,21 @@
 	border: 1px solid #888888;
 	border-width: 0 1px 2px 0;
 }
-.statrow em {
+/* more specificity to outweigh `.label strong` */
+.statrow.statrow strong {
 	float: left;
 	font-size: 7pt;
 	font-style: normal;
+	font-weight: normal;
 	width: 22px;
 	height: 5px;
 	text-align: right;
+	margin: 0;
 }
 .statrow small {
 	float: left;
 	font-size: 7pt;
+	height: 5px;
 }
 .statrow .statrow-head em {
 	color: #555555;
@@ -524,6 +550,15 @@
 .evslider {
 	width: 170px;
 }
+.stat-nature-buttons {
+	display: none;
+	margin-left: 2px;
+	white-space: nowrap;
+	vertical-align: middle;
+}
+.tiny-layout .stat-nature-buttons {
+	display: inline-block;
+}
 .tiny-layout .evslider {
 	width: 120px;
 }
@@ -534,7 +569,7 @@ you can't delete it by pressing Backspace */
 	color: transparent;
 }
 
-/* button editor */
+/* wizard editor */
 
 .set-button {
 	position: relative;
@@ -558,7 +593,7 @@ you can't delete it by pressing Backspace */
 	/* (there's no box-sizing:margin-box) */
 	margin: -1px 0 0 -1px;
 }
-.set-button .button {
+.set-wizard .button {
 	display: block;
 	margin: 0;
 	width: 100%;
@@ -568,7 +603,7 @@ you can't delete it by pressing Backspace */
 	overflow: hidden;
 	padding: 3px;
 }
-.tiny-layout .set-button .button,
+.tiny-layout .set-wizard .button,
 .tiny-layout .set-button .label {
 	font-size: 11px;
 }
@@ -576,7 +611,10 @@ you can't delete it by pressing Backspace */
 	color: #2f4f6e;
 }
 .dark .set-button .label {
-	color: #a1b0be;
+	color: #adc0d2;
+}
+.set-button.set-form .label {
+	color: inherit;
 }
 
 .set-button .set-nickname {
@@ -588,10 +626,140 @@ you can't delete it by pressing Backspace */
 	padding: 0 3px;
 }
 .tiny-layout .set-button .set-nickname {
-	width: 90px;
+	width: 23%;
 }
 
-.set-button .sprite {
+/* table editor mode */
+
+.set-form table, .set-form :where(.set-nickname) {
+	background-color: #c8d3e9;
+	border-radius: 5px;
+}
+.dark .set-form table, .dark .set-form :where(.set-nickname) {
+	background-color: #3f4654;
+}
+.set-form table {
+	height: 105px;
+}
+.set-form .border-collapse {
+	margin: 0 3px 1px 0;
+}
+.set-form .moverow + .moverow {
+	margin-top: 3px;
+}
+.set-form .overfull .moverow + .moverow {
+	margin-top: -2px;
+}
+.set-form .overfull .moverow + .moverow .textbox {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+.set-form .overfull .moverow:not(:last-child) .textbox {
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+.set-form .overfull .moverow .textbox, .set-form .overfull .moverow {
+	padding-top: 0;
+	padding-bottom: 0;
+	height: 18px;
+}
+.set-form .overfull5 .moverow .textbox, .set-form .overfull5 .moverow {
+	height: 19.4px;
+}
+.set-form td {
+	vertical-align: top;
+}
+.set-button.set-form .textbox {
+	height: 20px;
+	box-sizing: border-box;
+	width: 100%;
+}
+.set-button.set-form .set-details .textbox {
+	height: 34px;
+	padding: 1px;
+	overflow: hidden;
+}
+.set-button.set-form .set-stats .textbox {
+	height: 89px;
+}
+
+.set-button .set-field.incomplete {
+	color: #CC3311;
+	border-color: #CC3311;
+}
+.set-button button.label {
+	display: block;
+	font-family: inherit;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	text-align: left;
+	cursor: pointer;
+}
+.set-form .set-moves .label.cur,
+.set-form .set-moves .label:focus-visible {
+	text-decoration: underline;
+	outline: 0;
+}
+.set-form .set-moves .button {
+	display: none;
+	padding: 0 3px;
+	font-size: 10px;
+	vertical-align: top;
+	margin-top: 0;
+}
+.set-form .set-moves .button.cur,
+.set-form .set-moves .label:hover .button {
+	display: inline-block;
+}
+.readonly.readonly .set-form .set-moves .button {
+	display: none;
+}
+.set-button.set-form .label .textbox {
+	margin-top: 0;
+}
+.set-button.set-form .set-nickname .label {
+	font-size: 10px;
+}
+.set-button.set-form .set-nickname {
+	padding: 0;
+}
+.set-button.set-form .set-nickname span {
+	padding-left: 3px;
+}
+.set-button.set-form .set-details {
+	height: 69px;
+}
+.set-button.set-form .itemicon {
+	float: right;
+	margin-top: -12px;
+	margin-right: 2px;
+}
+.readonly .set-button .textbox {
+	border: 1px solid #CCC;
+	box-shadow: none;
+}
+.dark .readonly .set-button .textbox {
+	border: 1px solid #444;
+}
+.readonly .set-button button.textbox {
+	cursor: not-allowed;
+}
+/* .set-button.set-form .set-pokemon .label {
+	text-shadow: #c8d3e9 1px 1px 0, #c8d3e9 1px -1px 0, #c8d3e9 -1px 1px 0, #c8d3e9 -1px -1px 0;
+}
+.dark .set-button.set-form .set-pokemon .label {
+	text-shadow: #3f4654 1px 1px 0, #3f4654 1px -1px 0, #3f4654 -1px 1px 0, #3f4654 -1px -1px 0;
+} */
+.set-button.set-form .set-pokemon .label span {
+	visibility: hidden;
+}
+.set-button.set-form .statrow {
+	height: 14px;
+}
+
+.set-wizard .sprite {
 	display: block;
 	width: 100%;
 	height: 97px;
@@ -604,65 +772,86 @@ you can't delete it by pressing Backspace */
 	border-bottom-left-radius: 3px;
 	background: linear-gradient(to bottom, transparent 0%, transparent 70%, #d3d3d3 100%);
 }
-.set-button .cur .sprite-inner {
+.set-wizard .cur .sprite-inner {
 	background: linear-gradient(to bottom, transparent 0%, transparent 70%, #f8f8f8 100%);
 }
-.dark .set-button .sprite-inner {
+.dark .set-wizard .sprite-inner {
 	background: linear-gradient(to bottom, transparent 0%, transparent 70%, #2b2c31 100%);
 }
-.dark .set-button .cur .sprite-inner {
+.dark .set-wizard .cur .sprite-inner {
 	background: linear-gradient(to bottom, transparent 0%, transparent 70%, #555555 100%);
 }
-.set-button .detailcell {
+.set-form .sprite-inner {
+	padding-top: 69px;
+	padding-left: 0;
+	height: auto;
+	background: none;
+}
+.set-wizard .detailcell {
 	float: left;
 	height: 50px;
 }
-.dark .set-button .button-first.cur,
-.dark .set-button .button-middle.cur,
-.dark .set-button .button-last.cur {
+.set-form .detailcell {
+	float: left;
+	height: 27px;
+	margin-bottom: 1px;
+}
+.dark .set-wizard .button-first.cur,
+.dark .set-wizard .button-middle.cur,
+.dark .set-wizard .button-last.cur {
 	box-shadow: none;
 }
-.set-button .detailcell + .detailcell {
+.set-wizard .detailcell + .detailcell,
+.set-form .detailcell + .detailcell {
 	border-left: 1px solid #888;
 	margin-left: 20px;
-	padding-left: 3px;
+	padding-left: 4px;
 }
-.tiny-layout .set-button .detailcell + .detailcell {
-	margin-left: 3px;
+.set-form .detailcell + .detailcell {
+	margin-left: 2px;
+	padding-left: 6px;
 }
-.set-button .set-pokemon .button {
+.tiny-layout .detailcell + .detailcell {
+	margin-left: 0;
+	padding-left: 4px;
+}
+.set-wizard .set-pokemon .button {
 	padding: 0;
 }
-.set-button .set-ability .button, .set-button .set-item .button {
+.set-wizard .set-ability .button, .set-wizard .set-item .button {
 	height: 40px;
 }
 .set-item .itemicon {
 	float: right;
 }
-.set-button .set-moves .button {
+.set-wizard .set-moves .button {
 	line-height: 18px;
 }
-.set-button .set-moves .button.overfull {
+.set-wizard .set-moves .button.overfull {
 	line-height: normal;
 }
-.set-button .set-details .button {
+.set-wizard .set-details .button {
 	height: 61px;
 }
-.set-button .set-stats, .set-button .set-stats .button {
+.set-button .set-stats, .set-wizard .set-stats .button {
 	width: 138px;
 }
-.set-button .set-stats .button {
+.set-wizard .set-stats .button {
 	padding: 3px;
 }
-.tiny-layout .set-button .set-stats, .tiny-layout .set-button .set-stats .button {
+.tiny-layout .set-button .set-stats, .tiny-layout .set-button .set-stats button {
 	width: 40px;
 }
-.tiny-layout .set-button .set-stats label {
+.tiny-layout .set-button .set-stats button {
+	padding-top: 1px;
+}
+.tiny-layout .set-button .set-stats em {
 	display: none;
 }
 .tiny-layout .set-button .set-stats .statgraph {
 	transform: scale(0.5);
 	transform-origin: 0 0;
+	height: 4px;
 }
 
 .team-focus-editor {
@@ -674,9 +863,20 @@ you can't delete it by pressing Backspace */
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 }
+.team-focus-editor .set-button {
+	z-index: 1;
+}
+.team-focus-top {
+	/* interferes with animations, so we don't add this unless we have 6+ moves */
+	height: 230px;
+	overflow: auto;
+	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
+}
 .team-focus-editor .tabbar {
 	/* note to self: make this scrollable later */
 	overflow: auto;
+	-webkit-overflow-scrolling: touch;
 	white-space: nowrap;
 	min-height: 59px;
 }
@@ -705,6 +905,10 @@ you can't delete it by pressing Backspace */
 	margin-left: 0;
 	border-left: 0;
 	padding: 6px 3px;
+}
+.searchboxwrapper {
+	padding-top: 1px;
+	padding-bottom: 0;
 }
 .searchboxwrapper .textbox {
 	width: 100%;

@@ -3,7 +3,7 @@
         "lib": ["dom", "dom.iterable", "es6", "es2016.array.include", "es2017.object"],
         "noEmit": true,
         "target": "esnext",
-        "module": "None",
+        "module": "ES2015",
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "verbatimModuleSyntax": true,

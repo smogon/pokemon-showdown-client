@@ -58,16 +58,18 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 
 		const group = PS.server.getGroup(room.name);
 		let groupName: preact.ComponentChild = group.name || null;
-		if (group.type === 'punishment') {
-			groupName = <span style="color:#777777">{groupName}</span>;
-		}
 
 		const globalGroup = PS.server.getGroup(user.group);
 		let globalGroupName: preact.ComponentChild = globalGroup.name && `Global ${globalGroup.name}` || null;
+		if (globalGroup.name === groupName) groupName = null;
+		let customGroup = toID(user.customgroup) !== toID(globalGroupName || groupName) ? user.customgroup : '';
+
+		if (group.type === 'punishment') {
+			groupName = <span style="color:#777777">{groupName}</span>;
+		}
 		if (globalGroup.type === 'punishment') {
 			globalGroupName = <span style="color:#777777">{globalGroupName}</span>;
 		}
-		if (globalGroup.name === group.name) groupName = null;
 
 		let roomsList: preact.ComponentChild = null;
 		if (user.rooms) {
@@ -176,7 +178,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			{status && <div class="userstatus">{status}</div>}
 			{groupName && <div class="usergroup roomgroup">{groupName}</div>}
 			{globalGroupName && <div class="usergroup globalgroup">{globalGroupName}</div>}
-			{user.customgroup && <div class="usergroup globalgroup">{user.customgroup}</div>}
+			{customGroup && <div class="usergroup globalgroup">{customGroup}</div>}
 			{!hideInteraction && roomsList}
 		</div>, buttonbar];
 	}
@@ -627,7 +629,7 @@ class OptionsPanel extends PSRoomPanel {
 			break;
 		}
 		case 'tournaments': {
-			PS.prefs.set(setting, !elem.value ? null : elem.value as 'hide' | 'notify');
+			PS.prefs.set(setting, elem.value as 'hide' | 'notify' | 'nonotify');
 			break;
 		}
 		case 'refreshprompt':
@@ -777,10 +779,10 @@ class OptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="optlabel">
 					Tournaments: <select
-						name="tournaments" class="button" onChange={this.handleOnChange} value={PS.prefs.tournaments || ''}
+						name="tournaments" class="button" onChange={this.handleOnChange} value={PS.prefs.tournaments || 'notify'}
 					>
-						<option value="">Notify when joined</option>
 						<option value="notify">Always notify</option>
+						<option value="nonotify">Notify when joined</option>
 						<option value="hide">Hide</option>
 					</select>
 				</label>
@@ -1022,7 +1024,7 @@ class BattleForfeitPanel extends PSRoomPanel {
 			<p>
 				<button data-cmd="/closeand /inopener /closeand /forfeit" class="button"><strong>Forfeit and close</strong></button> {}
 				<button data-cmd="/closeand /inopener /forfeit" class="button">Just forfeit</button> {}
-				{!battleRoom.battle.rated && <button type="button" data-href="replaceplayer" class="button">
+				{battleRoom.battle && !battleRoom.battle.rated && <button type="button" data-href="replaceplayer" class="button">
 					Replace player
 				</button>} {}
 				<button type="button" data-cmd="/close" class="button">

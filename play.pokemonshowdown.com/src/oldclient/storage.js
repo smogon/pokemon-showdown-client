@@ -391,8 +391,10 @@ Storage.onMessage = function ($e) {
 	var e = $e.originalEvent;
 	if (e.origin !== Storage.origin) return;
 
-	Storage.crossOriginFrame = e.source;
 	var data = e.data;
+	if (typeof data !== 'string') return; // we don't do this but external code can
+
+	Storage.crossOriginFrame = e.source;
 	switch (data.charAt(0)) {
 	case 'c':
 		Config.server = JSON.parse(data.substr(1));

@@ -127,6 +127,7 @@ function postReply (message) {
 function messageHandler(e) {
 	if (e.origin !== yourOrigin) return;
 	var data = e.data;
+	if (typeof data !== 'string') return; // we don't do this but external code can
 	// console.log('recv: ' + data);
 
 	// data's first char:

@@ -1584,12 +1584,6 @@ export class BattleTooltips {
 		let tier = this.battle.tier;
 		let gen = this.battle.gen;
 		let isCGT = tier.includes('Computer-Generated Teams');
-		let isRandomBattle = tier.includes('Random Battle') ||
-			(tier.includes('Random') && tier.includes('Battle') && gen >= 6) || isCGT;
-
-		let minNature = (isRandomBattle || gen < 3) ? 1 : 0.9;
-		let maxNature = (isRandomBattle || gen < 3) ? 1 : 1.1;
-		let maxIv = (gen < 3) ? 30 : 31;
 
 		let min;
 		let ev0;
@@ -1597,32 +1591,31 @@ export class BattleTooltips {
 		let ev252;
 		let max;
 		if (tier.includes("Let's Go")) {
-			min = tr(tr(tr(2 * baseSpe * level / 100 + 5) * minNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
+			min = tr(tr(tr(2 * baseSpe * level / 100 + 5) * 0.9) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			ev0 = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			ev84 = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			ev252 = tr(tr(tr((2 * baseSpe + 31 + 63) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
-			max = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5) * maxNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
+			max = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5) * 1.1) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			if (tier.includes('No Restrictions')) max += 200;
 			else if (tier.includes('Random')) max += 20;
 		} else if (tier.includes('Champions')) {
-			min = tr(minNature * (baseSpe + 20));
-			ev0 = tr(baseSpe + 20);
-			ev84 = tr(baseSpe + 13 + 20);
+			min = tr(0.9 * (baseSpe + 20));
+			ev0 = tr((2 * baseSpe + 31) * level / 100) + 5;
+			ev84 = tr((2 * baseSpe + 31 + 21) * level / 100) + 5;
 			ev252 = tr(baseSpe + 32 + 20);
-			max = tr(maxNature * (baseSpe + 32 + 20));
+			max = tr(1.1 * (baseSpe + 32 + 20));
 		} else if (gen < 3) {
-			max = tr((2 * baseSpe + maxIv + 63) * level / 100 + 5);
+			max = tr((2 * baseSpe + 30 + 63) * level / 100 + 5);
 			ev252 = max;
 			ev84 = 0;
-			ev0 = tr((2 * baseSpe + maxIv) * level / 100 + 5);
+			ev0 = tr((2 * baseSpe + 30) * level / 100 + 5);
 			min = isCGT ? max : tr(2 * baseSpe * level / 100 + 5);
 		} else {
-			let maxIvEvOffset = maxIv + (isRandomBattle ? 21 : 63);
-			max = tr(tr((2 * baseSpe + maxIvEvOffset) * level / 100 + 5) * maxNature);
-			ev252 = tr(tr((2 * baseSpe + maxIvEvOffset) * level / 100 + 5));
+			max = tr(tr((2 * baseSpe + 94) * level / 100 + 5) * 1.1);
+			ev252 = tr(tr((2 * baseSpe + 94) * level / 100 + 5));
 			ev84 = tr(tr((2 * baseSpe + 31 + 21) * level / 100 + 5));
 			ev0 = tr(tr((2 * baseSpe + 31) * level / 100 + 5));
-			min = isCGT ? max : tr(tr(2 * baseSpe * level / 100 + 5) * minNature);
+			min = isCGT ? max : tr(tr(2 * baseSpe * level / 100 + 5) * 0.9);
 		}
 		return { min, ev0, ev84, ev252, max };
 	}
@@ -1672,12 +1665,12 @@ export class BattleTooltips {
 				switch (this.battle.weather) {
 				case 'sunnyday':
 				case 'desolateland':
-					if (item.id === 'utilityumbrella') break;
+					if (value.tryItem('Utility Umbrella')) break;
 					moveType = 'Fire';
 					break;
 				case 'raindance':
 				case 'primordialsea':
-					if (item.id === 'utilityumbrella') break;
+					if (value.tryItem('Utility Umbrella')) break;
 					moveType = 'Water';
 					break;
 				case 'sandstorm':
@@ -1799,7 +1792,7 @@ export class BattleTooltips {
 				moveType = 'Stellar';
 			}
 			if (move.id === 'weatherball' && value.weatherModify(0)) {
-				if (this.battle.weather === 'stormsurge' && item.id !== 'utilityumbrella') moveType = 'Water';
+				if (this.battle.weather === 'stormsurge' && !value.tryItem('Utility Umbrella')) moveType = 'Water';
 				if (this.battle.weather === 'deserteddunes') moveType = 'Rock';
 			}
 			if (move.id === 'o' || move.id === 'worriednoises') {
@@ -1834,7 +1827,7 @@ export class BattleTooltips {
 		return [moveType, category];
 	}
 	static getTypeAbilityWeakness(attackType: Dex.TypeName, abilityid: ID, dex: ModdedDex = Dex, strict?: boolean) {
-		if (attackType === 'Ground' && abilityid === 'levitate') return 0;
+		if (attackType === 'Ground' && ['levitate', 'eelevate'].includes(abilityid)) return 0;
 		if (attackType === 'Water' && abilityid === 'dryskin') return 0;
 		if (attackType === 'Fire' && abilityid === 'flashfire') return 0;
 		if (attackType === 'Electric' && abilityid === 'lightningrod' && dex.gen >= 5) return 0;
@@ -1901,7 +1894,7 @@ export class BattleTooltips {
 		if (category === 'Status' && dex.gen <= 3) otherFactor = 1;
 
 		let factor = 1;
-		if (!otherFactor && targetAbility === "Levitate") {
+		if (!otherFactor && (targetAbility === "Levitate" || targetAbility === "Eelevate")) {
 			otherFactor = 1;
 			if (!target.isGrounded() && move.id !== 'thousandarrows' && !hardcoreMode) {
 				factor = 0; // Levitate acts as a type-based immunity (doesn't affect most status moves)
@@ -2324,7 +2317,19 @@ export class BattleTooltips {
 		}
 		if (move.id === 'weatherball') {
 			if (!value.abilityModify(2, "Mega Sol") && this.battle.weather !== 'deltastream') {
-				value.weatherModify(2);
+				switch (this.battle.weather) {
+				case 'sunnyday':
+				case 'desolateland':
+				case 'raindance':
+				case 'primordialsea':
+				case 'stormsurge':
+					if (value.tryItem('Utility Umbrella')) break;
+					value.weatherModify(2);
+					break;
+				default:
+					value.weatherModify(2);
+					break;
+				}
 			}
 		}
 		if (move.id === 'hydrosteam') {
@@ -2951,7 +2956,7 @@ export class BattleStatGuesser {
 		let stats = species.baseStats;
 
 		if (set.moves.length < 1) return '?';
-		let needsFourMoves = !['unown', 'ditto'].includes(species.id);
+		let needsFourMoves = !['Unown', 'Ditto'].includes(species.baseSpecies);
 		let hasFourValidMoves = set.moves.length >= 4 && !set.moves.includes('');
 		let moveids = set.moves.map(toID);
 		if (moveids.includes('lastresort' as ID)) needsFourMoves = false;

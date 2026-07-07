@@ -16,12 +16,11 @@ import type { Args } from "./battle-text-parser";
 import { BattleTooltips } from "./battle-tooltips";
 import { Net } from "./client-connection";
 import type { PSModel, PSStreamModel, PSSubscription } from "./client-core";
-import { PS, type PSRoom, type RoomID } from "./client-main";
+import { NARROW_MODE_HEADER_WIDTH, PS, type PSRoom, type RoomID, VERTICAL_HEADER_WIDTH } from "./client-main";
 import type { ChatRoom } from "./panel-chat";
 import { PSHeader, PSMiniHeader } from "./panel-topbar";
 
-export const VERTICAL_HEADER_WIDTH = 240;
-export const NARROW_MODE_HEADER_WIDTH = 280;
+export const EXTERNAL_REDIRECTS = /^(appeals?|rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|privacy|contact|dex|insecure)$/;
 
 export class PSRouter {
 	roomid = '' as RoomID;
@@ -69,14 +68,14 @@ export class PSRouter {
 		if (url.startsWith('/')) url = url.slice(1);
 		if (url === '.') url = '';
 
-		if (!/^[a-z0-9-]*$/.test(url)) return null;
+		// (exaggerated sigh) PLEASE STOP PUTTING RANDOM CHARACTERS IN ROOM IDS
+		if (!/^[a-z0-9-]*$/.test(url) && !url.startsWith('view-')) return null;
 
-		const redirects = /^(appeals?|rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|privacy|contact|dex|insecure)$/;
-		if (redirects.test(url)) return null;
+		if (EXTERNAL_REDIRECTS.test(url)) return null;
 
 		if (url.startsWith('view-teams-view-')) {
 			const teamid = url.slice(16);
-			url = `viewteam-${teamid}` as RoomID;
+			url = `viewteam-${teamid}`;
 		}
 		return url as RoomID;
 	}
@@ -93,7 +92,7 @@ export class PSRouter {
 		if (room.id === '' && PS.leftPanelWidth && PS.rightPanel) {
 			room = PS.rightPanel;
 		}
-		if (room.id === 'rooms') room = PS.leftPanel;
+		if (room.id === 'rooms' && PS.leftPanelWidth) room = PS.leftPanel;
 
 		let roomid = room.id;
 		const panelState = (PS.leftPanelWidth && room === PS.panel ?
@@ -197,9 +196,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		return subscription;
 	}
 	override componentDidMount() {
-		this.props.room.onParentEvent = (id: string, e?: Event) => {
-			if (id === 'focus') this.focus();
-		};
+		this.props.room.onParentFocus = (e?: Event) => this.focus();
 		this.subscriptions.push(this.props.room.subscribe(args => {
 			if (!args) this.forceUpdate();
 			else this.receiveLine(args);
@@ -242,7 +239,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		}
 	}
 	override componentWillUnmount() {
-		this.props.room.onParentEvent = null;
+		this.props.room.onParentFocus = null;
 		for (const subscription of this.subscriptions) {
 			subscription.unsubscribe();
 		}
@@ -303,6 +300,9 @@ export function PSPanelWrapper(props: {
 	onDragEnter?: (ev: DragEvent) => void,
 }) {
 	const room = props.room;
+	const contents = room.caughtError ?
+		<div class="broadcast broadcast-red"><pre>{room.caughtError}</pre></div> :
+		props.children;
 	if (room.location === 'mini-window') {
 		const size = props.fullSize ? ' mini-window-flex' : '';
 		const scrollable = !props.noScroll && !props.fullSize ? ' scrollable' : '';
@@ -311,13 +311,13 @@ export function PSPanelWrapper(props: {
 			class={`mini-window-contents tiny-layout ps-room-light${scrollable}${size}`}
 			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} onDragEnter={props.onDragEnter}
 		>
-			{props.children}
+			{contents}
 		</div>;
 	}
 	if (PS.isPopup(room)) {
 		const style = PSView.getPopupStyle(room, props.width, props.fullSize);
 		return <div class="ps-popup" id={`room-${room.id}`} style={style} onDragEnter={props.onDragEnter}>
-			{props.children}
+			{contents}
 		</div>;
 	}
 	const style = PSView.posStyle(room) as any;
@@ -328,8 +328,21 @@ export function PSPanelWrapper(props: {
 		id={`room-${room.id}`} role="tabpanel" aria-labelledby={`roomtab-${room.id}`}
 		style={style} onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} onDragEnter={props.onDragEnter}
 	>
-		{room.caughtError ? <div class="broadcast broadcast-red"><pre>{room.caughtError}</pre></div> : props.children}
+		{contents}
 	</div>;
+}
+
+export class PSPanelErrorBoundary extends preact.Component<{ room: PSRoom }> {
+	componentDidCatch(err: Error) {
+		this.props.room.caughtError = err.stack || err.message;
+		this.setState({});
+	}
+	override render() {
+		const room = this.props.room;
+		const RoomType = PS.roomTypes[room.type];
+		const Panel = RoomType && !room.isPlaceholder && !room.caughtError ? RoomType : PSRoomPanel;
+		return <Panel room={room} />;
+	}
 }
 
 export class PSView extends preact.Component {
@@ -347,6 +360,8 @@ export class PSView extends preact.Component {
 	/** mode where the tabbar is opened rather than always being there */
 	static narrowMode = false;
 	static verticalHeaderWidth = VERTICAL_HEADER_WIDTH;
+	commandPreviewTextbox: HTMLElement | null = null;
+	commandPreviewPlaceholder: string | null = null;
 	static setTextboxFocused(focused: boolean) {
 		if (!PSView.narrowMode) return;
 		if (!PSView.isChrome && !PSView.isSafari) return;
@@ -396,6 +411,88 @@ export class PSView extends preact.Component {
 
 		return buf;
 	}
+	getHoveredCommand(target: EventTarget | null): { elem: HTMLElement, cmd: string } | null {
+		if (!(target instanceof Element)) return null;
+		const elem = target.closest<HTMLButtonElement>(
+			'[data-cmd], [data-sendraw], [data-cmdpreview], [data-href], button[name=send], button[name=parseCommand], button[name=joinRoom], button[name=closeRoom], a, .username'
+		);
+		if (!elem) return null;
+
+		const cmd = elem.getAttribute('data-cmdpreview') ||
+			elem.getAttribute('data-cmd') || elem.getAttribute('data-sendraw');
+		if (cmd) return { elem, cmd };
+
+		if (elem.name === 'parseCommand' || elem.name === 'send') {
+			return { elem, cmd: elem.value };
+		}
+		if (elem.name === 'closeRoom') {
+			return { elem, cmd: '/close ' + elem.value };
+		}
+		const href = (elem.getAttribute('data-href') || elem.getAttribute('href'))?.replace(/^\//, '');
+		if (href && /^[a-z0-9-]+$/.test(href)) {
+			if (EXTERNAL_REDIRECTS.test(href)) return null;
+			if (href === 'login') return { elem, cmd: '/nick' };
+			if (href === 'formatdropdown' || href === 'teamdropdown') return null;
+			if (href.startsWith('challenge-')) return { elem, cmd: `/challenge ${href.slice(10)}` };
+			return { elem, cmd: '/j ' + href };
+		}
+		if (elem.classList.contains('username')) {
+			return { elem, cmd: '/user ' + toID(elem.getAttribute('data-user') || elem.innerText) };
+		}
+		return null;
+	}
+	getCommandPreviewTextbox(elem: HTMLElement): HTMLElement | null {
+		const rooms = [PS.getRoom(elem), PS.room, PS.panel, PS.leftPanel, PS.rightPanel];
+		for (const room of rooms) {
+			if (!room || !(room.type === 'chat' || room.type === 'battle' || room.type === 'rooms')) {
+				continue;
+			}
+
+			const roomElem = document.getElementById(`room-${room.id}`);
+			if (!roomElem) continue;
+			const textbox = room.type === 'rooms' ?
+				roomElem.querySelector<HTMLElement>('input[name=roomsearch].textbox') :
+				roomElem.querySelector<HTMLElement>('.chat-log-add .textbox');
+			if (!textbox) continue;
+			if (!textbox.getClientRects().length) continue;
+			return textbox;
+		}
+		return null;
+	}
+	setCommandPreview(textbox: HTMLElement, cmd: string) {
+		if (this.commandPreviewTextbox !== textbox) {
+			this.clearCommandPreview();
+			this.commandPreviewTextbox = textbox;
+			this.commandPreviewPlaceholder = textbox.getAttribute('placeholder');
+		}
+		if (textbox.getAttribute('placeholder') !== cmd) textbox.setAttribute('placeholder', cmd);
+	}
+	clearCommandPreview() {
+		if (!this.commandPreviewTextbox) return;
+		if (this.commandPreviewPlaceholder === null) {
+			this.commandPreviewTextbox.removeAttribute('placeholder');
+		} else {
+			this.commandPreviewTextbox.setAttribute('placeholder', this.commandPreviewPlaceholder);
+		}
+		this.commandPreviewTextbox = null;
+		this.commandPreviewPlaceholder = null;
+	}
+	handleCommandPointerOver = (ev: PointerEvent) => {
+		if (ev.pointerType === 'touch') return;
+		const hover = this.getHoveredCommand(ev.target);
+		if (!hover) return;
+		const textbox = this.getCommandPreviewTextbox(hover.elem);
+		if (!textbox) return;
+		this.setCommandPreview(textbox, hover.cmd);
+	};
+	handleCommandPointerOut = (ev: PointerEvent) => {
+		if (ev.pointerType === 'touch') return;
+		const hover = this.getHoveredCommand(ev.target);
+		if (!hover) return;
+		const nextHover = this.getHoveredCommand(ev.relatedTarget);
+		if (nextHover?.elem === hover.elem) return;
+		this.clearCommandPreview();
+	};
 	constructor() {
 		super();
 		PS.subscribe(() => this.forceUpdate());
@@ -408,8 +505,23 @@ export class PSView extends preact.Component {
 		}
 
 		window.onbeforeunload = (ev: Event) => {
-			return PS.prefs.refreshprompt ? "Are you sure you want to leave?" : null;
+			for (const room of Object.values(PS.rooms)) {
+				const interruptClose = room!.interruptClose(true);
+				if (typeof interruptClose === 'string') return interruptClose;
+			}
+			if (PS.prefs.refreshprompt) {
+				return "Are you sure you want to leave?";
+			}
+			return null;
 		};
+
+		window.addEventListener('focus', () => {
+			for (const room of [PS.leftPanel, PS.rightPanel]) {
+				if (room && PS.isVisiblePanel(room)) {
+					room.autoDismissNotifications();
+				}
+			}
+		});
 
 		window.addEventListener('submit', ev => {
 			const elem = ev.target as HTMLFormElement | null;
@@ -432,9 +544,16 @@ export class PSView extends preact.Component {
 			// can't be part of the click event because Safari pretends the pointer is a mouse
 			PSView.hasTapped = ev.pointerType === 'touch' || ev.pointerType === 'pen';
 		});
+		window.addEventListener('pointerover', this.handleCommandPointerOver);
+		window.addEventListener('pointerout', this.handleCommandPointerOut);
 
 		window.addEventListener('click', ev => {
 			let elem = ev.target as HTMLElement | null;
+			if (BattleTooltips.isLocked) {
+				// only dismiss if clicking outside the tooltip
+				const tooltipWrapper = document.getElementById('tooltipwrapper');
+				if (!tooltipWrapper?.contains(elem)) BattleTooltips.hideTooltip();
+			}
 			const clickedRoom = PS.getRoom(elem);
 			while (elem) {
 				if (elem.className === 'spoiler') {
@@ -443,10 +562,10 @@ export class PSView extends preact.Component {
 					elem.className = 'spoiler';
 				}
 
-				if (` ${elem.className} `.includes(' username ')) {
+				if (elem.classList.contains('username')) {
 					const name = elem.getAttribute('data-name') || elem.innerText;
 					const userid = toID(name);
-					const roomid = `${` ${elem.className} `.includes(' no-interact ') ? 'viewuser' : 'user'}-${userid}` as RoomID;
+					const roomid = `${elem.classList.contains('no-interact') ? 'viewuser' : 'user'}-${userid}` as RoomID;
 					PS.join(roomid, {
 						parentElem: elem,
 						rightPopup: elem.className === 'userbutton username',
@@ -557,7 +676,7 @@ export class PSView extends preact.Component {
 				}
 			}
 			if (!isNonEmptyTextInput) {
-				if (PS.room.onParentEvent?.('keydown', ev) === false) {
+				if (PS.room.onParentKeyDown?.(ev) === false) {
 					ev.stopImmediatePropagation();
 					ev.preventDefault();
 					return;
@@ -566,20 +685,28 @@ export class PSView extends preact.Component {
 			const modifierKey = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
 			const altKey = !ev.ctrlKey && ev.altKey && !ev.metaKey && !ev.shiftKey;
 			const altShiftKey = !ev.ctrlKey && ev.altKey && !ev.metaKey && ev.shiftKey;
-			if (altShiftKey && ev.keyCode === 37 && !isNonEmptyTextInput) { // alt + shift + left
+			const shiftKey = !ev.ctrlKey && !ev.altKey && !ev.metaKey && ev.shiftKey;
+			const kc = ev.keyCode;
+			if (altShiftKey && (kc === 37 || kc === 38)) { // alt + shift + left or up
 				PS.arrowKeysUsed = true;
 				PS.focusUnreadRoom('left');
-			} else if (altShiftKey && ev.keyCode === 39 && !isNonEmptyTextInput) { // alt + shift + right
+			} else if (altShiftKey && (kc === 39 || kc === 40)) { // alt + shift + right or down
 				PS.arrowKeysUsed = true;
 				PS.focusUnreadRoom('right');
 			}
-			if (altKey && ev.keyCode === 38) { // alt + up
+			if (altKey && kc === 38) { // alt + up
 				PS.arrowKeysUsed = true;
 				PS.focusUpRoom();
-			} else if (altKey && ev.keyCode === 40) { // alt + down
+			} else if (altKey && kc === 40) { // alt + down
 				PS.arrowKeysUsed = true;
 				PS.focusDownRoom();
-			} else if (ev.keyCode === 27) { // escape
+			} else if (!modifierKey && kc === 27) { // escape
+				if (BattleTooltips.elem) {
+					ev.stopImmediatePropagation();
+					ev.preventDefault();
+					BattleTooltips.hideTooltip();
+					return;
+				}
 				// close popups
 				if (PS.popups.length) {
 					ev.stopImmediatePropagation();
@@ -592,22 +719,111 @@ export class PSView extends preact.Component {
 					PS.hideRightRoom();
 				}
 			}
+
 			if (isNonEmptyTextInput) return;
-			if (altKey && ev.keyCode === 37) { // alt + left
+
+			if (altKey && kc === 37) { // alt + left
 				PS.arrowKeysUsed = true;
 				PS.focusLeftRoom();
-			} else if (altKey && ev.keyCode === 39) { // alt + right
+			} else if (altKey && kc === 39) { // alt + right
 				PS.arrowKeysUsed = true;
 				PS.focusRightRoom();
+			} else if (shiftKey && kc === 37) { // shift + left
+				if (PS.prefs.onepanel === 'vertical') return;
+				const curLoc = PS.room.location;
+				let newLoc = curLoc;
+				let newIndex: number | null = null;
+				switch (curLoc) {
+				case 'right': {
+					newIndex = PS.rightRoomList.indexOf(PS.room.id) - 1;
+					if (newIndex < 0) {
+						newLoc = 'left';
+						newIndex = PS.leftRoomList.length + 1;
+					}
+					break;
+				}
+				case 'left': {
+					newIndex = PS.leftRoomList.indexOf(PS.room.id) - 1;
+					// newIndex <= 0 because MainMenu is always at 0 index
+					if (newIndex <= 0) {
+						newLoc = 'mini-window';
+						newIndex = PS.miniRoomList.length + 1;
+					}
+					break;
+				}
+				case 'mini-window': {
+					newIndex = PS.miniRoomList.indexOf(PS.room.id) - 1;
+					if (newIndex < 0) {
+						newLoc = 'right';
+						newIndex = PS.rightRoomList.length + 1;
+					}
+					break;
+				}
+				}
+				if (newIndex !== null) {
+					PS.moveRoom(PS.room, newLoc, false, newIndex);
+					PS.update();
+				}
+			} else if (shiftKey && kc === 39) { // shift + right
+				if (PS.prefs.onepanel === 'vertical') return;
+				const curLoc = PS.room.location;
+				let newLoc = curLoc;
+				let newIndex: number | null = null;
+				switch (curLoc) {
+				case 'right': {
+					newIndex = PS.rightRoomList.indexOf(PS.room.id) + 1;
+					if (newIndex >= PS.rightRoomList.length - 1) {
+						// newIndex = 1 because NewsPanel is at 0
+						newLoc = 'mini-window';
+						newIndex = 1;
+					}
+					break;
+				}
+				case 'left': {
+					newIndex = PS.leftRoomList.indexOf(PS.room.id) + 1;
+					if (newIndex >= PS.leftRoomList.length) {
+						newLoc = 'right';
+						newIndex = 0;
+					}
+					break;
+				}
+				case 'mini-window': {
+					newIndex = PS.miniRoomList.indexOf(PS.room.id) + 1;
+					if (newIndex >= PS.miniRoomList.length) {
+						newLoc = 'left';
+						// newIndex = 1 because MainMenu is at 0
+						newIndex = 1;
+					}
+					break;
+				}
+				}
+				if (newIndex !== null) {
+					PS.moveRoom(PS.room, newLoc, false, newIndex);
+					PS.update();
+				}
+			} else if (shiftKey && kc === 38) { // shift + up
+				if (PS.prefs.onepanel !== 'vertical') return;
+				let newIndex = PS.rightRoomList.indexOf(PS.room.id) - 1;
+				if (newIndex < 0) newIndex = PS.rightRoomList.length - 1;
+				PS.moveRoom(PS.room, 'right', false, newIndex);
+				PS.update();
+			} else if (shiftKey && kc === 40) { // shift + down
+				if (PS.prefs.onepanel !== 'vertical') return;
+				let newIndex = PS.rightRoomList.indexOf(PS.room.id) + 1;
+				if (newIndex >= PS.rightRoomList.length - 1) newIndex = 0;
+				PS.moveRoom(PS.room, 'right', false, newIndex);
+				PS.update();
 			}
+
 			if (modifierKey) return;
-			if (ev.keyCode === 37) { // left
+
+			if (kc === 37 && elem?.type !== 'radio') { // left
 				PS.arrowKeysUsed = true;
 				PS.focusLeftRoom();
-			} else if (ev.keyCode === 39) { // right
+			} else if (kc === 39 && elem?.type !== 'radio') { // right
 				PS.arrowKeysUsed = true;
 				PS.focusRightRoom();
-			} else if (ev.keyCode === 191 && !isTextInput && PS.room === PS.mainmenu) { // forward slash
+			} else if (kc === 191 && !isTextInput && PS.room === PS.mainmenu) { // forward slash
 				ev.stopImmediatePropagation();
 				ev.preventDefault();
 				PS.join('dm---' as RoomID);
@@ -702,7 +918,7 @@ export class PSView extends preact.Component {
 		}
 	}
 	static focusIfNoSelection = (ev: MouseEvent) => {
-		const room = PS.getRoom(ev.target as HTMLElement, true);
+		const room = PS.getRoom(ev.target, true);
 		if (!room) return;
 
 		if (window.getSelection?.()?.type === 'Range') return;
@@ -823,7 +1039,7 @@ export class PSView extends preact.Component {
 		} else {
 			// both panels visible
 			if (room === PS.leftPanel) return { width: `${PS.leftPanelWidth}px`, right: 'auto' };
-			if (room === PS.rightPanel) return { top: 56, left: PS.leftPanelWidth + 1 };
+			if (room === PS.rightPanel) return { top: `56px`, left: `${PS.leftPanelWidth + 1}px` };
 		}
 
 		return { display: 'none' };
@@ -928,19 +1144,12 @@ export class PSView extends preact.Component {
 
 		return style;
 	}
-	renderRoom(room: PSRoom) {
-		const RoomType = PS.roomTypes[room.type];
-		const Panel = RoomType && !room.isPlaceholder && !room.caughtError ? RoomType : PSRoomPanel;
-		return <Panel key={room.id} room={room} />;
-	}
 	renderPopup(room: PSRoom) {
-		const RoomType = PS.roomTypes[room.type];
-		const Panel = RoomType && !room.isPlaceholder && !room.caughtError ? RoomType : PSRoomPanel;
 		if (room.location === 'popup' && room.parentElem) {
-			return <Panel key={room.id} room={room} />;
+			return <PSPanelErrorBoundary key={room.id} room={room} />;
 		}
 		return <div key={room.id} class="ps-overlay" onClick={this.handleClickOverlay} role="dialog">
-			<Panel room={room} />
+			<PSPanelErrorBoundary room={room} />
 		</div>;
 	}
 	render() {
@@ -948,7 +1157,7 @@ export class PSView extends preact.Component {
 		for (const roomid in PS.rooms) {
 			const room = PS.rooms[roomid]!;
 			if (PS.isPanel(room)) {
-				rooms.push(this.renderRoom(room));
+				rooms.push(<PSPanelErrorBoundary key={room.id} room={room} />);
 			}
 		}
 		return <div class="ps-frame" role="none">
@@ -960,9 +1169,26 @@ export class PSView extends preact.Component {
 	}
 }
 
+export class ReconnectTimer extends preact.Component {
+	timer: ReturnType<typeof setInterval> | null = null;
+	override componentDidMount() {
+		this.timer = setInterval(() => this.forceUpdate(), 1000);
+	}
+	override componentWillUnmount() {
+		if (this.timer) clearInterval(this.timer);
+	}
+	override render() {
+		const nextRetryTime = PS.connection?.nextRetryTime;
+		if (!nextRetryTime) return null;
+		const secs = Math.ceil((nextRetryTime - Date.now()) / 1000);
+		return <small>{secs > 0 ? `(Autoreconnect in ${secs}s)` : `(Reconnecting...)`}</small>;
+	}
+}
+
 export function PSIcon(
 	props: { pokemon: string | Pokemon | ServerPokemon | Dex.PokemonSet | null } |
-		{ item: string | null } | { type: string, b?: boolean } | { category: string }
+		{ item: string | null } | { type: string, b?: boolean, new?: boolean, tera?: boolean } |
+		{ category: string } | { gender: string }
 ) {
 	if ('pokemon' in props) {
 		return <span class="picon" style={Dex.getPokemonIcon(props.pokemon)} />;
@@ -973,6 +1199,9 @@ export function PSIcon(
 	if ('type' in props) {
 		let type = Dex.types.get(props.type).name;
 		if (!type) type = '???';
+		if (props.new) {
+			return <span class={`typeicon typeicon-${type}${props.tera ? ' tera' : ''}`}>{type}</span>;
+		}
 		let sanitizedType = type.replace(/\?/g, '%3f');
 		return <img
 			src={`${Dex.resourcePrefix}sprites/types/${sanitizedType}.png`} alt={type}
@@ -995,6 +1224,12 @@ export function PSIcon(
 		return <img
 			src={`${Dex.resourcePrefix}sprites/categories/${sanitizedCategory}.png`} alt={sanitizedCategory}
 			height="14" width="32" class="pixelated" style="vertical-align:middle"
+		/>;
+	}
+	if ('gender' in props) {
+		return <img
+			src={`${Dex.resourcePrefix}sprites/misc/gender-${props.gender.toLowerCase()}.png`}
+			width={18} height={18} alt={props.gender} style="margin-top: -1px; filter: grayscale(30%)"
 		/>;
 	}
 	return null!;

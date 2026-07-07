@@ -3,7 +3,7 @@ AddType application/x-tgz .tgz
 AddType application/x-chrome-extension .crx
 AddType application/x-web-app-manifest+json .webapp
 
-<filesMatch "^(index|preactalpha)\.html$">
+<filesMatch "^caches/index-(old|new)\.html$">
   FileETag None
   <ifModule mod_headers.c>
      Header unset ETag
@@ -137,6 +137,9 @@ Header set Cache-Control "no-cache, no-store, must-revalidate" env=INDEX_PAGE
 Header set Pragma "no-cache" env=INDEX_PAGE
 Header set Expires "0" env=INDEX_PAGE
 
+# Crossprotocol cache page
+RewriteRule ^crossprotocol\.html$ ./caches/crossprotocol.html [L]
+
 # No direct linking to the lobby.
 # RewriteCond %{ENV:SCRIPT_URL} ^/(lobby/?)?$
 # RewriteCond %{HTTP_REFERER} !^$
@@ -164,6 +167,8 @@ RewriteRule ^backup/ - [F]
 RewriteRule ^\.git/ - [F]
 RewriteRule ^lib/ - [F]
 
+# TODO: figure this guy out
+RewriteCond %{THE_REQUEST} \s/caches/
 RewriteRule ^caches/ - [F]
 RewriteRule ^testclient-old\.html$ - [F]
 RewriteRule ^testclient-beta\.html$ - [F]
