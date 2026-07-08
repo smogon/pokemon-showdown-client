@@ -1596,6 +1596,10 @@ export class BattleTooltips {
 
 		let minNatureMult = 0.9;
 		let maxNatureMult = 1.1;
+		if (tier.includes('Random Battle')) {
+			minNatureMult = 1;
+			maxNatureMult = 1;
+		}
 		if (pokemon.nature) {
 			let natureVals = BattleNatures[pokemon.nature];
 			if (natureVals.minus === 'spe') maxNatureMult = 0.9;
