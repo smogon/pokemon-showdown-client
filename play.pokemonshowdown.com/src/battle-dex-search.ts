@@ -614,6 +614,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		'nfe' | 'ssdlc1' | 'ssdlc1doubles' | 'predlc' | 'predlcdoubles' | 'svdlc1' | 'svdlc1doubles' | 'stadium' | 'lc' |
 		'champions' | 'natdexchampions' | null = null;
 	isDoubles = false;
+	terastalClause = false;
 
 	/**
 	 * Cached copy of what the results list would be with only base filters
@@ -635,6 +636,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 
 		this.baseResults = null;
 		this.baseIllegalResults = null;
+		this.terastalClause = !!BattleFormats[format]?.terastalClause;
 
 		if (format.startsWith('gen')) {
 			const gen = (Number(format.charAt(3)) || 6);
@@ -1750,6 +1752,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		case 'temperflare':
 			return (!moves.includes('flareblitz') && !moves.includes('pyroball') && !moves.includes('sacredfire') &&
 				!moves.includes('bitterblade') && !moves.includes('firepunch')) || this.isDoubles;
+		case 'terablast':
+			return !this.terastalClause;
 		case 'terrainpulse': case 'waterpulse':
 			return ['megalauncher', 'technician'].includes(abilityid) && !moves.includes('originpulse');
 		case 'thief':

@@ -357,6 +357,7 @@ export interface FormatData {
 	bestOfDefault?: boolean;
 	teraPreviewDefault?: boolean;
 	itemClauseDefault?: boolean;
+	terastalClause?: boolean;
 	rated: boolean;
 	teambuilderLevel?: number | null;
 	partner?: boolean;

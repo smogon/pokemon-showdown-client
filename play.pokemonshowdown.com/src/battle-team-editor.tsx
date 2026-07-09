@@ -69,6 +69,7 @@ export class TeamEditorState extends PSModel {
 	isNatDex = false;
 	isBDSP = false;
 	isChampions = false;
+	terastalClause = false;
 	formeLegality: 'normal' | 'hackmons' | 'custom' = 'normal';
 	abilityLegality: 'normal' | 'hackmons' = 'normal';
 	defaultLevel = 100;
@@ -103,6 +104,7 @@ export class TeamEditorState extends PSModel {
 		this.isNatDex = formatid.includes('nationaldex') || formatid.includes('natdex');
 		this.isBDSP = formatid.includes('bdsp');
 		this.isChampions = formatid.includes('champions');
+		this.terastalClause = !!BattleFormats[formatid]?.terastalClause;
 		if (formatid.includes('almostanyability') || formatid.includes('aaa')) {
 			this.abilityLegality = 'hackmons';
 		} else {
@@ -492,7 +494,7 @@ export class TeamEditorState extends PSModel {
 	};
 	hpTypeMatters(set: Dex.PokemonSet): boolean {
 		if (this.gen < 2) return false;
-		if (this.gen > 7) return false;
+		if (this.gen > 7 && !this.isNatDex) return false;
 		for (const move of set.moves) {
 			const moveid = toID(move);
 			if (moveid.startsWith('hiddenpower')) return true;
@@ -1695,7 +1697,7 @@ class TeamTextbox extends preact.Component<{
 			<span class="detailcell">
 				<label>Shiny</label>{set.shiny ? 'Yes' : '\u2014'}
 			</span>
-			{editor.gen === 9 && !editor.isChampions ? (
+			{editor.gen === 9 && !editor.terastalClause && !editor.isChampions ? (
 				<span class="detailcell">
 					<label>Tera</label><PSIcon type={set.teraType || species.requiredTeraType || species.types[0]} />
 				</span>
@@ -2103,7 +2105,7 @@ class TeamWizard extends preact.Component<{
 								<strong class="label">Shiny</strong> {}
 								{set.shiny ? <img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Yes" /> : '\u2014'}
 							</span>}
-							{editor.gen === 9 && !editor.isChampions && <span class="detailcell">
+							{editor.gen === 9 && !editor.terastalClause && !editor.isChampions && <span class="detailcell">
 								<strong class="label">Tera</strong> {}
 								<PSIcon type={set.teraType || species.requiredTeraType || species.types[0]} />
 							</span>}
@@ -4291,7 +4293,7 @@ class DetailsForm extends preact.Component<{
 						))}
 					</select></label>
 				</p>}
-				{editor.gen === 9 && !editor.isChampions && <p>
+				{editor.gen === 9 && !editor.terastalClause && !editor.isChampions && <p>
 					<label class="label" title="Tera Type">
 						Tera Type: {}
 						{species.requiredTeraType && editor.formeLegality === 'normal' ? (
