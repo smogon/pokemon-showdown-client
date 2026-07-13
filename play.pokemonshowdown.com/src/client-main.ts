@@ -1065,10 +1065,10 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	 * * `'normal'` = can connect normally
 	 * * `'pending-reconnect'` = once connected, now not (flag to retry after reconnect)
 	 * * `'pending-login'` = failed to connect (flag to retry after login)
-	 * * `'expired'` = once connected, now expired
+	 * * `'deleted'` = deleted server-side, but should remain visible client-side
 	 * * `'not-found'` = got `noinit` from the server
 	 */
-	connectMode: null | 'normal' | 'expired' | 'not-found' | 'pending-reconnect' | 'pending-login' = null;
+	connectMode: null | 'normal' | 'deleted' | 'not-found' | 'pending-reconnect' | 'pending-login' = null;
 	onRequestFocus: ((options?: PSRoomFocusOptions) => boolean | void) | null = null;
 	onParentKeyDown: ((e?: Event) => boolean | void) | null = null;
 
@@ -1387,8 +1387,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			}
 		},
 		'avatar'(target) {
-			target = target.toLowerCase();
-			if (/[^a-z0-9-]/.test(target)) target = toID(target);
+			const parts = target.split(',');
+			target = parts[0].toLowerCase().replace(/[^a-z0-9-]+/g, '');
 			const avatar = window.BattleAvatarNumbers?.[target] || target;
 			PS.user.avatar = avatar;
 			PS.prefs.set('avatar', avatar || null);
@@ -1397,6 +1397,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			} else {
 				this.sendDirect(`/avatar ${avatar}`);
 			}
+			if (PS.user.userid) PS.send(`/cmd userdetails ${PS.user.userid}`);
 		},
 		'open,user'(target) {
 			let roomid = `user-${toID(target)}` as RoomID;
@@ -1801,11 +1802,11 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		this.sendDirect(msg);
 	}
 	sendDirect(msg: string) {
-		if (this.connectMode === 'expired') {
-			return this.add(`This room has expired (you can't chat in it anymore)`);
+		if (this.connectMode === 'deleted') {
+			return this.errorReply(`This room has been deleted (you can't chat in it anymore)`);
 		}
 		if (this.connectMode === 'not-found') {
-			return this.add(`This room doesn't exist`);
+			return this.errorReply(`This room doesn't exist`);
 		}
 		PS.send(msg, this.id);
 	}
@@ -2194,6 +2195,11 @@ export const PS = new class extends PSModel {
 			this.leftPanelWidth = leftPanelWidth;
 		}
 		this.layoutViewportWidth = viewportWidth;
+		(this.panel as ChatRoom).log?.updateScroll();
+		if (this.leftPanelWidth) {
+			(this.leftPanel as ChatRoom).log?.updateScroll();
+			(this.rightPanel as ChatRoom).log?.updateScroll();
+		}
 		return needsUpdate;
 	}
 	getRoom(elem: HTMLElement | EventTarget | null | undefined, skipClickable?: boolean): PSRoom | null {
@@ -2287,13 +2293,14 @@ export const PS = new class extends PSModel {
 				room = PS.rooms[roomid2];
 				if (room) {
 					room.connected = false;
-					if (room.connectMode !== 'expired') this.removeRoom(room);
+					if (room.connectMode !== 'deleted') this.removeRoom(room);
 					this.updateAutojoin();
 					this.update();
 				}
 				continue;
 			} case 'noinit': {
 				room = PS.rooms[roomid2];
+				const roomPreviouslyConnected = room?.connected === true || room?.connectMode === 'pending-reconnect';
 				if (!room && roomid2.startsWith('battle-') && args[1] === 'nonexistent') {
 					// possible replay; init a battle room for it
 					room = this.addRoom({
@@ -2314,7 +2321,7 @@ export const PS = new class extends PSModel {
 						// sometimes we assume a room is a chatroom when it's not
 						// when that happens, just ignore this error
 						if (room.type === 'chat' || room.type === 'battle') {
-							room.connectMode = 'not-found';
+							room.connectMode = roomPreviouslyConnected ? 'deleted' : 'not-found';
 							room.receiveLine(args);
 						}
 					} else if (args[1] === 'rename') {

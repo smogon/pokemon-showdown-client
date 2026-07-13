@@ -517,10 +517,6 @@ p.or:after {
 	cursor: pointer;
 
 	border-radius: 4px;
-	border: 1px solid #888888;
-	background: #EEEEEE;
-	box-shadow: inset 0 1px 0 #FFFFFF;
-	background: linear-gradient(to bottom,  #edf2f8,  #d7e3ec);
 	color: black;
 	box-sizing: border-box;
 }
@@ -544,49 +540,32 @@ p.or:after {
 	color: #777777;
 }
 .dark .teamselect:disabled strong {
-	color: #505050;
-}
-.teamselect small {
-	margin: -1px 0 0 -3px;
-	display: block;
-}
-.teamselect small .picon {
-	margin: 0 -3px;
-}
-.select:hover, .team.team-hover {
-	border-color: #555555;
-	background: #FFFFFF;
-	background: linear-gradient(to bottom,  #dce4ec,  #c6d3e0);
-}
-.select:active, .team:active {
-	border-color: #777777;
-	background: #DDDDDD;
-	box-shadow: none;
-	background: linear-gradient(to bottom,  #d1dce6,  #e7edf2);
-}
-.select:after {
-	float: right;
-	font-size: 14px;
-	content: "\f0d7";
-	font-family: FontAwesome;
-	-webkit-font-smoothing: antialiased;
-	color: #777777;
-}
-.select:disabled {
-	border-color: #999999;
-	background: rgba(220,220,220,.65);
-	color: #555555;
-	box-shadow: none;
-}
-.select:disabled:after {
-	color: #AAAAAA;
+	color: #c7c7c7;
 }
 .select:disabled small {
 	opacity: 0.7;
 }
-.select.preselected,
-.select:disabled.preselected {
-	color: black;
+.team.team-hover {
+	border-color: #555555;
+	background: #FFFFFF;
+	background: linear-gradient(to bottom,  #dce4ec,  #c6d3e0);
+}
+.team:active {
+	border-color: #777777;
+	background: #DDDDDD;
+	box-shadow: none;
+	background: linear-gradient(to bottom,  #bbc4cd,  #e7edf2);
+}
+.dark .team.team-hover {
+	border-color: #34373b;
+	background: #FFFFFF;
+	color: white;
+	background: linear-gradient(to bottom, #8f98a1, #4a5057);
+}
+.dark .team:active {
+	border-color: #34373b;
+	box-shadow: none;
+	background: linear-gradient(to bottom, #4a5057, #8f98a1);
 }
 
 /*********************************************************
@@ -2241,6 +2220,9 @@ p.or:after {
 	font-size: 8pt;
 	vertical-align: middle;
 	text-align: center;
+	/* lazy windowing */
+	content-visibility: auto;
+	contain-intrinsic-size: auto 49px;
 }
 .teamlist .dragging button {
 	visibility: hidden;
@@ -2254,6 +2236,16 @@ p.or:after {
 }
 .teamlist .team .picon {
 	margin: 0 -2px;
+}
+.teamselect small {
+	display: block;
+	margin: -1px 0 0 -3px;
+}
+.teamselect small .picon {
+	margin: 0 -3px;
+}
+.dark .preselected .team small {
+	filter: none;
 }
 .teamlist .team .picon span {
 	font-size: 9px !important;
@@ -3014,7 +3006,7 @@ p.or:after {
 	margin: 2px;
 	padding: 2px;
 }
-.avatarlist button {
+.avatarlist button, .dark .avatarlist button {
 	width: 80px;
 	height: 80px;
 	background: transparent url(https://play.pokemonshowdown.com/sprites/trainers-sheet.png) no-repeat scroll 0px 0px;
@@ -3144,38 +3136,6 @@ p.or:after {
 
 .dark .ps-overlay {
 	background: rgba(40, 40, 40, .5);
-}
-
-/* semi-generic */
-
-.dark .select, .dark .team {
-	border-color: #000000;
-	box-shadow: none;
-	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.85), rgba(118, 128, 140, 0.85));
-	color: black;
-}
-.dark .select:hover, .dark .team.team-hover {
-	border-color: #000000;
-	background: #FFFFFF;
-	color: black;
-	background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(161, 175, 189, 0.85));
-}
-.dark .select:active, .dark .team:active {
-	border-color: #000000;
-	box-shadow: none;
-	background: linear-gradient(to bottom, rgba(161, 175, 189, 0.85), rgba(255, 255, 255, 0.85));
-}
-.dark .select:disabled {
-	border-color: #888888;
-	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.6), rgba(193, 199, 207, 0.6));
-	color: #444444;
-	box-shadow: none;
-}
-.dark .select:after {
-	color: #000000;
-}
-.dark .select:disabled:after {
-	color: #888888;
 }
 
 /* main menu */

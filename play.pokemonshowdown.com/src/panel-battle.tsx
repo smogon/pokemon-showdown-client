@@ -22,6 +22,7 @@ import {
 import type { Args } from "./battle-text-parser";
 import { ModifiableValue } from "./battle-tooltips";
 import { Net } from "./client-connection";
+import { BattleLog } from "./battle-log";
 
 type BattleDesc = {
 	id: RoomID,
@@ -157,7 +158,7 @@ export class BattleRoom extends ChatRoom {
 
 	override interruptClose(explicit?: boolean, elem?: HTMLElement | null) {
 		const battle = this.battle;
-		const activeBattle = battle && !battle.ended && this.request && this.connectMode !== 'expired';
+		const activeBattle = battle && !battle.ended && this.request && this.connectMode !== 'deleted';
 		if (activeBattle || this.requireForfeit) {
 			PS.join('forfeitbattle' as RoomID, { parentElem: elem, parentRoomid: this.id });
 			return `You are still in ${this.title}`;
@@ -188,12 +189,18 @@ export class BattleRoom extends ChatRoom {
 				this.battle.pause();
 				this.battle.seekTurn(0);
 				this.connectMode = null;
+				this.connectError = null;
 				this.update(null);
 			} catch {
-				this.receiveLine(['bigerror', `Battle "${replayid}" not found`]);
-				this.receiveLine(['html',
-					`<div class="broadcast-red pad"><p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p></div>`,
-				]);
+				this.connectError = `Battle "${replayid}" not found`;
+				if (!this.battle.stepQueue.length) {
+					this.battle.scene.message(
+						`<div class="broadcast-red pad"><strong>${BattleLog.escapeHTML(this.connectError)}</strong></div><br />` +
+						`The battle you're looking for has expired. Battles expire after 15 minutes of inactivity unless they're saved.<br /><br />` +
+						`In the future, remember to click "Save replay" to save a replay permanently.`
+					);
+				}
+				this.update(null);
 			}
 		});
 	}
@@ -510,6 +517,16 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			break;
 		}
 	}
+	renderConnectError() {
+		const room = this.props.room;
+		if (room.connectMode !== 'deleted' && room.connectMode !== 'not-found') {
+			return null;
+		}
+		return <div class="pad"><div class="broadcast-red pad">
+			<h3>{room.connectError || "Error"}</h3>
+			<p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p>
+		</div></div>;
+	}
 	renderControls(overlayVersion = false, hidePlayerControls = false) {
 		const room = this.props.room;
 		if (!room.battle) return null;
@@ -522,6 +539,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			if (hidePlayerControls) return null;
 			return this.renderPlayerControls(room.request);
 		}
+		if (room.battle.stepQueue.length === 0) return null;
+
 		const atStart = !room.battle.started;
 		const atEnd = room.battle.atQueueEnd;
 		return <div class="inline-controls">
@@ -1276,6 +1295,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 						role="complementary" aria-label="Battle Controls"
 					>
 						{this.renderControls(false, overlayVersion)}
+						{this.renderConnectError()}
 					</div>
 				</ChatLog>
 				{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
@@ -1305,6 +1325,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 						role="complementary" aria-label="Battle Controls"
 					>
 						{this.renderControls(false, overlayVersion)}
+						{this.renderConnectError()}
 					</div>
 				</ChatLog>
 				<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={0} tinyLayout={room.width < 400} />
@@ -1335,6 +1356,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 						{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
 							<TimerButton room={room} top={0} />}
 						{this.renderControls(false, overlayVersion)}
+						{this.renderConnectError()}
 					</div>
 				</div>
 			</div>

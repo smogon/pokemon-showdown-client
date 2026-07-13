@@ -212,6 +212,11 @@
 	margin: 3px 0;
 	padding: 0;
 }
+.teamlist .team {
+	/* lazy windowing */
+	content-visibility: auto;
+	contain-intrinsic-size: auto 49px;
+}
 .teamlist li.cur .team {
 	opacity: 0.5;
 }

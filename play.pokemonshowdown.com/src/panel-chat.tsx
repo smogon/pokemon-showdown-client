@@ -50,6 +50,7 @@ export class ChatRoom extends PSRoom {
 	/** n.b. this will be null outside of battle rooms */
 	battle: Battle | null = null;
 	log: BattleLog | null = null;
+	connectError: string | null = null;
 	tour: ChatTournament | null = null;
 	lastMessage: Args | null = null;
 	lastViewedTime: number | null = null;
@@ -122,25 +123,23 @@ export class ChatRoom extends PSRoom {
 			return;
 
 		case 'noinit':
-			if (this.battle && args[1] === 'joinfailed') {
-				this.receiveLine(['bigerror', args[2]]);
-				this.receiveLine(['html',
-					`<div class="broadcast-red pad"><p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p></div>`,
-				]);
+			if (this.connectMode === 'deleted') {
+				if (args[2]) this.connectError = args[2];
+			} else if (this.battle && args[1] === 'joinfailed') {
+				this.connectError = args[2] || 'Not found';
 			} else if (this.battle) {
 				// check the Replays database
 				(this as any as BattleRoom).loadReplay();
 			} else {
-				const message = args[2] ? BattleLog.escapeHTML(args[2]) : `Chatroom "${BattleLog.escapeHTML(this.title)}" not found`;
-				this.receiveLine(['html',
-					`<div class="broadcast-red pad"><h3>${message}</h3><p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p></div>`,
-				]);
+				this.connectError = args[2] || `Chatroom "${this.title}" not found`;
 			}
+			this.update(null);
 			return;
 		case 'expire':
 			this.connected = false;
-			this.connectMode = 'expired';
-			this.receiveLine(['', `This room has expired (you can't chat in it anymore)`]);
+			this.connectMode = 'deleted';
+			this.connectError = args[1] || "This room has expired (you can't chat in it anymore)";
+			this.update(null);
 			return;
 
 		case 'chat': case 'c':
@@ -1380,6 +1379,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	};
 	renderControls() {
 		const room = this.props.room;
+		const connectError = this.renderConnectError();
 
 		const defaultFormat = room.args?.format as string | undefined;
 		if (defaultFormat?.startsWith('!!')) {
@@ -1434,8 +1434,9 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			</TeamForm>
 		</div> : null;
 
-		if (!challengeTo && !challengeFrom && !PS.isOffline) return null;
+		if (!challengeTo && !challengeFrom && !PS.isOffline && !connectError) return null;
 		return <>
+			{connectError}
 			{challengeTo}{challengeFrom}{PS.isOffline && <p class="buttonbar">
 				<button class="button" data-cmd="/reconnect">
 					<i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong>
@@ -1443,6 +1444,16 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 				<ReconnectTimer />
 			</p>}
 		</>;
+	}
+	renderConnectError() {
+		const room = this.props.room;
+		if (room.connectMode !== 'deleted' && room.connectMode !== 'not-found') {
+			return null;
+		}
+		return <div class="pad"><div class="broadcast-red pad">
+			<h3>{room.connectError || "Error"}</h3>
+			<p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p>
+		</div></div>;
 	}
 
 	override render() {

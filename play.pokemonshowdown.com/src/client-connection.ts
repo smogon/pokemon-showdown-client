@@ -203,7 +203,7 @@ export class PSConnection {
 		this.nextRetryTime = 0;
 		this.lastReceiveTime = Date.now();
 
-		if (PS.prefs.avatar) this.send(`/avatar ${PS.prefs.avatar},1`);
+		if (PS.prefs.avatar) PS.send(`/avatar ${PS.prefs.avatar},1`);
 		const queue = this.queue;
 		this.queue = [];
 		for (const msg of queue) this.send(msg);
