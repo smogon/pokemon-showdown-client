@@ -185,7 +185,7 @@ exports.smogonip = null;
 exports.smogonpath = null;
 /**
  * Custom actions for your loginserver.
- * @type {{[k: string]: import('../src/server').QueryHandler} | null}
+ * @type {{[k: string]: import('../src/server.ts').QueryHandler} | null}
  */
 exports.actions = null;
 

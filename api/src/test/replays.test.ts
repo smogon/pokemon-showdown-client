@@ -4,8 +4,8 @@
 import { strict as assert } from 'node:assert';
 import { suite, test } from 'node:test';
 
-import { Replays } from '../replays';
-import { replays } from '../tables';
+import { Replays } from '../replays.ts';
+import { replays } from '../tables.ts';
 
 void suite('Replay database manipulation', () => {
 	// prepreplay no longer exists

@@ -2,12 +2,14 @@
   "compilerOptions": {
     "lib": ["es2020"],
     "target": "esnext",
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "strict": true,
     "checkJs": true,
-    "outDir": "./.dist",
-    "incremental": true,
+    "noEmit": true,
+    "rewriteRelativeImportExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
     "allowUnreachableCode": false,
     "esModuleInterop": true,
     "noImplicitAny": true,
@@ -16,7 +18,7 @@
   "types": ["node"],
   "include": [
     "./src/**/*",
-    "./config/config*.js",
+    "./config/config*.cjs",
   ],
-  "exclude": ["./.dist/**/*", "./scripts/**/*"],
+  "exclude": ["./scripts/**/*"],
 }

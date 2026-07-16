@@ -8,15 +8,15 @@
  */
 
 import * as bcrypt from 'bcrypt';
-import { Config } from './config-loader';
+import { Config } from './config-loader.ts';
 import * as crypto from 'node:crypto';
 import * as gal from 'google-auth-library';
-import { SQL } from './database';
-import { ActionError, type ActionContext } from './server';
-import { toID, time, signAsync } from './utils';
+import { SQL } from './database.ts';
+import { ActionError, type ActionContext } from './server.ts';
+import { toID, time, signAsync } from './utils.ts';
 import {
 	ladder, loginthrottle, loginattempts, sessions, users, usermodlog,
-} from './tables';
+} from './tables.ts';
 
 const SID_DURATION = 2 * 7 * 24 * 60 * 60;
 const LOGINTIME_INTERVAL = 24 * 60 * 60;

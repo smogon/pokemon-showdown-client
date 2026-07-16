@@ -5,8 +5,8 @@ import { strict as assert } from 'node:assert';
 import * as http from 'node:http';
 import { after, before, suite, test } from 'node:test';
 
-import { Config } from '../config-loader';
-import { Server } from '../server';
+import { Config } from '../config-loader.ts';
+import { Server } from '../server.ts';
 
 const SERVERTOKEN = 'jiuhygjhf';
 

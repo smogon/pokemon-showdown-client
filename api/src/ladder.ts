@@ -5,8 +5,8 @@
  * @author Zarel, mia-pi-git
  */
 
-import { toID, time } from './utils';
-import { ladder } from './tables';
+import { toID, time } from './utils.ts';
+import { ladder } from './tables.ts';
 
 /** length of a rating period in days (used for Glicko and Elo decay).
  *  Glickman recommends 5-10 games per rating period */

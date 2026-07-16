@@ -5,10 +5,10 @@ import { strict as assert } from 'node:assert';
 import * as crypto from 'node:crypto';
 import { after, suite, test } from 'node:test';
 
-import { Ladder } from '../ladder';
-import { Server } from '../server';
-import * as tables from '../tables';
-import { toID } from '../utils';
+import { Ladder } from '../ladder.ts';
+import { Server } from '../server.ts';
+import * as tables from '../tables.ts';
+import { toID } from '../utils.ts';
 
 const token = '42354y6dhgfdsretr';
 

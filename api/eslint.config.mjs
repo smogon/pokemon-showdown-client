@@ -11,8 +11,7 @@ export default configure([
 	{
 		name: "JavaScript",
 		files: [
-			'*.mjs', // look mom I'm linting myself!
-			'**/*.js',
+			'**/*.{js,cjs,mjs}', // look mom I'm linting myself!
 		],
 		extends: [configs.js],
 		languageOptions: {

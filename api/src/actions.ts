@@ -7,18 +7,21 @@
 import { promises as fs, readFileSync, watchFile } from 'node:fs';
 import * as pathModule from 'node:path';
 import * as crypto from 'node:crypto';
+import * as module from 'node:module';
 import * as url from 'node:url';
-import { Config } from './config-loader';
-import { Ladder, type LadderEntry } from './ladder';
-import { Replays } from './replays';
-import { ActionError, type QueryHandler, Server, DISPATCH_PREFIX } from './server';
-import { Session } from './user';
+import { Config } from './config-loader.ts';
+import { Ladder, type LadderEntry } from './ladder.ts';
+import { Replays } from './replays.ts';
+import { ActionError, type QueryHandler, Server, DISPATCH_PREFIX } from './server.ts';
+import { Session } from './user.ts';
 import {
 	toID, updateserver, bash, time, escapeHTML, signAsync, TimeSorter,
-} from './utils';
-import * as tables from './tables';
-import { SQL } from './database';
-import IPTools from './ip-tools';
+} from './utils.ts';
+import * as tables from './tables.ts';
+import { SQL } from './database.ts';
+import IPTools from './ip-tools.ts';
+
+const require = module.createRequire(import.meta.url);
 
 export interface Suspect {
 	formatid: string;
@@ -43,11 +46,11 @@ async function getOAuthClient(clientId?: string, origin?: string) {
 }
 
 const OAUTH_AUTHORIZE_CONTENT = readFileSync(
-	__dirname + "/../../src/public/oauth-authorize.html",
+	import.meta.dirname + "/public/oauth-authorize.html",
 	'utf-8'
 );
 const OAUTH_AUTHORIZED_CONTENT = readFileSync(
-	__dirname + "/../../src/public/oauth-authorized.html",
+	import.meta.dirname + "/public/oauth-authorized.html",
 	'utf-8'
 );
 
@@ -506,11 +509,11 @@ export const actions: { [k: string]: QueryHandler } = {
 			throw new ActionError(`Access denied for ${this.getIp()}.`);
 		}
 		const update = await updateserver();
-		let stderr;
-		[, , stderr] = await bash('npx tsc');
-		if (stderr) throw new ActionError(`Compilation failed:\n${stderr}`);
-		[, , stderr] = await bash('npx pm2 reload loginserver');
-		if (stderr) throw new ActionError(stderr);
+		let code, stdout, stderr;
+		[code, stdout, stderr] = await bash('npm run typecheck');
+		if (code) throw new ActionError(`Type checking failed:\n${stderr || stdout}`);
+		[code, stdout, stderr] = await bash('npm run reload');
+		if (code) throw new ActionError(stderr || stdout);
 		return { updated: update, success: true };
 	},
 
@@ -791,7 +794,7 @@ export const actions: { [k: string]: QueryHandler } = {
 			throw new ActionError('No challstr provided.');
 		}
 		const tokenEntry = await tables.oauthTokens.get(token);
-		if (!tokenEntry || tokenEntry.id !== token) {
+		if (tokenEntry?.id !== token) {
 			return { success: false };
 		}
 		if ((Date.now() - tokenEntry.time) > OAUTH_TOKEN_TIME) { // 2w

@@ -6,21 +6,26 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore no typedef file
-import * as defaults from '../config/config-example';
+import { createRequire } from 'node:module';
+import type configDefaults from '../config/config-example.cjs';
+
+const require = createRequire(import.meta.url);
+const defaults = require('../config/config-example.cjs') as typeof configDefaults;
+const configFile = process.argv[2] || process.env.CONFIG_PATH;
+const configPath = configFile ? path.resolve(import.meta.dirname, '..', configFile) : null;
+let resolvedConfigPath: string | null = null;
 
 export type Configuration = typeof defaults;
 
 export function load(invalidate = false): Configuration {
 	if (process.env.NODE_TEST_CONTEXT) {
-		const databasePath = path.resolve(__dirname, '../../src/test/fixtures/database.sql');
+		const databasePath = path.resolve(import.meta.dirname, 'test/fixtures/database.sql');
 		return {
 			...defaults,
 			watchconfig: false,
 			loadprivaterelayips: false,
-			cssdir: path.resolve(__dirname, '../../src/test/fixtures'),
-			serverlist: path.resolve(__dirname, '../../src/test/fixtures/servers.php'),
+			cssdir: path.resolve(import.meta.dirname, 'test/fixtures'),
+			serverlist: path.resolve(import.meta.dirname, 'test/fixtures/servers.php'),
 			mysql: { driver: 'mock', path: databasePath },
 			postgres: { driver: 'mock', path: databasePath },
 			replaysdb: { driver: 'mock', path: databasePath },
@@ -28,11 +33,15 @@ export function load(invalidate = false): Configuration {
 		};
 	}
 
-	const configPath = path.resolve(__dirname + "/../../", (process.argv[2] || process.env.CONFIG_PATH || ""));
-	if (invalidate) delete require.cache[configPath];
+	if (!configPath) {
+		console.log("No config specified in process.argv or process.env - loading default settings...");
+		return { ...defaults };
+	}
 	let config = { ...defaults };
 	try {
-		config = { ...config, ...require(configPath) };
+		resolvedConfigPath ||= require.resolve(configPath);
+		if (invalidate) delete require.cache[resolvedConfigPath];
+		config = { ...config, ...require(resolvedConfigPath) };
 	} catch (err: any) {
 		if (err.code !== 'MODULE_NOT_FOUND') throw err; // Should never happen
 
@@ -43,8 +52,8 @@ export function load(invalidate = false): Configuration {
 }
 export const Config: Configuration = load();
 
-if (Config.watchconfig) {
-	fs.watchFile(require.resolve('../../config/config'), () => {
+if (Config.watchconfig && resolvedConfigPath) {
+	fs.watchFile(resolvedConfigPath, () => {
 		Object.assign(Config, { ...load(true) });
 	});
 }

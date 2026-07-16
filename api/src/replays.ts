@@ -5,9 +5,9 @@
  * Ported to TypeScript by Annika and Mia.
  * Ported to Postgres by Zarel.
  */
-import { toID, time } from './utils';
-import { replayPlayers, replays } from './tables';
-import { SQL } from './database';
+import { toID, time } from './utils.ts';
+import { replayPlayers, replays } from './tables.ts';
+import { SQL } from './database.ts';
 import * as crypto from 'node:crypto';
 
 // must be a type and not an interface to qualify as an SQLRow

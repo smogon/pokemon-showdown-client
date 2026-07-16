@@ -9,12 +9,12 @@ import * as child from 'node:child_process';
 import * as dns from 'node:dns';
 import * as fs from 'node:fs';
 import * as net from 'node:net';
-import { toID, md5 } from './utils';
-import { Config } from './config-loader';
-import { actions } from './actions';
-import { type User, Session } from './user';
-import { URLSearchParams } from 'node:url';
-import IPTools from './ip-tools';
+import * as module from 'node:module';
+import { toID, md5 } from './utils.ts';
+import { Config } from './config-loader.ts';
+import { actions } from './actions.ts';
+import { type User, Session } from './user.ts';
+import IPTools from './ip-tools.ts';
 
 /**
  * API request output should not be valid JavaScript.
@@ -314,7 +314,7 @@ export const SimServers = new class SimServersT {
 		if (!path) return {};
 		try {
 			const stdout = child.execFileSync(
-				`php`, ['-f', __dirname + '/../../src/lib/load-servers.php', path]
+				`php`, ['-f', import.meta.dirname + '/lib/load-servers.php', path]
 			).toString();
 			return JSON.parse(stdout);
 		} catch (e: any) {
@@ -349,6 +349,7 @@ export class Server {
 			return console.log(`${source} crashed`, error, details);
 		}
 		try {
+			const require = module.createRequire(import.meta.url);
 			const { crashlogger } = require(Config.pspath);
 			crashlogger(error, source, { ...details, date: new Date().toISOString() }, Config.crashguardemail);
 		} catch (e) {

@@ -1,12 +1,12 @@
 /**
  * Login server database tables
  */
-import { MockDatabase, MySQLDatabase, PGDatabase, SQLiteDatabase } from './database';
-import { Config } from './config-loader';
+import { MockDatabase, MySQLDatabase, PGDatabase, SQLiteDatabase } from './database.ts';
+import { Config } from './config-loader.ts';
 
-import type { LadderEntry } from './ladder';
-import type { ReplayRow } from './replays';
-import type { Suspect } from './actions';
+import type { LadderEntry } from './ladder.ts';
+import type { ReplayRow } from './replays.ts';
+import type { Suspect } from './actions.ts';
 
 type DatabaseDriver = 'mysql' | 'postgres' | 'sqlite' | 'mock';
 type DatabaseConfig = {
@@ -28,14 +28,15 @@ function createDatabase<DB extends RealDatabase>(
 	if (driver === 'mock') return new MockDatabase(config, name) as unknown as DB;
 	if (!config) throw new Error(`Database config "${name}" is required for ${driver}.`);
 	if (driver === 'sqlite') return new SQLiteDatabase(stripDriver(config)) as unknown as DB;
-	if (driver === 'mysql') return new MySQLDatabase(stripDriver(config) as any) as DB;
+	if (driver === 'mysql') return new MySQLDatabase(stripDriver(config)) as DB;
 	if (driver === 'postgres') return new PGDatabase(stripDriver(config) as any) as DB;
 	throw new Error(`Unsupported database driver for ${name}.`);
 }
 
 // direct access
 export const psdb = createDatabase<MySQLDatabase>(Config.mysql, 'mysql', 'mysql');
-export const pgdb = createDatabase<PGDatabase>(Config.postgres, 'postgres', 'postgres');
+export const pgdb = Config.replaysdb ?
+	createDatabase<PGDatabase>(Config.postgres, 'postgres', 'postgres') : psdb;
 export const replaysDB = Config.replaysdb ?
 	createDatabase<PGDatabase>(Config.replaysdb, 'postgres', 'replaysdb') : pgdb;
 export const ladderDB = Config.ladderdb ?

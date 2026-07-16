@@ -16,10 +16,10 @@ export function time() {
 	return Math.trunc(Date.now() / 1000);
 }
 
-export function bash(command: string, cwd?: string): Promise<[number, string, string]> {
+export function bash(command: string, cwd?: string): Promise<[string | number, string, string]> {
 	return new Promise(resolve => {
 		child_process.exec(command, {
-			cwd: cwd || `${__dirname}/../..`,
+			cwd: cwd || `${import.meta.dirname}/..`,
 		}, (error, stdout, stderr) => {
 			resolve([error?.code || 0, stdout, stderr]);
 		});
