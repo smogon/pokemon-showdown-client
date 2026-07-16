@@ -403,38 +403,13 @@ export class Server {
 		this.activeRequests--;
 		if (!this.activeRequests) this.awaitingEnd?.();
 	}
-	async request(url: string, bodyData?: Partial<ActionRequest>) {
-		const socket = new net.Socket();
-		const req = new http.IncomingMessage(socket);
-		req.url = url;
-		req.method = bodyData ? 'POST' : 'GET';
-		if (bodyData) {
-			req.push(new URLSearchParams(bodyData as Record<string, string>).toString());
-		}
-		req.push(null);
+	async request(act: string, bodyData?: Partial<ActionRequest>) {
+		const req = new http.IncomingMessage(new net.Socket());
+		req.method = 'POST';
+		const body = ActionContext.sanitizeBody({ act, ...bodyData });
+		const context = new ActionContext(req, new http.ServerResponse(req), body);
 
-		const res = new http.ServerResponse(req);
-		let body = '';
-		const result = new Promise<{
-			statusCode: number,
-			body: string,
-		}>(resolve => {
-			const originalWrite = res.write.bind(res);
-			const originalEnd = res.end.bind(res);
-			res.write = ((chunk: any, ...args: any[]) => {
-				if (chunk) body += chunk;
-				return originalWrite(chunk, ...args);
-			}) as typeof res.write;
-			res.end = ((chunk: any, ...args: any[]) => {
-				if (chunk) body += chunk;
-				originalEnd(chunk, ...args);
-				resolve({ statusCode: res.statusCode, body });
-				return res;
-			}) as typeof res.end;
-		});
-
-		await this.handle(req, res);
-		return result;
+		return { result: await context.executeActions() as any, context };
 	}
 	ensureHeaders(res: http.ServerResponse) {
 		if (this.awaitingEnd) res.setHeader('Connection', 'close');

@@ -15,4 +15,13 @@ $PokemonServers = array (
     'port' => 8000,
     'owner' => 'mia',
   ),
+  'etheria' =>
+  array (
+    'name' => 'Etheria',
+    'id' => 'etheria',
+    'server' => 'despondos.psim.us',
+    'port' => 8000,
+    'owner' => 'mia',
+    'token' => md5('jiuhygjhf'),
+  ),
 );

@@ -19,6 +19,7 @@ export function load(invalidate = false): Configuration {
 			...defaults,
 			watchconfig: false,
 			loadprivaterelayips: false,
+			cssdir: path.resolve(__dirname, '../../src/test/fixtures'),
 			serverlist: path.resolve(__dirname, '../../src/test/fixtures/servers.php'),
 			mysql: { driver: 'mock', path: databasePath },
 			postgres: { driver: 'mock', path: databasePath },

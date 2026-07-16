@@ -32,10 +32,12 @@ export type ReplayRow = {
 	private: 0 | 1 | 2 | 3 | 10,
 	password: string | null,
 };
-type Replay = Omit<ReplayRow, 'formatid' | 'players' | 'password' | 'views'> & {
+type Replay = Omit<ReplayRow, 'players' | 'password' | 'views' | 'formatid' | 'inputlog'> & {
 	players: string[],
 	views?: number,
 	password?: string | null,
+	formatid?: string,
+	inputlog?: string | null,
 };
 
 export const Replays = new class {
@@ -64,6 +66,7 @@ export const Replays = new class {
 		const replayData: ReplayRow = {
 			password: null,
 			views: 0,
+			inputlog: null,
 			...replay,
 			players: replay.players.join(','),
 			formatid,
@@ -116,11 +119,11 @@ export const Replays = new class {
 		return fullid;
 	}
 
-	async get(id: string): Promise<Replay | null> {
+	async get(id: string, incrementViewCount?: boolean): Promise<Replay | null> {
 		const replayData = await replays.get(id);
 		if (!replayData) return null;
 
-		await replays.update(replayData.id, { views: SQL`views + 1` });
+		if (incrementViewCount) await replays.update(replayData.id, { views: SQL`views + 1` });
 
 		return this.toReplay(replayData);
 	}
