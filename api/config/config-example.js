@@ -1,13 +1,14 @@
 /**
- * @typedef {'mysql' | 'postgres' | 'mock'} DatabaseDriver
- * @typedef {{driver?: DatabaseDriver, prefix?: string}} DatabaseConfig
- * @typedef {import('mysql2').PoolOptions & DatabaseConfig} MySQLDatabaseConfig
- * @typedef {import('pg').PoolConfig & DatabaseConfig} PGDatabaseConfig
+ * @typedef {'mysql' | 'postgres' | 'sqlite' | 'mock'} DatabaseDriver
+ * @typedef {{driver?: DatabaseDriver, prefix?: string, path?: string}} BasicDatabaseConfig
+ * @typedef {import('mysql2').PoolOptions & BasicDatabaseConfig} MySQLDatabaseConfig
+ * @typedef {import('pg').PoolConfig & BasicDatabaseConfig} PGDatabaseConfig
+ * @typedef {MySQLDatabaseConfig | PGDatabaseConfig} DatabaseConfig
  */
 
 /**
  * For logins and ladders
- * @type {MySQLDatabaseConfig}
+ * @type {DatabaseConfig}
  */
 exports.mysql = {
 	driver: "mysql",
@@ -22,7 +23,7 @@ exports.mysql = {
 
 /**
  * For replays
- * @type {PGDatabaseConfig | undefined}
+ * @type {DatabaseConfig | null | undefined}
  */
 exports.replaysdb = {
 	driver: "postgres",
@@ -35,13 +36,13 @@ exports.replaysdb = {
 
 /**
  * For ladders
- * @type {MySQLDatabaseConfig | undefined}
+ * @type {DatabaseConfig | null | undefined}
  */
-exports.ladderdb = undefined;
+exports.ladderdb = null;
 
 /**
  * For friends
- * @type {PGDatabaseConfig | null}
+ * @type {DatabaseConfig | null | undefined}
  */
 exports.postgres = null;
 

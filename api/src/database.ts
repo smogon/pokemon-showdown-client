@@ -6,6 +6,8 @@
  * @author Zarel
  */
 
+import * as fs from 'fs';
+import { DatabaseSync } from 'node:sqlite';
 import * as mysql from 'mysql2';
 import * as pg from 'pg';
 
@@ -114,14 +116,14 @@ export function SQL(strings: TemplateStringsArray, ...values: SQLValue[]) {
 
 export interface ResultRow { [k: string]: BasicSQLValue }
 
-export const connectedDatabases: Database[] = [];
+export const connectedDatabases: Database<any, any>[] = [];
 
 export async function closeDatabases() {
 	const databases = connectedDatabases.splice(0);
 	await Promise.all(databases.map(database => database.close()));
 }
 
-export abstract class Database<Pool extends mysql.Pool | pg.Pool = mysql.Pool | pg.Pool, OkPacket = unknown> {
+export abstract class Database<Pool = mysql.Pool | pg.Pool, OkPacket = unknown> {
 	connection: Pool;
 	prefix: string;
 	type = '';
@@ -170,7 +172,7 @@ type PartialOrSQL<T> = {
 type OkPacketOf<DB extends Database> = DB extends Database<any, infer T> ? T : never;
 
 // Row extends SQLRow but TS doesn't support closed types so we can't express this
-export class DatabaseTable<Row, DB extends Database> {
+export class DatabaseTable<Row, DB extends Database<any, any>> {
 	db: DB;
 	name: string;
 	primaryKeyName: keyof Row & string | null;
@@ -228,6 +230,13 @@ export class DatabaseTable<Row, DB extends Database> {
 	}
 	updateOne(partialRow: PartialOrSQL<Row>):
 	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<OkPacketOf<DB>> {
+		if (this.db.type === 'sqlite') {
+			// sqlite usually doesn't support UPDATE ... LIMIT 1
+			return (strings, ...rest) => this.queryExec()`UPDATE "${this.name}" SET ${partialRow as any}
+				WHERE rowid = (
+					SELECT rowid FROM "${this.name}" ${new SQLStatement(strings, rest)} LIMIT 1
+				)`;
+		}
 		return (s, ...r) =>
 			this.queryExec()`UPDATE "${this.name}" SET ${partialRow as any} ${new SQLStatement(s, r)} LIMIT 1`;
 	}
@@ -238,6 +247,13 @@ export class DatabaseTable<Row, DB extends Database> {
 	}
 	deleteOne():
 	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<OkPacketOf<DB>> {
+		if (this.db.type === 'sqlite') {
+			// sqlite usually doesn't support DELETE ... LIMIT 1
+			return (strings, ...rest) => this.queryExec()`DELETE FROM "${this.name}"
+				WHERE rowid = (
+					SELECT rowid FROM "${this.name}" ${new SQLStatement(strings, rest)} LIMIT 1
+				)`;
+		}
 		return (strings, ...rest) =>
 			this.queryExec()`DELETE FROM "${this.name}" ${new SQLStatement(strings, rest)} LIMIT 1`;
 	}
@@ -255,6 +271,10 @@ export class DatabaseTable<Row, DB extends Database> {
 		return this.queryExec()`INSERT INTO "${this.name}" (${partialRow as SQLValue}) ${where}`;
 	}
 	insertIgnore(partialRow: PartialOrSQL<Row>, where?: SQLStatement) {
+		if (this.db.type === 'sqlite') {
+			// sqlite usually doesn't support DELETE ... LIMIT 1
+			return this.queryExec()`INSERT OR IGNORE INTO "${this.name}" (${partialRow as SQLValue}) ${where}`;
+		}
 		return this.queryExec()`INSERT IGNORE INTO "${this.name}" (${partialRow as SQLValue}) ${where}`;
 	}
 	async tryInsert(partialRow: PartialOrSQL<Row>, where?: SQLStatement) {
@@ -264,10 +284,20 @@ export class DatabaseTable<Row, DB extends Database> {
 			if (err.code === 'ER_DUP_ENTRY') {
 				return undefined;
 			}
+			if (
+				this.db.type === 'sqlite' &&
+				[1555, 2067].includes(err.errcode)
+			) return undefined;
 			throw err;
 		}
 	}
 	upsert(partialRow: PartialOrSQL<Row>, partialUpdate = partialRow, where?: SQLStatement) {
+		if (this.db.type === 'sqlite') {
+			if (!this.primaryKeyName) throw new Error(`Cannot upsert() without a single-column primary key`);
+			return this.queryExec(
+			)`INSERT INTO "${this.name}" (${partialRow as any}) ON CONFLICT ("${this.primaryKeyName
+			}") DO UPDATE SET ${partialUpdate as any} ${where}`;
+		}
 		if (this.db.type === 'pg') {
 			return this.queryExec(
 			)`INSERT INTO "${this.name}" (${partialRow as any}) ON CONFLICT (${this.primaryKeyName
@@ -290,6 +320,9 @@ export class DatabaseTable<Row, DB extends Database> {
 	}
 	delete(primaryKey: BasicSQLValue) {
 		if (!this.primaryKeyName) throw new Error(`Cannot delete() without a single-column primary key`);
+		if (this.db.type === 'sqlite') {
+			return this.deleteAll()`WHERE "${this.primaryKeyName}" = ${primaryKey}`;
+		}
 		return this.deleteAll()`WHERE "${this.primaryKeyName}" = ${primaryKey} LIMIT 1`;
 	}
 	update(primaryKey: BasicSQLValue, data: PartialOrSQL<Row>) {
@@ -389,5 +422,73 @@ export class PGDatabase extends Database<pg.Pool, { affectedRows: number | null 
 	}
 	override close() {
 		return this.connection.end();
+	}
+}
+
+export interface SQLiteDatabaseConfig {
+	path?: string;
+	prefix?: string;
+}
+
+export interface SQLiteResult {
+	affectedRows: number;
+	insertId: number;
+}
+
+export class SQLiteDatabase extends Database<DatabaseSync, SQLiteResult> {
+	override type = 'sqlite';
+
+	constructor(config: SQLiteDatabaseConfig = {}) {
+		super(new DatabaseSync(config.path || ':memory:'), config.prefix || '');
+	}
+
+	override _resolveSQL(query: SQLStatement): [query: string, values: BasicSQLValue[]] {
+		let sql = query.sql[0];
+		const values = [];
+		for (let i = 0; i < query.values.length; i++) {
+			const value = query.values[i];
+			if (query.sql[i + 1].startsWith('`') || query.sql[i + 1].startsWith('"')) {
+				sql = sql.slice(0, -1) + this.escapeId(`${value as any}`) + query.sql[i + 1].slice(1);
+			} else {
+				sql += '?' + query.sql[i + 1];
+				values.push(value);
+			}
+		}
+		return [sql, values];
+	}
+
+	override _query(query: string, values: BasicSQLValue[]) {
+		return Promise.resolve().then(() => {
+			const rows = this.connection.prepare(query).all(...values);
+			return rows.map(row => ({ ...(row as Record<string, unknown>) }));
+		});
+	}
+
+	override _queryExec(query: string, values: BasicSQLValue[]) {
+		return Promise.resolve().then(() => {
+			const result = this.connection.prepare(query).run(...values);
+			return {
+				affectedRows: Number(result.changes),
+				insertId: Number(result.lastInsertRowid),
+			};
+		});
+	}
+
+	override escapeId(id: string) {
+		return `"${id.replace(/"/g, '""')}"`;
+	}
+
+	override close() {
+		return Promise.resolve().then(() => this.connection.close());
+	}
+}
+
+export class MockDatabase extends SQLiteDatabase {
+	readonly name: string;
+
+	constructor(config: SQLiteDatabaseConfig | null | undefined, name: string) {
+		super({ path: ':memory:', prefix: config?.prefix });
+		this.name = name;
+		if (config?.path) this.connection.exec(fs.readFileSync(config.path, 'utf8'));
 	}
 }

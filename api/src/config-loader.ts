@@ -14,13 +14,16 @@ export type Configuration = typeof defaults;
 
 export function load(invalidate = false): Configuration {
 	if (process.env.NODE_TEST_CONTEXT) {
+		const databasePath = path.resolve(__dirname, '../../src/test/fixtures/database.sql');
 		return {
 			...defaults,
 			watchconfig: false,
 			loadprivaterelayips: false,
 			serverlist: path.resolve(__dirname, '../../src/test/fixtures/servers.php'),
-			mysql: { driver: 'mock' },
-			postgres: { driver: 'mock' },
+			mysql: { driver: 'mock', path: databasePath },
+			postgres: { driver: 'mock', path: databasePath },
+			replaysdb: { driver: 'mock', path: databasePath },
+			ladderdb: { driver: 'mock', path: databasePath },
 		};
 	}
 

@@ -1,15 +1,14 @@
 /**
  * Login server database tables
  */
-import { MySQLDatabase, PGDatabase } from './database';
-import { MockDatabase } from './database-mock';
+import { MockDatabase, MySQLDatabase, PGDatabase, SQLiteDatabase } from './database';
 import { Config } from './config-loader';
 
 import type { LadderEntry } from './ladder';
 import type { ReplayRow } from './replays';
 import type { Suspect } from './actions';
 
-type DatabaseDriver = 'mysql' | 'postgres' | 'mock';
+type DatabaseDriver = 'mysql' | 'postgres' | 'sqlite' | 'mock';
 type DatabaseConfig = {
 	driver?: DatabaseDriver,
 	prefix?: string,
@@ -28,6 +27,7 @@ function createDatabase<DB extends RealDatabase>(
 	const driver = config?.driver || defaultDriver;
 	if (driver === 'mock') return new MockDatabase(config, name) as unknown as DB;
 	if (!config) throw new Error(`Database config "${name}" is required for ${driver}.`);
+	if (driver === 'sqlite') return new SQLiteDatabase(stripDriver(config)) as unknown as DB;
 	if (driver === 'mysql') return new MySQLDatabase(stripDriver(config) as any) as DB;
 	if (driver === 'postgres') return new PGDatabase(stripDriver(config) as any) as DB;
 	throw new Error(`Unsupported database driver for ${name}.`);

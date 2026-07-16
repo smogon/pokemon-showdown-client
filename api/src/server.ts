@@ -8,6 +8,7 @@ import * as https from 'https';
 import * as child from 'child_process';
 import * as dns from 'dns';
 import * as fs from 'fs';
+import * as net from 'net';
 import { toID, md5 } from './utils';
 import { Config } from './config-loader';
 import { actions } from './actions';
@@ -331,14 +332,14 @@ export class Server {
 	awaitingEnd?: () => void;
 	closing?: Promise<void>;
 	activeRequests = 0;
-	constructor(port = (Config.port || 8000), host = (Config.bindaddress || "0.0.0.0")) {
+	constructor(port: number | null = (Config.port || 8000), host = (Config.bindaddress || "0.0.0.0")) {
 		this.host = host;
-		this.port = port;
+		this.port = port || 0;
 
 		this.server = http.createServer((req, res) => void this.handle(req, res));
-		this.server.listen(port, host);
+		if (port !== null) this.server.listen(port, host);
 		this.httpsServer = null;
-		if (Config.ssl) {
+		if (Config.ssl && port !== null) {
 			this.httpsServer = https.createServer(Config.ssl, (req, res) => void this.handle(req, res));
 			this.httpsServer.listen(Config.ssl.port || 8043);
 		}
@@ -402,11 +403,45 @@ export class Server {
 		this.activeRequests--;
 		if (!this.activeRequests) this.awaitingEnd?.();
 	}
+	async request(url: string, bodyData?: Partial<ActionRequest>) {
+		const socket = new net.Socket();
+		const req = new http.IncomingMessage(socket);
+		req.url = url;
+		req.method = bodyData ? 'POST' : 'GET';
+		if (bodyData) {
+			req.push(new URLSearchParams(bodyData as Record<string, string>).toString());
+		}
+		req.push(null);
+
+		const res = new http.ServerResponse(req);
+		let body = '';
+		const result = new Promise<{
+			statusCode: number,
+			body: string,
+		}>(resolve => {
+			const originalWrite = res.write.bind(res);
+			const originalEnd = res.end.bind(res);
+			res.write = ((chunk: any, ...args: any[]) => {
+				if (chunk) body += chunk;
+				return originalWrite(chunk, ...args);
+			}) as typeof res.write;
+			res.end = ((chunk: any, ...args: any[]) => {
+				if (chunk) body += chunk;
+				originalEnd(chunk, ...args);
+				resolve({ statusCode: res.statusCode, body });
+				return res;
+			}) as typeof res.end;
+		});
+
+		await this.handle(req, res);
+		return result;
+	}
 	ensureHeaders(res: http.ServerResponse) {
 		if (this.awaitingEnd) res.setHeader('Connection', 'close');
 	}
 	close() {
 		if (this.closing) return this.closing;
+		if (!this.server.listening && !this.activeRequests) return Promise.resolve();
 		this.server.close();
 		if (!this.activeRequests) return Promise.resolve();
 		this.closing = new Promise<void>(resolve => {
