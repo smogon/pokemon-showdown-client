@@ -417,7 +417,6 @@ export class PGDatabase extends Database<pg.Pool, { affectedRows: number | null 
 		return this.connection.query<never>(query, values).then(res => ({ affectedRows: res.rowCount }));
 	}
 	override escapeId(id: string) {
-		// @ts-expect-error @types/pg really needs to be updated
 		return pg.escapeIdentifier(id);
 	}
 	override close() {

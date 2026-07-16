@@ -14,19 +14,17 @@
     "stop": "npx pm2 stop loginserver"
   },
   "dependencies": {
-    "bcrypt": "^5.0.1",
-    "google-auth-library": "^9.14.2",
-    "mysql2": "^3.9.8",
-    "pg": "^8.11.3",
-    "pm2": "^5.1.2",
-    "testcontainers": "^9.1.1"
+    "bcrypt": "^6.0.0",
+    "google-auth-library": "^10.9.0",
+    "mysql2": "^3.23.0",
+    "pg": "^8.22.0",
+    "pm2": "^7.0.3"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "^4.0.1",
-    "@types/bcrypt": "^5.0.0",
-    "@types/mocha": "^5.2.6",
-    "@types/node": "^22.7.8",
-    "@types/pg": "^8.10.3",
+    "@types/bcrypt": "^6.0.0",
+    "@types/node": "^26.1.1",
+    "@types/pg": "^8.20.0",
     "eslint": "^9.21.0",
     "globals": "^16.0.0",
     "nodemailer": "^6.6.5",
