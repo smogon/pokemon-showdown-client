@@ -116,6 +116,11 @@ export interface ResultRow { [k: string]: BasicSQLValue }
 
 export const connectedDatabases: Database[] = [];
 
+export async function closeDatabases() {
+	const databases = connectedDatabases.splice(0);
+	await Promise.all(databases.map(database => database.close()));
+}
+
 export abstract class Database<Pool extends mysql.Pool | pg.Pool = mysql.Pool | pg.Pool, OkPacket = unknown> {
 	connection: Pool;
 	prefix: string;
@@ -155,9 +160,7 @@ export abstract class Database<Pool extends mysql.Pool | pg.Pool = mysql.Pool | 
 	getTable<Row>(name: string, primaryKeyName: keyof Row & string | null = null): DatabaseTable<Row, typeof this> {
 		return new DatabaseTable<Row, typeof this>(this, name, primaryKeyName);
 	}
-	close() {
-		void this.connection.end();
-	}
+	abstract close(): Promise<void>;
 }
 
 type PartialOrSQL<T> = {
@@ -346,6 +349,11 @@ export class MySQLDatabase extends Database<mysql.Pool, mysql.OkPacket> {
 	override escapeId(id: string) {
 		return mysql.escapeId(id);
 	}
+	override close() {
+		return new Promise<void>((resolve, reject) => {
+			this.connection.end(err => err ? reject(err) : resolve());
+		});
+	}
 }
 
 export class PGDatabase extends Database<pg.Pool, { affectedRows: number | null }> {
@@ -378,5 +386,8 @@ export class PGDatabase extends Database<pg.Pool, { affectedRows: number | null 
 	override escapeId(id: string) {
 		// @ts-expect-error @types/pg really needs to be updated
 		return pg.escapeIdentifier(id);
+	}
+	override close() {
+		return this.connection.end();
 	}
 }
