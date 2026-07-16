@@ -1,5 +1,5 @@
-import * as child_process from 'child_process';
-import * as crypto from 'crypto';
+import * as child_process from 'node:child_process';
+import * as crypto from 'node:crypto';
 
 export function toID(text: any): string {
 	if (text?.id) {

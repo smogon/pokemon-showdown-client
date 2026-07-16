@@ -4,8 +4,8 @@
  * @author mia-pi-git
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore no typedef file
 import * as defaults from '../config/config-example';

@@ -3,17 +3,17 @@
  *
  * @author mia-pi-git, Zarel
  */
-import * as http from 'http';
-import * as https from 'https';
-import * as child from 'child_process';
-import * as dns from 'dns';
-import * as fs from 'fs';
-import * as net from 'net';
+import * as http from 'node:http';
+import * as https from 'node:https';
+import * as child from 'node:child_process';
+import * as dns from 'node:dns';
+import * as fs from 'node:fs';
+import * as net from 'node:net';
 import { toID, md5 } from './utils';
 import { Config } from './config-loader';
 import { actions } from './actions';
 import { type User, Session } from './user';
-import { URLSearchParams } from 'url';
+import { URLSearchParams } from 'node:url';
 import IPTools from './ip-tools';
 
 /**

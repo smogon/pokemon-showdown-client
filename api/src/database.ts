@@ -6,7 +6,7 @@
  * @author Zarel
  */
 
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import * as mysql from 'mysql2';
 import * as pg from 'pg';

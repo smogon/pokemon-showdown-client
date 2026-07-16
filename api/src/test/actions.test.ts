@@ -1,8 +1,8 @@
 /**
  * Tests for loginserver actions.
  */
-import { strict as assert } from 'assert';
-import * as crypto from 'crypto';
+import { strict as assert } from 'node:assert';
+import * as crypto from 'node:crypto';
 import { after, suite, test } from 'node:test';
 
 import { Ladder } from '../ladder';

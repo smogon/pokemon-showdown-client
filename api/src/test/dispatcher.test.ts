@@ -1,8 +1,8 @@
 /**
  * Tests for HTTP request dispatch.
  */
-import { strict as assert } from 'assert';
-import * as http from 'http';
+import { strict as assert } from 'node:assert';
+import * as http from 'node:http';
 import { after, before, suite, test } from 'node:test';
 
 import { Config } from '../config-loader';

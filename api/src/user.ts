@@ -9,7 +9,7 @@
 
 import * as bcrypt from 'bcrypt';
 import { Config } from './config-loader';
-import * as crypto from 'crypto';
+import * as crypto from 'node:crypto';
 import * as gal from 'google-auth-library';
 import { SQL } from './database';
 import { ActionError, type ActionContext } from './server';

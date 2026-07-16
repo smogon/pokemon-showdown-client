@@ -8,7 +8,7 @@
 import { toID, time } from './utils';
 import { replayPlayers, replays } from './tables';
 import { SQL } from './database';
-import * as crypto from 'crypto';
+import * as crypto from 'node:crypto';
 
 // must be a type and not an interface to qualify as an SQLRow
 export type ReplayRow = {

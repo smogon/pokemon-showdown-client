@@ -4,10 +4,10 @@
  * By Mia
  * @author mia-pi-git
  */
-import { promises as fs, readFileSync, watchFile } from 'fs';
-import * as pathModule from 'path';
-import * as crypto from 'crypto';
-import * as url from 'url';
+import { promises as fs, readFileSync, watchFile } from 'node:fs';
+import * as pathModule from 'node:path';
+import * as crypto from 'node:crypto';
+import * as url from 'node:url';
 import { Config } from './config-loader';
 import { Ladder, type LadderEntry } from './ladder';
 import { Replays } from './replays';
