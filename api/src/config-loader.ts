@@ -13,6 +13,17 @@ import * as defaults from '../config/config-example';
 export type Configuration = typeof defaults;
 
 export function load(invalidate = false): Configuration {
+	if (process.env.NODE_TEST_CONTEXT) {
+		return {
+			...defaults,
+			watchconfig: false,
+			loadprivaterelayips: false,
+			serverlist: path.resolve(__dirname, '../../src/test/fixtures/servers.php'),
+			mysql: { driver: 'mock' },
+			postgres: { driver: 'mock' },
+		};
+	}
+
 	const configPath = path.resolve(__dirname + "/../../", (process.argv[2] || process.env.CONFIG_PATH || ""));
 	if (invalidate) delete require.cache[configPath];
 	let config = { ...defaults };
@@ -21,7 +32,6 @@ export function load(invalidate = false): Configuration {
 	} catch (err: any) {
 		if (err.code !== 'MODULE_NOT_FOUND') throw err; // Should never happen
 
-		if (process.env.IS_TEST) return config; // should not need this for tests
 		console.log("No config specified in process.argv or process.env - loading default settings...");
 		return { ...config };
 	}

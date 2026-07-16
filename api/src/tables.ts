@@ -2,17 +2,44 @@
  * Login server database tables
  */
 import { MySQLDatabase, PGDatabase } from './database';
+import { MockDatabase } from './database-mock';
 import { Config } from './config-loader';
 
 import type { LadderEntry } from './ladder';
 import type { ReplayRow } from './replays';
 import type { Suspect } from './actions';
 
+type DatabaseDriver = 'mysql' | 'postgres' | 'mock';
+type DatabaseConfig = {
+	driver?: DatabaseDriver,
+	prefix?: string,
+	[k: string]: any,
+};
+type RealDatabase = MySQLDatabase | PGDatabase;
+
+function stripDriver(config: DatabaseConfig) {
+	const { driver, ...dbConfig } = config;
+	return dbConfig;
+}
+
+function createDatabase<DB extends RealDatabase>(
+	config: DatabaseConfig | null | undefined, defaultDriver: DatabaseDriver, name: string
+): DB {
+	const driver = config?.driver || defaultDriver;
+	if (driver === 'mock') return new MockDatabase(config, name) as unknown as DB;
+	if (!config) throw new Error(`Database config "${name}" is required for ${driver}.`);
+	if (driver === 'mysql') return new MySQLDatabase(stripDriver(config) as any) as DB;
+	if (driver === 'postgres') return new PGDatabase(stripDriver(config) as any) as DB;
+	throw new Error(`Unsupported database driver for ${name}.`);
+}
+
 // direct access
-export const psdb = new MySQLDatabase(Config.mysql);
-export const pgdb = new PGDatabase(Config.postgres!);
-export const replaysDB = Config.replaysdb ? new PGDatabase(Config.replaysdb) : pgdb;
-export const ladderDB = Config.ladderdb ? new MySQLDatabase(Config.ladderdb!) : psdb;
+export const psdb = createDatabase<MySQLDatabase>(Config.mysql, 'mysql', 'mysql');
+export const pgdb = createDatabase<PGDatabase>(Config.postgres, 'postgres', 'postgres');
+export const replaysDB = Config.replaysdb ?
+	createDatabase<PGDatabase>(Config.replaysdb, 'postgres', 'replaysdb') : pgdb;
+export const ladderDB = Config.ladderdb ?
+	createDatabase<MySQLDatabase>(Config.ladderdb, 'mysql', 'ladderdb') : psdb;
 
 export const users = psdb.getTable<{
 	userid: string,

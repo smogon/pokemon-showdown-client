@@ -263,11 +263,13 @@ export const SimServers = new class SimServersT {
 	servers: { [k: string]: RegisteredServer } = this.loadServers();
 	hostCache = new Map<string, string>();
 	constructor() {
-		fs.watchFile(Config.serverlist, (curr, prev) => {
-			if (curr.mtime > prev.mtime) {
-				this.loadServers();
-			}
-		});
+		if (Config.watchconfig) {
+			fs.watchFile(Config.serverlist, (curr, prev) => {
+				if (curr.mtime > prev.mtime) {
+					this.loadServers();
+				}
+			});
+		}
 	}
 
 	async getHost(server: string) {
@@ -423,4 +425,4 @@ export class Server {
 	}
 }
 
-void IPTools.loadPrivateRelayIPs();
+if (Config.loadprivaterelayips) void IPTools.loadPrivateRelayIPs();

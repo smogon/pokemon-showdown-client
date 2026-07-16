@@ -1,16 +1,16 @@
-/** For the login and ladder databases */
-exports.mysql = {
-	charset: "utf8",
-	database: "ps",
-	password: "",
-	host: 'localhost',
-	user: "root",
-	socketPath: '',
-	prefix: "ntbb_",
-};
+/**
+ * @typedef {'mysql' | 'postgres' | 'mock'} DatabaseDriver
+ * @typedef {{driver?: DatabaseDriver, prefix?: string}} DatabaseConfig
+ * @typedef {import('mysql2').PoolOptions & DatabaseConfig} MySQLDatabaseConfig
+ * @typedef {import('pg').PoolConfig & DatabaseConfig} PGDatabaseConfig
+ */
 
-/** For the replay databases */
-exports.replaysdb = {
+/**
+ * For logins and ladders
+ * @type {MySQLDatabaseConfig}
+ */
+exports.mysql = {
+	driver: "mysql",
 	charset: "utf8",
 	database: "ps",
 	password: "",
@@ -21,11 +21,31 @@ exports.replaysdb = {
 };
 
 /**
- * For the friends database
- *
- * @type {import('pg').PoolConfig | null}
+ * For replays
+ * @type {PGDatabaseConfig | undefined}
+ */
+exports.replaysdb = {
+	driver: "postgres",
+	database: "ps",
+	password: "",
+	host: 'localhost',
+	user: "root",
+	prefix: "ntbb_",
+};
+
+/**
+ * For ladders
+ * @type {MySQLDatabaseConfig | undefined}
+ */
+exports.ladderdb = undefined;
+
+/**
+ * For friends
+ * @type {PGDatabaseConfig | null}
  */
 exports.postgres = null;
+
+// ====================================================================
 
 /** For 2FA verification. */
 exports.gapi_clientid = '';
@@ -76,6 +96,8 @@ exports.compromisedkeys = [];
 /** proxies to trust x-forwarded-for from
  * @type {string[]} */
 exports.trustedproxies = [];
+/** @type {boolean} */
+exports.loadprivaterelayips = true;
 
 /**
     * [Places to allow cors requests from, prefix to use][]
@@ -102,14 +124,6 @@ exports.privatekey = '';
 // current active challengekeyid (backwards compatibility)
 /** @type {number} */
 exports.challengekeyid = 4;
-
-/**
- * DBs.
- */
-/** @type {typeof exports.mysql | undefined} */
-exports.replaysdb = undefined;
-/** @type {typeof exports.mysql | undefined} */
-exports.ladderdb = undefined;
 
 /**
  * For emailing crashes.
@@ -194,14 +208,14 @@ exports.standings = {
 };
 
 /**
- * @type {null | ((userid: string) => Promise<{[k: string]: {min: number, max: number, count: number}}>)}
  * Get IPs of a given userid.
+ * @type {null | ((userid: string) => Promise<{[k: string]: {min: number, max: number, count: number}}>)}
  */
 exports.getuserips = null;
 
 /**
- * @type {string | null}
  * Index of suspect tests active
+ * @type {string | null}
  */
 exports.suspectpath = null;
 

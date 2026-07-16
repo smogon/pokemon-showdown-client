@@ -9,7 +9,7 @@
     "build": "npx tsc",
     "run": "npx tsc && node .dist/src/",
     "start": "npx tsc && npx pm2 start loginserver",
-    "test": "npm run lint && npx tsc",
+    "test": "npm run lint && npx tsc && node --test .dist/src/test/*.test.js",
     "reload": "npx tsc && npx pm2 reload loginserver",
     "stop": "npx pm2 stop loginserver"
   },
@@ -29,7 +29,6 @@
     "@types/pg": "^8.10.3",
     "eslint": "^9.21.0",
     "globals": "^16.0.0",
-    "mocha": "^6.0.2",
     "nodemailer": "^6.6.5",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.25.0"

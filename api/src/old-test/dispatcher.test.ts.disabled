@@ -74,7 +74,7 @@ describe('Dispatcher features', () => {
 	});
 	it("Should load servers properly", () => {
 		const servers = SimServers.loadServers(
-			path.join(__dirname, '/../../', 'src/test/fixtures/servers.php')
+			path.join(__dirname, '../../../src/test/fixtures/servers.php')
 		);
 		assert.deepStrictEqual({
 			showdown: {
