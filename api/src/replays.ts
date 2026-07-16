@@ -125,6 +125,32 @@ export const Replays = new class {
 		return this.toReplay(replayData);
 	}
 
+	/** Get, but without incrementing view count. */
+	fetch(this: void, id: string, fields?: (keyof ReplayRow & string)[]) {
+		return replays.get(id, fields);
+	}
+	/** Parses the `-{password}pw` suffix. */
+	splitPasswordSuffix(this: void, fullid: string): [id: string, password: string | null] {
+		if (fullid.endsWith('pw')) {
+			const dashpos = fullid.lastIndexOf('-');
+			if (dashpos > 0) {
+				return [fullid.slice(0, dashpos), fullid.slice(dashpos + 1, -2)];
+			}
+		}
+		return [fullid, null];
+	}
+	isSafeInputlog(this: void, formatid: string) {
+		return (
+			formatid.endsWith('randombattle') ||
+			formatid.endsWith('randomdoublesbattle') ||
+			formatid.endsWith('challengecup') ||
+			formatid.endsWith('challengecup1v1') ||
+			formatid.endsWith('battlefactory') ||
+			formatid.endsWith('bssfactory') ||
+			formatid.endsWith('hackmonscup')
+		);
+	}
+
 	async edit(replay: Replay) {
 		const replayData = this.toReplayRow(replay);
 		await replays.update(replay.id, { private: replayData.private, password: replayData.password });

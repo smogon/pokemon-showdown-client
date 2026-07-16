@@ -383,7 +383,7 @@ export class Server {
 				if (!context.useDispatchPrefix) useDispatchPrefix = false;
 			}
 			this.ensureHeaders(res);
-			res.writeHead(200).end(this.stringify(result, useDispatchPrefix));
+			res.writeHead(res.statusCode).end(this.stringify(result, useDispatchPrefix));
 		} catch (e: any) {
 			this.ensureHeaders(res);
 			if (e?.name?.endsWith('ActionError')) {

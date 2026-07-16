@@ -11,7 +11,7 @@ import * as url from 'url';
 import { Config } from './config-loader';
 import { Ladder, type LadderEntry } from './ladder';
 import { Replays } from './replays';
-import { ActionError, type QueryHandler, Server, DISPATCH_PREFIX} from './server';
+import { ActionError, type QueryHandler, Server, DISPATCH_PREFIX } from './server';
 import { Session } from './user';
 import {
 	toID, updateserver, bash, time, escapeHTML, signAsync, TimeSorter,
@@ -1204,6 +1204,74 @@ export const actions: { [k: string]: QueryHandler } = {
 		const ids = params.ids.split(',');
 		if (ids.length > 51) throw new ActionError(`Limit 51 IDs (you have ${ids.length}).`);
 		return Replays.getBatch(ids);
+	},
+	async 'replays/get.json'(params) {
+		const [id, password] = Replays.splitPasswordSuffix(params.id || '');
+		const replay = id ? await Replays.fetch(id) : undefined;
+		if (!replay || (replay.password && replay.password !== password)) {
+			this.response.statusCode = 404;
+			return '';
+		}
+
+		const out: any = {
+			id: replay.id,
+			format: /\n\|tier\|([^|]*)\n/.exec(replay.log)?.[1] ?? replay.format,
+			players: replay.players.split(',').map(p => p.startsWith('!') ? p.slice(1) : p),
+			log: replay.log,
+			inputlog: replay.inputlog,
+			uploadtime: Number(replay.uploadtime),
+			views: Number(replay.views),
+			formatid: replay.formatid,
+			rating: replay.rating === null ? null : Number(replay.rating),
+			private: Number(replay.private),
+			password: replay.password,
+		};
+		let manage = false;
+		if (replay.inputlog) {
+			if (params.manage !== undefined) {
+				if (!this.user.isLeader()) throw new ActionError('Access denied: not logged in as an admin');
+				manage = true;
+			} else if (!Replays.isSafeInputlog(replay.formatid)) {
+				delete out.inputlog;
+			}
+		}
+		if (!manage) this.setHeader('Access-Control-Allow-Origin', '*');
+		this.setHeader('Content-Type', 'application/json');
+		return JSON.stringify(out);
+	},
+	async 'replays/get.log'(params) {
+		const [id, password] = Replays.splitPasswordSuffix(params.id || '');
+		const replay = id ? await Replays.fetch(id, ['id', 'password', 'log']) : undefined;
+		if (!replay || (replay.password && replay.password !== password)) {
+			this.response.statusCode = 404;
+			return '';
+		}
+		this.setHeader('Access-Control-Allow-Origin', '*');
+		return replay.log;
+	},
+	async 'replays/get.inputlog'(params) {
+		const fullid = params.id || '';
+		const [id, password] = Replays.splitPasswordSuffix(fullid);
+		const replay = id ? await Replays.fetch(id, ['id', 'password', 'formatid', 'inputlog']) : undefined;
+		if (!replay || (replay.password && replay.password !== password)) {
+			this.response.statusCode = 404;
+			return '';
+		}
+		let manage = false;
+		if (replay.inputlog) {
+			if (params.manage !== undefined) {
+				if (!this.user.isLeader()) throw new ActionError('Access denied: not logged in as an admin');
+				manage = true;
+			} else if (!Replays.isSafeInputlog(replay.formatid)) {
+				return (
+					`[access denied: not a random battle]\n\n` +
+					`If you are an admin, you can get this using: ` +
+					`https://replay.pokemonshowdown.com/${fullid}.inputlog?manage`
+				);
+			}
+		}
+		if (!manage) this.setHeader('Access-Control-Allow-Origin', '*');
+		return replay.inputlog || '[inputlog not found]';
 	},
 	// sent by ps server
 	async 'smogon/validate'(params) {
