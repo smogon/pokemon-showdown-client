@@ -509,7 +509,8 @@ p.or:after {
 }
 .select, .team {
 	width: 230px;
-	height: 32px;
+	min-height: 32px;
+	height: auto;
 	padding: 0 5px;
 	font-size: 9pt;
 	text-align: left;
@@ -525,25 +526,18 @@ p.or:after {
 	border: 1px solid #004488;
 	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
 }
-.select.teamselect {
-	height: 50px;
-	white-space: nowrap;
-	overflow: hidden;
+.team.teamselect {
+	padding-right: 15px;
+	padding-left: 0;
 }
-.teamselect strong {
-	display: block;
-	font-size: 8pt;
-	margin-right: 15px;
-	text-align: center;
+.team.teamselect small .picon {
+	margin-right: -6px;
 }
 .teamselect:disabled strong {
-	color: #777777;
+	color: #444444;
 }
 .dark .teamselect:disabled strong {
 	color: #c7c7c7;
-}
-.select:disabled small {
-	opacity: 0.7;
 }
 .team.team-hover {
 	border-color: #555555;
@@ -2209,20 +2203,15 @@ p.or:after {
 .teamlist li {
 	margin: 3px 0;
 	padding: 0;
+	/* lazy windowing */
+	content-visibility: auto;
+	contain-intrinsic-size: auto none auto 49px;
 }
 
 .teamlist .team {
 	display: inline-block;
-	white-space: nowrap;
 	width: 350px;
-	height: 49px;
-	padding: 1px 6px 1px 6px;
-	font-size: 8pt;
 	vertical-align: middle;
-	text-align: center;
-	/* lazy windowing */
-	content-visibility: auto;
-	contain-intrinsic-size: auto 49px;
 }
 .teamlist .dragging button {
 	visibility: hidden;
@@ -2230,37 +2219,14 @@ p.or:after {
 .teamlist .dragging .team {
 	opacity: 0.4;
 }
-.teamlist .team small {
-	display: block;
-	padding: 0 45px 0 55px;
-}
-.teamlist .team .picon {
-	margin: 0 -2px;
-}
-.teamselect small {
-	display: block;
-	margin: -1px 0 0 -3px;
-}
-.teamselect small .picon {
-	margin: 0 -3px;
-}
-.dark .preselected .team small {
-	filter: none;
-}
 .teamlist .team .picon span {
 	font-size: 9px !important;
 	display: block;
-	overflow: visible;
 	position: relative;
 	width: 32px;
 	top: 22px;
 	color: transparent;
 }
-.teamlist .team.pc-box {
-	min-height: 139px;
-	height: auto;
-}
-
 .teamedit {
 	position: absolute;
 	display: block;

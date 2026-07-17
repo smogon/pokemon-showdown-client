@@ -211,11 +211,12 @@
 .teamlist li {
 	margin: 3px 0;
 	padding: 0;
-}
-.teamlist .team {
 	/* lazy windowing */
 	content-visibility: auto;
-	contain-intrinsic-size: auto 49px;
+	contain-intrinsic-size: auto none auto 49px;
+}
+.teamlist .team {
+	width: 350px;
 }
 .teamlist li.cur .team {
 	opacity: 0.5;
@@ -345,6 +346,37 @@
 
 .teameditor {
 	max-width: 660px;
+}
+.teameditor-options {
+	position: relative;
+}
+.teameditor-options summary {
+	list-style: none;
+	cursor: pointer;
+}
+.teameditor-options summary::-webkit-details-marker {
+	display: none;
+}
+.teameditor-options-menu {
+	position: absolute;
+	z-index: 20;
+	top: 100%;
+	right: 0;
+	box-sizing: border-box;
+	min-width: 130px;
+	padding: 10px 12px;
+	border: 1px solid #aaa;
+	border-radius: 0 0 4px 4px;
+	background: #f8f8f8;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
+	color: #222;
+	text-shadow: none;
+	white-space: nowrap;
+}
+.dark .teameditor-options-menu {
+	border-color: #555;
+	background: #333;
+	color: #eee;
 }
 .teameditor-text {
 	position: relative;
@@ -578,6 +610,9 @@ you can't delete it by pressing Backspace */
 .set-form {
 	position: relative;
 	max-width: 660px;
+}
+.teameditor-spacious .set-list .set-form {
+	margin: 8px 0 12px;
 }
 .set-form.cur {
 	opacity: 0.5;

@@ -170,7 +170,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	effectvolume = 50;
 	musicvolume = 50;
 	notifvolume = 50;
-	uploadprivacy = false;
+	uploadprivacy = true;
 
 	afd: boolean | 'sprites' = undefined!;
 

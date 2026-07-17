@@ -718,13 +718,9 @@ input[type=range]:active::-webkit-slider-thumb {
 .dark .select, .dark .team {
 	border-color: #34373b;
 	box-shadow: none;
-	background: linear-gradient(to bottom, #525962, #3e444d);
+	background: linear-gradient(to bottom, #5a6169, #3e444d);
 	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45), inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
 	color: white;
-}
-.dark .team strong {
-	color: #eee;
-	text-shadow: 0px -1px 0px #3b3c41;
 }
 .select:hover, .select:hover .team, a.team:hover, button.team:hover {
 	border-color: #555555;
@@ -741,12 +737,17 @@ input[type=range]:active::-webkit-slider-thumb {
 	border-color: #34373b;
 	background: #FFFFFF;
 	color: white;
-	background: linear-gradient(to bottom, #70777e, #4a5057);
+	background: linear-gradient(to bottom, #6b737e, #4a5057);
 }
 .dark .select:active, .dark .select:active .team, .dark a.team:active, .dark button.team:active {
 	border-color: #34373b;
 	box-shadow: none;
 	background: linear-gradient(to bottom, #4a5057, #8f98a1);
+}
+@supports (content-visibility: auto) {
+	.dark .team small {
+		filter: drop-shadow(0px 1px 0px #8f98a1);
+	}
 }
 
 select.select {
@@ -778,13 +779,13 @@ select.select::picker-icon {
 .dark .select:before {
 	color: #cccccc;
 }
-.select:disabled {
+.select:disabled, .select:disabled:hover {
 	border-color: #999999;
 	background: rgba(220,220,220,.65);
 	color: #555555;
 	box-shadow: none;
 }
-.dark .select:disabled {
+.dark .select:disabled, .dark .select:disabled:hover {
 	border-color: #888;
 	background: rgba(90,90,90,.65);
 	color: #BBB;
@@ -810,6 +811,67 @@ select.select::picker-icon {
 .dark .select.preselected,
 .dark .select:disabled.preselected {
 	color: white;
+}
+
+/*********************************************************
+ * Team tiles
+ *********************************************************/
+
+/* UNSUPPORTED: Unlike most CSS in here, we make no guarantees
+that we won't change how team tile CSS works. Don't depend on
+this. */
+
+.team {
+	width: 300px;
+	min-height: 49px;
+	height: auto;
+	padding: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-align: left;
+}
+/* team name */
+.team strong {
+	display: block;
+	font-size: 8pt;
+	text-align: center;
+	height: 13px;
+	padding: 2px 0 0 0;
+	margin: 0;
+}
+.dark .team strong {
+	color: #ddd;
+	text-shadow: 0px -1px 0px #3b3c41;
+}
+.team strong span {
+	font-weight: normal;
+}
+/* team icons */
+.team small {
+	display: block;
+	width: 220px;
+	min-height: 30px;
+	padding: 0 0 2px;
+	margin: 0 auto;
+	white-space: normal;
+}
+.team.pc-box small {
+	width: auto;
+	padding-left: 5px;
+	padding-right: 5px;
+	min-height: 60px;
+}
+.team small .picon {
+	margin-right: -4px;
+}
+.select:disabled small {
+	opacity: 0.7;
+}
+/* empty team message */
+.team em {
+	display: block;
+	text-align: center;
+	padding-top: 7px;
 }
 
 /*********************************************************

@@ -2325,19 +2325,10 @@ pre.textbox.textbox-empty[placeholder]:before {
  * Team Selector
  *********************************************************/
 
-.formatselect, .teamselect, .team {
+.formatselect, .teamselect {
 	width: 246px;
 	min-height: 32px;
 	padding: 0 5px;
-	height: auto;
-}
-.team {
-	height: 49px;
-	overflow: hidden;
-	white-space: nowrap;
-}
-.team.pc-box {
-	min-height: 74px;
 	height: auto;
 }
 .team:focus {
@@ -2359,37 +2350,11 @@ pre.textbox.textbox-empty[placeholder]:before {
 	background: transparent;
 	box-shadow: none;
 }
-.team strong {
-	display: block;
-	font-size: 8pt;
-	padding-top: 2px;
-	text-align: center;
-}
-.team em {
-	display: block;
-	padding-top: 16px;
-}
-.team strong span {
-	font-style: normal;
-	font-weight: normal;
-}
-.team small {
-	display: block;
-	text-align: center;
-	/* individual pokemon in a team have margin-right -4px so this compensates */
-	margin: 0 -1px 0 -5px;
-	white-space: normal;
-}
 .dark .preselected .team small {
 	filter: none;
 }
-.team small span {
-	margin-right: -4px;
-}
-
 .teamlist .team, .teamdropdown .team {
 	display: inline-block;
-	width: 300px;
 	vertical-align: middle;
 }
 .teamlist .dragging button {
@@ -2397,9 +2362,6 @@ pre.textbox.textbox-empty[placeholder]:before {
 }
 .teamlist .dragging .team {
 	opacity: 0.4;
-}
-.teamlist .team small {
-	display: block;
 }
 
 /*********************************************************
