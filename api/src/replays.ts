@@ -119,11 +119,11 @@ export const Replays = new class {
 		return fullid;
 	}
 
-	async get(id: string, incrementViewCount?: boolean): Promise<Replay | null> {
+	async get(id: string, countView?: boolean): Promise<Replay | null> {
 		const replayData = await replays.get(id);
 		if (!replayData) return null;
 
-		if (incrementViewCount) await replays.update(replayData.id, { views: SQL`views + 1` });
+		if (countView) await replays.update(replayData.id, { views: SQL`views + 1` });
 
 		return this.toReplay(replayData);
 	}

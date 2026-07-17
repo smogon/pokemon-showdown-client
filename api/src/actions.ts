@@ -1226,16 +1226,16 @@ export const actions: { [k: string]: QueryHandler } = {
 		return Replays.getBatch(ids);
 	},
 	async 'replays/get.json'(params) {
-		if (!params.manage) this.allowCORS();
+		if (params.manage === undefined) this.allowCORS();
 		const [id, password] = Replays.splitPasswordSuffix(params.id || '');
-		const replay = id ? await Replays.get(id, true) : undefined;
+		const replay = id ? await Replays.get(id, params.countview !== undefined) : undefined;
 		if (!replay || (replay.password && replay.password !== password)) {
 			this.response.statusCode = 404;
 			return '';
 		}
 
 		if (replay.inputlog) {
-			if (params.manage) {
+			if (params.manage !== undefined) {
 				const user = await this.getUser();
 				if (!user.isLeader()) throw new ActionError('Access denied: not logged in as an admin');
 			} else if (!Replays.isSafeInputlog(replay.formatid!)) {
@@ -1256,7 +1256,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		return replay.log;
 	},
 	async 'replays/get.inputlog'(params) {
-		if (!params.manage) this.allowCORS();
+		if (params.manage === undefined) this.allowCORS();
 		const fullid = params.id || '';
 		const [id, password] = Replays.splitPasswordSuffix(fullid);
 		const replay = id ? await tables.replays.get(id, ['id', 'password', 'formatid', 'inputlog']) : undefined;
@@ -1265,10 +1265,11 @@ export const actions: { [k: string]: QueryHandler } = {
 			return '';
 		}
 		if (replay.inputlog) {
-			if (params.manage) {
+			if (params.manage !== undefined) {
 				const user = await this.getUser();
 				if (!user.isLeader()) throw new ActionError('Access denied: not logged in as an admin');
 			} else if (!Replays.isSafeInputlog(replay.formatid)) {
+				this.response.statusCode = 403;
 				return (
 					`[access denied: not a random battle]\n\n` +
 					`If you are an admin, you can get this using: ` +
@@ -1276,7 +1277,11 @@ export const actions: { [k: string]: QueryHandler } = {
 				);
 			}
 		}
-		return replay.inputlog || '[inputlog not found]';
+		if (!replay.inputlog) {
+			this.response.statusCode = 410;
+			return '[inputlog not found]';
+		}
+		return replay.inputlog;
 	},
 	// sent by ps server
 	async 'smogon/validate'(params) {
