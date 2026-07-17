@@ -10,7 +10,7 @@ import type { Suspect } from './actions.ts';
 
 type DatabaseDriver = 'mysql' | 'postgres' | 'sqlite' | 'mock';
 type DatabaseConfig = {
-	driver?: DatabaseDriver,
+	driver: DatabaseDriver,
 	prefix?: string,
 	[k: string]: any,
 };
@@ -22,9 +22,9 @@ function stripDriver(config: DatabaseConfig) {
 }
 
 function createDatabase<DB extends RealDatabase>(
-	config: DatabaseConfig | null | undefined, defaultDriver: DatabaseDriver, name: string
+	config: DatabaseConfig, name: string
 ): DB {
-	const driver = config?.driver || defaultDriver;
+	const driver = config.driver;
 	if (driver === 'mock') return new MockDatabase(config, name) as unknown as DB;
 	if (!config) throw new Error(`Database config "${name}" is required for ${driver}.`);
 	if (driver === 'sqlite') return new SQLiteDatabase(stripDriver(config)) as unknown as DB;
@@ -34,15 +34,15 @@ function createDatabase<DB extends RealDatabase>(
 }
 
 // direct access
-export const psdb = createDatabase<MySQLDatabase>(Config.mysql, 'mysql', 'mysql');
-export const pgdb = Config.replaysdb ?
-	createDatabase<PGDatabase>(Config.postgres, 'postgres', 'postgres') : psdb;
+export const loginDB = createDatabase<MySQLDatabase>(Config.logindb, 'mysql');
+export const friendsDB = Config.friendsdb ?
+	createDatabase<PGDatabase>(Config.friendsdb, 'postgres') : loginDB;
 export const replaysDB = Config.replaysdb ?
-	createDatabase<PGDatabase>(Config.replaysdb, 'postgres', 'replaysdb') : pgdb;
+	createDatabase<PGDatabase>(Config.replaysdb, 'replaysdb') : friendsDB;
 export const ladderDB = Config.ladderdb ?
-	createDatabase<MySQLDatabase>(Config.ladderdb, 'mysql', 'ladderdb') : psdb;
+	createDatabase<MySQLDatabase>(Config.ladderdb, 'ladderdb') : loginDB;
 
-export const users = psdb.getTable<{
+export const users = loginDB.getTable<{
 	userid: string,
 	usernum: number,
 	username: string,
@@ -102,7 +102,7 @@ export const replayPlayers = replaysDB.getTable<{
 	players: string,
 }>('replayplayers');
 
-export const sessions = psdb.getTable<{
+export const sessions = loginDB.getTable<{
 	session: number,
 	sid: string,
 	userid: string,
@@ -111,27 +111,27 @@ export const sessions = psdb.getTable<{
 	ip: string,
 }>('sessions', 'session');
 
-export const userstats = psdb.getTable<{
+export const userstats = loginDB.getTable<{
 	id: number,
 	serverid: string,
 	usercount: number,
 	date: number,
 }>('userstats', 'id');
 
-export const loginthrottle = psdb.getTable<{
+export const loginthrottle = loginDB.getTable<{
 	ip: string,
 	count: number,
 	time: number,
 	lastuserid: string,
 }>('loginthrottle', 'ip');
 
-export const loginattempts = psdb.getTable<{
+export const loginattempts = loginDB.getTable<{
 	count: number,
 	time: number,
 	userid: string,
 }>('loginattempts', 'userid');
 
-export const usermodlog = psdb.getTable<{
+export const usermodlog = loginDB.getTable<{
 	entryid: number,
 	userid: string,
 	actorid: string,
@@ -140,7 +140,7 @@ export const usermodlog = psdb.getTable<{
 	entry: string,
 }>('usermodlog', 'entryid');
 
-export const userstatshistory = psdb.getTable<{
+export const userstatshistory = loginDB.getTable<{
 	id: number,
 	date: number,
 	usercount: number,
@@ -149,21 +149,21 @@ export const userstatshistory = psdb.getTable<{
 
 // oauth stuff
 
-export const oauthClients = psdb.getTable<{
+export const oauthClients = loginDB.getTable<{
 	owner: string, // ps username
 	client_title: string,
 	id: string, // hex hash
 	origin_url: string,
 }>('oauth_clients', 'id');
 
-export const oauthTokens = psdb.getTable<{
+export const oauthTokens = loginDB.getTable<{
 	owner: string,
 	client: string, // id of client
 	id: string,
 	time: number,
 }>('oauth_tokens', 'id');
 
-export const teams = pgdb.getTable<{
+export const teams = friendsDB.getTable<{
 	teamid: string,
 	ownerid: string,
 	team: string,
@@ -173,4 +173,4 @@ export const teams = pgdb.getTable<{
 	views: number,
 }>('teams', 'teamid');
 
-export const suspects = psdb.getTable<Suspect>("suspects", 'formatid');
+export const suspects = loginDB.getTable<Suspect>("suspects", 'formatid');

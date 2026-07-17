@@ -1,16 +1,17 @@
 /**
  * @typedef {'mysql' | 'postgres' | 'sqlite' | 'mock'} DatabaseDriver
- * @typedef {{driver?: DatabaseDriver, prefix?: string, path?: string}} BasicDatabaseConfig
- * @typedef {import('mysql2').PoolOptions & BasicDatabaseConfig} MySQLDatabaseConfig
- * @typedef {import('pg').PoolConfig & BasicDatabaseConfig} PGDatabaseConfig
- * @typedef {MySQLDatabaseConfig | PGDatabaseConfig} DatabaseConfig
+ * @typedef {{driver: DatabaseDriver, prefix?: string, path?: string}} BasicDatabaseConfig
+ * @typedef {import('mysql2').PoolOptions & BasicDatabaseConfig & {driver: 'mysql'}} MySQLDatabaseConfig
+ * @typedef {import('pg').PoolConfig & BasicDatabaseConfig & {driver: 'postgres'}} PGDatabaseConfig
+ * @typedef {{path: string} & BasicDatabaseConfig & {driver: 'mock'}} MockDatabaseConfig
+ * @typedef {MySQLDatabaseConfig | PGDatabaseConfig | MockDatabaseConfig} DatabaseConfig
  */
 
 /**
  * For logins and ladders
  * @type {DatabaseConfig}
  */
-exports.mysql = {
+exports.logindb = {
 	driver: "mysql",
 	charset: "utf8",
 	database: "ps",
@@ -44,7 +45,7 @@ exports.ladderdb = null;
  * For friends
  * @type {DatabaseConfig | null | undefined}
  */
-exports.postgres = null;
+exports.friendsdb = null;
 
 // ====================================================================
 

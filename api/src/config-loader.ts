@@ -26,10 +26,10 @@ export function load(invalidate = false): Configuration {
 			loadprivaterelayips: false,
 			cssdir: path.resolve(import.meta.dirname, 'test/fixtures'),
 			serverlist: path.resolve(import.meta.dirname, 'test/fixtures/servers.php'),
-			mysql: { driver: 'mock', path: databasePath },
-			postgres: { driver: 'mock', path: databasePath },
-			replaysdb: { driver: 'mock', path: databasePath },
-			ladderdb: { driver: 'mock', path: databasePath },
+			logindb: { driver: 'mock', path: databasePath },
+			friendsdb: null,
+			replaysdb: null,
+			ladderdb: null,
 		};
 	}
 
