@@ -41,8 +41,8 @@ void suite('Replay database manipulation', () => {
 			players: 'annika,annikatesting',
 			format: 'gen8ou',
 		});
-		let replay = await Replays.get('gettest', true);
-		replay = await Replays.get('gettest');
+		await Replays.get('gettest', true);
+		const replay = await Replays.get('gettest');
 		assert(replay);
 		assert.equal(replay.views, 2);
 	});

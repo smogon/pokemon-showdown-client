@@ -196,14 +196,14 @@ export class Session {
 		} else if (!Session.isUseridAllowed(userid)) {
 			return ';;Your username contains disallowed text.';
 		}
-		let data = '';
+		let data;
 		const ip = this.context.getIp();
 		let forceUsertype: string | false = false;
 		if (!user) user = await this.context.getUser();
 		if (Config.autolockip.includes(ip)) {
 			forceUsertype = '5';
 		}
-		let userType = '';
+		let userType;
 		const userData = user.loggedIn ? await users.get(user.id, SQL`banstate, registertime, logintime`) : null;
 		const { banstate, registertime, logintime } = userData || {
 			banstate: 0, registertime: 0, logintime: 0,
