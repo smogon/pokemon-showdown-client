@@ -80,7 +80,7 @@ export class Session {
 		if (!this.sidhash) {
 			this.sidhash = await this.makeSid();
 		}
-		this.updateCookie();
+		await this.updateCookie();
 		return this.sidhash;
 	}
 
@@ -110,8 +110,8 @@ export class Session {
 			);
 		}
 	}
-	updateCookie() {
-		const name = this.context.user.name;
+	async updateCookie() {
+		const name = (await this.context.getUser()).name;
 		if (toID(name) === 'guest') return;
 		if (!this.sidhash) {
 			return this.deleteCookie();
@@ -148,12 +148,13 @@ export class Session {
 	}
 	async login(name: string, pass: string) {
 		const curTime = time();
+		const user = await this.context.getUser();
 		await this.logout();
 		const userid = toID(name);
 		const info = await users.get(userid);
 		if (!info) {
 			// unregistered. just do the thing
-			return this.context.user.login(name);
+			return user.login(name);
 		}
 		// previously, there was a case for banstate here in the php.
 		// this is not necessary, as getAssertion handles that. Proceed to verification.
@@ -172,15 +173,16 @@ export class Session {
 			ip,
 		});
 		this.session = res.insertId || 0;
-		return this.context.user.login(name);
+		return user.login(name);
 	}
 	async logout(deleteCookie = false) {
 		if (!this.session) return false;
+		const user = await this.context.getUser();
 		await sessions.delete(this.session);
 		this.sidhash = '';
 		this.session = 0;
 		if (deleteCookie) this.deleteCookie();
-		this.context.user.logout();
+		user.logout();
 	}
 	async getAssertion(
 		userid: string, challengekeyid = -1, user: User | null, challenge = '', challengeprefix = ''
@@ -197,7 +199,7 @@ export class Session {
 		let data = '';
 		const ip = this.context.getIp();
 		let forceUsertype: string | false = false;
-		if (!user) user = this.context.user;
+		if (!user) user = await this.context.getUser();
 		if (Config.autolockip.includes(ip)) {
 			forceUsertype = '5';
 		}
@@ -337,6 +339,7 @@ export class Session {
 	static oauth = new gal.OAuth2Client();
 	async changePassword(name: string, pass: string) {
 		const userid = toID(name);
+		const user = await this.context.getUser();
 
 		const userData = await users.get(userid);
 		if (!userData) return false;
@@ -350,7 +353,7 @@ export class Session {
 			passwordhash, nonce: null,
 		});
 		await sessions.deleteAll()`WHERE userid = ${userid}`;
-		if (this.context.user.id === userid) {
+		if (user.id === userid) {
 			await this.login(name, pass);
 		}
 		return true;

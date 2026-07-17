@@ -216,10 +216,11 @@ export const actions: { [k: string]: QueryHandler } = {
 	},
 
 	async logout(params) {
-		if (
-			this.request.method !== "POST" || !params.userid ||
-			params.userid !== this.user.id || this.user.id === 'guest'
-		) {
+		if (this.request.method !== "POST" || !params.userid) {
+			return { actionsuccess: false };
+		}
+		const user = await this.getUser();
+		if (params.userid !== user.id || user.id === 'guest') {
 			return { actionsuccess: false };
 		}
 		await this.session.logout(true);
@@ -276,7 +277,7 @@ export const actions: { [k: string]: QueryHandler } = {
 	async upkeep(params) {
 		const challengeprefix = this.verifyCrossDomainRequest();
 		const res = { assertion: '', username: '', loggedin: false };
-		const curuser = this.user;
+		const curuser = await this.getUser();
 		let userid = '';
 		if (curuser.id !== 'guest') {
 			res.username = curuser.name;
@@ -384,20 +385,21 @@ export const actions: { [k: string]: QueryHandler } = {
 			throw new ActionError(`Repeat your new password.`);
 		}
 
-		if (!this.user.loggedIn) {
+		const user = await this.getUser();
+		if (!user.loggedIn) {
 			throw new ActionError('Your session has expired. Please log in again.');
 		}
 		if (params.password !== params.cpassword) {
 			throw new ActionError('Your new passwords do not match.');
 		}
-		if (!(await this.session.passwordVerify(this.user.id, params.oldpassword))) {
+		if (!(await this.session.passwordVerify(user.id, params.oldpassword))) {
 			throw new ActionError('Your old password was incorrect.');
 		}
 		params.password = params.password.replace(/\s/ig, '');
 		if (params.password.length < 5) {
 			throw new ActionError('Your new password must be at least 5 characters long.');
 		}
-		const actionsuccess = await this.session.changePassword(this.user.id, params.password);
+		const actionsuccess = await this.session.changePassword(user.id, params.password);
 		return { actionsuccess };
 	},
 
@@ -408,14 +410,15 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!params.username) {
 			throw new ActionError(`Specify a username.`);
 		}
-		if (!this.user.loggedIn) {
+		const user = await this.getUser();
+		if (!user.loggedIn) {
 			throw new ActionError('Your session has expired. Please log in again.');
 		}
-		if (toID(params.username) !== this.user.id) {
+		if (toID(params.username) !== user.id) {
 			throw new ActionError('You\'re not logged in as that user.');
 		}
 		// safe to use userid directly because we've confirmed they've logged in.
-		const actionsuccess = await tables.users.update(this.user.id, {
+		const actionsuccess = await tables.users.update(user.id, {
 			username: params.username,
 		});
 		await this.session.setSid();
@@ -424,14 +427,15 @@ export const actions: { [k: string]: QueryHandler } = {
 
 	async getassertion(params) {
 		this.verifyCrossDomainRequest();
-		params.userid = toID(params.userid) || this.user.id;
+		const user = await this.getUser();
+		params.userid = toID(params.userid) || user.id;
 		// NaN is falsy so this validates
 		const challengekeyid = Number(params.challengekeyid) || -1;
 		const challenge = params.challenge || params.challstr || "";
 		return this.session.getAssertion(
 			params.userid,
 			challengekeyid,
-			this.user,
+			user,
 			challenge,
 			this.verifyCrossDomainRequest()
 		);
@@ -736,29 +740,30 @@ export const actions: { [k: string]: QueryHandler } = {
 	// make a token if they don't already have it
 	async 'oauth/api/authorize'(params) {
 		this.allowCORS();
-		if (!this.user.loggedIn) {
+		const user = await this.getUser();
+		if (!user.loggedIn) {
 			throw new ActionError("You're not logged in.");
 		}
 		const clientInfo = await getOAuthClient(params.client_id);
 		const existing = await (
 			tables.oauthTokens.selectOne()
-		)`WHERE client = ${clientInfo.id} AND owner = ${this.user.id}`;
+		)`WHERE client = ${clientInfo.id} AND owner = ${user.id}`;
 		if (existing) {
 			if (Date.now() - existing.time > OAUTH_TOKEN_TIME) { // 2w
 				await tables.oauthTokens.delete(existing.id);
 				return { success: false };
 			} else {
-				return { success: existing.id, user: this.user.id };
+				return { success: existing.id, user: user.id };
 			}
 		}
 		const id = crypto.randomBytes(16).toString('hex');
 		await tables.oauthTokens.insert({
-			id, owner: this.user.id, client: clientInfo.id, time: Date.now(),
+			id, owner: user.id, client: clientInfo.id, time: Date.now(),
 		});
 		return {
 			success: id,
 			expires: Date.now() + OAUTH_TOKEN_TIME,
-			user: this.user.id,
+			user: user.id,
 		};
 	},
 
@@ -801,9 +806,10 @@ export const actions: { [k: string]: QueryHandler } = {
 			await tables.oauthTokens.delete(tokenEntry.id);
 			return { success: false };
 		}
-		this.user.login(tokenEntry.owner);
+		const user = await this.getUser();
+		user.login(tokenEntry.owner);
 		return this.session.getAssertion(
-			this.user.id, Config.challengekeyid, this.user, challstr
+			user.id, Config.challengekeyid, user, challstr
 		);
 	},
 
@@ -816,24 +822,26 @@ export const actions: { [k: string]: QueryHandler } = {
 	},
 
 	async 'oauth/api/authorized'() {
-		if (!this.user.loggedIn) {
+		const user = await this.getUser();
+		if (!user.loggedIn) {
 			throw new ActionError("You're not logged in.");
 		}
 		const applications = [];
-		const tokens = await tables.oauthTokens.selectAll()`WHERE owner = ${this.user.id}`;
+		const tokens = await tables.oauthTokens.selectAll()`WHERE owner = ${user.id}`;
 		for (const token of tokens) {
 			const client = await tables.oauthClients.get(token.client);
 			if (!client) throw new Error("Tokens exist for nonexistent application");
 			applications.push({ title: client.client_title, url: client.origin_url });
 		}
 		return {
-			username: this.user.id,
+			username: user.id,
 			applications,
 		};
 	},
 
 	async 'oauth/api/revoke'(params) {
-		if (!this.user.loggedIn) {
+		const user = await this.getUser();
+		if (!user.loggedIn) {
 			throw new ActionError("You're not logged in.");
 		}
 		if (!params.uri) {
@@ -847,20 +855,21 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!tokenEntry) {
 			throw new ActionError("That application doesn't have access granted to your account.");
 		}
-		await tables.oauthTokens.deleteAll()`WHERE client = ${client.id} and owner = ${this.user.id}`;
+		await tables.oauthTokens.deleteAll()`WHERE client = ${client.id} and owner = ${user.id}`;
 		return { success: true };
 	},
 
 	async getteams(params) {
 		this.verifyCrossDomainRequest();
-		if (!this.user.loggedIn || this.user.id === 'guest') {
+		const user = await this.getUser();
+		if (!user.loggedIn || user.id === 'guest') {
 			return { loggedIn: false, teams: [] }; // don't wanna nag people with popups if they aren't logged in
 		}
 		let teams = [];
 		try {
 			teams = await tables.teams.selectAll(
 				SQL`teamid, team, format, title as name, private`
-			)`WHERE ownerid = ${this.user.id}`;
+			)`WHERE ownerid = ${user.id}`;
 		} catch (e) {
 			Server.crashlog(e, 'a teams database query', params);
 			throw new ActionError('The server could not load your teams. Please try again later.');
@@ -877,9 +886,10 @@ export const actions: { [k: string]: QueryHandler } = {
 			// and fetch the team later
 			t.team = mons.join(',');
 		}
-		return { loggedIn: this.user.id, teams };
+		return { loggedIn: user.id, teams };
 	},
 	async getteam(params) {
+		const user = await this.getUser();
 		let { teamid, password, full, raw } = params;
 		teamid = toID(teamid);
 		password = toID(password);
@@ -890,11 +900,11 @@ export const actions: { [k: string]: QueryHandler } = {
 			const data = await tables.teams.selectOne(
 				full ? SQL`team, private, ownerid, format, title, views` : SQL`ownerid, team, private`
 			)`WHERE teamid = ${teamid}`;
-			const owns = data?.ownerid === this.user.id;
+			const owns = data?.ownerid === user.id;
 			if (!data || (owns ? false : (data.private && (password !== toID(data.private))))) {
 				return { team: null };
 			}
-			if ('views' in data && this.user.id !== data.ownerid) {
+			if ('views' in data && user.id !== data.ownerid) {
 				// we only increment views if it's a full load - since the teams client
 				// only uses getteam with full (which counts). otherwise it's just the
 				// builder loading it, which doesn't count
@@ -912,7 +922,8 @@ export const actions: { [k: string]: QueryHandler } = {
 		}
 	},
 	async editteam(params) {
-		if (!this.user.loggedIn || this.user.id === 'guest') {
+		const user = await this.getUser();
+		if (!user.loggedIn || user.id === 'guest') {
 			throw new ActionError("Must be logged in to edit teams.");
 		}
 		const teamid = Number(params.teamid);
@@ -923,7 +934,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!team) {
 			throw new ActionError("Team not found.");
 		}
-		if (team.ownerid !== this.user.id) {
+		if (team.ownerid !== user.id) {
 			throw new ActionError(`You cannot edit that team, as it is not yours.`);
 		}
 		const edit: Record<string, string | number | null> = {};
@@ -954,7 +965,8 @@ export const actions: { [k: string]: QueryHandler } = {
 		return { success: true, team: await tables.teams.get(team.teamid) };
 	},
 	async deleteteam(params) {
-		if (!this.user.loggedIn || this.user.id === 'guest') {
+		const user = await this.getUser();
+		if (!user.loggedIn || user.id === 'guest') {
 			throw new ActionError("Must be logged in to edit teams.");
 		}
 		const teamid = Number(params.teamid);
@@ -965,7 +977,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!team) {
 			throw new ActionError("Team not found.");
 		}
-		if (team.ownerid !== this.user.id) {
+		if (team.ownerid !== user.id) {
 			throw new ActionError(`You cannot delete that team, as it is not yours.`);
 		}
 		await tables.teams.deleteAll()`WHERE teamid = ${teamid}`;
@@ -973,7 +985,8 @@ export const actions: { [k: string]: QueryHandler } = {
 	},
 	async copyteam(params) {
 		let { teamid, password } = params;
-		if (!this.user.loggedIn) {
+		const user = await this.getUser();
+		if (!user.loggedIn) {
 			throw new ActionError("Must be logged in to copy teams.");
 		}
 		teamid = toID(teamid);
@@ -984,7 +997,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		const data = await tables.teams.selectOne(
 			SQL`team, private, ownerid, format, title`
 		)`WHERE teamid = ${teamid}`;
-		const owns = data?.ownerid === this.user.id;
+		const owns = data?.ownerid === user.id;
 		if (!data || (owns ? false : (data.private && (password !== toID(data.private))))) {
 			throw new ActionError("Access denied");
 		}
@@ -995,14 +1008,15 @@ export const actions: { [k: string]: QueryHandler } = {
 			format: data.format,
 			title: `Copy of '${data.title}' by ${data.ownerid}`,
 			views: 0,
-			ownerid: this.user.id,
+			ownerid: user.id,
 			date: new Date().toISOString(),
 		}}) RETURNING *;`;
 		return { teamid: `${result[0].teamid}-${newPw}` };
 	},
 	async searchteams(params) {
 		let count = Number(params.count) || 20;
-		if (!this.user.loggedIn || this.user.id === 'guest') {
+		const user = await this.getUser();
+		if (!user.loggedIn || user.id === 'guest') {
 			count = 20; // limit results just to be safe
 		}
 		const args = SQL``;
@@ -1041,10 +1055,11 @@ export const actions: { [k: string]: QueryHandler } = {
 		this.allowCORS();
 		return Replays.recent();
 	},
-	'replays/check-login'(params) {
+	async 'replays/check-login'(params) {
+		const user = await this.getUser();
 		return (
-			DISPATCH_PREFIX + `${this.user.id},` +
-			`${Config.sysops.includes(this.user.id) ? 1 : ''}`
+			DISPATCH_PREFIX + `${user.id},` +
+			`${Config.sysops.includes(user.id) ? 1 : ''}`
 		);
 	},
 	async 'replays/search'(params) {
@@ -1131,7 +1146,8 @@ export const actions: { [k: string]: QueryHandler } = {
 	async 'replays/searchprivate'(params) {
 		this.verifyCrossDomainRequest();
 
-		if (!this.user.loggedIn) throw new ActionError(`Access denied: You must be logged in.`);
+		const user = await this.getUser();
+		if (!user.loggedIn) throw new ActionError(`Access denied: You must be logged in.`);
 		if (params.sort && params.sort !== 'rating' && params.sort !== 'date') {
 			throw new ActionError('Sort must be "rating" or "date"');
 		}
@@ -1150,7 +1166,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (params.page && before) {
 			throw new ActionError(`Cannot set both "page" and "before", please choose one method of pagination`);
 		}
-		if (!(this.user.isSysop() || usernames.includes(this.user.id))) {
+		if (!(user.isSysop() || usernames.includes(user.id))) {
 			throw new ActionError(`Access denied: You must be logged in as a username you're searching for.`);
 		}
 
@@ -1164,7 +1180,8 @@ export const actions: { [k: string]: QueryHandler } = {
 		return Replays.search(search);
 	},
 	async 'replays/edit'(params) {
-		if (!this.user.isLeader()) throw new ActionError(`Access denied.`);
+		const user = await this.getUser();
+		if (!user.isLeader()) throw new ActionError(`Access denied.`);
 		const id = toID(params.id);
 		if (!id) throw new ActionError(`No replay ID was provided.`);
 		const replay = await tables.replays.get(id);
@@ -1219,7 +1236,8 @@ export const actions: { [k: string]: QueryHandler } = {
 		let manage = false;
 		if (replay.inputlog) {
 			if (params.manage !== undefined) {
-				if (!this.user.isLeader()) throw new ActionError('Access denied: not logged in as an admin');
+				const user = await this.getUser();
+				if (!user.isLeader()) throw new ActionError('Access denied: not logged in as an admin');
 				manage = true;
 			} else if (!Replays.isSafeInputlog(replay.formatid!)) {
 				delete replay.inputlog;
@@ -1250,7 +1268,8 @@ export const actions: { [k: string]: QueryHandler } = {
 		let manage = false;
 		if (replay.inputlog) {
 			if (params.manage !== undefined) {
-				if (!this.user.isLeader()) throw new ActionError('Access denied: not logged in as an admin');
+				const user = await this.getUser();
+				if (!user.isLeader()) throw new ActionError('Access denied: not logged in as an admin');
 				manage = true;
 			} else if (!Replays.isSafeInputlog(replay.formatid)) {
 				return (

@@ -117,6 +117,18 @@ void suite('Dispatcher features', () => {
 		assert.equal(parseResponse(response.body), 1000);
 	});
 
+	void test('Should not inspect sessions for user-independent actions', async () => {
+		const response = await request(
+			server,
+			'/api/mmr?format=gen9ou&user=mia&serverid=showdown&sid=Mia,999999,invalid'
+		);
+		assert.equal(response.statusCode, 200);
+		assert.equal(parseResponse(response.body), 1000);
+		assert.equal(response.headers['access-control-allow-origin'], '*');
+		// invalid SID would normally get cleared if it was read
+		assert.equal(response.headers['set-cookie'], undefined);
+	});
+
 	void test('Should support requesting action.php with an `act` param', async () => {
 		const response = await request(
 			server, '/action.php?act=mmr&format=gen9ou&user=mia&serverid=showdown'

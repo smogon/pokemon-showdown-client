@@ -80,7 +80,7 @@ export class ActionContext {
 	readonly response: http.ServerResponse;
 	readonly session: Session;
 	readonly ActionError = ActionError;
-	user: User;
+	private userPromise?: Promise<User>;
 	private prefix: string | null = null;
 	readonly body: ActionRequest;
 	useDispatchPrefix = true;
@@ -88,8 +88,11 @@ export class ActionContext {
 		this.request = req;
 		this.response = res;
 		this.session = new Session(this);
-		this.user = null!;
 		this.body = body;
+	}
+	getUser(): Promise<User> {
+		if (!this.userPromise) this.userPromise = this.session.getUser();
+		return this.userPromise;
 	}
 	async executeActions() {
 		const body = this.body;
@@ -101,12 +104,11 @@ export class ActionContext {
 		// the cookies are actually the only CSRF risk,
 		// so there's no problem setting CORS
 		// if they send it directly
-		if (ActionContext.parseURLRequest(this.request).sid?.length) {
+		if (body.sid?.length) {
 			this.setHeader('Access-Control-Allow-Origin', '*');
 		}
 
 		try {
-			this.user = await this.session.getUser();
 			const result = await handler.call(this, body);
 
 			if (result === null) return { code: 404 };
