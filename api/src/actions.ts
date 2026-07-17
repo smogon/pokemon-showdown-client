@@ -1226,6 +1226,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		return Replays.getBatch(ids);
 	},
 	async 'replays/get.json'(params) {
+		if (!params.manage) this.allowCORS();
 		const [id, password] = Replays.splitPasswordSuffix(params.id || '');
 		const replay = id ? await Replays.get(id, true) : undefined;
 		if (!replay || (replay.password && replay.password !== password)) {
@@ -1233,31 +1234,29 @@ export const actions: { [k: string]: QueryHandler } = {
 			return '';
 		}
 
-		let manage = false;
 		if (replay.inputlog) {
-			if (params.manage !== undefined) {
+			if (params.manage) {
 				const user = await this.getUser();
 				if (!user.isLeader()) throw new ActionError('Access denied: not logged in as an admin');
-				manage = true;
 			} else if (!Replays.isSafeInputlog(replay.formatid!)) {
 				delete replay.inputlog;
 			}
 		}
-		if (!manage) this.setHeader('Access-Control-Allow-Origin', '*');
 		this.setHeader('Content-Type', 'application/json');
 		return JSON.stringify(replay);
 	},
 	async 'replays/get.log'(params) {
+		this.allowCORS();
 		const [id, password] = Replays.splitPasswordSuffix(params.id || '');
 		const replay = id ? await tables.replays.get(id, ['id', 'password', 'log']) : undefined;
 		if (!replay || (replay.password && replay.password !== password)) {
 			this.response.statusCode = 404;
 			return '';
 		}
-		this.setHeader('Access-Control-Allow-Origin', '*');
 		return replay.log;
 	},
 	async 'replays/get.inputlog'(params) {
+		if (!params.manage) this.allowCORS();
 		const fullid = params.id || '';
 		const [id, password] = Replays.splitPasswordSuffix(fullid);
 		const replay = id ? await tables.replays.get(id, ['id', 'password', 'formatid', 'inputlog']) : undefined;
@@ -1265,12 +1264,10 @@ export const actions: { [k: string]: QueryHandler } = {
 			this.response.statusCode = 404;
 			return '';
 		}
-		let manage = false;
 		if (replay.inputlog) {
-			if (params.manage !== undefined) {
+			if (params.manage) {
 				const user = await this.getUser();
 				if (!user.isLeader()) throw new ActionError('Access denied: not logged in as an admin');
-				manage = true;
 			} else if (!Replays.isSafeInputlog(replay.formatid)) {
 				return (
 					`[access denied: not a random battle]\n\n` +
@@ -1279,7 +1276,6 @@ export const actions: { [k: string]: QueryHandler } = {
 				);
 			}
 		}
-		if (!manage) this.setHeader('Access-Control-Allow-Origin', '*');
 		return replay.inputlog || '[inputlog not found]';
 	},
 	// sent by ps server

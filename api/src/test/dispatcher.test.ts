@@ -147,4 +147,12 @@ void suite('Dispatcher features', () => {
 			errorip: 'This ladder is not for your server. You should turn off Config.remoteladder.',
 		});
 	});
+
+	void test('Should allow CORS for missing public replay resources', async () => {
+		for (const endpoint of ['get.json', 'get.log', 'get.inputlog']) {
+			const response = await request(server, `/api/replays/${endpoint}?id=missing`);
+			assert.equal(response.statusCode, 404);
+			assert.equal(response.headers['access-control-allow-origin'], '*');
+		}
+	});
 });
