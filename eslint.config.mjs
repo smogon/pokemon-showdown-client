@@ -5,27 +5,16 @@ import { configs, configure, globals } from './eslint-ps-standard.mjs';
 export default configure([
 	{
 		ignores: [
-			'caches/**',
-			'play.pokemonshowdown.com/config/*',
+			'caches/',
+			'play.pokemonshowdown.com/config/',
 			'play.pokemonshowdown.com/src/battle-log-misc.js',
-			'play.pokemonshowdown.com/js/replay-embed.js',
+			'play.pokemonshowdown.com/js/',
 		],
 	},
 	{
 		name: "JavaScript for browsers (ES3)",
 		files: [
-			'play.pokemonshowdown.com/js/client-battle.js',
-			'play.pokemonshowdown.com/js/client-chat-tournament.js',
-			'play.pokemonshowdown.com/js/client-chat.js',
-			'play.pokemonshowdown.com/js/client-ladder.js',
-			'play.pokemonshowdown.com/js/client-mainmenu.js',
-			'play.pokemonshowdown.com/js/client-rooms.js',
-			'play.pokemonshowdown.com/js/client-teambuilder.js',
-			'play.pokemonshowdown.com/js/client-topbar.js',
-			'play.pokemonshowdown.com/js/client.js',
-			'play.pokemonshowdown.com/js/replay-embed.template.js',
-			'play.pokemonshowdown.com/js/search.js',
-			'play.pokemonshowdown.com/js/storage.js',
+			'play.pokemonshowdown.com/src/oldclient/*',
 			'config/config-example.js',
 		],
 		extends: [configs.es3],

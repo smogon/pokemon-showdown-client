@@ -8,15 +8,12 @@
 
 "use strict";
 
-const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
-const child_process = require('child_process');
-const compiler = require('./compiler');
+const fs = require('node:fs');
+const crypto = require('node:crypto');
+const child_process = require('node:child_process');
+const compiler = require('./compiler.mjs');
 
-const thisDir = __dirname;
-const rootDir = path.resolve(thisDir, '..');
-process.chdir(rootDir);
+process.chdir(__dirname + '/..');
 
 const AUTOCONFIG_START = '/*** Begin automatically generated configuration ***/';
 const AUTOCONFIG_END = '/*** End automatically generated configuration ***/';
@@ -141,6 +138,17 @@ console.log(
 );
 
 /*********************************************************
+ * Copy old client files
+ *********************************************************/
+
+process.stdout.write("Copying old client files... ");
+fs.cpSync('play.pokemonshowdown.com/src/oldclient', 'play.pokemonshowdown.com/js/oldclient', {
+	recursive: true,
+	force: true,
+});
+console.log("DONE");
+
+/*********************************************************
  * Update cachebuster and News
  *********************************************************/
 
@@ -184,13 +192,13 @@ function addCachebuster(_, attr, url, urlQuery) {
 }
 
 // add hashes to js and css files and rewrite URLs
-let indexContents = fs.readFileSync('play.pokemonshowdown.com/index.template.html', UTF8);
+let indexContents = fs.readFileSync('play.pokemonshowdown.com/index-old.html', UTF8);
 indexContents = indexContents.replace(URL_REGEX, addCachebuster);
-let preactIndexContents = fs.readFileSync('play.pokemonshowdown.com/preactalpha.template.html', UTF8);
+let preactIndexContents = fs.readFileSync('play.pokemonshowdown.com/index-new.html', UTF8);
 preactIndexContents = preactIndexContents.replace(URL_REGEX, addCachebuster);
-let crossprotocolContents = fs.readFileSync('play.pokemonshowdown.com/crossprotocol.template.html', UTF8);
+let crossprotocolContents = fs.readFileSync('play.pokemonshowdown.com/crossprotocol.html', UTF8);
 crossprotocolContents = crossprotocolContents.replace(URL_REGEX, addCachebuster);
-let replayEmbedContents = fs.readFileSync('play.pokemonshowdown.com/js/replay-embed.template.js', UTF8);
+let replayEmbedContents = fs.readFileSync('play.pokemonshowdown.com/js/replay-embed.js', UTF8);
 replayEmbedContents = replayEmbedContents.replace(/play\.pokemonshowdown\.com/g, routes.client);
 
 // add news, only if it's actually likely to exist
@@ -199,7 +207,7 @@ let stdout = '';
 let newsid = 0;
 let news = '[failed to retrieve news]';
 try {
-	stdout = child_process.execSync('php ' + path.resolve(thisDir, 'news-embed.php'), {
+	stdout = child_process.execSync('php build-tools/news-embed.php', {
 		stdio: 'pipe',
 	});
 } catch (e) {
@@ -216,24 +224,27 @@ try {
 }
 
 indexContents = indexContents.replace(/<!-- newsid -->/g, newsid);
-indexContents = indexContents.replace(/<!-- news -->/g, news);
+indexContents = indexContents.replace(/<!-- build-tools\/news-embed\.php -->/g, news);
 preactIndexContents = preactIndexContents.replace(/<!-- newsid -->/g, newsid);
-preactIndexContents = preactIndexContents.replace(/<!-- news -->/g, news);
+preactIndexContents = preactIndexContents.replace(/<!-- build-tools\/news-embed\.php -->/g, news);
 
 let indexContents2 = '';
 try {
 	const indexContentsOld = indexContents;
-	indexContents = indexContents.replace(/<!-- head custom -->/g, '' + fs.readFileSync('config/head-custom.html'));
+	indexContents = indexContents
+		.replace(/<!-- config\/head-custom\.html -->/g, '' + fs.readFileSync('config/head-custom.html'));
+	preactIndexContents = preactIndexContents
+		.replace(/<!-- config\/head-custom\.html -->/g, '' + fs.readFileSync('config/head-custom.html'));
 	indexContents2 = indexContentsOld
-		.replace(/<!-- head custom -->/g, '' + fs.readFileSync('config/head-custom-test.html'));
+		.replace(/<!-- config\/head-custom\.html -->/g, '' + fs.readFileSync('config/head-custom-test.html'));
 } catch {}
 
-fs.writeFileSync('play.pokemonshowdown.com/index.html', indexContents);
+fs.writeFileSync('play.pokemonshowdown.com/caches/index-old.html', indexContents);
 if (indexContents2) {
-	fs.writeFileSync('play.pokemonshowdown.com/index-test.html', indexContents2);
+	fs.writeFileSync('play.pokemonshowdown.com/caches/index-test.html', indexContents2);
 }
-fs.writeFileSync('play.pokemonshowdown.com/preactalpha.html', preactIndexContents);
-fs.writeFileSync('play.pokemonshowdown.com/crossprotocol.html', crossprotocolContents);
+fs.writeFileSync('play.pokemonshowdown.com/caches/index-new.html', preactIndexContents);
+fs.writeFileSync('play.pokemonshowdown.com/caches/crossprotocol.html', crossprotocolContents);
 fs.writeFileSync('play.pokemonshowdown.com/js/replay-embed.js', replayEmbedContents);
 
 let replaysContents = fs.readFileSync('replay.pokemonshowdown.com/index.template.php', UTF8);

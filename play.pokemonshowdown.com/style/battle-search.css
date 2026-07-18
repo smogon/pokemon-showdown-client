@@ -359,7 +359,7 @@
 	cursor: pointer;
 }
 .dexlist .result a:hover,
-.dexlist .result a.hover {
+.dexlist .result a[aria-selected] {
 	border-color: #D8D8D8;
 	background: #F8F8F8;
 }
@@ -368,7 +368,7 @@
 	background: rgba(248, 248, 248, 0.4);
 }
 .dexlist .result a.cur:hover,
-.dexlist .result a.cur.hover {
+.dexlist .result a.cur[aria-selected] {
 	border-color: #555555;
 	background: #F8F8F8;
 }
@@ -384,7 +384,7 @@
 	border-right: none;
 }
 
-.dark .dexlist .result a.hover,
+.dark .dexlist .result a[aria-selected],
 .dark .dexlist .result a:hover {
 	border-color: #777777;
 	background: rgba(100, 100, 100, 0.5);
@@ -395,7 +395,7 @@
 	background: rgba(100, 100, 100, 0.2);
 }
 .dark .dexlist .result a.cur:hover,
-.dark .dexlist .result a.cur.hover {
+.dark .dexlist .result a.cur[aria-selected] {
 	border-color: #BBBBBB;
 	background: rgba(100, 100, 100, 0.5);
 	color: #FFFFFF;

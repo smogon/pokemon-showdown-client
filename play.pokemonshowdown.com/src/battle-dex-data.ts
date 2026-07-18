@@ -678,6 +678,7 @@ export const BattlePokemonIconIndexes: { [id: string]: number } = {
 	ramnarok: 1560 + 78,
 	ramnarokradiant: 1560 + 79,
 	flox: 1560 + 80,
+	obliteryx: 1560 + 81,
 };
 
 export const BattlePokemonIconIndexesLeft: { [id: string]: number } = {
@@ -1112,6 +1113,7 @@ export type NatureName = 'Adamant' | 'Bashful' | 'Bold' | 'Brave' | 'Calm' | 'Ca
 export type StatNameExceptHP = 'atk' | 'def' | 'spa' | 'spd' | 'spe';
 export type TypeName = 'Normal' | 'Fighting' | 'Flying' | 'Poison' | 'Ground' | 'Rock' | 'Bug' | 'Ghost' | 'Steel' |
 	'Fire' | 'Water' | 'Grass' | 'Electric' | 'Psychic' | 'Ice' | 'Dragon' | 'Dark' | 'Fairy' | 'Stellar' | '???';
+export type CategoryName = 'Physical' | 'Special' | 'Status';
 export type StatusName = 'par' | 'psn' | 'frz' | 'slp' | 'brn';
 export type BoostStatName = 'atk' | 'def' | 'spa' | 'spd' | 'spe' | 'evasion' | 'accuracy' | 'spc';
 export type GenderName = 'M' | 'F' | 'N';
@@ -1276,7 +1278,7 @@ export class Move implements Effect {
 	readonly accuracy: number | true;
 	readonly pp: number;
 	readonly type: TypeName;
-	readonly category: 'Physical' | 'Special' | 'Status';
+	readonly category: CategoryName;
 	readonly priority: number;
 	readonly target: MoveTarget;
 	readonly pressureTarget: MoveTarget;
@@ -1609,7 +1611,7 @@ export class Species implements Effect {
 		this.tier = data.tier || '';
 
 		this.isTotem = false;
-		this.isMega = !!(this.forme && ['-mega', '-megax', '-megay'].includes(this.formeid));
+		this.isMega = !!(this.forme && this.formeid.includes('mega'));
 		this.isPrimal = !!(this.forme && this.formeid === '-primal');
 		this.canGigantamax = !!data.canGigantamax;
 		this.cannotDynamax = !!data.cannotDynamax;
@@ -1650,7 +1652,7 @@ export class Species implements Effect {
 }
 
 export interface Type extends Effect {
-	damageTaken?: Record<Dex.TypeName, Dex.WeaknessType>;
+	damageTaken?: Record<Dex.TypeName | 'powder' | 'prankster' | 'trapped', Dex.WeaknessType>;
 	HPivs?: Partial<Dex.StatsTable>;
 	HPdvs?: Partial<Dex.StatsTable>;
 }

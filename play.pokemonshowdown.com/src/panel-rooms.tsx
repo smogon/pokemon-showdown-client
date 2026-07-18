@@ -5,15 +5,18 @@
  * @license AGPLv3
  */
 
-import { PS, PSRoom, type RoomID, type RoomOptions } from "./client-main";
+import { Config, PS, PSRoom, type RoomID, type RoomOptions } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { RoomInfo } from "./panel-mainmenu";
-import { toID } from "./battle-dex";
+import { Dex, toID } from "./battle-dex";
 
 export class RoomsRoom extends PSRoom {
 	override readonly classType: string = 'rooms';
 	constructor(options: RoomOptions) {
 		super(options);
+		if (Object.keys(PS.prefs.serversettings).length) {
+			PS.send(`/updatesettings ${JSON.stringify(PS.prefs.serversettings)}`);
+		}
 		PS.send(`/cmd rooms`);
 	}
 }
@@ -40,6 +43,7 @@ class RoomsPanel extends PSRoomPanel {
 		}));
 	}
 	override componentDidUpdate() {
+		super.componentDidUpdate();
 		const el = this.base?.querySelector('a.blocklink.cur');
 		if (!this.roomListFocusIndex) return;
 		el?.scrollIntoView({ behavior: 'auto', block: 'center' });
@@ -51,6 +55,11 @@ class RoomsPanel extends PSRoomPanel {
 	changeSearch = (ev: Event) => {
 		const target = ev.currentTarget as HTMLInputElement;
 		if (target.selectionStart !== target.selectionEnd) return;
+		if (target.value.startsWith('/')) {
+			this.updateRoomList(target.value);
+			this.forceUpdate();
+			return;
+		}
 		this.updateRoomList(target.value);
 		this.forceUpdate();
 	};
@@ -76,20 +85,26 @@ class RoomsPanel extends PSRoomPanel {
 			ev.preventDefault();
 		} else if (ev.keyCode === 13) { // enter
 			const target = ev.currentTarget as HTMLInputElement;
-			let value = this.getRoomListFocusTitle() || target.value;
-			const arrowIndex = value.indexOf(' \u21d2 ');
-			if (arrowIndex >= 0) value = value.slice(arrowIndex + 3);
-			if (!/^[a-z0-9-]$/.test(value)) value = toID(value);
+			let value = target.value.startsWith('/') ? target.value : this.getRoomListFocusTitle() || target.value;
 			ev.preventDefault();
 			ev.stopImmediatePropagation();
 			target.value = '';
 			this.updateRoomList('');
+			if (value.startsWith('/')) {
+				PS.join('dm-' as RoomID);
+				PS.rooms['dm-']?.send(value, target);
+				return;
+			}
+
+			const arrowIndex = value.indexOf(' \u21d2 ');
+			if (arrowIndex >= 0) value = value.slice(arrowIndex + 3);
+			if (!/^[a-z0-9-]$/.test(value)) value = toID(value);
 
 			PS.join(value as RoomID);
 		}
 	};
 	updateRoomList(search?: string) {
-		if (search) search = toID(search);
+		if (search && !search.startsWith('/')) search = toID(search);
 		const forceNoAutocomplete = this.search === `${search || ''}-`;
 		if (search || this.search) {
 			if (search === undefined || search === this.search) return;
@@ -102,6 +117,11 @@ class RoomsPanel extends PSRoomPanel {
 		}
 	}
 	getRoomList(forceNoAutocomplete?: boolean): RoomsSection[] {
+		if (this.search.startsWith('/')) {
+			return [["Command", [{
+				title: "Console", id: 'dm-' as RoomID, desc: `Enter = run command ${this.search}`,
+			}]]];
+		}
 		const searchid = toID(this.search);
 
 		if (!searchid) {
@@ -188,46 +208,48 @@ class RoomsPanel extends PSRoomPanel {
 		return [...hidden, ["Search results", results]];
 	}
 	override render() {
-		if (this.hidden && PS.isVisible(this.props.room)) this.hidden = false;
+		if (this.hidden && PS.isVisiblePanel(this.props.room)) this.hidden = false;
 		if (this.hidden) {
-			return <PSPanelWrapper room={this.props.room} scrollable>{null}</PSPanelWrapper>;
+			return <PSPanelWrapper room={this.props.room}>{null}</PSPanelWrapper>;
 		}
 		const rooms = PS.mainmenu.roomsCache;
 		this.updateRoomList();
 
-		return <PSPanelWrapper room={this.props.room} scrollable><div class="pad">
+		return <PSPanelWrapper room={this.props.room}><div class="pad">
 			<button class="button" style="float:right;font-size:10pt;margin-top:3px" onClick={this.hide}>
 				<i class="fa fa-caret-right" aria-hidden></i> Hide
 			</button>
 			<div class="roomcounters">
 				<a class="button" href="users" title="Find an online user">
 					<span
-						class="pixelated usercount"
+						class={`pixelated usercount${Dex.afdMode === true ? ' afd' : ''}`}
 						title="Meloetta is PS's mascot! The Aria forme is about using its voice, and represents our chatrooms."
 					></span>
 					<strong>{rooms.userCount || '-'}</strong> users online
 				</a> {}
 				<a class="button" href="battles" title="Watch an active battle">
 					<span
-						class="pixelated battlecount"
+						class={`pixelated battlecount${Dex.afdMode ? ' afd' : ''}`}
 						title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
 					></span>
 					<strong>{rooms.battleCount || '-'}</strong> active battles
 				</a>
 			</div>
+			{!!PS.leftPanelWidth && Config.includes?.roomlistTopHTML && (
+				<div dangerouslySetInnerHTML={{ __html: Config.includes.roomlistTopHTML }} />
+			)}
 			<div>
-				<select name="sections" class="button" onChange={this.changeSection}>
+				<select name="sections" class="select" onChange={this.changeSection}>
 					<option value="">(All rooms)</option>
 					{rooms.sectionTitles?.map(title => {
 						return <option value={title}> {title} </option>;
 					})}
 				</select>
-				<br /><br />
-				<input
+				<p><input
 					type="search" name="roomsearch" class="textbox autofocus" style="width: 100%; max-width: 480px"
 					placeholder="Join or search for rooms" autocomplete="off"
 					onInput={this.changeSearch} onKeyDown={this.keyDownSearch} onBlur={this.handleOnBlur}
-				/>
+				/></p>
 			</div>
 			{this.renderRoomList()}
 		</div></PSPanelWrapper>;
@@ -250,9 +272,7 @@ class RoomsPanel extends PSRoomPanel {
 
 		// Descending order
 		let nextOffset = 0;
-		return this.roomList.map(([title, rooms]) => {
-			if (!rooms.length) return null;
-
+		return this.roomList.filter(([, rooms]) => rooms.length > 0).map(([title, rooms], sectionCount) => {
 			const sortedRooms = rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
 			const offset = nextOffset;
 			nextOffset += sortedRooms.length;
@@ -261,22 +281,27 @@ class RoomsPanel extends PSRoomPanel {
 			const index = this.roomListFocusIndex >= offset && this.roomListFocusIndex < nextOffset ?
 				this.roomListFocusIndex - offset : -1;
 
-			return <div class="roomlist">
-				<h2>{title}</h2>
-				{sortedRooms.map((roomInfo, i) => <div key={roomInfo.title}>
-					<a href={`/${toID(roomInfo.title)}`} class={`blocklink${i === index ? " cur" : ''}`}>
-						{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
-						<strong><i class="fa fa-comment-o" aria-hidden></i> {roomInfo.title}<br /></strong>
-						<small>{roomInfo.desc || ''}</small>
-					</a>
-					{roomInfo.subRooms && <div class="subrooms">
-						<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> Subrooms: {}
-						{roomInfo.subRooms.map(roomName => [<a href={`/${toID(roomName)}`} class="blocklink">
-							<i class="fa fa-comment-o" aria-hidden></i> <strong>{roomName}</strong>
-						</a>, ' '])}
-					</div>}
-				</div>)}
-			</div>;
+			return <>
+				<div class="roomlist">
+					<h2>{title}</h2>
+					{sortedRooms.map((roomInfo, i) => <div key={roomInfo.title}>
+						<a href={`/${roomInfo.id || toID(roomInfo.title)}`} class={`blocklink${i === index ? " cur" : ''}`}>
+							{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
+							<strong><i class="fa fa-comment-o" aria-hidden></i> {roomInfo.title}<br /></strong>
+							<small>{roomInfo.desc || ''}</small>
+						</a>
+						{roomInfo.subRooms && <div class="subrooms">
+							<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> Subrooms: {}
+							{roomInfo.subRooms.map(roomName => [<a href={`/${toID(roomName)}`} class="blocklink">
+								<i class="fa fa-comment-o" aria-hidden></i> <strong>{roomName}</strong>
+							</a>, ' '])}
+						</div>}
+					</div>)}
+				</div>
+				{sectionCount === 0 && !!PS.leftPanelWidth && Config.includes?.roomlistAfterFirstHTML && (
+					<div dangerouslySetInnerHTML={{ __html: Config.includes.roomlistAfterFirstHTML }} />
+				)}
+			</>;
 		});
 	}
 }

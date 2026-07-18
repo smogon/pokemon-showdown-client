@@ -570,6 +570,10 @@
 		// power, accuracy, pp
 		var pp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
 		if (this.engine && this.engine.dex.gen < 3) pp = Math.min(61, pp);
+		if (this.engine && this.engine.dex.modid === 'champions') {
+			pp = move.pp > 20 ? 20 : move.pp;
+			if (!move.noPPBoosts) pp = (pp / 5 + 1) * 4;
+		}
 		buf += '<span class="col labelcol">' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
 		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
 		buf += '<span class="col pplabelcol"><em>PP</em><br />' + pp + '</span> ';
@@ -607,6 +611,10 @@
 		// power, accuracy, pp
 		var pp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
 		if (this.engine && this.engine.dex.gen < 3) pp = Math.min(61, pp);
+		if (this.engine && this.engine.dex.modid === 'champions') {
+			pp = move.pp > 20 ? 20 : move.pp;
+			if (!move.noPPBoosts) pp = (pp / 5 + 1) * 4;
+		}
 		buf += '<span class="col labelcol">' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
 		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
 		buf += '<span class="col pplabelcol"><em>PP</em><br />' + pp + '</span> ';
@@ -644,9 +652,15 @@
 		buf += '</span> ';
 
 		// power, accuracy, pp
+		var pp = move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5;
+		if (this.engine && this.engine.dex.gen < 3) pp = Math.min(61, pp);
+		if (this.engine && this.engine.dex.modid === 'champions') {
+			pp = move.pp > 20 ? 20 : move.pp;
+			if (!move.noPPBoosts) pp = (pp / 5 + 1) * 4;
+		}
 		buf += '<span class="col labelcol">' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
 		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
-		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (move.pp !== 1 ? move.pp * 8 / 5 : move.pp) + '</span> ';
+		buf += '<span class="col pplabelcol"><em>PP</em><br />' + pp + '</span> ';
 
 		// desc
 		buf += '<span class="col movedesccol">' + BattleLog.escapeHTML(move.shortDesc || move.desc) + '</span> ';

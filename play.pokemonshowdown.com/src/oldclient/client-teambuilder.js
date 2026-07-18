@@ -30,8 +30,8 @@
 				if (this.curTeam.format.includes('bdsp')) {
 					this.curTeam.dex = Dex.mod('gen8bdsp');
 				}
-				if (this.curTeam.format.includes('legends')) {
-					this.curTeam.dex = Dex.mod('gen9legendsou');
+				if (this.curTeam.format.includes('champions')) {
+					this.curTeam.dex = Dex.mod('champions');
 				}
 				Storage.activeSetList = this.curSetList;
 			}
@@ -758,8 +758,8 @@
 			if (this.curTeam.format.includes('bdsp')) {
 				this.curTeam.dex = Dex.mod('gen8bdsp');
 			}
-			if (this.curTeam.format.includes('legends')) {
-				this.curTeam.dex = Dex.mod('gen9legendsou');
+			if (this.curTeam.format.includes('champions')) {
+				this.curTeam.dex = Dex.mod('champions');
 			}
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
 			this.curTeamIndex = i;
@@ -906,8 +906,8 @@
 			if (this.curTeam.teamid) buf.push(this.curTeam.teamid);
 			buf.push(this.curTeam.name);
 			buf.push(this.curTeam.format);
-			buf.push(this.$('input[name=teamprivacy]').get(0).checked ? 1 : 0);
-			var team = Storage.exportTeam(this.curSetList, this.curTeam.gen, false);
+			buf.push(1);
+			var team = Storage.exportTeam(this.curSetList);
 			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
 			buf.push(team);
 			app.send(cmd + " " + buf.join(', '));
@@ -917,7 +917,7 @@
 			$('label[name=editMessage]').hide();
 		},
 		pokepasteExport: function (type) {
-			var team = Storage.exportTeam(this.curSetList, this.curTeam.gen, type === 'openteamsheet');
+			var team = Storage.exportTeam(this.curSetList, type === 'openteamsheet');
 			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
 			document.getElementById("pasteData").value = team;
 			document.getElementById("pasteTitle").value = this.curTeam.name;
@@ -959,7 +959,7 @@
 			// 	// Chrome is dumb and doesn't support data URLs in HTTPS
 			// 	urlprefix = "https://" + Config.routes.client + "/action.php?act=dlteam&team=";
 			// }
-			var contents = Storage.exportTeam(team.team, team.gen).replace(/\n/g, '\r\n');
+			var contents = Storage.exportTeam(team.team).replace(/\n/g, '\r\n');
 			var downloadurl = "text/plain:" + filename + ":" + urlprefix + encodeURIComponent(window.btoa(unescape(encodeURIComponent(contents))));
 			console.log(downloadurl);
 			dataTransfer.setData("DownloadURL", downloadurl);
@@ -1205,7 +1205,7 @@
 			var buf = '';
 			if (this.exportMode) {
 				buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport" class="button"><i class="fa fa-upload"></i> Import/Export</button> <button name="saveImport" class="savebutton button"><i class="fa fa-floppy-o"></i> Save</button></div>';
-				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList, this.curTeam.gen)) + '</textarea></div>';
+				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList)) + '</textarea></div>';
 			} else {
 				buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button> ';
 				buf += '<input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> ';
@@ -1271,8 +1271,6 @@
 				buf += '<input type="hidden" name="author" id="pasteAuthor">';
 				buf += '<input type="hidden" name="notes" id="pasteNotes">';
 				buf += '<p><button name="psExport" type="submit" class="button exportbutton"> <i class="fa fa-upload"></i> Upload to Showdown database (saves across devices)</button>';
-				var privacy = (Storage.prefs('uploadprivacy') || typeof Storage.prefs('uploadprivacy') !== 'boolean') ? 'checked' : '';
-				buf += ' <label><small>(Private:</small> <input type="checkbox" name="teamprivacy" ' + privacy + ' /><small>)</small></label>';
 				buf += '</p>';
 				buf += '<p><button name="pokepasteExport" type="submit" class="button exportbutton"><i class="fa fa-upload"></i> Upload to PokePaste</button></p>';
 				if (this.curTeam.format.includes('vgc')) {
@@ -1285,17 +1283,23 @@
 			if ($(window).width() < 640) this.show();
 		},
 		renderSet: function (set, i) {
+			var baseFormat = this.curTeam.format;
+			if (baseFormat.substr(-5) === 'draft') baseFormat = baseFormat.substr(0, baseFormat.length - 5);
 			var species = this.curTeam.dex.species.get(set.species);
-			var isLetsGo = this.curTeam.format.includes('letsgo');
-			var isBDSP = this.curTeam.format.includes('bdsp');
-			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
+			var isChampions = baseFormat.includes('champions');
+			var isLetsGo = baseFormat.includes('letsgo');
+			var isBDSP = baseFormat.includes('bdsp');
+			var isNatDex = baseFormat.includes('nationaldex') || baseFormat.includes('natdex');
+			var isVGC = baseFormat.includes('battlespot') || baseFormat.includes('bss') ||
+				baseFormat.includes('vgc') || baseFormat.includes('battlefestival');
+			var isLC = baseFormat.startsWith('lc') || baseFormat.endsWith('lc');
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
 				if (this.deletedSet) {
 					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet" class="button"><i class="fa fa-undo"></i> Undo Delete</button></div>';
 				}
 				buf += '<div class="setmenu"><button name="importSet"><i class="fa fa-upload"></i>Import</button></div>';
-				buf += '<div class="setchart" style="background-image:url(' + Dex.resourcePrefix + 'sprites/gen5/0.png);"><div class="setcol setcol-icon"><div class="setcell-sprite"></div><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" autocomplete="off" /></div></div></div>';
+				buf += '<div class="setchart pixelated" style="background-image:url(' + Dex.resourcePrefix + 'sprites/gen5/0.png);"><div class="setcol setcol-icon"><div class="setcell-sprite"></div><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" autocomplete="off" /></div></div></div>';
 				buf += '</li>';
 				return buf;
 			}
@@ -1303,7 +1307,8 @@
 			buf += '<div class="setchart-nickname">';
 			buf += '<label>Nickname</label><input type="text" name="nickname" class="textbox" value="' + BattleLog.escapeHTML(set.name || '') + '" placeholder="' + BattleLog.escapeHTML(species.baseSpecies) + '" />';
 			buf += '</div>';
-			buf += '<div class="setchart" style="' + Dex.getTeambuilderSprite(set, this.curTeam.dex) + ';">';
+			var spriteData = Dex.getTeambuilderSpriteData(set, this.curTeam.dex);
+			buf += '<div class="setchart' + (spriteData.pixelated ? ' pixelated' : '') + '" style="' + Dex.getTeambuilderSprite(set, this.curTeam.dex) + ';">';
 
 			// icon
 			buf += '<div class="setcol setcol-icon">';
@@ -1350,7 +1355,7 @@
 						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 					}
 				}
-				if (this.curTeam.gen === 9) {
+				if (this.curTeam.gen === 9 && !isChampions) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.requiredTeraType || species.types[0]) + '</span>';
 				}
 			}
@@ -1389,7 +1394,7 @@
 
 			// stats
 			buf += '<div class="setcol setcol-stats"><div class="setrow"><label>Stats</label><button class="textbox setstats" name="stats">';
-			buf += '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>' + (!isLetsGo ? 'EV' : 'AV') + '</em></span>';
+			buf += '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>' + (isChampions ? 'Points' : !isLetsGo ? 'EV' : 'AV') + '</em></span>';
 			var stats = {};
 			var defaultEV = (this.curTeam.gen > 2 ? 0 : 252);
 			for (var j in BattleStatNames) {
@@ -1402,10 +1407,16 @@
 				} else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === j) {
 					evBuf += '<small>&minus;</small>';
 				}
-				var width = stats[j] * 75 / 504;
-				if (j === 'hp') width = stats[j] * 75 / 704;
+				var highestStat = j === 'hp' ? 714 : 499;
+				if (isChampions || isVGC) {
+					highestStat = j === 'hp' ? 362 : 252;
+				}
+				if (isLC) {
+					highestStat = j === 'hp' ? 45 : 29;
+				}
+				var width = stats[j] * 75 / highestStat;
 				if (width > 75) width = 75;
-				var color = Math.floor(stats[j] * 180 / 714);
+				var color = Math.floor(stats[j] * 180 / highestStat);
 				if (color > 360) color = 360;
 				var statName = this.curTeam.gen === 1 && j === 'spa' ? 'Spc' : BattleStatNames[j];
 				buf += '<span class="statrow"><label>' + statName + '</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + evBuf + '</span>';
@@ -1614,8 +1625,8 @@
 			if (this.curTeam.format.includes('bdsp')) {
 				this.curTeam.dex = Dex.mod('gen8bdsp');
 			}
-			if (this.curTeam.format.includes('legends')) {
-				this.curTeam.dex = Dex.mod('gen9legendsou');
+			if (this.curTeam.format.includes('champions')) {
+				this.curTeam.dex = Dex.mod('champions');
 			}
 			this.save();
 			if (this.curTeam.gen === 5 && !Dex.loadedSpriteData['bw']) Dex.loadSpriteData('bw');
@@ -1770,7 +1781,7 @@
 			this.$('.teambuilder-pokemon-import')
 				.show()
 				.find('textarea')
-				.val(Storage.exportTeam([this.curSet], this.curTeam.gen).trim())
+				.val(Storage.exportTeam([this.curSet]).trim())
 				.focus()
 				.select();
 
@@ -1889,11 +1900,11 @@
 			curSet.name = this.curSet.name || undefined;
 
 			// never preserve current set tera, even if smogon set used default
-			if (this.curSet.gen === 9) {
+			if (this.curSet.gen === 9 && !this.curTeam.format.includes('champions')) {
 				curSet.teraType = sampleSet.teraType || species.requiredTeraType || species.types[0];
 			}
 
-			var text = Storage.exportTeam([curSet], this.curTeam.gen);
+			var text = Storage.exportTeam([curSet]);
 			this.$('.teambuilder-pokemon-import .pokemonedit').val(text);
 		},
 		closePokemonImport: function (force) {
@@ -2039,7 +2050,9 @@
 			var set = this.curSet;
 			if (!set) return;
 
-			this.$('.setchart').attr('style', Dex.getTeambuilderSprite(set, this.curTeam.dex));
+			this.$('.setchart')
+				.attr('style', Dex.getTeambuilderSprite(set, this.curTeam.dex))
+				.toggleClass('pixelated', !!Dex.getTeambuilderSpriteData(set, this.curTeam.dex).pixelated);
 
 			this.$('.pokemonicon-' + this.curSetLoc).css('background', Dex.getPokemonIcon(set).substr(11));
 
@@ -2058,10 +2071,16 @@
 
 			var stats = { hp: '', atk: '', def: '', spa: '', spd: '', spe: '' };
 
-			var supportsEVs = !this.curTeam.format.includes('letsgo');
+			var baseFormat = this.curTeam.format;
+			if (baseFormat.substr(-5) === 'draft') baseFormat = baseFormat.substr(0, baseFormat.length - 5);
+			var usesStatPoints = baseFormat.includes('champions');
+			var supportsEVs = !baseFormat.includes('letsgo');
+			var isVGC = baseFormat.includes('battlespot') || baseFormat.includes('bss') ||
+				baseFormat.includes('vgc') || baseFormat.includes('battlefestival');
+			var isLC = baseFormat.startsWith('lc') || baseFormat.endsWith('lc');
 
 			// stat cell
-			var buf = '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>' + (supportsEVs ? 'EV' : 'AV') + '</em></span>';
+			var buf = '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>' + (usesStatPoints ? 'Points' : supportsEVs ? 'EV' : 'AV') + '</em></span>';
 			var defaultEV = (this.curTeam.gen > 2 ? 0 : 252);
 			for (var stat in stats) {
 				if (stat === 'spd' && this.curTeam.gen === 1) continue;
@@ -2073,10 +2092,16 @@
 				} else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === stat) {
 					evBuf += '<small>&minus;</small>';
 				}
-				var width = stats[stat] * 75 / 504;
-				if (stat === 'hp') width = stats[stat] * 75 / 704;
+				var highestStat = stat === 'hp' ? 714 : 499;
+				if (usesStatPoints || isVGC) {
+					highestStat = stat === 'hp' ? 362 : 252;
+				}
+				if (isLC) {
+					highestStat = stat === 'hp' ? 45 : 29;
+				}
+				var width = stats[stat] * 75 / highestStat;
 				if (width > 75) width = 75;
-				var color = Math.floor(stats[stat] * 180 / 714);
+				var color = Math.floor(stats[stat] * 180 / highestStat);
 				if (color > 360) color = 360;
 				var statName = this.curTeam.gen === 1 && stat === 'spa' ? 'Spc' : BattleStatNames[stat];
 				buf += '<span class="statrow"><label>' + statName + '</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + evBuf + '</span>';
@@ -2096,23 +2121,30 @@
 			var totalev = 0;
 			for (var stat in stats) {
 				if (stat === 'spd' && this.curTeam.gen === 1) continue;
-				var width = stats[stat] * 180 / 504;
-				if (stat === 'hp') width = stats[stat] * 180 / 704;
+				var highestStat = stat === 'hp' ? 714 : 499;
+				if (usesStatPoints || isVGC) {
+					highestStat = stat === 'hp' ? 362 : 252;
+				}
+				if (isLC) {
+					highestStat = stat === 'hp' ? 45 : 29;
+				}
+				var width = stats[stat] * 180 / highestStat;
 				if (width > 179) width = 179;
-				var color = Math.floor(stats[stat] * 180 / 714);
+				var color = Math.floor(stats[stat] * 180 / highestStat);
 				if (color > 360) color = 360;
 				buf += '<div><em><span style="width:' + Math.floor(width) + 'px;background:hsl(' + color + ',85%,45%);border-color:hsl(' + color + ',85%,35%)"></span></em></div>';
 				totalev += (set.evs[stat] || 0);
 			}
 
-			if (this.curTeam.gen > 2 && supportsEVs) buf += '<div><em>Remaining:</em></div>';
+			if (this.curTeam.gen > 2 && (usesStatPoints || supportsEVs)) buf += '<div><em>Remaining:</em></div>';
 			this.$chart.find('.graphcol').html(buf);
 
 			if (this.curTeam.gen <= 2) return;
-			if (supportsEVs) {
-				var maxEv = 510;
+			if (usesStatPoints || supportsEVs) {
+				var maxEv = usesStatPoints ? 66 : 510;
 				if (totalev <= maxEv) {
-					this.$chart.find('.totalev').html('<em>' + (totalev > (maxEv - 2) ? 0 : (maxEv - 2) - totalev) + '</em>');
+					var formula = usesStatPoints ? maxEv - totalev : (totalev > (maxEv - 2) ? 0 : (maxEv - 2) - totalev);
+					this.$chart.find('.totalev').html('<em>' + formula + '</em>');
 				} else {
 					this.$chart.find('.totalev').html('<b>' + (maxEv - totalev) + '</b>');
 				}
@@ -2325,11 +2357,17 @@
 			var nature = BattleNatures[set.nature || 'Serious'];
 			if (!nature) nature = {};
 
-			var supportsEVs = !this.curTeam.format.includes('letsgo');
-			// var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
+			var baseFormat = this.curTeam.format;
+			if (baseFormat.substr(-5) === 'draft') baseFormat = baseFormat.substr(0, baseFormat.length - 5);
+			var usesStatPoints = baseFormat.includes('champions');
+			var supportsEVs = !baseFormat.includes('letsgo') && !usesStatPoints;
+			// var supportsAVs = !supportsEVs && baseFormat.endsWith('norestrictions');
 			var defaultEV = this.curTeam.gen <= 2 ? 252 : 0;
-			var maxEV = supportsEVs ? 252 : 200;
+			var maxEV = usesStatPoints ? 32 : supportsEVs ? 252 : 200;
 			var stepEV = supportsEVs ? 4 : 1;
+			var isVGC = baseFormat.includes('battlespot') || baseFormat.includes('bss') ||
+				baseFormat.includes('vgc') || baseFormat.includes('battlefestival');
+			var isLC = baseFormat.startsWith('lc') || baseFormat.endsWith('lc');
 
 			// label column
 			buf += '<div class="col labelcol"><div></div>';
@@ -2351,17 +2389,23 @@
 			buf += '<div class="col graphcol"><div></div>';
 			for (var i in stats) {
 				stats[i] = this.getStat(i);
-				var width = stats[i] * 180 / 504;
-				if (i === 'hp') width = Math.floor(stats[i] * 180 / 704);
+				var highestStat = i === 'hp' ? 714 : 499;
+				if (usesStatPoints || isVGC) {
+					highestStat = i === 'hp' ? 362 : 252;
+				}
+				if (isLC) {
+					highestStat = i === 'hp' ? 45 : 29;
+				}
+				var width = stats[i] * 180 / highestStat;
 				if (width > 179) width = 179;
-				var color = Math.floor(stats[i] * 180 / 714);
+				var color = Math.floor(stats[i] * 180 / highestStat);
 				if (color > 360) color = 360;
 				buf += '<div><em><span style="width:' + Math.floor(width) + 'px;background:hsl(' + color + ',85%,45%);border-color:hsl(' + color + ',85%,35%)"></span></em></div>';
 			}
-			if (this.curTeam.gen > 2 && supportsEVs) buf += '<div><em>Remaining:</em></div>';
+			if (this.curTeam.gen > 2 && (usesStatPoints || supportsEVs)) buf += '<div><em>Remaining:</em></div>';
 			buf += '</div>';
 
-			buf += '<div class="col evcol"><div><strong>' + (supportsEVs ? 'EVs' : 'AVs') + '</strong></div>';
+			buf += '<div class="col evcol"><div><strong>' + (supportsEVs ? 'EVs' : usesStatPoints ? 'Points' : 'AVs') + '</strong></div>';
 			var totalev = 0;
 			this.plus = '';
 			this.minus = '';
@@ -2379,10 +2423,11 @@
 				buf += '<div><input type="text" name="stat-' + i + '" value="' + val + '" class="textbox inputform numform" /></div>';
 				totalev += (set.evs[i] || 0);
 			}
-			if (this.curTeam.gen > 2 && supportsEVs) {
-				var maxTotalEVs = 510;
+			if (this.curTeam.gen > 2 && (usesStatPoints || supportsEVs)) {
+				var maxTotalEVs = usesStatPoints ? 66 : 510;
 				if (totalev <= maxTotalEVs) {
-					buf += '<div class="totalev"><em>' + (totalev > (maxTotalEVs - 2) ? 0 : (maxTotalEVs - 2) - totalev) + '</em></div>';
+					var formula = usesStatPoints ? maxTotalEVs - totalev : (totalev > (maxTotalEVs - 2) ? 0 : (maxTotalEVs - 2) - totalev);
+					buf += '<div class="totalev"><em>' + formula + '</em></div>';
 				} else {
 					buf += '<div class="totalev"><b>' + (maxTotalEVs - totalev) + '</b></div>';
 				}
@@ -2396,135 +2441,137 @@
 			}
 			buf += '</div>';
 
-			if (this.curTeam.gen > 2) {
-				buf += '<div class="col ivcol"><div><strong>IVs</strong></div>';
-				if (!set.ivs) set.ivs = {};
-				for (var i in stats) {
-					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
-					var val = '' + (set.ivs[i]);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" /></div>';
-				}
-				var hpType = '';
-				if (set.moves) {
-					for (var i = 0; i < set.moves.length; i++) {
-						var moveid = toID(set.moves[i]);
-						if (moveid.slice(0, 11) === 'hiddenpower') {
-							hpType = moveid.slice(11);
+			if (!usesStatPoints) {
+				if (this.curTeam.gen > 2) {
+					buf += '<div class="col ivcol"><div><strong>IVs</strong></div>';
+					if (!set.ivs) set.ivs = {};
+					for (var i in stats) {
+						if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
+						var val = '' + (set.ivs[i]);
+						buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="' + (usesStatPoints ? 31 : 0) + '" max="31" step="1"' + (usesStatPoints ? ' disabled' : '') + ' /></div>';
+					}
+					var hpType = '';
+					if (set.moves) {
+						for (var i = 0; i < set.moves.length; i++) {
+							var moveid = toID(set.moves[i]);
+							if (moveid.slice(0, 11) === 'hiddenpower') {
+								hpType = moveid.slice(11);
+							}
 						}
 					}
-				}
-				if (hpType && !this.canHyperTrain(set)) {
-					var hpIVs;
-					switch (hpType) {
-					case 'dark':
-						hpIVs = ['111111']; break;
-					case 'dragon':
-						hpIVs = ['011111', '101111', '110111']; break;
-					case 'ice':
-						hpIVs = ['010111', '100111', '111110']; break;
-					case 'psychic':
-						hpIVs = ['011110', '101110', '110110']; break;
-					case 'electric':
-						hpIVs = ['010110', '100110', '111011']; break;
-					case 'grass':
-						hpIVs = ['011011', '101011', '110011']; break;
-					case 'water':
-						hpIVs = ['100011', '111010']; break;
-					case 'fire':
-						hpIVs = ['101010', '110010']; break;
-					case 'steel':
-						hpIVs = ['100010', '111101']; break;
-					case 'ghost':
-						hpIVs = ['101101', '110101']; break;
-					case 'bug':
-						hpIVs = ['100101', '111100', '101100']; break;
-					case 'rock':
-						hpIVs = ['001100', '110100', '100100']; break;
-					case 'ground':
-						hpIVs = ['000100', '111001', '101001']; break;
-					case 'poison':
-						hpIVs = ['001001', '110001', '100001']; break;
-					case 'flying':
-						hpIVs = ['000001', '111000', '101000']; break;
-					case 'fighting':
-						hpIVs = ['001000', '110000', '100000']; break;
-					}
-					buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread" class="button">';
-					buf += '<option value="" selected>HP ' + hpType.charAt(0).toUpperCase() + hpType.slice(1) + ' IVs</option>';
+					if (hpType && !this.canHyperTrain(set)) {
+						var hpIVs;
+						switch (hpType) {
+						case 'dark':
+							hpIVs = ['111111']; break;
+						case 'dragon':
+							hpIVs = ['011111', '101111', '110111']; break;
+						case 'ice':
+							hpIVs = ['010111', '100111', '111110']; break;
+						case 'psychic':
+							hpIVs = ['011110', '101110', '110110']; break;
+						case 'electric':
+							hpIVs = ['010110', '100110', '111011']; break;
+						case 'grass':
+							hpIVs = ['011011', '101011', '110011']; break;
+						case 'water':
+							hpIVs = ['100011', '111010']; break;
+						case 'fire':
+							hpIVs = ['101010', '110010']; break;
+						case 'steel':
+							hpIVs = ['100010', '111101']; break;
+						case 'ghost':
+							hpIVs = ['101101', '110101']; break;
+						case 'bug':
+							hpIVs = ['100101', '111100', '101100']; break;
+						case 'rock':
+							hpIVs = ['001100', '110100', '100100']; break;
+						case 'ground':
+							hpIVs = ['000100', '111001', '101001']; break;
+						case 'poison':
+							hpIVs = ['001001', '110001', '100001']; break;
+						case 'flying':
+							hpIVs = ['000001', '111000', '101000']; break;
+						case 'fighting':
+							hpIVs = ['001000', '110000', '100000']; break;
+						}
+						buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread" class="button">';
+						buf += '<option value="" selected>HP ' + hpType.charAt(0).toUpperCase() + hpType.slice(1) + ' IVs</option>';
 
-					var minStat = this.curTeam.gen >= 6 ? 0 : 2;
+						var minStat = this.curTeam.gen >= 6 ? 0 : 2;
 
-					buf += '<optgroup label="min Atk">';
-					for (var i = 0; i < hpIVs.length; i++) {
-						var spread = '';
-						for (var j = 0; j < 6; j++) {
-							if (j) spread += '/';
-							spread += (j === 1 ? minStat : 30) + parseInt(hpIVs[i].charAt(j), 10);
+						buf += '<optgroup label="min Atk">';
+						for (var i = 0; i < hpIVs.length; i++) {
+							var spread = '';
+							for (var j = 0; j < 6; j++) {
+								if (j) spread += '/';
+								spread += (j === 1 ? minStat : 30) + parseInt(hpIVs[i].charAt(j), 10);
+							}
+							buf += '<option value="' + spread + '">' + spread + '</option>';
 						}
-						buf += '<option value="' + spread + '">' + spread + '</option>';
-					}
-					buf += '</optgroup>';
-					buf += '<optgroup label="min Atk, min Spe">';
-					for (var i = 0; i < hpIVs.length; i++) {
-						var spread = '';
-						for (var j = 0; j < 6; j++) {
-							if (j) spread += '/';
-							spread += (j === 5 || j === 1 ? minStat : 30) + parseInt(hpIVs[i].charAt(j), 10);
+						buf += '</optgroup>';
+						buf += '<optgroup label="min Atk, min Spe">';
+						for (var i = 0; i < hpIVs.length; i++) {
+							var spread = '';
+							for (var j = 0; j < 6; j++) {
+								if (j) spread += '/';
+								spread += (j === 5 || j === 1 ? minStat : 30) + parseInt(hpIVs[i].charAt(j), 10);
+							}
+							buf += '<option value="' + spread + '">' + spread + '</option>';
 						}
-						buf += '<option value="' + spread + '">' + spread + '</option>';
-					}
-					buf += '</optgroup>';
-					buf += '<optgroup label="max all">';
-					for (var i = 0; i < hpIVs.length; i++) {
-						var spread = '';
-						for (var j = 0; j < 6; j++) {
-							if (j) spread += '/';
-							spread += 30 + parseInt(hpIVs[i].charAt(j), 10);
+						buf += '</optgroup>';
+						buf += '<optgroup label="max all">';
+						for (var i = 0; i < hpIVs.length; i++) {
+							var spread = '';
+							for (var j = 0; j < 6; j++) {
+								if (j) spread += '/';
+								spread += 30 + parseInt(hpIVs[i].charAt(j), 10);
+							}
+							buf += '<option value="' + spread + '">' + spread + '</option>';
 						}
-						buf += '<option value="' + spread + '">' + spread + '</option>';
-					}
-					buf += '</optgroup>';
-					buf += '<optgroup label="min Spe">';
-					for (var i = 0; i < hpIVs.length; i++) {
-						var spread = '';
-						for (var j = 0; j < 6; j++) {
-							if (j) spread += '/';
-							spread += (j === 5 ? minStat : 30) + parseInt(hpIVs[i].charAt(j), 10);
+						buf += '</optgroup>';
+						buf += '<optgroup label="min Spe">';
+						for (var i = 0; i < hpIVs.length; i++) {
+							var spread = '';
+							for (var j = 0; j < 6; j++) {
+								if (j) spread += '/';
+								spread += (j === 5 ? minStat : 30) + parseInt(hpIVs[i].charAt(j), 10);
+							}
+							buf += '<option value="' + spread + '">' + spread + '</option>';
 						}
-						buf += '<option value="' + spread + '">' + spread + '</option>';
-					}
-					buf += '</optgroup>';
+						buf += '</optgroup>';
 
-					buf += '</select></div>';
+						buf += '</select></div>';
+					} else if (!usesStatPoints) {
+						buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread" class="button">';
+						buf += '<option value="" selected>IV spreads</option>';
+
+						buf += '<optgroup label="min Atk">';
+						buf += '<option value="31/0/31/31/31/31">31/0/31/31/31/31</option>';
+						buf += '</optgroup>';
+						buf += '<optgroup label="min Atk, min Spe">';
+						buf += '<option value="31/0/31/31/31/0">31/0/31/31/31/0</option>';
+						buf += '</optgroup>';
+						buf += '<optgroup label="max all">';
+						buf += '<option value="31/31/31/31/31/31">31/31/31/31/31/31</option>';
+						buf += '</optgroup>';
+						buf += '<optgroup label="min Spe">';
+						buf += '<option value="31/31/31/31/31/0">31/31/31/31/31/0</option>';
+						buf += '</optgroup>';
+
+						buf += '</select></div>';
+					}
+					buf += '</div>';
 				} else {
-					buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread" class="button">';
-					buf += '<option value="" selected>IV spreads</option>';
-
-					buf += '<optgroup label="min Atk">';
-					buf += '<option value="31/0/31/31/31/31">31/0/31/31/31/31</option>';
-					buf += '</optgroup>';
-					buf += '<optgroup label="min Atk, min Spe">';
-					buf += '<option value="31/0/31/31/31/0">31/0/31/31/31/0</option>';
-					buf += '</optgroup>';
-					buf += '<optgroup label="max all">';
-					buf += '<option value="31/31/31/31/31/31">31/31/31/31/31/31</option>';
-					buf += '</optgroup>';
-					buf += '<optgroup label="min Spe">';
-					buf += '<option value="31/31/31/31/31/0">31/31/31/31/31/0</option>';
-					buf += '</optgroup>';
-
-					buf += '</select></div>';
+					buf += '<div class="col ivcol"><div><strong>DVs</strong></div>';
+					if (!set.ivs) set.ivs = {};
+					for (var i in stats) {
+						if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
+						var val = '' + Math.floor(set.ivs[i] / 2);
+						buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
+					}
+					buf += '</div>';
 				}
-				buf += '</div>';
-			} else {
-				buf += '<div class="col ivcol"><div><strong>DVs</strong></div>';
-				if (!set.ivs) set.ivs = {};
-				for (var i in stats) {
-					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
-					var val = '' + Math.floor(set.ivs[i] / 2);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
-				}
-				buf += '</div>';
 			}
 
 			buf += '<div class="col statscol"><div></div>';
@@ -2619,7 +2666,8 @@
 			var inputName = '';
 			inputName = e.currentTarget.name;
 			var val = Math.abs(parseInt(e.currentTarget.value, 10));
-			var supportsEVs = !this.curTeam.format.includes('letsgo');
+			var usesStatPoints = this.curTeam.format.includes('champions');
+			var supportsEVs = !this.curTeam.format.includes('letsgo') && !usesStatPoints;
 			var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
 			var set = this.curSet;
 			if (!set) return;
@@ -2650,7 +2698,8 @@
 				}
 
 				// cap
-				if (val > 252) val = 252;
+				var cap = usesStatPoints ? 32 : 252;
+				if (val > cap) val = cap;
 				if (val < 0 || isNaN(val)) val = 0;
 
 				if (set.evs[stat] !== val || natureChange) {
@@ -2740,19 +2789,19 @@
 			var val = +slider.value;
 			var originalVal = val;
 			var result = this.getStat(stat, set, val);
-			var supportsEVs = !this.curTeam.format.includes('letsgo');
+			var usesStatPoints = this.curTeam.format.includes('champions');
+			var supportsEVs = !this.curTeam.format.includes('letsgo') && !usesStatPoints;
 			var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
-			if (supportsEVs) {
-				while (val > 0 && this.getStat(stat, set, val - 4) === result) val -= 4;
-			}
+			var step = usesStatPoints ? 1 : 4;
+			while (val > 0 && this.getStat(stat, set, val - step) === result) val -= step;
 
-			if (supportsEVs && !this.ignoreEVLimits && set.evs) {
+			if ((usesStatPoints || supportsEVs) && !this.ignoreEVLimits && set.evs) {
 				var total = 0;
 				for (var i in set.evs) {
 					total += (i === stat ? val : set.evs[i]);
 				}
-				var totalLimit = 508;
-				var limit = 252;
+				var totalLimit = usesStatPoints ? 66 : 508;
+				var limit = usesStatPoints ? 32 : 252;
 				if (total > totalLimit && val - total + totalLimit >= 0) {
 					// don't allow dragging beyond 508 EVs
 					val = val - total + totalLimit;
@@ -2842,6 +2891,7 @@
 		updateDetailsForm: function () {
 			var buf = '';
 			var set = this.curSet;
+			var isChampions = this.curTeam.format.includes('champions');
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isBDSP = this.curTeam.format.includes('bdsp');
 			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
@@ -2851,7 +2901,12 @@
 			buf += '<div class="resultheader"><h3>Details</h3></div>';
 			buf += '<form class="detailsform">';
 
-			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + (typeof set.level === 'number' ? set.level : 100) + '" class="textbox inputform numform" /></div></div>';
+			buf += '<div class="formrow"><label class="formlabel">Level:</label><div>' +
+				'<input type="number" min="1" max="100" step="1" name="level" value="' +
+				(typeof set.level === 'number' ? set.level : 100) +
+				'" class="textbox inputform numform"' +
+				(isChampions ? ' disabled' : '') +
+				' /></div></div>';
 
 			if (this.curTeam.gen > 1) {
 				buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
@@ -2870,7 +2925,7 @@
 				buf += '</div></div>';
 
 				if (isLetsGo) {
-					buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" name="happiness" value="70" class="textbox inputform numform" /></div></div>';
+					buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" name="happiness" value="70" class="textbox inputform numform" disabled /></div></div>';
 				} else {
 					if (this.curTeam.gen < 8 || isNatDex) buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness === 'number' ? set.happiness : 255) + '" class="textbox inputform numform" /></div></div>';
 				}
@@ -2919,7 +2974,7 @@
 				buf += '</select></div></div>';
 			}
 
-			if (this.curTeam.gen === 9) {
+			if (this.curTeam.gen === 9 && !isChampions) {
 				buf += '<div class="formrow"><label class="formlabel" title="Tera Type">Tera Type:</label><div>';
 				buf += '<select name="teratype" class="button">';
 				var types = Dex.types.all();
@@ -2943,6 +2998,7 @@
 			var set = this.curSet;
 			if (!set) return;
 			var species = this.curTeam.dex.species.get(set.species);
+			var isChampions = this.curTeam.format.includes('champions');
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isBDSP = this.curTeam.format.includes('bdsp');
 			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
@@ -3006,8 +3062,8 @@
 
 			// Tera type
 			var teraType = this.$chart.find('select[name=teratype]').val();
-			if (Dex.types.isName(teraType) && teraType !== species.types[0]) {
-				set.teraType = teraType;
+			if (!isChampions && Dex.types.isName(teraType)) {
+				set.teraType = teraType || species.requiredTeraType || species.types[0];
 			} else {
 				delete set.teraType;
 			}
@@ -3037,7 +3093,7 @@
 						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 					}
 				}
-				if (this.curTeam.gen === 9) {
+				if (this.curTeam.gen === 9 && !isChampions) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.requiredTeraType || species.types[0]) + '</span>';
 				}
 			}
@@ -3464,7 +3520,8 @@
 			if (set.species.startsWith('Terapagos')) minSpe = false;
 
 			if (this.curTeam.format.includes('1v1') || this.curTeam.format.includes('categoryswap') ||
-				this.curTeam.format.includes('partnersincrime') || this.curTeam.format.includes('typesplit')) return;
+				this.curTeam.format.includes('partnersincrime') || this.curTeam.format.includes('typesplit') ||
+				this.curTeam.format.includes('champions')) return;
 			if (this.curTeam.format === 'gen7hiddentype') return;
 
 			var minAtk = true;
@@ -3551,8 +3608,9 @@
 				if (baseFormat.substr(-5) === 'draft') baseFormat = baseFormat.substr(0, baseFormat.length - 5);
 				if (!baseFormat) baseFormat = 'ou';
 				if (this.curTeam && this.curTeam.format) {
-					if (baseFormat.substr(0, 10) === 'battlespot' && baseFormat.substr(0, 19) !== 'battlespotspecial13' ||
-						baseFormat.substr(0, 3) === 'vgc' || baseFormat.substr(0, 14) === 'battlefestival') set.level = 50;
+					if (baseFormat.substr(0, 9) === 'champions' || baseFormat.substr(0, 10) === 'battlespot' ||
+						baseFormat.substr(0, 3) === 'bss' || baseFormat.substr(0, 3) === 'vgc' ||
+						baseFormat.substr(0, 14) === 'battlefestival') set.level = 50;
 					if (baseFormat.startsWith('lc') || baseFormat.endsWith('lc')) set.level = 5;
 					if (baseFormat.substr(0, 19) === 'battlespotspecial17') set.level = 1;
 					if (format && format.teambuilderLevel) {
@@ -3589,7 +3647,8 @@
 		// Stat calculator
 
 		getStat: function (stat, set, evOverride, natureOverride) {
-			var supportsEVs = !this.curTeam.format.includes('letsgo');
+			var usesStatPoints = this.curTeam.format.includes('champions');
+			var supportsEVs = !this.curTeam.format.includes('letsgo') && !usesStatPoints;
 			var supportsAVs = !supportsEVs;
 			if (!set) set = this.curSet;
 			if (!set) return 0;
@@ -3621,11 +3680,14 @@
 
 			if (stat === 'hp') {
 				if (baseStat === 1) return 1;
+				if (usesStatPoints) return baseStat + ev + 75;
 				if (!supportsEVs) return Math.floor(Math.floor(2 * baseStat + iv + 100) * set.level / 100 + 10) + (supportsAVs ? ev : 0);
 				return Math.floor(Math.floor(2 * baseStat + iv + Math.floor(ev / 4) + 100) * set.level / 100 + 10);
 			}
 			var val = Math.floor(Math.floor(2 * baseStat + iv + Math.floor(ev / 4)) * set.level / 100 + 5);
-			if (!supportsEVs) {
+			if (usesStatPoints) {
+				val = baseStat + ev + 20;
+			} else if (!supportsEVs) {
 				val = Math.floor(Math.floor(2 * baseStat + iv) * set.level / 100 + 5);
 			}
 			if (natureOverride) {
@@ -3635,7 +3697,7 @@
 			} else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === stat) {
 				val *= 0.9;
 			}
-			if (!supportsEVs) {
+			if (!usesStatPoints && !supportsEVs) {
 				var friendshipValue = Math.floor((70 / 255 / 10 + 1) * 100);
 				val = Math.floor(val) * friendshipValue / 100 + (supportsAVs ? ev : 0);
 			}
@@ -3732,6 +3794,7 @@
 				var resize = (data.h ? 'background-size:' + data.h + 'px;' : '');
 				buf += '<button name="setForm" value="' + form + '" style="';
 				buf += 'background-image: url(' + Dex.resourcePrefix + data.spriteDir + '/' + spriteid + '.png); ' + spriteDim + resize + '" class="option';
+				if (data.pixelated) buf += ' pixelated';
 				buf += (form === (species.forme || '') ? ' cur' : '') + '"></button>';
 			}
 			buf += '<div style="clear:both"></div>';

@@ -9,16 +9,23 @@ import { Config, PS } from "./client-main";
 
 declare const SockJS: any;
 declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
+const KEEPALIVE_INTERVAL = 25000;
+const KEEPALIVE_RANGE = 20000;
 
 export class PSConnection {
 	socket: WebSocket | null = null;
+	/** true for either worker or direct connections. `.worker` or `.socket` will be truthy */
 	connected = false;
+	lastMessageTimeBeforeReconnect = 0;
 	queue: string[] = [];
 	reconnectDelay = 1000;
-	private reconnectCap = 15000;
+	private reconnectCap = 60000;
 	private shouldReconnect = true;
 	reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 	private worker: Worker | null = null;
+	lastReceiveTime = Date.now();
+	/** the next time we'll attempt a reconnect; 0 means we're not scheduled to retry */
+	nextRetryTime = 0;
 
 	constructor() {
 		const loading = PSStorage.init();
@@ -28,6 +35,26 @@ export class PSConnection {
 			});
 		} else {
 			this.initConnection();
+		}
+		setInterval(() => this.keepAlive(), KEEPALIVE_INTERVAL);
+	}
+
+	/**
+	 * Keepalive for direct (non-worker) connections; see the worker for
+	 * the full explanation. Worker connections use the worker's own
+	 * keepalive timer, which has the advantage of not being throttled
+	 * in background tabs.
+	 */
+	keepAlive() {
+		if (this.worker) return;
+		if (!this.connected) return;
+		if (Date.now() - this.lastReceiveTime > 3 * KEEPALIVE_INTERVAL) {
+			// zombie connection; close it so the reconnect logic kicks in
+			this.socket?.close();
+			return;
+		}
+		if (Date.now() - this.lastReceiveTime >= KEEPALIVE_RANGE) {
+			this.send(`|/cmd ping`);
 		}
 	}
 
@@ -67,17 +94,16 @@ export class PSConnection {
 				const { type, data } = event.data;
 				switch (type) {
 				case 'connected':
-					console.log('\u2705 (CONNECTED via worker)');
-					this.connected = true;
-					this.queue.forEach(msg => worker.postMessage({ type: 'send', data: msg }));
-					this.queue = [];
-					PS.update();
+					this.handleConnect();
 					break;
 				case 'message':
 					PS.receive(data);
 					break;
 				case 'disconnected':
 					this.handleDisconnect();
+					break;
+				case 'retrying':
+					this.nextRetryTime = data;
 					break;
 				case 'error':
 					console.warn(`Worker connection error: ${data}`);
@@ -119,30 +145,19 @@ export class PSConnection {
 		const socket = this.socket!;
 
 		socket.onopen = () => {
-			console.log('\u2705 (CONNECTED)');
-			this.connected = true;
-			this.reconnectDelay = 1000;
-			this.queue.forEach(msg => socket.send(msg));
-			this.queue = [];
-			PS.update();
+			this.handleConnect();
 		};
 
 		socket.onmessage = (ev: MessageEvent) => {
-			PS.receive('' + ev.data);
+			const data = '' + ev.data;
+			this.lastReceiveTime = Date.now();
+			if (data.startsWith('|queryresponse|ping|')) return;
+			PS.receive(data);
 		};
 
 		socket.onclose = () => {
 			console.log('\u274C (DISCONNECTED)');
 			this.handleDisconnect();
-			console.log('\u2705 (DISCONNECTED)');
-			this.connected = false;
-			PS.isOffline = true;
-			for (const roomid in PS.rooms) {
-				const room = PS.rooms[roomid]!;
-				if (room.connected === true) room.connected = 'autoreconnect';
-			}
-			this.socket = null;
-			PS.update();
 		};
 
 		socket.onerror = (ev: Event) => {
@@ -154,14 +169,47 @@ export class PSConnection {
 	}
 
 	private handleDisconnect() {
+		this.markDisconnected();
+		if (this.worker) {
+			// worker handles reconnect timer
+			if (!this.canReconnect()) this.worker.postMessage({ type: 'disconnect' });
+		} else {
+			this.retryConnection();
+		}
+	}
+
+	private markDisconnected() {
 		this.connected = false;
 		PS.isOffline = true;
 		this.socket = null;
 		for (const roomid in PS.rooms) {
 			const room = PS.rooms[roomid]!;
-			if (room.connected === true) room.connected = 'autoreconnect';
+			// other rooms also connect after reconnecting but this flag is for rooms that were already connected
+			if (room.connected === true) room.connectMode = 'pending-reconnect';
+			room.connected = false;
 		}
-		this.retryConnection();
+		PS.update();
+	}
+
+	/**
+	 * Happens on connect and reconnect for worker and direct connections
+	 */
+	private handleConnect() {
+		console.log(`\u2705 (CONNECTED${this.worker ? ' via worker' : ''})`);
+		this.lastMessageTimeBeforeReconnect = parseInt(PS.lastMessageTime) || 0;
+		this.connected = true;
+		PS.isOffline = false;
+		this.reconnectDelay = 1000;
+		this.nextRetryTime = 0;
+		this.lastReceiveTime = Date.now();
+
+		if (PS.prefs.avatar) this.send(`/avatar ${PS.prefs.avatar},1`);
+		const queue = this.queue;
+		this.queue = [];
+		for (const msg of queue) this.send(msg);
+
+		PS.prefs.doAutojoin();
+
 		PS.update();
 	}
 
@@ -169,6 +217,7 @@ export class PSConnection {
 		if (!this.canReconnect()) return;
 		if (this.reconnectTimer) return;
 
+		this.nextRetryTime = Date.now() + this.reconnectDelay;
 		this.reconnectTimer = setTimeout(() => {
 			this.reconnectTimer = null;
 			if (!this.connected && this.canReconnect()) {
@@ -213,7 +262,6 @@ export class PSConnection {
 		} else {
 			PS.connection.reconnect();
 		}
-		PS.prefs.doAutojoin();
 	}
 }
 
@@ -274,12 +322,20 @@ export class PSStorage {
 	static onMessage = (e: MessageEvent) => {
 		if (e.origin !== PSStorage.origin) return;
 
-		this.frame = e.source as WindowProxy;
 		const data = e.data;
+		if (typeof data !== 'string') return; // we don't do this but external code can
+
+		this.frame = e.source as WindowProxy;
 		// console.log(`top recv: ${data}`);
 		switch (data.charAt(0)) {
 		case 'c':
 			Config.server = JSON.parse(data.substr(1));
+			if (location.host === 'localhost.psim.us' || /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.psim\.us/.test(location.host)) {
+				// normally we assume HTTPS means HTTPS, but make an exception for
+				// localhost and IPs which generally can't have a signed cert anyway.
+				Config.server.port = 8000;
+				(Config.server as any).https = false;
+			}
 			if (Config.server.registered && Config.server.id !== 'showdown' && Config.server.id !== 'smogtours') {
 				const link = document.createElement('link');
 				link.rel = 'stylesheet';

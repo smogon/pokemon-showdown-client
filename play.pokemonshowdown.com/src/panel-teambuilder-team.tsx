@@ -9,7 +9,7 @@ import { PS, PSRoom, type RoomOptions, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { toID, type ID } from "./battle-dex";
 import { BattleLog } from "./battle-log";
-import { TeamEditor } from "./battle-team-editor";
+import { TeamEditor, type TeamEditorState } from "./battle-team-editor";
 import { Net, PSLoginServer } from "./client-connection";
 import { Teams } from "./battle-teams";
 import { CopyableURLBox } from "./panel-chat";
@@ -18,7 +18,9 @@ class TeamRoom extends PSRoom {
 	/** Doesn't _literally_ always exist, but does in basically all code
 	 * and constantly checking for its existence is legitimately annoying... */
 	team!: Team;
+	teamDeleted = false;
 	forceReload = false;
+	editor?: TeamEditorState;
 	override clientCommands = this.parseClientCommands({
 		'validate'(target) {
 			if (this.team.format.length <= 4) {
@@ -32,9 +34,19 @@ class TeamRoom extends PSRoom {
 		super(options);
 		const team = PS.teams.byKey[this.id.slice(5)] || null;
 		this.team = team!;
-		this.title = `[Team] ${this.team?.name || 'Error'}`;
+		this.title = `[Team] ${this.team?.name || 'Not found'}`;
 		if (team) this.setFormat(team.format);
 		this.load();
+	}
+	override onParentKeyDown = (e?: Event) => {
+		return this.editor?.handleParentKeyDown?.(e as KeyboardEvent);
+	};
+	getTeam() {
+		const team = PS.teams.byKey[this.id.slice(5)] || null;
+		this.teamDeleted = !team && (!!this.team || this.teamDeleted);
+		this.team = team!;
+		this.title = `[Team] ${this.team?.name || (this.teamDeleted ? 'Team deleted' : 'Not found')}`;
+		return team;
 	}
 	setFormat(format: string) {
 		const team = this.team;
@@ -117,6 +129,87 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 			});
 	}
 
+	static diffLines(localLines: string[], uploadedLines: string[]) {
+		// https://en.wikipedia.org/wiki/Longest_common_subsequence
+		const lcs: number[][] = [];
+		for (let i = 0; i <= localLines.length; i++) {
+			lcs[i] = [];
+			for (let j = 0; j <= uploadedLines.length; j++) lcs[i][j] = 0;
+		}
+		for (let i = localLines.length - 1; i >= 0; i--) {
+			for (let j = uploadedLines.length - 1; j >= 0; j--) {
+				lcs[i][j] = localLines[i] === uploadedLines[j] ?
+					lcs[i + 1][j + 1] + 1 :
+					Math.max(lcs[i + 1][j], lcs[i][j + 1]);
+			}
+		}
+
+		const rows: { local?: string, uploaded?: string, changed: boolean }[] = [];
+		const addChangedRows = (fromI: number, toI: number, fromJ: number, toJ: number) => {
+			const count = Math.max(toI - fromI, toJ - fromJ);
+			for (let k = 0; k < count; k++) rows.push({
+				local: k < toI - fromI ? localLines[fromI + k] : undefined,
+				uploaded: k < toJ - fromJ ? uploadedLines[fromJ + k] : undefined,
+				changed: true,
+			});
+		};
+		const anchors: [number, number][] = [];
+		let i = 0;
+		let j = 0;
+		while (i < localLines.length && j < uploadedLines.length) {
+			if (localLines[i] === uploadedLines[j]) {
+				anchors.push([i, j]);
+				i++;
+				j++;
+			} else if (lcs[i + 1][j] >= lcs[i][j + 1]) {
+				i++;
+			} else {
+				j++;
+			}
+		}
+		let lastI = 0;
+		let lastJ = 0;
+		for (const [nextI, nextJ] of anchors) {
+			addChangedRows(lastI, nextI, lastJ, nextJ);
+			rows.push({ local: localLines[nextI], uploaded: uploadedLines[nextJ], changed: false });
+			lastI = nextI + 1;
+			lastJ = nextJ + 1;
+		}
+		addChangedRows(lastI, localLines.length, lastJ, uploadedLines.length);
+		return rows;
+	}
+	static renderDiffLine(line: string | undefined) {
+		return line ? BattleLog.escapeHTML(line) : '&nbsp;';
+	}
+	static renderTeamDiff(localTeam: string, uploadedTeam: string) {
+		const trimmedLocalTeam = localTeam.replace(/\n+$/, '');
+		const trimmedUploadedTeam = uploadedTeam.replace(/\n+$/, '');
+		const localSets = trimmedLocalTeam ? trimmedLocalTeam.split(/\n\n+/) : [];
+		const uploadedSets = trimmedUploadedTeam ? trimmedUploadedTeam.split(/\n\n+/) : [];
+		const setCount = Math.max(localSets.length, uploadedSets.length);
+		let buf = `|html|<table class="table" style="width:100%;font-size:14px">` +
+			`<tr><th>Local</th>` +
+			`<th>Uploaded</th></tr>`;
+		for (let i = 0; i < setCount; i++) {
+			if (i) {
+				buf += `<tr><td style="border-top:0;border-bottom:0;padding:0 5px">&nbsp;</td>` +
+					`<td style="border-top:0;border-bottom:0;padding:0 5px">&nbsp;</td></tr>`;
+			}
+			const rows = this.diffLines(
+				localSets[i]?.split('\n') || [],
+				uploadedSets[i]?.split('\n') || []
+			);
+			for (const row of rows) {
+				const className = row.changed ? ` class="highlighted"` : ``;
+				buf += `<tr><td${className} style="border-top:0;border-bottom:0;padding:0 5px">` +
+					`${this.renderDiffLine(row.local)}</td>` +
+					`<td${className} style="border-top:0;border-bottom:0;padding:0 5px">` +
+					`${this.renderDiffLine(row.uploaded)}</td></tr>`;
+			}
+		}
+		return buf + `</table>`;
+	}
+
 	handleRename = (ev: Event) => {
 		const textbox = ev.currentTarget as HTMLInputElement;
 		const room = this.props.room;
@@ -149,9 +242,9 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 			PS.alert(`Must use on an uploaded team.`);
 			return;
 		}
-		const uploadedTeam = Teams.export(Teams.unpack(team.uploadedPackedTeam));
-		const localTeam = Teams.export(Teams.unpack(team.packedTeam));
-		PS.alert(BattleLog.html`|html|<table class="table" style="width:100%;font-size:14px"><tr><th>Local</th><th>Uploaded</th></tr><tr><td>${localTeam}</td><td>${uploadedTeam}</td></tr></table>`, { width: 720 });
+		const uploadedTeam = Teams.export(Teams.unpack(team.uploadedPackedTeam), undefined);
+		const localTeam = Teams.export(Teams.unpack(team.packedTeam), undefined);
+		PS.alert(TeamPanel.renderTeamDiff(localTeam, uploadedTeam), { width: 720 });
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
 	};
@@ -202,7 +295,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 	}
 	override render() {
 		const { room } = this.props;
-		const team = room.team;
+		const team = room.getTeam();
 		if (!team || room.forceReload) {
 			if (room.forceReload) {
 				room.forceReload = false;
@@ -213,13 +306,13 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 					<i class="fa fa-chevron-left" aria-hidden></i> List
 				</a>
 				<p class="error">
-					Team doesn't exist
+					{room.teamDeleted ? 'Team was deleted' : 'Team doesn\'t exist'}
 				</p>
 			</PSPanelWrapper>;
 		}
 
 		const unsaved = team.uploaded && team.uploadedPackedTeam ? team.uploadedPackedTeam !== team.packedTeam : false;
-		return <PSPanelWrapper room={room} scrollable><div class="pad">
+		return <PSPanelWrapper room={room}><div class="pad">
 			<a class="button" href="teambuilder" data-target="replace">
 				<i class="fa fa-chevron-left" aria-hidden></i> Teams
 			</a> {}
@@ -241,12 +334,12 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 					<i class="fa fa-laptop"></i> Local
 				</button>
 			)}
-			<div style="float:right"><button
+			<div style={room.width < 550 ? "margin-top:8px" : "float:right"}><button
 				name="format" value={team.format} data-selecttype="teambuilder"
-				class="button" data-href="/formatdropdown" onChange={this.handleChangeFormat}
+				class="select formatselect" data-href="/formatdropdown" onChange={this.handleChangeFormat}
 			>
 				<i class="fa fa-folder-o"></i> {BattleLog.formatName(team.format)} {}
-				{team.format.length <= 4 && <em>(uncategorized)</em>} <i class="fa fa-caret-down"></i>
+				{team.format.length <= 4 && <em>(uncategorized)</em>}
 			</button></div>
 			<label class="label teamname">
 				Team name:{}
@@ -257,6 +350,8 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 			</label>
 			<TeamEditor
 				team={team} onChange={this.save} readOnly={!!team.teamid && !team.uploadedPackedTeam} resources={this.renderResources()}
+				narrow={room.width < 550}
+				editorRef={(editor: TeamEditorState) => { room.editor = editor; }}
 			>
 				{!!(team.packedTeam && team.format.length > 4) && <p>
 					<button data-cmd="/validate" class="button"><i class="fa fa-check"></i> Validate</button>
@@ -362,7 +457,7 @@ class ViewTeamPanel extends PSRoomPanel {
 			</PSPanelWrapper>;
 		}
 
-		return <PSPanelWrapper room={room} scrollable><div class="pad">
+		return <PSPanelWrapper room={room}><div class="pad">
 			<h1>{team.name || "Untitled team"}</h1>
 			<CopyableURLBox
 				url={`https://psim.us/t/${team.teamid!}${teamData.private ? '-' + teamData.private : ''}`}
@@ -380,7 +475,7 @@ type TeamStorage = 'account' | 'public' | 'disconnected' | 'local';
 class TeamStoragePanel extends PSRoomPanel {
 	static readonly id = "teamstorage";
 	static readonly routes = ["teamstorage-*"];
-	static readonly location = "semimodal-popup";
+	static readonly location = "modal-popup";
 	static readonly noURL = true;
 
 	chooseOption = (ev: MouseEvent) => {

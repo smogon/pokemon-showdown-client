@@ -4,8 +4,8 @@ export as namespace preact;
 declare namespace preact {
 	type Key = string | number;
 	type Ref<T> = (instance: T) => void;
-	type ComponentChild = VNode<any> | string | number | null;
-	type ComponentChildren = ComponentChild[] | ComponentChild | object | string | number | null;
+	type ComponentChild = VNode<any> | string | number | null | false;
+	type ComponentChildren = ComponentChild[] | ComponentChild | object | string | number | null | false;
 
 	/**
 	 * @deprecated
@@ -436,12 +436,14 @@ declare global {
 			// Form Events
 			onChange?: GenericEventHandler;
 			onChangeCapture?: GenericEventHandler;
-			onInput?: GenericEventHandler;
-			onInputCapture?: GenericEventHandler;
+			onInput?: EventHandler<InputEvent>;
+			onInputCapture?: EventHandler<InputEvent>;
 			onSearch?: GenericEventHandler;
 			onSearchCapture?: GenericEventHandler;
 			onSubmit?: GenericEventHandler;
 			onSubmitCapture?: GenericEventHandler;
+			onToggle?: GenericEventHandler;
+			onToggleCapture?: GenericEventHandler;
 
 			// Keyboard Events
 			onKeyDown?: KeyboardEventHandler;
@@ -714,6 +716,7 @@ declare global {
 			type?: string;
 			useMap?: string;
 			value?: string | string[] | number;
+			defaultValue?: string | string[] | number;
 			width?: number | string;
 			wmode?: string;
 			wrap?: string;
@@ -819,6 +822,7 @@ declare global {
 			script: HTMLAttributes;
 			section: HTMLAttributes;
 			select: HTMLAttributes;
+			selectedcontent: {};
 			slot: HTMLAttributes;
 			small: HTMLAttributes;
 			source: HTMLAttributes;

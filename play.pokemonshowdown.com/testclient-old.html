@@ -6,7 +6,7 @@
 		<title>Showdown!</title>
 		<link rel="shortcut icon" href="favicon.ico" id="dynamic-favicon" />
 		<link rel="stylesheet" href="style/battle.css" />
-		<link rel="stylesheet" href="style/client.css" />
+		<link rel="stylesheet" href="style/oldclient.css" />
 		<link rel="stylesheet" href="style/sim-types.css" />
 		<link rel="stylesheet" href="style/utilichart.css" />
 		<link rel="stylesheet" href="style/font-awesome.css" />
@@ -62,7 +62,10 @@
 			<div class="rightmenu">
 			</div>
 			<div class="mainmenufooter">
-				<small><a href="//pokemonshowdown.com/" target="_blank"><strong>Pok&eacute;mon Showdown</strong></a> | <a href="http://smogon.com/" target="_blank"><strong>Smogon</strong></a><br><a href="//pokemonshowdown.com/dex/" target="_blank">Pokédex</a> | <a href="//pokemonshowdown.com/replay/" target="_blank">Replays</a> | <a href="//pokemonshowdown.com/rules" target="_blank">Rules</a></small> | <small><a href="//pokemonshowdown.com/forums/" target="_blank">Forum</a></small>
+				<div class="bgcredit"></div>
+				<small>
+					<a href="//dex.pokemonshowdown.com/" target="_blank">Pok&eacute;dex</a> | <a href="//replay.pokemonshowdown.com/" target="_blank">Replays</a> | <a href="http://smogon.com/forums/" target="_blank">Forum</a> | <a href="//pokemonshowdown.com/rules" target="_blank">Rules</a> | <a href="//pokemonshowdown.com/credits" target="_blank">Credits</a> | <a href="//pokemonshowdown.com/privacy" target="_blank">Privacy</a>
+				</small>
 			</div>
 		</div></div>
 		<script>
@@ -99,17 +102,17 @@
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading client...';
 		</script>
 
-		<script src="js/client.js"></script>
-		<script src="js/client-topbar.js"></script>
-		<script src="js/client-mainmenu.js"></script>
-		<script src="js/client-teambuilder.js"></script>
-		<script src="js/client-ladder.js"></script>
-		<script src="js/client-chat.js"></script>
-		<script src="js/client-chat-tournament.js"></script>
+		<script src="js/oldclient/client.js"></script>
+		<script src="js/oldclient/client-topbar.js"></script>
+		<script src="js/oldclient/client-mainmenu.js"></script>
+		<script src="js/oldclient/client-teambuilder.js"></script>
+		<script src="js/oldclient/client-ladder.js"></script>
+		<script src="js/oldclient/client-chat.js"></script>
+		<script src="js/oldclient/client-chat-tournament.js"></script>
 		<script src="js/battle-tooltips.js"></script>
-		<script src="js/client-battle.js"></script>
-		<script src="js/client-rooms.js"></script>
-		<script src="js/storage.js"></script>
+		<script src="js/oldclient/client-battle.js"></script>
+		<script src="js/oldclient/client-rooms.js"></script>
+		<script src="js/oldclient/storage.js"></script>
 		<script src="data/graphics.js" onerror="loadRemoteData(this.src)"></script>
 
 		<script src="data/pokedex.js" onerror="loadRemoteData(this.src)"></script>
@@ -120,7 +123,7 @@
 		<script src="data/search-index.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="data/teambuilder-tables.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="js/battle-dex-search.js"></script>
-		<script src="js/search.js"></script>
+		<script src="js/oldclient/search.js"></script>
 
 		<script src="data/aliases.js" async="async" onerror="loadRemoteData(this.src)"></script>
 		<script src="data/commands.js" async="async" onerror="loadRemoteData(this.src)"></script>

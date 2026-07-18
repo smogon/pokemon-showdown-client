@@ -231,7 +231,7 @@ export class BattleChoiceBuilder {
 					return null;
 				}
 			}
-			if (this.currentMoveRequest()?.maybeDisabled && isLastChoice) {
+			if (this.currentMoveRequest()?.maybeDisabled && isLastChoice && this.requestLength() === 1) {
 				this.noCancel = true;
 			}
 			if (choice.mega || choice.megax || choice.megay) this.alreadyMega = true;
@@ -295,7 +295,11 @@ export class BattleChoiceBuilder {
 		const request = this.request;
 		switch (request.requestType) {
 		case 'move':
-			while (this.choices.length < request.active.length && !request.active[this.choices.length]) {
+			while (
+				(this.choices.length < request.active.length &&
+					!request.active[this.choices.length]) ||
+					request.side?.pokemon[this.choices.length]?.commanding
+			) {
 				this.choices.push('pass');
 			}
 			break;

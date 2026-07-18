@@ -400,6 +400,7 @@ function toId() {
 			window.app = this;
 			this.initializeRooms();
 			this.initializePopups();
+			this.initializeCCPAIntercept();
 
 			this.user = new User();
 			this.ignore = {};
@@ -1388,6 +1389,7 @@ function toId() {
 					var partner = false;
 					var bestOfDefault = false;
 					var teraPreviewDefault = false;
+					var itemClauseDefault = false;
 					var team = null;
 					var teambuilderLevel = null;
 					var lastCommaIndex = name.lastIndexOf(',');
@@ -1402,6 +1404,7 @@ function toId() {
 						if (code & 32) partner = true;
 						if (code & 64) bestOfDefault = true;
 						if (code & 128) teraPreviewDefault = true;
+						if (code & 256) itemClauseDefault = true;
 					} else {
 						// Backwards compatibility: late 0.9.0 -> 0.10.0
 						if (name.substr(name.length - 2) === ',#') { // preset teams
@@ -1467,6 +1470,7 @@ function toId() {
 						tournamentShow: tournamentShow,
 						bestOfDefault: bestOfDefault,
 						teraPreviewDefault: teraPreviewDefault,
+						itemClauseDefault: itemClauseDefault,
 						rated: searchShow && id.substr(4, 7) !== 'unrated',
 						teambuilderLevel: teambuilderLevel,
 						partner: partner,
@@ -1604,6 +1608,23 @@ function toId() {
 			this.sideRoomList = [];
 
 			$(window).on('resize', _.bind(this.resize, this));
+		},
+		initializeCCPAIntercept: function () {
+			var self = this;
+			self.interceptCCPA();
+			setTimeout(function () { self.interceptCCPA(); }, 1000);
+			setTimeout(function () { self.interceptCCPA(); }, 3000);
+			setTimeout(function () { self.interceptCCPA(); }, 5000);
+			setTimeout(function () { self.interceptCCPA(); }, 10000);
+		},
+		interceptCCPA: function () {
+			if (this.ccpaIntercepted) return;
+			var $ccpa = $('.fc-dns-dialog');
+			if (!$ccpa.length) return;
+			var $target = $('#room- .mainmenufooter');
+			if (!$target.length) return;
+			$ccpa.appendTo($target);
+			this.ccpaIntercepted = true;
 		},
 		fixedWidth: true,
 		resize: function () {
@@ -1766,6 +1787,7 @@ function toId() {
 			}
 
 			room.focus(null, focusTextbox);
+			this.interceptCCPA();
 		},
 		focusRoomLeft: function (id) {
 			var room = this.rooms[id];
@@ -1791,6 +1813,7 @@ function toId() {
 			if (this.curRoom.id === id) this.navigate(id);
 
 			room.focus(null, true);
+			this.interceptCCPA();
 		},
 		focusRoomRight: function (id) {
 			var room = this.rooms[id];
@@ -1814,6 +1837,7 @@ function toId() {
 			// if (this.curRoom.id === id) this.navigate(id);
 
 			room.focus(null, true);
+			this.interceptCCPA();
 		},
 		/**
 		 * This is the function for handling the two-panel layout
@@ -2227,7 +2251,7 @@ function toId() {
 		},
 		dispatchClickButton: function (e) {
 			var target = e.currentTarget;
-			var type = $(target).attr('type');
+			var type = $(target).attr('data-select');
 			if (type === 'submit') type = null;
 			if (target.name || type) {
 				app.dismissingSource = app.dismissPopups();

@@ -3,7 +3,7 @@ AddType application/x-tgz .tgz
 AddType application/x-chrome-extension .crx
 AddType application/x-web-app-manifest+json .webapp
 
-<filesMatch "^(index|preactalpha)\.html$">
+<filesMatch "^caches/index-(old|new)\.html$">
   FileETag None
   <ifModule mod_headers.c>
      Header unset ETag
@@ -63,6 +63,11 @@ RewriteRule ^t\/([a-z0-9-]*)$ https://teams.pokemonshowdown.com/view/$1 [R=302,L
 RewriteRule ^r\/?$ https://replay.pokemonshowdown.com/ [R=302,L]
 RewriteRule ^r\/([a-z0-9-]*)$ https://replay.pokemonshowdown.com/$1 [R=302,L]
 
+# data dir names
+RewriteRule ^images?\/?$ /sprites/ [R=302,L]
+RewriteRule ^css\/?$ /style/ [R=302,L]
+RewriteRule ^styles\/?$ /style/ [R=302,L]
+
 # rewrite old sprite directories/files
 RewriteRule ^sprites\/xyani(.*)?$ sprites/ani$1 [L,QSA]
 RewriteRule ^sprites\/xydex(.*)?$ sprites/dex$1 [L,QSA]
@@ -119,10 +124,10 @@ RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)/$ /$1 [R=301,L]
 
 # Anything that looks like a roomid: connect to the server
 RewriteCond %{HTTP_COOKIE} ^.*preactalpha=1.*$
-RewriteRule ^(|[A-Za-z0-9][A-Za-z0-9-]*)$ ./preactalpha.html [L,E=INDEX_PAGE:1]
+RewriteRule ^(|[A-Za-z0-9][A-Za-z0-9-]*)$ ./caches/index-new.html [L,E=INDEX_PAGE:1]
 RewriteRule ^$ - [E=INDEX_PAGE:1]
-RewriteRule ^(preactalpha|preactbeta|beta|dev|development|login|users|(dm|challenge|user|viewuser|ladder)-[a-z0-9-]*)$ ./preactalpha.html [L,E=INDEX_PAGE:1]
-RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE:1]
+RewriteRule ^(preactalpha|preactbeta|beta|dev|development|login|users|(dm|challenge|user|viewuser|ladder)-[a-z0-9-]*)$ ./caches/index-new.html [L,E=INDEX_PAGE:1]
+RewriteRule ^(|[A-Za-z0-9][A-Za-z0-9-]*)$ ./caches/index-old.html [L,E=INDEX_PAGE:1]
 
 # RewriteRule ^crossprotocol\.html$ - [E=CROSSPROTOCOL:1]
 # Header set X-Frame-Options "ALLOW-FROM http://play.pokemonshowdown.com" env=CROSSPROTOCOL
@@ -131,6 +136,9 @@ RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE:1]
 Header set Cache-Control "no-cache, no-store, must-revalidate" env=INDEX_PAGE
 Header set Pragma "no-cache" env=INDEX_PAGE
 Header set Expires "0" env=INDEX_PAGE
+
+# Crossprotocol cache page
+RewriteRule ^crossprotocol\.html$ ./caches/crossprotocol.html [L]
 
 # No direct linking to the lobby.
 # RewriteCond %{ENV:SCRIPT_URL} ^/(lobby/?)?$
@@ -159,9 +167,10 @@ RewriteRule ^backup/ - [F]
 RewriteRule ^\.git/ - [F]
 RewriteRule ^lib/ - [F]
 
-RewriteRule ^index\.template\.html$ - [F]
-RewriteRule ^preactalpha\.template\.html$ - [F]
-RewriteRule ^testclient\.html$ - [F]
+# TODO: figure this guy out
+RewriteCond %{THE_REQUEST} \s/caches/
+RewriteRule ^caches/ - [F]
+RewriteRule ^testclient-old\.html$ - [F]
 RewriteRule ^testclient-beta\.html$ - [F]
 
 RewriteCond %{REQUEST_FILENAME} !-f
