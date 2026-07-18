@@ -163,6 +163,7 @@ export class BattleTooltips {
 	static parentElem: HTMLElement | null = null;
 	static isLocked = false;
 	static isPressed = false;
+	static outsideClickListenerAdded = false;
 	static allowsTouchScroll(elem: HTMLElement | null) {
 		return elem && (elem.tagName === 'DIV' || elem.tagName === 'SPAN');
 	}
@@ -185,6 +186,14 @@ export class BattleTooltips {
 		$('#tooltipwrapper').removeClass('tooltip-locking-click tooltip-locking-tap');
 	}
 
+	static dismissOnOutsideClick(e: MouseEvent) {
+		if (!BattleTooltips.elem) return;
+		const target = e.target;
+		if (target && BattleTooltips.elem.contains(target as Node)) return;
+		if (target && (target as Element).closest?.('.has-tooltip')) return;
+		BattleTooltips.hideTooltip();
+	}
+
 	lockTooltip() {
 		if (BattleTooltips.elem && !BattleTooltips.isLocked) {
 			BattleTooltips.isLocked = true;
@@ -204,6 +213,10 @@ export class BattleTooltips {
 	}
 
 	listen(elem: HTMLElement | JQuery) {
+		if (!BattleTooltips.outsideClickListenerAdded) {
+			window.addEventListener('click', BattleTooltips.dismissOnOutsideClick, true);
+			BattleTooltips.outsideClickListenerAdded = true;
+		}
 		const $elem = $(elem);
 		$elem.on('mouseover.battleTooltips', '.has-tooltip', this.mouseOverEvent);
 		$elem.on('click.battleTooltips', '.has-tooltip', this.clickTooltipEvent);

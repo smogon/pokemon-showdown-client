@@ -414,16 +414,18 @@ export class MainMenuRoom extends PSRoom {
 		case 'userdetails':
 			let userid = response.userid;
 			fullid += ` ${userid}`;
-			if (userid === PS.user.userid && response.avatar !== undefined) {
-				PS.user.avatar = `${response.avatar}`;
-				PS.user.update(null);
-			}
 			let userdetails = this.userdetailsCache[userid];
 			if (!userdetails) {
 				this.userdetailsCache[userid] = response;
 			} else {
 				response.status ||= '';
 				Object.assign(userdetails, response);
+			}
+			if (userid === PS.user.userid) {
+				if (response.avatar !== undefined && PS.user.avatar !== `${response.avatar}`) {
+					PS.user.avatar = `${response.avatar}`;
+					PS.user.update(null);
+				}
 			}
 			PS.rooms[`user-${userid}`]?.update(null);
 			PS.rooms[`viewuser-${userid}`]?.update(null);

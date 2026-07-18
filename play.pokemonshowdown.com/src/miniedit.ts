@@ -203,6 +203,7 @@ export class MiniEditPastePlugin {
 			.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, '')
 			// handle newlines
 			// .replace(/\n/g, '<br>') // in case they're in <pre>?
+			.replace(/\n/g, '') // Firefox bug: just adds random newlines for fun apparently???
 			.replace(new RegExp(`</?(?:${HTML_BLOCK_TAGS.join('|')})\\b[^>]*>`, 'gi'), '\n')
 			.replace(/\n{2,}/g, '\n')
 			.replace(/<br\b[^>]*>\n?/gi, '\n')

@@ -49,9 +49,6 @@ export class UserRoom extends PSRoom {
 
 export class StatusEditor extends preact.Component {
 	declare state: { addingStatus?: boolean, statusChanged?: boolean };
-	override componentDidMount() {
-		this.fetchStatus();
-	}
 	fetchStatus() {
 		if (!PS.user.userid) return;
 		PS.mainmenu.makeQuery('userdetails', PS.user.userid).then(() => this.forceUpdate());
@@ -680,6 +677,7 @@ class OptionsPanel extends PSRoomPanel {
 	override componentDidMount() {
 		super.componentDidMount();
 		this.subscribeTo(PS.user);
+		PS.mainmenu.makeQuery('userdetails', PS.user.userid).then(() => this.forceUpdate());
 	}
 	setTheme = (e: Event) => {
 		const theme = (e.currentTarget as HTMLSelectElement).value as 'light' | 'dark' | 'system';
@@ -1724,8 +1722,8 @@ class BattleOptionsPanel extends PSRoomPanel {
 	override render() {
 		const room = this.props.room;
 		const battleRoom = this.getBattleRoom();
-		const isPlayer = !!battleRoom?.battle.myPokemon;
-		const canOfferTie = battleRoom && ((battleRoom.battle.turn >= 100 && isPlayer) || PS.user.group === '~');
+		const isPlaying = !!battleRoom?.isPlaying();
+		const canOfferTie = battleRoom && ((battleRoom.battle.turn >= 100 && isPlaying) || PS.user.group === '~');
 		const sideBySideDisabled = !!battleRoom && battleRoom.width < 500;
 		let automaticLayout: BattleLayoutPreference | null = null;
 		if (battleRoom) {
@@ -1735,6 +1733,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 		return <PSPanelWrapper room={room} width={380}><div class="pad">
 			{battleRoom && <>
 				<p><strong>In this battle</strong></p>
+				<p class="buttonbar">
+					<button data-cmd="/closeand /inopener /forfeit" class="button" disabled={!isPlaying}>
+						Forfeit
+					</button> {}
+					<button data-cmd="/closeand /inopener /offertie" class="button" disabled={!canOfferTie}>
+						Offer tie {!canOfferTie && "(turn 100+)"}
+					</button>
+				</p>
 				<p>
 					<label class="checkbox">
 						<input
@@ -1842,7 +1848,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<input
 						name="autohardcore" checked={PS.prefs.autohardcore || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> Automatically enable hardcore mode
+					/> <abbr title="Disable quality-of-life features not available in official games">Hardcore mode</abbr>
 				</label>
 			</p>
 			<p>
@@ -1863,9 +1869,6 @@ class BattleOptionsPanel extends PSRoomPanel {
 			</p>}
 			<p class="buttonbar">
 				<button data-cmd="/close" class="button">Done</button> {}
-				{battleRoom && <button data-cmd="/closeand /inopener /offertie" class="button" disabled={!canOfferTie}>
-					Offer Tie
-				</button>}
 			</p>
 		</div>
 		</PSPanelWrapper>;

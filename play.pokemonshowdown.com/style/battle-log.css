@@ -177,7 +177,9 @@ select.base-select::picker-icon {
 }
 
 .button option,
-.button optgroup {
+.button optgroup,
+.select option,
+.select optgroup {
 	background: #f6f6f6;
 	color: #222222;
 }
@@ -283,7 +285,9 @@ select.base-select::picker-icon {
 	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45);
 }
 .dark .button option,
-.dark .button optgroup {
+.dark .button optgroup,
+.dark .select option,
+.dark .select optgroup {
 	/* Chrome/Win does this thing where it takes <select> styling and applies it
 	to options, which would be cool except it of course can't handle gradient
 	backgrounds, and also can't fall back to the last non-gradient background,
@@ -487,8 +491,8 @@ pre.textbox {
 }
 .dark .textbox,
 .dark .textbox-subtle[data-changed="1"],
-textarea.textbox-subtle:empty,
-input.textbox-subtle[value=""] {
+.dark textarea.textbox-subtle:empty,
+.dark input.textbox-subtle[value=""] {
 	border-color: #6b7178;
 
 	/* box-shadow: inset 0px -1px 2px #606060, -1px -1px 0 rgba(255,255,255,.2); */

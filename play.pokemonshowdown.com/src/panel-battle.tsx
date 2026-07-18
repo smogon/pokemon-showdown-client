@@ -157,13 +157,14 @@ export class BattleRoom extends ChatRoom {
 	overlayActive: 'move' | 'switch' | null = null;
 
 	override interruptClose(explicit?: boolean, elem?: HTMLElement | null) {
-		const battle = this.battle;
-		const activeBattle = battle && !battle.ended && this.request && this.connectMode !== 'deleted';
-		if (activeBattle || this.requireForfeit) {
+		if (this.isPlaying() || this.requireForfeit) {
 			PS.join('forfeitbattle' as RoomID, { parentElem: elem, parentRoomid: this.id });
 			return `You are still in ${this.title}`;
 		}
 		return super.interruptClose(explicit, elem);
+	}
+	isPlaying() {
+		return this.battle && !this.battle.ended && this.request && this.connectMode !== 'deleted';
 	}
 
 	override handleReconnect(): boolean | void {
@@ -1172,9 +1173,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return <div class="inline-controls">
 				<div class="whatdo">
 					{this.renderOldChoices(request, choices)}
-				</div>
-				<div class="pad">
-					{choices.noCancel || room.battle.hardcoreMode ?
+					<em>Waiting for opponent...</em> {choices.noCancel || room.battle.hardcoreMode ?
 						null : <button data-cmd="/cancel" class="button">Cancel</button>}
 				</div>
 				{this.renderTeamList()}

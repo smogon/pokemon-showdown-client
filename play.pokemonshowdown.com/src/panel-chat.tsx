@@ -281,11 +281,14 @@ export class ChatRoom extends PSRoom {
 			this.highlightRegExp[i] = new RegExp('(?:\\b|(?!\\w))(?:' + highlights[i].join('|') + ')(?:\\b|(?!\\w))', 'i');
 		}
 	}
-	static isHighlightableChatMessage(message: string) {
+	static isHighlightableChatMessage(message: string, isDM = false) {
 		if (!message.startsWith('/')) return true;
 		const [cmd] = PSUtils.splitFirst(message.slice(1), ' ');
 		if (['raw', 'nonotify', 'text', 'error'].includes(cmd)) {
 			return false;
+		}
+		if (['uhtml', 'uhtmlchange'].includes(cmd)) {
+			return isDM;
 		}
 		if (cmd === 'subtlenotify') {
 			return 'subtle';
@@ -332,7 +335,8 @@ export class ChatRoom extends PSRoom {
 		if (!message) return false;
 		if (userid === PS.user.userid) return false;
 
-		const highlightType = ChatRoom.isHighlightableChatMessage(message);
+		const isDM = this.id.startsWith("dm-");
+		const highlightType = ChatRoom.isHighlightableChatMessage(message, isDM);
 		const isIgnored = PS.prefs.ignore?.[userid];
 		if (isIgnored || !highlightType) return false;
 		if (highlightType === 'subtle') {
@@ -340,7 +344,7 @@ export class ChatRoom extends PSRoom {
 			return false;
 		}
 
-		if (this.id.startsWith("dm-")) {
+		if (isDM) {
 			this.notify({
 				title: `${this.title}`,
 				body: this.getChatNotificationBody(message),
@@ -1630,8 +1634,8 @@ export class PSTextarea extends preact.Component<{
 		const textboxTest = this.base!.querySelector<HTMLTextAreaElement>('textarea.heighttester')!;
 		textboxTest.style.width = `${textbox.offsetWidth}px`;
 		textboxTest.value = textbox.value;
-		const newHeight = Math.max(textboxTest.scrollHeight + 40, 50);
-		textbox.style.height = `${newHeight}px`;
+		// +2 for the borders
+		textbox.style.height = `${textboxTest.scrollHeight + 2}px`;
 	};
 	handleInput = (e: Event) => {
 		if (this.props.singleLine) {
@@ -1673,7 +1677,7 @@ export class PSTextarea extends preact.Component<{
 			/>
 			{!this.cssAutosize && <div><textarea
 				class={`${className} heighttester`}
-				style="visibility:hidden;position:absolute;left:-200px"
+				style="visibility:hidden;position:absolute;left:-200px;height:10px;overflow-y:hidden"
 			/></div>}
 		</div>;
 	}

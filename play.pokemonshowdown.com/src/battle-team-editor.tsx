@@ -2094,7 +2094,7 @@ class TeamEditorForm extends preact.Component<{
 		const cur = (i: number) => setIndex === i ? ' cur' : '';
 		const isSearchMode = type !== 'stats' && type !== 'details' && type !== 'import';
 		const SEARCH_PLACEHOLDERS = {
-			'pokemon': 'Search species or filter by type, learnable moves, ability, or egg group',
+			'pokemon': 'Search species or filter by type, learnable moves, ability, tier, or egg group',
 			'ability': 'Search abilities',
 			'item': 'Search items',
 			'move': 'Search moves or filter by type or category',
@@ -2708,6 +2708,7 @@ class TeamEditorForm extends preact.Component<{
 			this.resetScroll();
 			this.forceUpdate();
 		} else if (!type) {
+			this.focusFocusedSetField();
 			const searchBox = this.base!.querySelector<HTMLInputElement>('input[name=value]');
 			if (searchBox) {
 				searchBox.value = '';

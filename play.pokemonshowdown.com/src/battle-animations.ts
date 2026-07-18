@@ -740,9 +740,10 @@ export class BattleScene implements BattleSceneStub {
 			}
 			badgehtml += '</span>';
 		}
+		const avatar = Dex.resolveAvatar(side.avatar);
 		return (
 			`<div class="trainer trainer-${posStr}"${faded}><strong>${BattleLog.escapeHTML(side.name)}</strong>` +
-			`<div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})">` +
+			`<div class="trainersprite${avatar.includes('unknown') ? ' noflip' : ''}"${ratinghtml} style="background-image:url(${avatar})">` +
 			`</div>${badgehtml}${pokemonhtml}</div>`
 		);
 	}

@@ -15,6 +15,7 @@ import {
 } from "./client-main";
 import { PSView } from "./panels";
 import type { Battle } from "./battle";
+import { Dex } from "./battle-dex";
 import { BattleLog } from "./battle-log"; // optional
 
 window.addEventListener('dragover', e => {
@@ -23,6 +24,16 @@ window.addEventListener('dragover', e => {
 });
 
 export class PSHeader extends preact.Component {
+	faviconNotifying = false;
+	updateFavicon = () => {
+		const notifying = Object.values(PS.rooms).some(room => room?.notifications.length);
+		if (notifying === this.faviconNotifying) return;
+
+		const favicon = document.querySelector<HTMLLinkElement>('#dynamic-favicon');
+		if (!favicon) return;
+		favicon.href = `${Dex.resourcePrefix}${notifying ? 'favicon-notify.ico' : 'favicon.ico'}`;
+		this.faviconNotifying = notifying;
+	};
 	static toggleMute = (e: Event) => {
 		PS.prefs.set('mute', !PS.prefs.mute);
 		PS.update();
@@ -205,9 +216,11 @@ export class PSHeader extends preact.Component {
 		});
 		window.addEventListener('resize', this.handleResize);
 		this.handleResize();
+		this.updateFavicon();
 	}
 	override componentDidUpdate() {
 		this.handleResize();
+		this.updateFavicon();
 	}
 	renderUser() {
 		if (!PS.connection?.connected) {

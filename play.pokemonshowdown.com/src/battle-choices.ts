@@ -224,14 +224,15 @@ export class BattleChoiceBuilder {
 		/** only the last choice can be uncancelable */
 		const isLastChoice = this.choices.length + 1 >= this.requestLength();
 		if (choice.choiceType === 'move') {
-			if (!choice.targetLoc && (this.request as BattleMoveRequest).targetable) {
+			const targetable = (this.request as BattleMoveRequest).targetable;
+			if (!choice.targetLoc && targetable) {
 				const choosableTargets: unknown[] = ['normal', 'any', 'adjacentAlly', 'adjacentAllyOrSelf', 'adjacentFoe'];
 				if (choosableTargets.includes(this.currentMove(choice)?.target)) {
 					this.current = choice;
 					return null;
 				}
 			}
-			if (this.currentMoveRequest()?.maybeDisabled && isLastChoice && this.requestLength() === 1) {
+			if (this.currentMoveRequest()?.maybeDisabled && isLastChoice && !targetable) {
 				this.noCancel = true;
 			}
 			if (choice.mega || choice.megax || choice.megay) this.alreadyMega = true;

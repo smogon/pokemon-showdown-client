@@ -418,12 +418,15 @@
 	height: 13px;
 	border-radius: 9px;
 	font: 9px Helvetica, Arial, sans-serif;
-	/* text-shadow: none; */
-	text-shadow: 0 1px 0 black;
 	text-align: center;
 	padding: 2px 4px 0 4px;
 	font-weight: bold;
 	text-transform: uppercase;
+
+	text-shadow: none;
+	/* text-shadow: 0 1px 0 black; */
+	-webkit-text-stroke: 2px rgba(0, 0, 0, 0.4);
+	paint-order: stroke fill;
 }
 .typetile.tera, .typeicon.tera {
   --s: 3px; /* spike depth */
