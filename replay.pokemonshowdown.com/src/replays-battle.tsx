@@ -103,7 +103,7 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 			return;
 		}
 
-		Net(`/${this.stripQuery(id)}.json`).get().then(result => {
+		Net(`/${this.stripQuery(id)}.json?countview`).get().then(result => {
 			this.loadResult(result, id);
 		}).catch(err => {
 			this.loadResult(err.statusCode === 404 ? '' : String(err?.body || ''), id);
