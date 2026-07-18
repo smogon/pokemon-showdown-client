@@ -312,42 +312,44 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		}
 
 		const unsaved = team.uploaded && team.uploadedPackedTeam ? team.uploadedPackedTeam !== team.packedTeam : false;
-		return <PSPanelWrapper room={room}><div class="pad">
-			<a class="button" href="teambuilder" data-target="replace">
-				<i class="fa fa-chevron-left" aria-hidden></i> Teams
-			</a> {}
-			{team.uploaded ? (
-				<>
-					<button class={`button${unsaved ? ' button-first' : ''}`} data-href={`teamstorage-${team.key}`}>
-						<i class="fa fa-globe"></i> Account {team.uploaded.private ? '' : "(public)"}
+		return <PSPanelWrapper room={room}>
+			<div class="team-pad">
+				<a class="button" href="teambuilder" data-target="replace">
+					<i class="fa fa-chevron-left" aria-hidden></i> Teams
+				</a> {}
+				{team.uploaded ? (
+					<>
+						<button class={`button${unsaved ? ' button-first' : ''}`} data-href={`teamstorage-${team.key}`}>
+							<i class="fa fa-globe"></i> Account {team.uploaded.private ? '' : "(public)"}
+						</button>
+						{unsaved && <button class="button button-last notifying" onClick={this.uploadTeam}>
+							<strong>Upload changes</strong>
+						</button>}
+					</>
+				) : team.teamid ? (
+					<button class="button" data-href={`teamstorage-${team.key}`}>
+						<i class="fa fa-plug"></i> Disconnected (wrong account?)
 					</button>
-					{unsaved && <button class="button button-last" onClick={this.uploadTeam}>
-						<strong>Upload changes</strong>
-					</button>}
-				</>
-			) : team.teamid ? (
-				<button class="button" data-href={`teamstorage-${team.key}`}>
-					<i class="fa fa-plug"></i> Disconnected (wrong account?)
-				</button>
-			) : (
-				<button class="button" data-href={`teamstorage-${team.key}`}>
-					<i class="fa fa-laptop"></i> Local
-				</button>
-			)}
-			<div style={room.width < 550 ? "margin-top:8px" : "float:right"}><button
-				name="format" value={team.format} data-selecttype="teambuilder"
-				class="select formatselect" data-href="/formatdropdown" onChange={this.handleChangeFormat}
-			>
-				<i class="fa fa-folder-o"></i> {BattleLog.formatName(team.format)} {}
-				{team.format.length <= 4 && <em>(uncategorized)</em>}
-			</button></div>
-			<label class="label teamname">
-				Team name:{}
-				<input
-					class="textbox" type="text" value={team.name}
-					onInput={this.handleRename} onChange={this.handleRename} onKeyUp={this.handleRename}
-				/>
-			</label>
+				) : (
+					<button class="button" data-href={`teamstorage-${team.key}`}>
+						<i class="fa fa-laptop"></i> Local
+					</button>
+				)}
+				<div style={room.width < 550 ? "margin-top:8px" : "float:right"}><button
+					name="format" value={team.format} data-selecttype="teambuilder"
+					class="select formatselect" data-href="/formatdropdown" onChange={this.handleChangeFormat}
+				>
+					<i class="fa fa-folder-o"></i> {BattleLog.formatName(team.format)} {}
+					{team.format.length <= 4 && <em>(uncategorized)</em>}
+				</button></div>
+				<label class="label teamname">
+					Team name:{}
+					<input
+						class="textbox" type="text" defaultValue={team.name}
+						onInput={this.handleRename} onChange={this.handleRename} onKeyUp={this.handleRename}
+					/>
+				</label>
+			</div>
 			<TeamEditor
 				team={team} onChange={this.save} readOnly={!!team.teamid && !team.uploadedPackedTeam} resources={this.renderResources()}
 				narrow={room.width < 550}
@@ -365,7 +367,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 							url={`https://psim.us/t/${team.uploaded.teamid}${team.uploaded.private ? '-' + team.uploaded.private : ''}`}
 						/> {}
 						{unsaved && <div style="padding-top:5px">
-							<button class="button" onClick={this.uploadTeam}>
+							<button class="button notifying" onClick={this.uploadTeam}>
 								<i class="fa fa-upload"></i> <strong>Upload changes</strong>
 							</button> {}
 							<button class="button" onClick={this.restore}>
@@ -394,7 +396,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 					</>}
 				</p>}
 			</TeamEditor>
-		</div></PSPanelWrapper>;
+		</PSPanelWrapper>;
 	}
 }
 

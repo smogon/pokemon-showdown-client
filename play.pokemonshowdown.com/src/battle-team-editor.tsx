@@ -64,6 +64,7 @@ export class TeamEditorState extends PSModel {
 	format: ID = `gen${this.gen}` as ID;
 	originalSpecies: string | null = null;
 	narrow = false;
+	narrowStats = false;
 	innerFocus: InnerFocusState | null = null;
 	isLetsGo = false;
 	isNatDex = false;
@@ -963,12 +964,92 @@ export class TeamEditor extends preact.Component<{
 	editorRef?: (editor: TeamEditorState) => void,
 }> {
 	mode: TeamEditorMode = 'form';
+	spacious: boolean | null = null;
+	zoomOutForms = false;
+	zoomOutSearch = false;
 	editor!: TeamEditorState;
+	optionsMenu: HTMLDetailsElement | null = null;
+	getSpacious() {
+		return window.PS?.prefs.teameditorspacious ?? this.spacious ?? document.documentElement.clientHeight >= 950;
+	}
+	getZoomOutForms() {
+		return window.PS?.prefs.teameditorzoomoutforms ?? this.zoomOutForms;
+	}
+	getZoomOutSearch() {
+		return window.PS?.prefs.teameditorzoomoutsearch ?? this.zoomOutSearch;
+	}
 	setTab = (ev: Event) => {
 		const target = ev.currentTarget as HTMLButtonElement;
 		this.mode = target.value as TeamEditorMode;
 		this.forceUpdate();
 	};
+	setLayout = (ev: Event) => {
+		const layout = (ev.currentTarget as HTMLSelectElement).value;
+		const spacious = layout === 'automatic' ? null : layout === 'comfortable';
+		if (window.PS) {
+			window.PS.prefs.set('teameditorspacious', spacious);
+		} else {
+			this.spacious = spacious;
+		}
+		this.forceUpdate();
+	};
+	setZoomOutForms = (ev: Event) => {
+		const checked = (ev.currentTarget as HTMLInputElement).checked;
+		if (window.PS) {
+			window.PS.prefs.set('teameditorzoomoutforms', checked ? true : null);
+		}
+		this.zoomOutForms = checked;
+		this.forceUpdate();
+	};
+	setZoomOutSearch = (ev: Event) => {
+		const checked = (ev.currentTarget as HTMLInputElement).checked;
+		if (window.PS) {
+			window.PS.prefs.set('teameditorzoomoutsearch', checked ? true : null);
+		}
+		this.zoomOutSearch = checked;
+		this.forceUpdate();
+	};
+	updateMobileScale = () => {
+		const elem = this.base as HTMLElement | null;
+		if (!elem) return;
+		const scale = Math.min(window.innerWidth / 635, 1) || 1;
+		elem.style.setProperty('--teameditor-mobile-scale', `${scale}`);
+		if (this.getZoomOutForms()) {
+			const setList = elem.querySelector<HTMLElement>('.set-list, .team-focus-editor .set-form');
+			const heightOffset = setList ? -setList.offsetHeight * (1 - scale) : 0;
+			elem.style.setProperty('--teameditor-mobile-height-offset', `${heightOffset}px`);
+		} else {
+			elem.style.setProperty('--teameditor-mobile-height-offset', `0px`);
+		}
+		if (this.getZoomOutSearch()) {
+			const focusEditor = elem.querySelector<HTMLElement>('.team-focus-editor');
+			const searchResults = focusEditor?.querySelector<HTMLElement>('.set-searchresults');
+			if (focusEditor && searchResults) {
+				const availableHeight = focusEditor.clientHeight - searchResults.offsetTop;
+				elem.style.setProperty('--teameditor-mobile-search-height', `${availableHeight / scale}px`);
+			}
+		}
+	};
+	closeOptionsOnClick = (ev: MouseEvent) => {
+		if (!this.optionsMenu?.open) return;
+		if (ev.target && this.optionsMenu.contains(ev.target as Node)) return;
+		this.optionsMenu.open = false;
+	};
+	handleResize = () => {
+		this.forceUpdate();
+	};
+	override componentDidMount() {
+		window.addEventListener('click', this.closeOptionsOnClick);
+		window.addEventListener('resize', this.handleResize);
+		this.updateMobileScale();
+	}
+	override componentDidUpdate() {
+		this.updateMobileScale();
+	}
+	override componentWillUnmount() {
+		window.removeEventListener('click', this.closeOptionsOnClick);
+		window.removeEventListener('resize', this.handleResize);
+	}
 	static probablyMobile() {
 		return window.innerWidth < 500;
 	}
@@ -1025,19 +1106,54 @@ export class TeamEditor extends preact.Component<{
 		const editor = this.editor;
 		window.editor = editor; // debug
 		editor.updateTeam(!!this.props.readOnly);
-		editor.narrow = this.props.narrow ?? window.innerWidth < 500;
+		const mobileOptions = window.innerWidth < 635;
+		const spacious = this.getSpacious();
+		const zoomOutForms = this.getZoomOutForms();
+		const zoomOutSearch = this.getZoomOutSearch();
+		const useFullSizeEditor = zoomOutForms && mobileOptions;
+		const narrow = this.props.narrow ?? window.innerWidth < 500;
+		editor.narrow = !useFullSizeEditor && narrow;
+		editor.narrowStats = useFullSizeEditor || narrow;
 		if (this.props.team.format !== editor.format) {
 			editor.setFormat(this.props.team.format);
 		}
+		const useSpaciousCSS = spacious && !mobileOptions || zoomOutForms && mobileOptions;
+		const className = `teameditor${useSpaciousCSS ? ' teameditor-spacious' : ''}` +
+			`${zoomOutForms && mobileOptions ? ' teameditor-zoom-out-forms' : ''}` +
+			`${zoomOutSearch && mobileOptions ? ' teameditor-full-size-search' : ''}`;
+		const layout = window.PS ? window.PS.prefs.teameditorspacious : this.spacious;
+		const automaticLayout = document.documentElement.clientHeight >= 950 ? 'Comfortable' : 'Compact';
 
-		return <div class="teameditor">
-			<ul class="tabbar">
+		return <div class={className}>
+			<ul class="tabbar unpadded-tabbar">
 				<li><button onClick={this.setTab} value="form" class={`button${this.mode === 'form' ? ' cur' : ''}`}>
 					Form
 				</button></li>
-				<li><button onClick={this.setTab} value="import" class={`button${this.mode === 'import' ? ' cur' : ''}`}>
+				<li><button onClick={this.setTab} value="import" class={`button button-last${this.mode === 'import' ? ' cur' : ''}`}>
 					Import/Export
 				</button></li>
+				<li class="teameditor-options" style="float: right; margin-top: 1px; margin-right: 8px;">
+					<details ref={el => { this.optionsMenu = el; }}>
+						<summary class="button button-first">Options</summary>
+						<div class="teameditor-options-menu">
+							{mobileOptions ? <label class="checkbox"><input
+								name="zoomoutforms" type="checkbox"
+								checked={zoomOutForms} onChange={this.setZoomOutForms}
+							/> Zoom out forms</label> : <label>Layout: <select
+								name="layout" class="select" onChange={this.setLayout}
+								value={layout === null ? 'automatic' : layout ? 'comfortable' : 'compact'}
+							>
+								<option value="automatic">Automatic ({automaticLayout})</option>
+								<option value="compact">Compact</option>
+								<option value="comfortable">Comfortable</option>
+							</select></label>}
+							{mobileOptions && <label class="checkbox"><input
+								name="zoomoutsearch" type="checkbox"
+								checked={zoomOutSearch} onChange={this.setZoomOutSearch}
+							/> Zoom out search results</label>}
+						</div>
+					</details>
+				</li>
 			</ul>
 			{TeamEditorState.renderClipboard(this.cancelClipboard)}
 			{this.mode === 'form' ? (
@@ -1045,14 +1161,14 @@ export class TeamEditor extends preact.Component<{
 			) : (
 				<TeamTextbox editor={editor} onChange={this.props.onChange} onUpdate={this.update} />
 			)}
-			{!this.editor.innerFocus && <>
+			{!this.editor.innerFocus && <div class="team-pad">
 				{this.props.children}
 				<div class="team-resources">
 					<br /><hr /><br />
 					{this.renderDefensiveCoverage()}
 					{this.props.resources}
 				</div>
-			</>}
+			</div>}
 		</div>;
 	}
 }
@@ -1745,7 +1861,7 @@ class TeamTextbox extends preact.Component<{
 		const resultsCSS = this.innerFocus && (
 			`top:${(this.setInfo[this.innerFocus.setIndex]?.bottomY ?? this.bottomY() + 50) - 12}px`
 		);
-		return <div>
+		return <div class="team-pad">
 			<p>
 				<button class={`button ${this.state.copyButtonUsed ? 'cur' : ''}`} onClick={this.copyAll}>
 					{this.state.copyButtonUsed ? (
@@ -2121,7 +2237,7 @@ class TeamEditorForm extends preact.Component<{
 						<i class="fa fa-plus"></i>
 					</button></li>}
 				</ul>
-				<div class="pad" style="padding-top:0">{this.renderSet(set, setIndex)}</div>
+				<div class="team-pad" style="padding-top:0">{this.renderSet(set, setIndex)}</div>
 				{isSearchMode && <div class="searchboxwrapper pad" onClick={this.handleClickFilters}>
 					<input
 						type="search" name="value" class="textbox" placeholder={SEARCH_PLACEHOLDERS[type] || ''}
@@ -2180,7 +2296,7 @@ class TeamEditorForm extends preact.Component<{
 				<i class="fa fa-undo" aria-hidden></i> Undo delete
 			</button>
 		</p> : null;
-		return <div class={`teameditor${editor.readonly ? ' readonly' : ''}`}>
+		return <div class={`set-list team-pad${editor.readonly ? ' readonly' : ''}`}>
 			{editor.sets.map((set, i) => [
 				pasteControls(i),
 				this.renderSet(set, i),
@@ -3604,6 +3720,7 @@ class StatForm extends preact.Component<{
 	}
 	override render() {
 		const { editor, set } = this.props;
+		const narrow = editor.narrowStats;
 		const species = editor.dex.species.get(set.species);
 
 		const baseStats = species.baseStats;
@@ -3616,7 +3733,7 @@ class StatForm extends preact.Component<{
 		const useIVs = editor.gen > 2;
 
 		// label column
-		const statNames = editor.narrow ? {
+		const statNames = narrow ? {
 			hp: 'HP',
 			atk: 'Atk',
 			def: 'Def',
@@ -3652,7 +3769,7 @@ class StatForm extends preact.Component<{
 		}
 		const defaultIVs = editor.defaultIVs(set);
 
-		return <div style="font-size:10pt" role="dialog" aria-label="Stats">
+		return <div class={narrow ? 'tiny-layout' : ''} style="font-size:10pt" role="dialog" aria-label="Stats">
 			<div class="resultheader"><h3>EVs, IVs, and Nature</h3></div>
 			<div class="pad">
 				{this.renderSpreadGuesser()}
@@ -3682,7 +3799,7 @@ class StatForm extends preact.Component<{
 						/></td>
 						{!editor.isChampions && <td><input
 							name={`iv-${statID}`} min={0} max={useIVs ? 31 : 15} placeholder={`${defaultIVs[statID]}`}
-							style={editor.narrow ? "width:22px" : "width:40px"} type={editor.narrow ? 'text' : 'number'} inputMode="numeric"
+							style={narrow ? "width:22px" : "width:40px"} type={narrow ? 'text' : 'number'} inputMode="numeric"
 							class="textbox default-placeholder stat-input" onInput={this.changeIV}
 							onChange={this.changeIV} onKeyDown={this.keyDownStatInput}
 						/></td>}
@@ -3705,7 +3822,7 @@ class StatForm extends preact.Component<{
 						))}
 					</select>
 				</p>}
-				{editor.gen >= 3 && !editor.narrow && <p>
+				{editor.gen >= 3 && !narrow && <p>
 					<small><em>Protip:</em> You can also set natures by typing <kbd>+</kbd> and <kbd>-</kbd> in the EV box.</small>
 				</p>}
 				{editor.gen >= 3 && this.renderStatOptimizer()}

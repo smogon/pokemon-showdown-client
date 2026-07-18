@@ -16,6 +16,18 @@ export class PSTeambuilder {
 		const dex = Dex.forFormat(team.format);
 		return Teams.export(sets, dex);
 	}
+	static exportTeamBackup(teams: Team[], readable = false) {
+		if (!readable) return PS.teams.packAll(teams);
+		let buf = '';
+		for (const team of teams) {
+			const format = team.format ? `[${team.format}${team.isBox ? '-box' : ''}] ` : '';
+			const folder = team.folder ? `${team.folder}/` : '';
+			buf += `=== ${format}${folder}${team.name} ===\n\n`;
+			buf += this.exportPackedTeam(team);
+			buf += `\n`;
+		}
+		return buf;
+	}
 	static splitPrefix(buffer: string, delimiter: string, prefixOffset = 0): [string, string] {
 		const delimIndex = buffer.indexOf(delimiter);
 		if (delimIndex < 0) return ['', buffer];

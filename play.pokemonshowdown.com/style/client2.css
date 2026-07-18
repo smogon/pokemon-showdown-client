@@ -451,11 +451,11 @@ li::marker {
 	padding-top: 3px;
 	padding-bottom: 5px;
 }
-.tabbar li:first-child .button, .tabbar li.home-li .button, .tabbar li.home-li + li .button {
+.tabbar li:first-child .button, .tabbar li.home-li .button, .tabbar li.home-li + li .button, .tabbar .button-first {
 	border-top-left-radius: 5px;
 	margin-left: 6px;
 }
-.tabbar li:last-child .button, .tabbar li.home-li .button {
+.tabbar li:last-child .button, .tabbar li.home-li .button, .tabbar .button-last {
 	border-top-right-radius: 5px;
 }
 .tabbar a.closable {
@@ -2356,12 +2356,6 @@ pre.textbox.textbox-empty[placeholder]:before {
 .teamlist .team, .teamdropdown .team {
 	display: inline-block;
 	vertical-align: middle;
-}
-.teamlist .dragging button {
-	visibility: hidden;
-}
-.teamlist .dragging .team {
-	opacity: 0.4;
 }
 
 /*********************************************************

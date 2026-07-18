@@ -2205,6 +2205,7 @@ p.or:after {
 	padding: 0;
 	/* lazy windowing */
 	content-visibility: auto;
+	contain-intrinsic-size: 49px;
 	contain-intrinsic-size: auto none auto 49px;
 }
 

@@ -138,6 +138,11 @@ class PSPrefs extends PSStreamModel<string | null> {
 	disallowspectators: boolean | null = null;
 	starredformats: { [formatid: string]: true | undefined } | null = null;
 
+	/* Teambuilder preferences */
+	teameditorspacious: boolean | null = null;
+	teameditorzoomoutforms: boolean | null = null;
+	teameditorzoomoutsearch: boolean | null = null;
+
 	/**
 	 * Show "User joined" and "User left" messages. serverid:roomid
 	 * table. Uses 1 and 0 instead of true/false for JSON packing
@@ -2142,6 +2147,7 @@ export const PS = new class extends PSModel {
 				maxWidth: 640,
 			};
 		case 'team':
+		case 'teambuilder':
 			return {
 				minWidth: 660,
 				width: 660,

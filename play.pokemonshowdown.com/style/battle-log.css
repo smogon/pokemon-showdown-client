@@ -395,9 +395,6 @@ select.base-select::picker-icon {
 .checkbox img {
 	vertical-align: middle;
 }
-.checkbox.inline {
-	display: inline-block;
-}
 .checkbox input {
 	width: 14px;
 	height: 14px;
@@ -876,6 +873,10 @@ this. */
 	display: block;
 	text-align: center;
 	padding-top: 7px;
+}
+.inline {
+	display: inline-block;
+	vertical-align: middle;
 }
 
 /*********************************************************

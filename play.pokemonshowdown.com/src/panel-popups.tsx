@@ -1848,7 +1848,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<input
 						name="autohardcore" checked={PS.prefs.autohardcore || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> <abbr title="Disable quality-of-life features not available in official games">Hardcore mode</abbr>
+					/> Hardcore mode
 				</label>
 			</p>
 			<p>
