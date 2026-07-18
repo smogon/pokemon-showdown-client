@@ -1723,7 +1723,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			return (!moves.includes('flareblitz') && !moves.includes('pyroball') && !moves.includes('sacredfire') &&
 				!moves.includes('bitterblade') && !moves.includes('firepunch')) || this.isDoubles;
 		case 'terablast':
-			return !this.terastalClause;
+			return !this.terastalClause && dex.gen === 9;
 		case 'terrainpulse': case 'waterpulse':
 			return ['megalauncher', 'technician'].includes(abilityid) && !moves.includes('originpulse');
 		case 'thief':
