@@ -2876,7 +2876,7 @@ export class PokemonSprite extends Sprite {
 	private static getEffectTag(id: string, pokemon?: Pokemon) {
 		if (id === 'slowstart') {
 			let count = 1;
-			if (pokemon && pokemon.volatiles.slowstart && pokemon.volatiles.slowstart.length > 1) {
+			if (pokemon?.volatiles.slowstart && pokemon?.volatiles.slowstart.length > 1) {
 				const raw = Number(pokemon.volatiles.slowstart[1]);
 				if (!isNaN(raw)) {
 					count = Math.max(1, Math.min(5, Math.floor(raw)));
