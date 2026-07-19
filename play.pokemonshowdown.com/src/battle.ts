@@ -931,6 +931,14 @@ export class Side {
 		}
 		this.battle.scene.animSummon(pokemon, slot, true);
 	}
+	// I DECLARE SWITCHOUT!!!
+	declareSwitchOut(pokemon: Pokemon, kwArgs: KWArgs, slot = pokemon.slot) {
+		const effect = Dex.getEffect(kwArgs.from);
+		if (!['batonpass', 'zbatonpass', 'shedtail', 'teleport'].includes(effect.id) &&
+			!(this.battle.tier.includes(`Relay Race`) && !effect.id)) {
+			this.battle.log(['switchout', pokemon.ident], { from: effect.id });
+		}
+	}
 	switchOut(pokemon: Pokemon, kwArgs: KWArgs, slot = pokemon.slot) {
 		const effect = Dex.getEffect(kwArgs.from);
 		if (!['batonpass', 'zbatonpass'].includes(effect.id) &&
@@ -943,10 +951,6 @@ export class Side {
 		} else {
 			pokemon.removeVolatile('transform' as ID);
 			pokemon.removeVolatile('formechange' as ID);
-		}
-		if (!['batonpass', 'zbatonpass', 'shedtail', 'teleport'].includes(effect.id) &&
-			!(this.battle.tier.includes(`Relay Race`) && !effect.id)) {
-			this.battle.log(['switchout', pokemon.ident], { from: effect.id });
 		}
 		pokemon.statusData.toxicTurns = 0;
 		if (this.battle.gen === 5) pokemon.statusData.sleepTurns = 0;
@@ -3751,6 +3755,15 @@ export class Battle {
 				if (set.teraType) pokemon.teraType = set.teraType;
 			}
 			this.log(args, kwArgs);
+			break;
+		}
+		// Happens prior to the BeforeSwitchOut event. So we can add the switch declaration to the battle log before things like pursuit happen.
+		case 'preswitch': {
+			let poke = this.getSwitchedPokemon(args[1], args[2]);
+			let slot = poke.slot;
+			if (poke.side.active[slot]) {
+				poke.side.declareSwitchOut(poke.side.active[slot], kwArgs);
+			}
 			break;
 		}
 		case 'switch': case 'drag': case 'replace': {
