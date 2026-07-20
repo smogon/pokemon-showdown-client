@@ -1724,7 +1724,6 @@ class BattleOptionsPanel extends PSRoomPanel {
 		const battleRoom = this.getBattleRoom();
 		const isPlaying = !!battleRoom?.isPlaying();
 		const canOfferTie = battleRoom && ((battleRoom.battle.turn >= 100 && isPlaying) || PS.user.group === '~');
-		const sideBySideDisabled = !!battleRoom && battleRoom.width < 500;
 		let automaticLayout: BattleLayoutPreference | null = null;
 		if (battleRoom) {
 			const { layout, overlayControls } = PS.chooseBattleLayout(battleRoom.width, battleRoom.height);
@@ -1783,10 +1782,10 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<option value="">
 						Automatic{automaticLayout ? ` (${BATTLE_LAYOUT_LABELS[automaticLayout]})` : ''}
 					</option>
-					<option value="side-by-side" disabled={sideBySideDisabled}>
+					<option value="side-by-side">
 						{BATTLE_LAYOUT_LABELS['side-by-side']} (DESKTOP)
 					</option>
-					<option value="side-by-side-overlay" disabled={sideBySideDisabled}>
+					<option value="side-by-side-overlay">
 						{BATTLE_LAYOUT_LABELS['side-by-side-overlay']}
 					</option>
 					<option value="top-and-bottom">

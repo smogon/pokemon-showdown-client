@@ -74,6 +74,7 @@ export type RoomID = Lowercase<string> & { __isRoomID: true };
 export type TimestampOptions = 'minutes' | 'seconds' | undefined;
 /**
  * * `side-by-side`: desktop layout, with battle on left and chat on right, controls below battle
+ *   on phones, a toggle to switch between battle/controls and chat
  * * `top-and-bottom`: vertical phone layout, with battle on top and chat/controls on bottom
  * * `scrolling`: horizontal phone layout, fully scrollable
  */
@@ -2003,6 +2004,10 @@ export const PS = new class extends PSModel {
 			return true;
 		}
 		if (room.type === 'battle') {
+			if ((oldWidth < 500) !==
+				(newWidth < 500)) {
+				return true;
+			}
 			const oldLayoutState = this.chooseBattleLayout(oldWidth, oldHeight, this.prefs.battlelayout);
 			const newLayoutState = this.chooseBattleLayout(newWidth, newHeight, this.prefs.battlelayout);
 			if (oldLayoutState.layout !== newLayoutState.layout ||
@@ -2021,10 +2026,10 @@ export const PS = new class extends PSModel {
 			height < uncappedBattleHeight + 150 ? 'scrolling' : 'top-and-bottom';
 
 		const preferredLayout = preference?.replace(/-overlay$/, '') as BattlePanelLayout;
-		if (preferredLayout && (width >= 500 || preferredLayout !== 'side-by-side')) {
+		if (preferredLayout) {
 			layout = preferredLayout;
 		}
-		if (layout === 'side-by-side') {
+		if (layout === 'side-by-side' && width >= 500) {
 			scale = Math.min(scale, Math.max(0, width - 180) / 640);
 		} else if (layout === 'top-and-bottom') {
 			scale = Math.min(scale, Math.max(0, height - 180) / 360);

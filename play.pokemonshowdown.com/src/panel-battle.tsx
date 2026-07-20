@@ -335,6 +335,15 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	}
 	/** last displayed team. will not show the most recent request until the last one is gone. */
 	team: ServerPokemon[] | null = null;
+	mobileChatShown = false;
+	showMobileChat = () => {
+		this.mobileChatShown = true;
+		this.forceUpdate();
+	};
+	showMobileBattle = () => {
+		this.mobileChatShown = false;
+		this.forceUpdate();
+	};
 	send = (text: string, elem?: HTMLElement) => {
 		this.props.room.send(text, elem);
 	};
@@ -1332,6 +1341,49 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
 					<TimerButton room={room} top={battleHeight + 7} />}
 				<div class="battle-controls-container"></div>
+			</PSPanelWrapper>;
+		}
+
+		if (room.width < 500) {
+			// oldclient phone layout
+			const showingChat = this.mobileChatShown;
+			return <PSPanelWrapper room={room} focusClick noScroll="hidden">
+				{hardcoreStyle}
+				<div class="scrollable-battle-container" style={`width:${battleWidth}px;${showingChat ? 'display:none;' : ''}`}>
+					<BattleDiv room={room} />
+					{overlayVersion && <div
+						class="overlay-controls"
+						style={`position:absolute;left:0;top:${battleHeight}px;width:${battleWidth}px;height:0`}
+					>
+						{this.renderControls(true)}
+					</div>}
+					<div class="battle-controls-container">
+						<div
+							class={`battle-controls${battleWidth >= 639 ? ' wide-controls' : ''}`}
+							role="complementary" aria-label="Battle Controls"
+							style={`top:${battleHeight + 10}px;width:${battleWidth}px;`}
+						>
+							{(room.battle && !room.battle.ended && room.request &&
+								room.battle.mySide.id === PS.user.userid) && <TimerButton room={room} top={0} />}
+							{this.renderControls(false, overlayVersion)}
+							{this.renderConnectError()}
+						</div>
+					</div>
+				</div>
+				<div style={!showingChat ? 'display:none;' : ''}>
+					<ChatLog class="battle-log hasuserlist" room={room} noSubscription hasPreempt />
+					<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} tinyLayout />
+					<ChatUserList room={room} minimized />
+				</div>
+				{showingChat ? (
+					<button class="battle-chat-toggle button" name="hideChat" onClick={this.showMobileBattle}>
+						Battle <i class="fa fa-caret-right" aria-hidden></i>
+					</button>
+				) : (
+					<button class="battle-chat-toggle button" name="showChat" onClick={this.showMobileChat}>
+						<i class="fa fa-caret-left" aria-hidden></i> Chat
+					</button>
+				)}
 			</PSPanelWrapper>;
 		}
 
