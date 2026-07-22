@@ -2655,7 +2655,7 @@ export const PS = new class extends PSModel {
 		otherButtons?: preact.ComponentChildren, parentElem?: HTMLElement,
 	} = {}) {
 		opts.cancelButton ??= 'Cancel';
-		return new Promise(resolve => {
+		return new Promise<boolean>(resolve => {
 			this.join(`popup-${this.popups.length}` as RoomID, {
 				args: { message, okValue: true, cancelValue: false, callback: resolve, ...opts, parentElem: null },
 				parentElem: opts.parentElem,
@@ -2664,14 +2664,14 @@ export const PS = new class extends PSModel {
 	}
 	prompt(message: string, opts: {
 		defaultValue?: string, okButton?: string, cancelButton?: string, type?: 'text' | 'password' | 'number' | 'numeric',
-		otherButtons?: preact.ComponentChildren, parentElem?: HTMLElement | null,
+		label?: string, otherButtons?: preact.ComponentChildren, parentElem?: HTMLElement | null,
 	} = {}): Promise<string | null> {
 		opts.cancelButton ??= 'Cancel';
 		return new Promise(resolve => {
 			this.join(`popup-${this.popups.length}` as RoomID, {
 				args: {
 					message, value: opts.defaultValue || '',
-					okValue: true, cancelValue: false, callback: resolve, ...opts, parentElem: null,
+					okValue: true, cancelValue: null, callback: resolve, ...opts, parentElem: null,
 				},
 				parentElem: opts.parentElem,
 			});

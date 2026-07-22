@@ -977,9 +977,12 @@ p.or:after {
 	background: #052f68;
 	color: #b3d2fc;
 }
-.challenge.outgoing fieldset {
-	border: 1px solid #217bf5;
+.fieldset {
+	border: 1px solid #888;
 	border-radius: 5px;
+}
+.challenge.outgoing .fieldset {
+	border-color: #217bf5;
 }
 .challenge p {
 	margin: 4px 0;
@@ -1126,6 +1129,10 @@ form.menugroup {
 	white-space: pre-wrap;
 	border-radius: 4px;
 }
+
+/*********************************************************
+ * User menu
+ *********************************************************/
 
 /*********************************************************
  * Room list
@@ -2389,6 +2396,20 @@ pre.textbox.textbox-empty[placeholder]:before {
 }
 .buttonbar {
 	clear: both;
+}
+.buttonmenu p {
+	margin: 3px 0;
+}
+.buttonmenu legend {
+	font-size: 9pt;
+	color: #555;
+}
+.dark .buttonmenu legend {
+	color: #AAA;
+}
+.buttonmenu .fieldset {
+	padding: 1px 8px 5px;
+	margin: 8px 0;
 }
 
 .bglist {

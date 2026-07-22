@@ -1063,7 +1063,7 @@ export class TeamForm extends preact.Component<{
 				<label class="checkbox"><input
 					type="checkbox" name="customrules" checked={this.customRules} onChange={this.toggleCustomRule}
 				/> Custom rules</label>
-			</p> : <fieldset>
+			</p> : <fieldset class="fieldset">
 				<legend><label class="checkbox"><input
 					type="checkbox" name="customrules" checked={this.customRules} onChange={this.toggleCustomRule}
 				/> Custom rules</label></legend>

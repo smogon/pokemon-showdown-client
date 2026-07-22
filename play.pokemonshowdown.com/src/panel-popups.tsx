@@ -332,133 +332,68 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 	}
 }
 
+const USER_PUNISHMENTS = {
+	mute: { label: 'Mute', duration: '7 minutes', scope: 'room' },
+	hourmute: { label: 'Hourmute', duration: '1 hour', scope: 'room' },
+	ban: { label: 'Ban', duration: '2 days', scope: 'room' },
+	weekban: { label: 'Weekban', duration: '1 week', scope: 'room' },
+	lock: { label: 'Lock', duration: '2 days', scope: 'global' },
+	weeklock: { label: 'Weeklock', duration: '1 week', scope: 'global' },
+	namelock: { label: 'Namelock', duration: '2 days', scope: 'global' },
+} as const;
+type UserPunishment = keyof typeof USER_PUNISHMENTS;
+
 class UserOptionsPanel extends PSRoomPanel {
 	static readonly id = 'useroptions';
 	static readonly routes = ['useroptions-*'];
 	static readonly location = 'popup';
 	static readonly noURL = true;
-	declare state: {
-		showMuteInput?: boolean,
-		showBanInput?: boolean,
-		showLockInput?: boolean,
-		showConfirm?: boolean,
-		requestSent?: boolean,
-		data?: Record<string, string>,
-	};
 	getTargets() {
 		const [, targetUser, targetRoomid] = PSUtils.splitFirst(this.props.room.id, '-', 2);
-		let targetRoom = (PS.rooms[targetRoomid] || null) as ChatRoom | null;
+		let targetRoom = (targetRoomid ? PS.rooms[targetRoomid] : null) as ChatRoom | null || null;
 		if (targetRoom?.type !== 'chat') targetRoom = targetRoom?.getParent() as ChatRoom;
 		if (targetRoom?.type !== 'chat') targetRoom = targetRoom?.getParent() as ChatRoom;
 		if (targetRoom?.type !== 'chat') targetRoom = null;
+		if (targetRoom?.pmTarget) targetRoom = null;
 		return { targetUser: targetUser as ID, targetRoomid: targetRoomid as RoomID, targetRoom };
 	}
 
-	handleMute = (ev: Event) => {
-		this.setState({ showMuteInput: true, showBanInput: false, showLockInput: false });
+	handleCommand = (ev: Event) => {
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
+		const command = (ev.currentTarget as HTMLButtonElement).getAttribute('data-cmdpreview');
+		if (!command) return PS.alert("Room not found", { parentElem: ev.currentTarget as HTMLElement });
+		this.send(command);
 	};
-	handleBan = (ev: Event) => {
-		this.setState({ showBanInput: true, showMuteInput: false, showLockInput: false });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-	handleLock = (ev: Event) => {
-		this.setState({ showLockInput: true, showMuteInput: false, showBanInput: false });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
-	handleCancel = (ev: Event) => {
-		this.setState({ showBanInput: false, showMuteInput: false, showLockInput: false, showConfirm: false });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
-	handleConfirm = (ev: Event) => {
-		const data = this.state.data;
-		if (!data) return;
+	send(command: string) {
 		const { targetUser, targetRoom } = this.getTargets();
-
-		let cmd = '';
-		if (data.action === "Mute") {
-			cmd += data.duration === "1 hour" ? "/hourmute " : "/mute ";
-		} else if (data.action === "Ban") {
-			cmd += data.duration === "1 week" ? "/weekban " : "/ban ";
-		} else if (data.action === "Lock") {
-			cmd += data.duration === "1 week" ? "/weeklock " : "/lock ";
-		} else if (data.action === "Namelock") {
-			cmd += "/namelock ";
+		if (targetRoom) {
+			targetRoom.send(command);
 		} else {
-			return;
+			PS.join(`dm-${targetUser}` as RoomID);
+			PS.rooms[`dm-${targetUser}`]!.send(command);
 		}
-		cmd += `${targetUser} ${data.reason ? ',' + data.reason : ''}`;
-		targetRoom?.send(cmd);
 		this.close();
-	};
+	}
 
-	handleAddFriend = (ev: Event) => {
+	openPunishment = (ev: Event) => {
+		const button = ev.currentTarget as HTMLButtonElement;
+		const punishment = button.value as UserPunishment;
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		if (!(punishment in USER_PUNISHMENTS)) return;
+
 		const { targetUser, targetRoom } = this.getTargets();
-		targetRoom?.send(`/friend add ${targetUser}`);
-		this.setState({ requestSent: true });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
-	handleIgnore = () => {
-		const { targetUser, targetRoom } = this.getTargets();
-		targetRoom?.send(`/ignore ${targetUser}`);
-		this.close();
-	};
-
-	handleUnignore = () => {
-		const { targetUser, targetRoom } = this.getTargets();
-		targetRoom?.send(`/unignore ${targetUser}`);
-		this.close();
-	};
-
-	muteUser = (ev: Event) => {
-		this.setState({ showMuteInput: false });
-		const hrMute = (ev.currentTarget as HTMLButtonElement).value === "1hr";
-		const reason = this.base?.querySelector<HTMLInputElement>("input[name=mutereason]")?.value;
-		const data = {
-			action: 'Mute',
-			reason,
-			duration: hrMute ? "1 hour" : "7 minutes",
-		};
-		this.setState({ data, showConfirm: true });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
-	banUser = (ev: Event) => {
-		this.setState({ showBanInput: false });
-		const weekBan = (ev.currentTarget as HTMLButtonElement).value === "1wk";
-		const reason = this.base?.querySelector<HTMLInputElement>("input[name=banreason]")?.value;
-		const data = {
-			action: 'Ban',
-			reason,
-			duration: weekBan ? "1 week" : "2 days",
-		};
-		this.setState({ data, showConfirm: true });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
-	lockUser = (ev: Event) => {
-		this.setState({ showLockInput: false });
-		const weekLock = (ev.currentTarget as HTMLButtonElement).value === "1wk";
-		const isNamelock = (ev.currentTarget as HTMLButtonElement).value === "nmlk";
-		const reason = this.base?.querySelector<HTMLInputElement>("input[name=lockreason]")?.value;
-		const data = {
-			action: isNamelock ? 'Namelock' : 'Lock',
-			reason,
-			duration: weekLock ? "1 week" : "2 days",
-		};
-		this.setState({ data, showConfirm: true });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
+		const action = USER_PUNISHMENTS[punishment];
+		const scope = action.scope === 'room' ? ` in ${targetRoom?.title || '???'}` : '';
+		PS.prompt(
+			`${action.label} ${targetUser}${scope} for ${action.duration}?`,
+			{ okButton: action.label, parentElem: button, label: "Reason (optional):" }
+		).then(reason => {
+			if (reason === null) return;
+			reason = reason.trim();
+			this.send(`/${punishment} ${targetUser}${reason ? `, ${reason}` : ''}`);
+		});
 	};
 
 	isIgnoringUser = (userid: string) => {
@@ -469,33 +404,27 @@ class UserOptionsPanel extends PSRoomPanel {
 
 	override render() {
 		const room = this.props.room;
-		const banPerms = ["@", "#", "~"];
-		const mutePerms = ["%", ...banPerms];
 		const { targetUser, targetRoom } = this.getTargets();
-		const userRoomGroup = targetRoom?.users[PS.user.userid].charAt(0) || '';
-		const canMute = mutePerms.includes(userRoomGroup);
-		const canBan = banPerms.includes(userRoomGroup);
-		const canLock = mutePerms.includes(PS.user.group);
-		const isVisible = (actionName: string) => {
-			if (actionName === 'mute') {
-				return canMute && !this.state.showLockInput && !this.state.showBanInput && !this.state.showConfirm;
-			}
-			if (actionName === 'ban') {
-				return canBan && !this.state.showLockInput && !this.state.showMuteInput && !this.state.showConfirm;
-			}
-			if (actionName === 'lock') {
-				return canLock && !this.state.showBanInput && !this.state.showMuteInput && !this.state.showConfirm;
-			}
-		};
+		const userRoomGroup = targetRoom?.users[PS.user.userid]?.charAt(0);
+		const roomGroupOrder = PS.server.getGroup(userRoomGroup).order;
+		const globalGroupOrder = PS.server.getGroup(PS.user.group).order;
+		const canMute = !!targetRoom && roomGroupOrder <= PS.server.getGroup('%').order;
+		const canBan = !!targetRoom && roomGroupOrder <= PS.server.getGroup('@').order;
+		const canLock = globalGroupOrder <= PS.server.getGroup('%').order;
 
-		return <PSPanelWrapper room={room} width={280}><div class="pad">
+		return <PSPanelWrapper room={room} width={280}><div class="pad buttonmenu">
+			<p>
+				<button data-cmd={`/dm ${targetUser}, /friend add ${targetUser}`} class="button">
+					Add friend
+				</button>
+			</p>
 			<p>
 				{this.isIgnoringUser(targetUser) ? (
-					<button onClick={this.handleUnignore} class="button">
+					<button data-cmdpreview={`/unignore ${targetUser}`} onClick={this.handleCommand} class="button">
 						Unignore
 					</button>
 				) : (
-					<button onClick={this.handleIgnore} class="button">
+					<button data-cmdpreview={`/ignore ${targetUser}`} onClick={this.handleCommand} class="button">
 						Ignore
 					</button>
 				)}
@@ -505,80 +434,76 @@ class UserOptionsPanel extends PSRoomPanel {
 					Report
 				</button>
 			</p>
-			<p>
-				{this.state.requestSent ? (
-					<button class="button disabled">
-						Sent request
+			{(canMute || canBan) && <fieldset class="fieldset">
+				<legend>Moderate in {targetRoom?.title}</legend>
+				{canMute && <p>
+					<button
+						class="button button-first" value="mute" onClick={this.openPunishment}
+						data-cmdpreview={`/mute ${targetUser}`}
+					>
+						Mute <small>7m</small>
 					</button>
-				) : (
-					<button onClick={this.handleAddFriend} class="button">
-						Add friend
+					<button
+						class="button button-last" value="hourmute" onClick={this.openPunishment}
+						data-cmdpreview={`/hourmute ${targetUser}`}
+					>
+						Hourmute <small>1h</small>
 					</button>
-				)}
-			</p>
-			{(canMute || canBan || canLock) && <hr />}
-			{this.state.showConfirm && <p>
-				<small>
-					{this.state.data?.action} <b>{targetUser}</b> {}
-					{!this.state.data?.action.endsWith('ock') ? <>from <b>{targetRoom?.title}</b></> : ''} for {this.state.data?.duration}?
-				</small>
-				<p class="buttonbar">
-					<button class="button" onClick={this.handleConfirm}>
-						<i class="fa fa-confirm" aria-hidden></i> Confirm
-					</button> {}
-					<button class="button" onClick={this.handleCancel}>
-						Cancel
+				</p>}
+				{canBan && <p>
+					<button
+						class="button button-first" value="ban" onClick={this.openPunishment}
+						data-cmdpreview={`/ban ${targetUser}`}
+					>
+						Ban <small>2d</small>
+					</button>
+					<button
+						class="button button-last" value="weekban" onClick={this.openPunishment}
+						data-cmdpreview={`/weekban ${targetUser}`}
+					>
+						Weekban <small>1w</small>
+					</button>
+				</p>}
+				<p>
+					<button
+						data-cmdpreview={`/modlog userid=${targetUser}, room=${targetRoom?.id}`} onClick={this.handleCommand} class="button"
+					>
+						Modlog
 					</button>
 				</p>
-			</p>}
-			<p class="buttonbar">
-				{isVisible('mute') && (this.state.showMuteInput ? (
-					<div>
-						<label class="label">
-							Reason: {}
-							<input name="mutereason" class="textbox autofocus" placeholder="Mute reason (optional)" />
-						</label> {} <br />
-						<button class="button" onClick={this.muteUser} value="7min">For 7 Mins</button> {}
-						<button class="button" onClick={this.muteUser} value="1hr">For 1 Hour</button> {}
-						<button class="button" onClick={this.handleCancel}> Cancel</button>
-					</div>
-				) : (
-					<button class="button" onClick={this.handleMute}>
-						<i class="fa fa-hourglass-half" aria-hidden></i> Mute
+			</fieldset>}
+			{canLock && <fieldset class="fieldset">
+				<legend>Global moderation</legend>
+				<p>
+					<button
+						class="button button-first" value="lock" onClick={this.openPunishment}
+						data-cmdpreview={`/lock ${targetUser}`}
+					>
+						Lock <small>2d</small>
 					</button>
-				))} {}
-				{isVisible('ban') && (this.state.showBanInput ? (
-					<div>
-						<label class="label">
-							Reason: {}
-							<input name="banreason" class="textbox autofocus" placeholder="Ban reason (optional)" />
-						</label><br />
-						<button class="button" onClick={this.banUser} value="2d">For 2 Days</button> {}
-						<button class="button" onClick={this.banUser} value="1wk">For 1 Week</button> {}
-						<button class="button" onClick={this.handleCancel}>Cancel</button>
-					</div>
-				) : (
-					<button class="button" onClick={this.handleBan}>
-						<i class="fa fa-gavel" aria-hidden></i> Ban
+					<button
+						class="button button-last" value="weeklock" onClick={this.openPunishment}
+						data-cmdpreview={`/weeklock ${targetUser}`}
+					>
+						Weeklock <small>1w</small>
 					</button>
-				))} {}
-				{isVisible('lock') && (this.state.showLockInput ? (
-					<div>
-						<label class="label">
-							Reason: {}
-							<input name="lockreason" class="textbox autofocus" placeholder="Lock reason (optional)" />
-						</label><br />
-						<button class="button" onClick={this.lockUser} value="2d">For 2 Days</button> {}
-						<button class="button" onClick={this.lockUser} value="1wk">For 1 Week</button> {}
-						<button class="button" onClick={this.lockUser} value="nmlk">Namelock</button> {}
-						<button class="button" onClick={this.handleCancel}>Cancel</button>
-					</div>
-				) : (
-					<button class="button" onClick={this.handleLock}>
-						<i class="fa fa-lock" aria-hidden></i> Lock/Namelock
+				</p>
+				<p>
+					<button
+						class="button" value="namelock" onClick={this.openPunishment}
+						data-cmdpreview={`/namelock ${targetUser}`}
+					>
+						Namelock <small>2d</small>
 					</button>
-				))}
-			</p>
+				</p>
+				<p>
+					<button
+						data-cmdpreview={`/modlog userid=${targetUser}, room=global`} onClick={this.handleCommand} class="button"
+					>
+						Global modlog
+					</button>
+				</p>
+			</fieldset>}
 		</div></PSPanelWrapper>;
 	}
 }
@@ -1934,9 +1859,9 @@ class PopupPanel extends PSRoomPanel<PopupRoom> {
 					style="white-space:pre-wrap;word-wrap:break-word"
 					dangerouslySetInnerHTML={{ __html: this.parseMessage(message as string || '') }}
 				></p>}
-				{!!type && <p><input
+				{!!type && <p><label class="label">{room.args?.label as string || ''} <input
 					name="value" type={type} inputMode={inputMode} class="textbox autofocus" style="width:100%;box-sizing:border-box"
-				/></p>}
+				/></label></p>}
 				<p class="buttonbar">
 					<button class={`button${!type ? ' autofocus' : ''}`} type="submit" style="min-width:50px">
 						<strong>{okButton}</strong>
