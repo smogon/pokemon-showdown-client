@@ -47,13 +47,15 @@ class TeambuilderRoom extends PSRoom {
 	override clientCommands = this.parseClientCommands({
 		'newteam'(target) {
 			const isBox = ` ${target} `.includes(' box ');
+			const team = this.createTeam(null, isBox);
 			if (` ${target} `.includes(' bottom ')) {
-				PS.teams.push(this.createTeam(null, isBox));
+				PS.teams.push(team);
 			} else {
-				PS.teams.unshift(this.createTeam(null, isBox));
+				PS.teams.unshift(team);
 			}
 			PS.teams.save();
 			this.update(null);
+			PS.join(`team-${team.key}` as RoomID);
 		},
 		'deleteteam'(target) {
 			const team = PS.teams.byKey[target];
