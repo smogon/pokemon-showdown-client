@@ -156,48 +156,61 @@ process.stdout.write("Updating cachebuster and URLs... ");
 
 const URL_REGEX = /(src=|href=|linkStyle\()"(.*?)(\?[a-z0-9]*?)?"/g;
 
-function addCachebuster(_, attr, url, urlQuery) {
-	url = url.replace('/replay.pokemonshowdown.com/', '/' + routes.replays + '/');
-	url = url.replace('/dex.pokemonshowdown.com/', '/' + routes.dex + '/');
-	url = url.replace('/play.pokemonshowdown.com/', '/' + routes.client + '/');
-	url = url.replace('/pokemonshowdown.com/', '/' + routes.root + '/');
-	url = url.replace('/teams.pokemonshowdown.com/', '/' + routes.teams + '/');
+const ROUTE_DIRS = [
+	['pokemonshowdown.com', routes.root],
+	['play.pokemonshowdown.com', routes.client],
+	['dex.pokemonshowdown.com', routes.dex],
+	['replay.pokemonshowdown.com', routes.replays],
+	['teams.pokemonshowdown.com', routes.teams],
+];
 
-	if (urlQuery) {
-		if (url.startsWith('/')) {
-			let hash = Math.random(); // just in case creating the hash fails
-			try {
-				const filename = url.slice(1).replace('/' + routes.client + '/', '');
-				const fstr = fs.readFileSync(filename, UTF8);
-				hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
-			} catch {}
-
-			return attr + '"' + url + '?' + hash + '"';
-		} else {
-			// TODO: generalize better
-			let hash;
-			for (const subdir of ['teams', 'replays']) {
-				if (hash) break;
-				try {
-					const fstr = fs.readFileSync(subdir + '.pokemonshowdown.com/' + url, UTF8);
-					hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
-				} catch {}
+function getCachebuster(url, sourceDir) {
+	let filename;
+	if (url.startsWith('//')) {
+		for (const [routeDir] of ROUTE_DIRS) {
+			if (url.startsWith(`//${routeDir}/`)) {
+				filename = url.slice(2);
+				break;
 			}
-
-			return attr + '"' + url + '?' + (hash || 'v1') + '"';
 		}
-	} else {
-		return attr + '"' + url + '"';
+	} else if (!url.includes('://')) {
+		filename = sourceDir + '/' + url.replace(/^\//, '');
 	}
+
+	if (filename) {
+		try {
+			const contents = fs.readFileSync(filename, UTF8);
+			return crypto.createHash('md5').update(contents).digest('hex').slice(0, 8);
+		} catch {}
+	}
+
+	const isMinidex = filename?.endsWith('/pokedex-mini.js') || filename?.endsWith('/pokedex-mini-bw.js');
+	if (process.argv[2] === 'full' && !isMinidex) {
+		console.error(`WARNING: Could not cachebust ${url} in ${sourceDir}; using random fallback.`);
+		process.exitCode = 2;
+	}
+	return `${Math.random()}`.slice(2, 10);
+}
+
+function cachebust(contents, sourceDir) {
+	return contents.replace(URL_REGEX, (_, attr, url, urlQuery) => {
+		if (urlQuery) url += '?' + getCachebuster(url, sourceDir);
+
+		for (const [routeDir, route] of ROUTE_DIRS) {
+			url = url.replace(`/${routeDir}/`, `/${route}/`);
+		}
+
+		return attr + '"' + url + '"';
+	});
 }
 
 // add hashes to js and css files and rewrite URLs
 let indexContents = fs.readFileSync('play.pokemonshowdown.com/index-old.html', UTF8);
-indexContents = indexContents.replace(URL_REGEX, addCachebuster);
+indexContents = cachebust(indexContents, 'play.pokemonshowdown.com');
 let preactIndexContents = fs.readFileSync('play.pokemonshowdown.com/index-new.html', UTF8);
-preactIndexContents = preactIndexContents.replace(URL_REGEX, addCachebuster);
+preactIndexContents = cachebust(preactIndexContents, 'play.pokemonshowdown.com');
 let crossprotocolContents = fs.readFileSync('play.pokemonshowdown.com/crossprotocol.html', UTF8);
-crossprotocolContents = crossprotocolContents.replace(URL_REGEX, addCachebuster);
+crossprotocolContents = cachebust(crossprotocolContents, 'play.pokemonshowdown.com');
 let replayEmbedContents = fs.readFileSync('play.pokemonshowdown.com/js/replay-embed.js', UTF8);
 replayEmbedContents = replayEmbedContents.replace(/play\.pokemonshowdown\.com/g, routes.client);
 
@@ -247,12 +260,15 @@ fs.writeFileSync('play.pokemonshowdown.com/caches/index-new.html', preactIndexCo
 fs.writeFileSync('play.pokemonshowdown.com/caches/crossprotocol.html', crossprotocolContents);
 fs.writeFileSync('play.pokemonshowdown.com/js/replay-embed.js', replayEmbedContents);
 
-let replaysContents = fs.readFileSync('replay.pokemonshowdown.com/index.template.php', UTF8);
-replaysContents = replaysContents.replace(URL_REGEX, addCachebuster);
-fs.writeFileSync('replay.pokemonshowdown.com/index.php', replaysContents);
+let replaysContents = fs.readFileSync('replay.pokemonshowdown.com/index.php', UTF8);
+replaysContents = replaysContents.replace('<?php', "<?php\n\nchdir(dirname(__DIR__));");
+replaysContents = cachebust(replaysContents, 'replay.pokemonshowdown.com');
+fs.mkdirSync('replay.pokemonshowdown.com/caches', { recursive: true });
+fs.writeFileSync('replay.pokemonshowdown.com/caches/index.php', replaysContents);
 
-let teamsContents = fs.readFileSync('teams.pokemonshowdown.com/index.template.html', UTF8);
-teamsContents = teamsContents.replace(URL_REGEX, addCachebuster);
-fs.writeFileSync('teams.pokemonshowdown.com/index.html', teamsContents);
+let teamsContents = fs.readFileSync('teams.pokemonshowdown.com/index.html', UTF8);
+teamsContents = cachebust(teamsContents, 'teams.pokemonshowdown.com');
+fs.mkdirSync('teams.pokemonshowdown.com/caches', { recursive: true });
+fs.writeFileSync('teams.pokemonshowdown.com/caches/index.html', teamsContents);
 
 console.log("DONE");

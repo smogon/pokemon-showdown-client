@@ -3180,15 +3180,6 @@ p.or:after {
 
 /* teambuilder set */
 
-.dark .utilichart h3, .dark .dexentry h3, .dark .resultheader h3 {
-	background: #636363;
-	color: #F1F1F1;
-	border: 1px solid #A9A9A9;
-	text-shadow: 1px 1px 0 rgb(40, 43, 45);
-	box-shadow: inset 0px 1px 0 rgb(49, 49, 49);
-	border-right: none;
-}
-
 .dark .teambar button {
 	background: #5A6570;
 	color: #F1F1F1;
@@ -3233,15 +3224,6 @@ p.or:after {
 .dark .utilichart .pokemonnamecol,
 .dark .utilichart .movenamecol {
 	color: #DDD;
-}
-.dark .utilichart .col {
-	color: #DDD;
-}
-.dark .utilichart .cur .col {
-	color: #FFF;
-}
-.dark .utilichart a:hover .col {
-	color: #FFF;
 }
 
 .dark .setchart,

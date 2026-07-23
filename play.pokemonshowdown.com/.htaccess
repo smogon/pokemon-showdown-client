@@ -167,7 +167,7 @@ RewriteRule ^backup/ - [F]
 RewriteRule ^\.git/ - [F]
 RewriteRule ^lib/ - [F]
 
-# TODO: figure this guy out
+# Disallow direct access to caches
 RewriteCond %{THE_REQUEST} \s/caches/
 RewriteRule ^caches/ - [F]
 RewriteRule ^testclient-old\.html$ - [F]

@@ -1,10 +1,14 @@
 RewriteEngine on
-RewriteRule ^api(/.*)?$ http://localhost:9000/api$1 [P,L]
 
+# cached index.php
+RewriteRule ^$ caches/index.php [L]
+RewriteRule ^index\.php$ caches/index.php [L,QSA]
+RewriteRule ^([A-Za-z0-9-]+)$ caches/index.php?name=$1 [L,QSA]
+
+RewriteRule ^api(/.*)?$ http://localhost:9000/api$1 [P,L]
 RewriteRule ^search\.json$ /api/replays/search.json [L,QSA]
 RewriteRule ^recent\.json$ /api/replays/search.json [L,QSA]
 RewriteRule ^download$ download.html [L,QSA]
-RewriteRule ^([A-Za-z0-9-]+)$ index.php?name=$1 [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)/manage$ replay-manage.php?name=$1&manage [L,QSA]
 
 # RewriteRule ^([A-Za-z0-9-]+)\.log$ replay.log.php?name=$1 [L,QSA]
@@ -17,3 +21,7 @@ RewriteRule ^([A-Za-z0-9-]+)\.json$ /api/replays/get.json?id=$1 [L,QSA]
 
 DirectoryIndex index.php index.html /dirindex/dirindex.php
 ErrorDocument 404 /dirindex/404.html
+
+# Disallow direct access to caches
+RewriteCond %{THE_REQUEST} \s/caches/
+RewriteRule ^caches/ - [F]
