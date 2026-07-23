@@ -1059,7 +1059,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		const user = await this.getUser();
 		return (
 			DISPATCH_PREFIX + `${user.id},` +
-			`${Config.sysops.includes(user.id) ? 1 : ''}`
+			`${user.isSysop() ? 'sysop' : user.isLeader() ? 'leader' : ''}`
 		);
 	},
 	async 'replays/search'(params) {
