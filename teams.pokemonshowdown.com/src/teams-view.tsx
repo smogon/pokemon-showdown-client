@@ -18,13 +18,13 @@ const MODES: Record<string, { width: number, colGap: string }> = {
 };
 
 const SPRITE_OPTS = [
-	{title: 'Gen 1', val: 1},
-	{title: 'Gen 2', val: 2},
-	{title: 'Gen 3', val: 3},
-	{title: 'Gen 4', val: 4},
-	{title: 'Gen 5', val: 5},
-	{title: 'Gen 6', val: 6},
-	{val: 'home', title: 'Home'},
+	{ title: 'Gen 1', val: 1 },
+	{ title: 'Gen 2', val: 2 },
+	{ title: 'Gen 3', val: 3 },
+	{ title: 'Gen 4', val: 4 },
+	{ title: 'Gen 5', val: 5 },
+	{ title: 'Gen 6', val: 6 },
+	{ val: 'home', title: 'Home' },
 ];
 
 interface Team {
@@ -251,7 +251,7 @@ class SetBlock extends preact.Component<{
 						textAlign: "left",
 						padding: "5px",
 						overflowWrap: "anywhere",
-    					wordBreak: "break-word",
+						wordBreak: "break-word",
 					}}
 				>
 					<PokemonSet set={set} />
@@ -318,7 +318,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 
 		return <div class="section" style={{ wordWrap: 'break-word' }}>
 			<div name="header" className="noselect">
-				<small><a href={'//' + Config.routes.teams}><i class="fa fa-arrow-left"></i></a></small>
+				<a href={'//' + Config.routes.teams} class="button"><i class="fa fa-caret-left"></i> Back</a>
 				<h1>{title}</h1>
 				Owner: <strong style={{ color: BattleLog.usernameColor(ownerid as any) }}>{ownerid}</strong><br />
 				Format: {format}<br />
@@ -341,7 +341,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 						value={this.state.spriteGen}
 						class="button"
 					>
-						{SPRITE_OPTS.map(({val, title}) => <option value={val}>{title} Sprites</option>)}
+						{SPRITE_OPTS.map(({ val, title: spriteTitle }) => <option value={val}>{spriteTitle} Sprites</option>)}
 					</select>
 				</div>
 				<hr />
