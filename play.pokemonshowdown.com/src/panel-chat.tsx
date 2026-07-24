@@ -643,6 +643,7 @@ export class ChatRoom extends PSRoom {
 				this.sendDirect('/undo');
 			}
 			room.choices = new BattleChoiceBuilder(room.request);
+			room.updateChoiceNotification();
 			this.update(null);
 		},
 		'move,switch,team,pass,shift,choose'(target, cmd) {
@@ -652,21 +653,20 @@ export class ChatRoom extends PSRoom {
 				this.receiveLine([`error`, `/choose - You are not a player in this battle`]);
 				return;
 			}
+
+			const choices = cmd === 'choose' ? new BattleChoiceBuilder(room.request!) : room.choices;
 			if (cmd !== 'choose') target = `${cmd} ${target}`;
-			if (target === 'choose auto' || target === 'choose default') {
-				this.sendDirect('/choose default');
-				room.overlayActive = null;
-				this.update(null);
-				return;
-			}
-			const possibleError = room.choices.addChoice(target);
+			const possibleError = choices.addChoices(target);
 			if (possibleError) {
 				this.errorReply(possibleError);
 				return;
 			}
-			if (room.choices.isDone()) {
-				this.sendDirect(`/choose ${room.choices.toString()}`);
+
+			room.choices = choices;
+			if (choices.isDone()) {
+				this.sendDirect(`/choose ${choices.toString()}`);
 			}
+			room.updateChoiceNotification();
 			room.overlayActive = null;
 			this.update(null);
 		},

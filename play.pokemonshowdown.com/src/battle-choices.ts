@@ -154,6 +154,7 @@ export class BattleChoiceBuilder {
 	alreadyMax = false;
 	alreadyZ = false;
 	alreadyTera = false;
+	serializedChoice: string | null = null;
 
 	constructor(request: BattleRequest) {
 		this.request = request;
@@ -162,15 +163,17 @@ export class BattleChoiceBuilder {
 	}
 
 	toString() {
+		if (this.serializedChoice) return this.serializedChoice;
 		let choices = this.choices;
 		if (this.current.move) choices = choices.concat(this.stringChoice(this.current));
 		return choices.join(', ').replace(/, team /g, ', ');
 	}
 
 	isDone() {
-		return this.choices.length >= this.requestLength();
+		return !!this.serializedChoice || this.choices.length >= this.requestLength();
 	}
 	isEmpty() {
+		if (this.serializedChoice) return false;
 		for (const choice of this.choices) {
 			if (choice !== 'pass') return false;
 		}
@@ -212,6 +215,12 @@ export class BattleChoiceBuilder {
 	}
 
 	addChoice(choiceString: string) {
+		if (this.isDone()) return `You've already chosen for this turn; cancel to change your choice`;
+		if (choiceString === 'auto' || choiceString === 'default') {
+			const currentChoice = this.toString();
+			this.serializedChoice = currentChoice ? `${currentChoice}, default` : 'default';
+			return null;
+		}
 		let choice: BattleChoice | null;
 		try {
 			choice = this.parseChoice(choiceString);
@@ -284,6 +293,29 @@ export class BattleChoiceBuilder {
 		}
 		this.choices.push(this.stringChoice(choice));
 		this.fillPasses();
+		return null;
+	}
+	addChoices(choiceString: string) {
+		let choiceStrings: string[];
+		if (choiceString.startsWith('team ')) {
+			const teamChoice = choiceString.slice(5).trim();
+			const teamChoices = teamChoice.includes(',') ? teamChoice.split(',') :
+				(/^[0-9]+$/.test(teamChoice) ? teamChoice.split('') : [teamChoice]);
+			choiceStrings = teamChoices.slice(0, this.requestLength()).map(choice => `team ${choice.trim()}`);
+		} else {
+			choiceStrings = choiceString.split(',').map(choice => choice.trim());
+		}
+		for (const choice of choiceStrings) {
+			const possibleError = this.addChoice(choice);
+			if (possibleError) return possibleError;
+		}
+		if (this.request.requestType === 'team' && choiceString.startsWith('team ')) {
+			for (let i = 1; this.choices.length < this.requestLength(); i++) {
+				if (this.alreadySwitchingIn.includes(i)) continue;
+				const possibleError = this.addChoice(`team ${i}`);
+				if (possibleError) return possibleError;
+			}
+		}
 		return null;
 	}
 

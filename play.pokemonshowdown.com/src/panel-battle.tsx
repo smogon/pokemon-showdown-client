@@ -166,6 +166,37 @@ export class BattleRoom extends ChatRoom {
 	isPlaying() {
 		return this.battle && !this.battle.ended && this.request && this.connectMode !== 'deleted';
 	}
+	updateChoiceNotification() {
+		let oName = this.battle?.farSide.name;
+		if (oName) oName = " against " + oName;
+		let title = '';
+		let body = '';
+		switch (this.request?.requestType) {
+		case 'move':
+			title = "Your move!";
+			body = "Move in your battle" + oName;
+			break;
+		case 'switch':
+			title = "Your switch!";
+			body = "Switch in your battle" + oName;
+			break;
+		case 'team':
+			title = "Team preview!";
+			body = "Choose your team order in your battle" + oName;
+			break;
+		}
+
+		if (!this.choices || this.choices.isDone()) body = '';
+
+		const current = this.notifications.find(notification => notification.id === 'choice');
+		if ((current?.body || '') === body) return;
+
+		if (!body) {
+			this.dismissNotification('choice');
+		} else {
+			this.notify({ title, body, id: 'choice', noAutoDismiss: true });
+		}
+	}
 
 	override handleReconnect(): boolean | void {
 		if (this.battle) {
@@ -176,7 +207,15 @@ export class BattleRoom extends ChatRoom {
 		this.side = null;
 		this.request = null;
 		this.choices = null;
+		this.updateChoiceNotification();
 		return false;
+	}
+
+	override destroy() {
+		this.request = null;
+		this.choices = null;
+		this.updateChoiceNotification();
+		super.destroy();
 	}
 
 	loadReplay() {
@@ -473,9 +512,23 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		case 'error':
 			if (args[1].startsWith('[Invalid choice]') && room.request) {
 				room.choices = new BattleChoiceBuilder(room.request);
+				room.updateChoiceNotification();
 				room.update(null);
 			}
 			break;
+		case 'sentchoice':
+			if (room.request) {
+				let choices = new BattleChoiceBuilder(room.request);
+				const possibleError = choices.addChoices(args[1]);
+				if (possibleError || !choices.isDone()) {
+					choices = new BattleChoiceBuilder(room.request);
+					choices.serializedChoice = args[1];
+				}
+				room.choices = choices;
+			}
+			room.updateChoiceNotification();
+			room.update(null);
+			return;
 		}
 		room.battle.add('|' + args.join('|'));
 		if (PS.prefs.noanim) this.props.room.battle.seekTurn(Infinity);
@@ -485,6 +538,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (!request) {
 			room.request = null;
 			room.choices = null;
+			room.updateChoiceNotification();
 			return;
 		}
 
@@ -508,24 +562,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		room.request = request;
 		room.choices = new BattleChoiceBuilder(request);
-		this.notifyRequest();
+		// A reconnect can send `|sentchoice|` immediately after `|request|`.
+		// Wait until the entire protocol message has been processed before notifying.
+		Promise.resolve().then(() => room.updateChoiceNotification());
 		room.update(null);
-	}
-	notifyRequest() {
-		const room = this.props.room;
-		let oName = room.battle.farSide.name;
-		if (oName) oName = " against " + oName;
-		switch (room.request?.requestType) {
-		case 'move':
-			room.notify({ title: "Your move!", body: "Move in your battle" + oName });
-			break;
-		case 'switch':
-			room.notify({ title: "Your switch!", body: "Switch in your battle" + oName });
-			break;
-		case 'team':
-			room.notify({ title: "Team preview!", body: "Choose your team order in your battle" + oName });
-			break;
-		}
 	}
 	renderConnectError() {
 		const room = this.props.room;
@@ -910,16 +950,24 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			(request.requestType !== 'move' && request.requestType !== 'switch' && request.requestType !== 'team') ||
 			choices.isEmpty()
 		) {
-			return choices.isDone() ? ['Waiting for opponent...', <br />] : null;
+			return null;
 		}
 
 		let buf: preact.ComponentChild[] = [
 			<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>, ' ',
 		];
-		if (choices.isDone() && (choices.noCancel || this.props.room.battle.hardcoreMode)) {
-			buf = ['Waiting for opponent...', <br />];
-		} else if (choices.isDone() && choices.choices.length <= 1 && !overlayVersion) {
+		if (choices.isDone() && (
+			choices.noCancel || this.props.room.battle.hardcoreMode ||
+			(choices.choices.length <= 1 && !overlayVersion)
+		)) {
 			buf = [];
+		}
+
+		if (choices.serializedChoice) {
+			if (choices.serializedChoice === 'default') {
+				return [`Automatic choice`, <br />];
+			}
+			return [`Unrecognized choice from server: `, <code>{choices.serializedChoice}</code>, <br />];
 		}
 
 		const battle = this.props.room.battle;
