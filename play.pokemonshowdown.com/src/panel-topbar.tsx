@@ -337,12 +337,9 @@ export class PSMiniHeader extends preact.Component {
 
 		if (PS.leftPanelWidth !== null) return null;
 
-		let notificationsCount = 0;
-		const notificationRooms = [...PS.leftRoomList, ...PS.rightRoomList];
-		for (const roomid of notificationRooms) {
-			const miniNotifications = PS.rooms[roomid]?.notifications;
-			if (miniNotifications?.length) notificationsCount++;
-		}
+		const notificationsCount = Object.values(PS.rooms).filter(
+			room => room !== PS.room && room?.notifications.length
+		).length;
 		const { icon, title } = PSHeader.roomInfo(PS.panel);
 		const userColor = window.BattleLog && `color:${PS.user.away ? '#888' : BattleLog.usernameColor(PS.user.userid)}`;
 		const showMenuButton = PSView.narrowMode;

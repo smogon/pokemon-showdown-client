@@ -31,7 +31,7 @@
 import { BattleSceneStub } from './battle-scene-stub';
 import { BattleLog } from './battle-log';
 import { BattleScene, type PokemonSprite, BattleStatusAnims } from './battle-animations';
-import { Dex, toID, toUserid, type ID, type ModdedDex } from './battle-dex';
+import { Dex, PSUtils, toID, toUserid, type ID, type ModdedDex } from './battle-dex';
 import { BattleTextParser, type Args, type KWArgs, type SideID } from './battle-text-parser';
 import { Teams } from './battle-teams';
 declare const app: { user: AnyObject, rooms: AnyObject, ignore?: AnyObject } | undefined;
@@ -3897,11 +3897,11 @@ export class Battle {
 				} else {
 					this.runMajor(args, kwArgs, preempt);
 				}
-			} catch (err: any) {
-				this.log(['majorerror', 'Error parsing: ' + str + ' (' + err + ')']);
-				if (err.stack) {
-					let stack = ('' + err.stack).split('\n');
-					for (const line of stack) {
+			} catch (err) {
+				this.log(['majorerror', 'Error parsing: ' + str]);
+				const stack = PSUtils.normalizeError(err);
+				if (stack) {
+					for (const line of stack.split('\n')) {
 						if (/\brun\b/.test(line)) {
 							break;
 						}

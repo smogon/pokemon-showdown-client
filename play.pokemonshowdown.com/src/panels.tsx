@@ -11,7 +11,7 @@
 
 import preact from "../js/lib/preact";
 import type { Pokemon, ServerPokemon } from "./battle";
-import { Dex, toID } from "./battle-dex";
+import { Dex, PSUtils, toID } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
 import { BattleTooltips } from "./battle-tooltips";
 import { Net } from "./client-connection";
@@ -254,7 +254,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		PS.leave(this.props.room.id);
 	}
 	componentDidCatch(err: Error) {
-		this.props.room.caughtError = err.stack || err.message;
+		this.props.room.caughtError = PSUtils.normalizeError(err);
 		this.setState({});
 	}
 	receiveLine(args: Args) {}
@@ -344,7 +344,7 @@ export function PSPanelWrapper(props: {
 
 export class PSPanelErrorBoundary extends preact.Component<{ room: PSRoom }> {
 	componentDidCatch(err: Error) {
-		this.props.room.caughtError = err.stack || err.message;
+		this.props.room.caughtError = PSUtils.normalizeError(err);
 		this.setState({});
 	}
 	override render() {
@@ -1485,7 +1485,7 @@ export class PSView extends preact.Component {
 		return false;
 	}
 	componentDidCatch(err: Error) {
-		PS.mainmenu.caughtError = err.stack || err.message;
+		PS.mainmenu.caughtError = PSUtils.normalizeError(err);
 		this.setState({});
 	}
 	static containingRoomid(elem: HTMLElement) {

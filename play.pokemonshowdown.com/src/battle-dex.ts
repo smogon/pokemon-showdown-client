@@ -163,6 +163,17 @@ export const PSUtils = new class {
 		if (!callback) return (array as any[]).sort(PSUtils.compare);
 		return array.sort((a, b) => PSUtils.compare(callback(a), callback(b)));
 	}
+	normalizeError(err: any): string {
+		const stack = err.stack || '';
+		const messagePrefix = `${err.name}: ${err.message}`;
+
+		// Firefox doesn't put the error message inside the stack trace,
+		// but Chrome/Safari does
+		if (stack && !stack.startsWith(messagePrefix)) {
+			return `${messagePrefix}\n${stack}`;
+		}
+		return stack || messagePrefix;
+	}
 };
 
 /**

@@ -214,7 +214,6 @@ export class BattleRoom extends ChatRoom {
 	override destroy() {
 		this.request = null;
 		this.choices = null;
-		this.updateChoiceNotification();
 		super.destroy();
 	}
 
