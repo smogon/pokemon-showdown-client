@@ -1147,13 +1147,6 @@ export class PSView extends preact.Component {
 			const altShiftKey = !ev.ctrlKey && ev.altKey && !ev.metaKey && ev.shiftKey;
 			const shiftKey = !ev.ctrlKey && !ev.altKey && !ev.metaKey && ev.shiftKey;
 			const kc = ev.keyCode;
-			if (altShiftKey && (kc === 37 || kc === 38)) { // alt + shift + left or up
-				PS.arrowKeysUsed = true;
-				PS.focusUnreadRoom('left');
-			} else if (altShiftKey && (kc === 39 || kc === 40)) { // alt + shift + right or down
-				PS.arrowKeysUsed = true;
-				PS.focusUnreadRoom('right');
-			}
 			if (altKey && kc === 38) { // alt + up
 				PS.arrowKeysUsed = true;
 				PS.focusUpRoom();
@@ -1182,7 +1175,13 @@ export class PSView extends preact.Component {
 
 			if (isNonEmptyTextInput) return;
 
-			if (altKey && kc === 37) { // alt + left
+			if (altShiftKey && (kc === 37 || kc === 38)) { // alt + shift + left or up
+				PS.arrowKeysUsed = true;
+				PS.focusUnreadRoom('left');
+			} else if (altShiftKey && (kc === 39 || kc === 40)) { // alt + shift + right or down
+				PS.arrowKeysUsed = true;
+				PS.focusUnreadRoom('right');
+			} else if (altKey && kc === 37) { // alt + left
 				PS.arrowKeysUsed = true;
 				PS.focusLeftRoom();
 			} else if (altKey && kc === 39) { // alt + right
