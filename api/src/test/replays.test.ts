@@ -5,7 +5,7 @@ import { strict as assert } from 'node:assert';
 import { suite, test } from 'node:test';
 
 import { Replays } from '../replays.ts';
-import { replays } from '../tables.ts';
+import { replayPlayers, replays } from '../tables.ts';
 
 void suite('Replay database manipulation', () => {
 	// prepreplay no longer exists
@@ -48,11 +48,15 @@ void suite('Replay database manipulation', () => {
 	});
 
 	void test('should support editing replays', async () => {
-		await replays.insert({
+		await Replays.add({
 			id: 'edittest',
-			views: 1,
-			players: 'annika,annikatesting',
+			players: ['annika', 'annikatesting'],
 			format: 'gen8ou',
+			log: '',
+			inputlog: null,
+			uploadtime: 1,
+			private: 0,
+			rating: null,
 		});
 
 		const original = await Replays.get('edittest');
@@ -62,8 +66,14 @@ void suite('Replay database manipulation', () => {
 		original.private = 2;
 		await Replays.edit(original);
 
-		await Replays.get('edittest');
-		assert.equal(original.private, 2);
+		const edited = await Replays.get('edittest');
+		assert.equal(edited?.private, 2);
+		const playerRows = await replayPlayers.selectAll(['private', 'password'])`WHERE id = ${'edittest'}`;
+		assert.equal(playerRows.length, 2);
+		for (const row of playerRows) {
+			assert.equal(row.private, 1);
+			assert.equal(row.password, null);
+		}
 	});
 
 	void test('should properly upload replays', async () => {

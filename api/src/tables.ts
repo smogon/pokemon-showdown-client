@@ -5,7 +5,6 @@ import { MockDatabase, MySQLDatabase, PGDatabase, SQLiteDatabase } from './datab
 import { Config } from './config-loader.ts';
 
 import type { LadderEntry } from './ladder.ts';
-import type { ReplayRow } from './replays.ts';
 import type { Suspect } from './actions.ts';
 
 type DatabaseDriver = 'mysql' | 'postgres' | 'sqlite' | 'mock';
@@ -85,6 +84,28 @@ export const replayPrep = replaysDB.getTable<{
 	uploadtime: number,
 }>('replayprep', 'id');
 
+// must be a type and not an interface to qualify as an SQLRow
+export type ReplayRow = {
+	id: string,
+	format: string,
+	/** player names delimited by `,`; starting with `!` denotes that player wants the replay private */
+	players: string,
+	log: string,
+	inputlog: string | null,
+	uploadtime: number,
+	views: number,
+	formatid: string,
+	rating: number | null,
+	/**
+	 * 0 = public
+	 * 1 = private (with or without password)
+	 * 2 = NOT USED; ONLY USED IN PREPREPLAY
+	 * 3 = deleted
+	 * 10 = autosaved
+	 */
+	private: 0 | 1 | 2 | 3 | 10,
+	password: string | null,
+};
 export const replays = replaysDB.getTable<
 	ReplayRow
 >('replays', 'id');

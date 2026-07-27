@@ -1182,40 +1182,23 @@ export const actions: { [k: string]: QueryHandler } = {
 	async 'replays/edit'(params) {
 		const user = await this.getUser();
 		if (!user.isLeader()) throw new ActionError(`Access denied.`);
-		const id = toID(params.id);
+		const id = (params.id || '').toLowerCase();
+		if (id && !/^[a-z0-9-]+$/.test(id)) throw new ActionError(`Invalid replay ID.`);
 		if (!id) throw new ActionError(`No replay ID was provided.`);
-		const replay = await tables.replays.get(id);
+		const replay = await Replays.get(id);
 		if (!replay) throw new ActionError(`Replay ${id} not found.`);
-		let pw;
 		switch (Number(params.private)) {
 		case 3:
-			await tables.replays.update(id, {
-				password: null,
-				private: 3,
-			});
-			break;
-		case 2: // private [1], no pass
-			await tables.replays.update(id, {
-				private: 1,
-				password: null,
-			});
-			break;
+		case 2:
 		case 1:
-			if (!replay.password) replay.password = Replays.generatePassword();
-			pw = replay.password;
-			await tables.replays.update(id, {
-				private: 1,
-				password: replay.password,
-			});
+		case 0:
+			replay.private = Number(params.private) as 0;
 			break;
 		default:
-			await tables.replays.update(id, {
-				password: null,
-				private: 0,
-			});
-			break;
+			throw new ActionError(`Invalid private value: ${params.private!}`);
 		}
-		return { password: pw };
+		const editedReplay = await Replays.edit(replay);
+		return { password: editedReplay.password || undefined };
 	},
 	async 'replays/batch'(params) {
 		if (!params.ids) {
