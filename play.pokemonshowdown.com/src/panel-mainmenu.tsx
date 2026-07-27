@@ -858,7 +858,7 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 	};
 	getDefaultTeam(teambuilderFormat: string) {
 		for (const team of PS.teams.list) {
-			if (team.format === teambuilderFormat) return team.key;
+			if (!team.isBox && team.format === teambuilderFormat) return team.key;
 		}
 		return '';
 	}

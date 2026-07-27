@@ -208,8 +208,8 @@ class TeamDropdownPanel extends PSRoomPanel {
 	gen = '';
 	format: string | null = null;
 	getTeams() {
-		if (!this.format && !this.gen) return PS.teams.list;
 		return PS.teams.list.filter(team => {
+			if (team.isBox) return false;
 			if (this.gen && !team.format.startsWith(this.gen)) return false;
 			if (this.format && team.format !== this.format) return false;
 			return true;
@@ -268,9 +268,9 @@ class TeamDropdownPanel extends PSRoomPanel {
 		}
 
 		let availableWidth = window.innerWidth;
-		let width = 307;
-		if (availableWidth > 636) width = 613;
-		if (availableWidth > 945) width = 919;
+		let width = 320;
+		if (availableWidth > 636) width = 618;
+		if (availableWidth > 945) width = 916;
 
 		let teamBuckets: { [folder: string]: Team[] } = {};
 		for (const team of teams) {
@@ -283,6 +283,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 		const baseGen = baseFormat.slice(0, 4);
 		let genList: string[] = [];
 		for (const team of PS.teams.list) {
+			if (team.isBox) continue;
 			const gen = team.format.slice(0, 4);
 			if (gen && !genList.includes(gen)) genList.push(gen);
 		}

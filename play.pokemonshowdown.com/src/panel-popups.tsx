@@ -1062,8 +1062,8 @@ class ReplacePlayerPanel extends PSRoomPanel {
 		const room = this.props.room;
 		const battleRoom = room.getParent()?.getParent() as BattleRoom;
 		const newPlayer = this.base?.querySelector<HTMLInputElement>("input[name=newplayer]")?.value;
-		if (!newPlayer?.length) return battleRoom.add("|error|Enter player's name");
-		if (battleRoom.battle.ended) return battleRoom.add("|error|Cannot replace player, battle has already ended.");
+		if (!newPlayer?.length) return battleRoom.errorReply("Enter player's name");
+		if (battleRoom.battle.ended) return battleRoom.errorReply("Cannot replace player, battle has already ended.");
 		let playerSlot = battleRoom.battle.p1.id === PS.user.userid ? "p1" : "p2";
 		battleRoom.send('/leavebattle');
 		battleRoom.send(`/addplayer ${newPlayer}, ${playerSlot}`);

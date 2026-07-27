@@ -1343,7 +1343,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		},
 		'workoffline'() {
 			if (PS.isOffline) {
-				return this.add(`|error|You are already offline.`);
+				return this.errorReply(`You are already offline.`);
 			}
 			PS.connection?.disconnect();
 		},
@@ -1600,11 +1600,15 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 							try {
 								new RegExp(targets[i]);
 							} catch (e: any) {
-								return this.add(`|error|${(e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message)}`);
+								return this.errorReply(
+									e.message.startsWith('Invalid regular expression: ') ?
+										e.message :
+										'Invalid regular expression: /' + targets[i] + '/: ' + e.message
+								);
 							}
 						}
 						if (highlightList.includes(targets[i])) {
-							return this.add(`|error|${targets[i]} is already on your highlights list.`);
+							return this.errorReply(`${targets[i]} is already on your highlights list.`);
 						}
 					}
 					highlights[key] = highlightList.concat(targets);
@@ -2162,7 +2166,8 @@ export const PS = new class extends PSModel {
 				maxWidth: 660,
 			};
 		case 'battle': {
-			const sideBySide = !this.prefs.battlelayout || this.prefs.battlelayout === 'side-by-side';
+			const sideBySide = !this.prefs.battlelayout ||
+				this.prefs.battlelayout === 'side-by-side' || this.prefs.battlelayout === 'side-by-side-overlay';
 			return {
 				minWidth: 320,
 				width: sideBySide ? 956 : 640,

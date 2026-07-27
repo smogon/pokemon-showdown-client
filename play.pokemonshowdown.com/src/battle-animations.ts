@@ -740,10 +740,20 @@ export class BattleScene implements BattleSceneStub {
 			}
 			badgehtml += '</span>';
 		}
-		const avatar = Dex.resolveAvatar(side.avatar);
+		let avatar = Dex.resolveAvatar(side.avatar);
+		let noflip = '';
+		if (posStr.startsWith('near')) {
+			if (avatar.includes('unknown.png')) {
+				avatar = avatar.replace('unknown.png', 'unknown-flipped.png');
+				noflip = ' noflip';
+			} else if (avatar.includes('unknownf.png')) {
+				avatar = avatar.replace('unknownf.png', 'unknownf-flipped.png');
+				noflip = ' noflip';
+			}
+		}
 		return (
 			`<div class="trainer trainer-${posStr}"${faded}><strong>${BattleLog.escapeHTML(side.name)}</strong>` +
-			`<div class="trainersprite${avatar.includes('unknown') ? ' noflip' : ''}"${ratinghtml} style="background-image:url(${avatar})">` +
+			`<div class="trainersprite${noflip}"${ratinghtml} style="background-image:url(${avatar})">` +
 			`</div>${badgehtml}${pokemonhtml}</div>`
 		);
 	}

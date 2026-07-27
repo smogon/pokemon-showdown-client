@@ -486,7 +486,7 @@ export class ChatRoom extends PSRoom {
 			PSLoginServer.query("ladderget", {
 				user: targets[0],
 			}).then(data => {
-				if (!data || !Array.isArray(data)) return this.add(`|error|Error: corrupted ranking data`);
+				if (!data || !Array.isArray(data)) return this.errorReply(`Error: corrupted ranking data`);
 				let buffer = `<div class="ladder"><table><tr><td colspan="9">User: <strong>${toID(targets[0])}</strong></td></tr>`;
 				if (!data.length) {
 					buffer += '<tr><td colspan="9"><em>This user has not played any ladder games yet.</em></td></tr>';
@@ -502,7 +502,7 @@ export class ChatRoom extends PSRoom {
 				buffer += '</tr>';
 				const hiddenFormats = [];
 				for (const row of data) {
-					if (!row) return this.add(`|error|Error: corrupted ranking data`);
+					if (!row) return this.errorReply(`Error: corrupted ranking data`);
 					const formatId = toID(row.formatid);
 					const matchesTarget = (
 						formats[formatId] ||
@@ -519,7 +519,7 @@ export class ChatRoom extends PSRoom {
 					// Validate all the numerical data
 					for (const value of [row.elo, row.rpr, row.rprd, row.gxe, row.w, row.l, row.t]) {
 						if (typeof value !== 'number' && typeof value !== 'string') {
-							return this.add(`|error|Error: corrupted ranking data`);
+							return this.errorReply(`Error: corrupted ranking data`);
 						}
 					}
 
@@ -581,7 +581,7 @@ export class ChatRoom extends PSRoom {
 		// battle-specific commands
 		// ------------------------
 		'play'() {
-			if (!this.battle) return this.add('|error|You are not in a battle');
+			if (!this.battle) return this.errorReply('You are not in a battle');
 			if (this.battle.atQueueEnd) {
 				if (this.battle.ended) this.battle.isReplay = true;
 				this.battle.reset();
@@ -590,12 +590,12 @@ export class ChatRoom extends PSRoom {
 			this.update(null);
 		},
 		'pause'() {
-			if (!this.battle) return this.add('|error|You are not in a battle');
+			if (!this.battle) return this.errorReply('You are not in a battle');
 			this.battle.pause();
 			this.update(null);
 		},
 		'ffto,fastfowardto'(target, cmd, parentElem) {
-			if (!this.battle) return this.add('|error|You are not in a battle');
+			if (!this.battle) return this.errorReply('You are not in a battle');
 			if (!target) {
 				PS.prompt("Turn number?", {
 					defaultValue: `${this.battle.turn}`,
@@ -627,34 +627,38 @@ export class ChatRoom extends PSRoom {
 			this.update(null);
 		},
 		'switchsides'() {
-			if (!this.battle) return this.add('|error|You are not in a battle');
+			if (!this.battle) return this.errorReply('You are not in a battle');
 			this.battle.switchViewpoint();
 		},
-		'cancel,undo'() {
+		'cancel,undo,cancelone'(_target, cmd) {
 			if (!this.battle) return this.send('/cancelchallenge');
 
 			const room = this as any as BattleRoom;
 			if (!room.choices || !room.request) {
-				this.receiveLine([`error`, `/choose - You are not a player in this battle`]);
+				this.errorReply(`/choose - You are not a player in this battle`);
 				return;
 			}
 			if (room.choices.isDone() || room.choices.isEmpty()) {
 				// we _could_ check choices.noCancel, but the server will check anyway
 				this.sendDirect('/undo');
 			}
-			room.choices = new BattleChoiceBuilder(room.request);
+			if (cmd === 'cancel') {
+				room.choices = new BattleChoiceBuilder(room.request);
+			} else {
+				room.choices = room.choices.previous();
+			}
 			room.updateChoiceNotification();
 			this.update(null);
 		},
 		'move,switch,team,pass,shift,choose'(target, cmd) {
 			if (!this.battle) return this.errorReply('You are not in a battle');
 			const room = this as any as BattleRoom;
-			if (!room.choices) {
-				this.receiveLine([`error`, `/choose - You are not a player in this battle`]);
+			if (!room.choices || !room.request) {
+				this.errorReply(`/choose - You are not a player in this battle`);
 				return;
 			}
 
-			const choices = cmd === 'choose' ? new BattleChoiceBuilder(room.request!) : room.choices;
+			const choices = cmd === 'choose' ? new BattleChoiceBuilder(room.request) : room.choices;
 			if (cmd !== 'choose') target = `${cmd} ${target}`;
 			const possibleError = choices.addChoices(target);
 			if (possibleError) {
@@ -688,7 +692,7 @@ export class ChatRoom extends PSRoom {
 	});
 	openChallenge() {
 		if (!this.pmTarget) {
-			this.add(`|error|Can only be used in a PM.`);
+			this.errorReply(`Can only be used in a PM.`);
 			return;
 		}
 		this.challengeMenuOpen = true;
@@ -696,7 +700,7 @@ export class ChatRoom extends PSRoom {
 	}
 	cancelChallenge() {
 		if (!this.pmTarget) {
-			this.add(`|error|Can only be used in a PM.`);
+			this.errorReply(`Can only be used in a PM.`);
 			return;
 		}
 		if ((this.teamSent && this.challengeMenuOpen) || this.challenging) {
