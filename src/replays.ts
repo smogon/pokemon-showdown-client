@@ -6,32 +6,10 @@
  * Ported to Postgres by Zarel.
  */
 import { toID, time } from './utils.ts';
-import { replayPlayers, replays } from './tables.ts';
+import { replayPlayers, replays, type ReplayRow } from './tables.ts';
 import { SQL } from './database.ts';
 import * as crypto from 'node:crypto';
 
-// must be a type and not an interface to qualify as an SQLRow
-export type ReplayRow = {
-	id: string,
-	format: string,
-	/** player names delimited by `,`; starting with `!` denotes that player wants the replay private */
-	players: string,
-	log: string,
-	inputlog: string | null,
-	uploadtime: number,
-	views: number,
-	formatid: string,
-	rating: number | null,
-	/**
-	 * 0 = public
-	 * 1 = private (with or without password)
-	 * 2 = NOT USED; ONLY USED IN PREPREPLAY
-	 * 3 = deleted
-	 * 10 = autosaved
-	 */
-	private: 0 | 1 | 2 | 3 | 10,
-	password: string | null,
-};
 type Replay = Omit<ReplayRow, 'players' | 'password' | 'views' | 'formatid' | 'inputlog'> & {
 	players: string[],
 	views?: number,
@@ -154,9 +132,13 @@ export const Replays = new class {
 		);
 	}
 
+	/** can currently only edit privacy level */
 	async edit(replay: Replay) {
 		const replayData = this.toReplayRow(replay);
-		await replays.update(replay.id, { private: replayData.private, password: replayData.password });
+		const update = { private: replayData.private, password: replayData.password };
+		await replays.update(replay.id, update);
+		await replayPlayers.updateAll(update)`WHERE id = ${replay.id}`;
+		return replayData;
 	}
 
 	generatePassword(length = 31) {
