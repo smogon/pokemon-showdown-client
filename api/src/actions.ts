@@ -8,14 +8,14 @@ import { promises as fs, readFileSync, watchFile } from 'node:fs';
 import * as pathModule from 'node:path';
 import * as crypto from 'node:crypto';
 import * as module from 'node:module';
-import * as url from 'node:url';
 import { Config } from './config-loader.ts';
 import { Ladder, type LadderEntry } from './ladder.ts';
+import { OAuth } from './oauth.ts';
 import { Replays } from './replays.ts';
 import { ActionError, type QueryHandler, Server, DISPATCH_PREFIX } from './server.ts';
 import { Session } from './user.ts';
 import {
-	toID, updateserver, bash, time, escapeHTML, signAsync, TimeSorter,
+	toID, updateserver, bash, time, signAsync, TimeSorter,
 } from './utils.ts';
 import * as tables from './tables.ts';
 import { SQL } from './database.ts';
@@ -30,60 +30,6 @@ export interface Suspect {
 	gxe: number | null;
 	elo: number | null;
 }
-
-const OAUTH_TOKEN_TIME = 2 * 7 * 24 * 60 * 60 * 1000;
-const OAUTH_REFRESH_GRACE_TIME = 7 * 24 * 60 * 60 * 1000;
-
-async function getOAuthClient(clientId?: string) {
-	if (!clientId) throw new ActionError("No client_id provided.");
-	const data = await tables.oauthClients.get(clientId);
-	if (!data) throw new ActionError("Invalid client_id");
-	return data;
-}
-
-function parseOAuthURL(rawUrl: string, label: string) {
-	let parsed: url.URL;
-	try {
-		parsed = new url.URL(rawUrl);
-	} catch {
-		throw new ActionError(`Invalid ${label}.`);
-	}
-	if (!['http:', 'https:'].includes(parsed.protocol)) {
-		throw new ActionError(`Invalid ${label}.`);
-	}
-	return parsed;
-}
-
-function validateOAuthOrigin(
-	client: Awaited<ReturnType<typeof getOAuthClient>>,
-	rawUrl: string,
-	label: string
-) {
-	const registeredOrigin = parseOAuthURL(client.origin_url, 'OAuth client origin').origin;
-	const requestedURL = parseOAuthURL(rawUrl, label);
-	if (requestedURL.origin !== registeredOrigin) {
-		throw new ActionError("This origin is not permitted to use this OAuth client.");
-	}
-	return requestedURL;
-}
-
-async function rotateOAuthToken(token: { id: string }) {
-	const id = crypto.randomBytes(16).toString('hex');
-	const result = await tables.oauthTokens.update(token.id, {
-		id,
-		time: Date.now(),
-	});
-	return result.affectedRows === 1 ? id : null;
-}
-
-const OAUTH_AUTHORIZE_CONTENT = readFileSync(
-	import.meta.dirname + "/public/oauth-authorize.html",
-	'utf-8'
-);
-const OAUTH_AUTHORIZED_CONTENT = readFileSync(
-	import.meta.dirname + "/public/oauth-authorized.html",
-	'utf-8'
-);
 
 function loadData(path: string | null) {
 	try {
@@ -750,16 +696,11 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!params.redirect_uri) {
 			throw new ActionError("No redirect_uri provided");
 		}
-		const clientInfo = await getOAuthClient(params.client_id);
-		validateOAuthOrigin(clientInfo, params.redirect_uri, 'redirect_uri');
+		const client = await OAuth.getClient(params.client_id, params.redirect_uri, 'redirect_uri');
 
 		this.response.setHeader('Content-Type', 'text/html');
 		try {
-			let content = OAUTH_AUTHORIZE_CONTENT;
-			// table keys are owner, clientName, id
-			// expects client, client_name, redirect_uri
-			content = content.replace(/\{\{client\}\}/g, escapeHTML(clientInfo.client_title));
-			content = content.replace(/\{\{client_name\}\}/g, escapeHTML(clientInfo.owner));
+			const content = OAuth.renderAuthorizePage(client);
 			this.response.setHeader('Content-Length', Buffer.byteLength(content));
 			return content;
 		} catch (e) {
@@ -775,76 +716,33 @@ export const actions: { [k: string]: QueryHandler } = {
 		}
 		const origin = this.request.headers.origin;
 		const host = this.request.headers.host;
-		if (!origin || parseOAuthURL(origin, 'request origin').host !== host?.toLowerCase()) {
+		if (!origin || OAuth.parseURL(origin, 'request origin').host !== host?.toLowerCase()) {
 			throw new ActionError("OAuth authorization requires a same-origin request.");
 		}
 		const user = await this.getUser();
 		if (!user.loggedIn) {
 			throw new ActionError("You're not logged in.");
 		}
-		const clientInfo = await getOAuthClient(params.client_id);
-		const existing = await (
-			tables.oauthTokens.selectOne()
-		)`WHERE client = ${clientInfo.id} AND owner = ${user.id}`;
-		if (existing) {
-			if (Date.now() - existing.time > OAUTH_TOKEN_TIME) { // 2w
-				const id = await rotateOAuthToken(existing);
-				if (!id) return { success: false, user: user.id };
-				return {
-					success: id,
-					expires: Date.now() + OAUTH_TOKEN_TIME,
-					user: user.id,
-				};
-			} else {
-				return { success: existing.id, user: user.id };
-			}
-		}
-		const id = crypto.randomBytes(16).toString('hex');
-		await tables.oauthTokens.insert({
-			id, owner: user.id, client: clientInfo.id, time: Date.now(),
-		});
-		return {
-			success: id,
-			expires: Date.now() + OAUTH_TOKEN_TIME,
-			user: user.id,
-		};
+		const client = await OAuth.getClient(params.client_id);
+		return OAuth.authorize(client, user.id);
 	},
 
 	async 'oauth/api/refreshtoken'(params) {
-		const clientInfo = await getOAuthClient(params.client_id);
 		const origin = this.request.headers.origin;
-		if (origin) {
-			validateOAuthOrigin(clientInfo, origin, 'request origin');
-			this.allowCORS(origin);
-		}
+		const client = await OAuth.getClient(params.client_id, origin);
+		if (origin) this.allowCORS(origin);
 		const token = (params.token || "").toString();
 		if (!token) {
 			throw new ActionError('No token provided.');
 		}
-		const tokenEntry = await tables.oauthTokens.get(token);
-		if (!tokenEntry) {
-			return { success: false };
-		}
-		if (tokenEntry.client !== clientInfo.id) {
-			return { success: false };
-		}
-		if (Date.now() - tokenEntry.time > OAUTH_TOKEN_TIME + OAUTH_REFRESH_GRACE_TIME) {
-			await tables.oauthTokens.delete(tokenEntry.id);
-			return { success: false };
-		}
-		const id = await rotateOAuthToken(tokenEntry);
-		if (!id) return { success: false };
-		return { success: id, expires: Date.now() + OAUTH_TOKEN_TIME };
+		return OAuth.refreshToken(client, token);
 	},
 
 	// validate assertion & get token if it's valid
 	async 'oauth/api/getassertion'(params) {
-		const clientInfo = await getOAuthClient(params.client_id);
 		const origin = this.request.headers.origin;
-		if (origin) {
-			validateOAuthOrigin(clientInfo, origin, 'request origin');
-			this.allowCORS(origin);
-		}
+		const client = await OAuth.getClient(params.client_id, origin);
+		if (origin) this.allowCORS(origin);
 		const token = (params.token || "").toString();
 		if (!token) {
 			throw new ActionError('No token provided.');
@@ -853,22 +751,10 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!challstr) {
 			throw new ActionError('No challstr provided.');
 		}
-		const tokenEntry = await tables.oauthTokens.get(token);
-		if (tokenEntry?.id !== token) {
-			return { success: false };
-		}
-		if (tokenEntry.client !== clientInfo.id) {
-			return { success: false };
-		}
-		const tokenAge = Date.now() - tokenEntry.time;
-		if (tokenAge > OAUTH_TOKEN_TIME) {
-			if (tokenAge > OAUTH_TOKEN_TIME + OAUTH_REFRESH_GRACE_TIME) {
-				await tables.oauthTokens.delete(tokenEntry.id);
-			}
-			return { success: false };
-		}
+		const owner = await OAuth.getTokenOwner(client, token);
+		if (!owner) return { success: false };
 		const user = await this.getUser();
-		user.login(tokenEntry.owner);
+		user.login(owner);
 		return this.session.getAssertion(
 			user.id, Config.challengekeyid, user, challstr
 		);
@@ -876,7 +762,7 @@ export const actions: { [k: string]: QueryHandler } = {
 
 	'oauth/authorized'() {
 		this.response.setHeader('Content-Type', 'text/html');
-		const content = OAUTH_AUTHORIZED_CONTENT;
+		const content = OAuth.authorizedPage;
 		this.response.setHeader('Content-Length', Buffer.byteLength(content));
 		return content;
 	},
@@ -886,16 +772,9 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!user.loggedIn) {
 			throw new ActionError("You're not logged in.");
 		}
-		const applications = [];
-		const tokens = await tables.oauthTokens.selectAll()`WHERE owner = ${user.id}`;
-		for (const token of tokens) {
-			const client = await tables.oauthClients.get(token.client);
-			if (!client) throw new Error("Tokens exist for nonexistent application");
-			applications.push({ title: client.client_title, url: client.origin_url });
-		}
 		return {
 			username: user.id,
-			applications,
+			applications: await OAuth.getAuthorizedApplications(user.id),
 		};
 	},
 
@@ -904,21 +783,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!user.loggedIn) {
 			throw new ActionError("You're not logged in.");
 		}
-		if (!params.uri) {
-			throw new ActionError("Specify the URL of the application you wish to revoke access for.");
-		}
-		const client = await tables.oauthClients.selectOne()`WHERE origin_url = ${params.uri}`;
-		if (!client) {
-			throw new ActionError('No client found with that URL.');
-		}
-		const tokenEntry = await (
-			tables.oauthTokens.selectOne()
-		)`WHERE client = ${client.id} AND owner = ${user.id}`;
-		if (!tokenEntry) {
-			throw new ActionError("That application doesn't have access granted to your account.");
-		}
-		await tables.oauthTokens.deleteAll()`WHERE client = ${client.id} and owner = ${user.id}`;
-		return { success: true };
+		return OAuth.revoke(user.id, params.uri);
 	},
 
 	async getteams(params) {
