@@ -3,7 +3,7 @@
 error_reporting(E_ALL);
 
 include_once '../../lib/ntbb-session.lib.php';
-include_once __DIR__ . '/../../config/news.inc.php';
+include_once __DIR__ . '/../../lib/news.lib.php';
 include_once 'include.php';
 
 if (!$users->isLeader()) die('access denied');
@@ -15,6 +15,11 @@ function saveNews() {
 $latestNewsCache = '.var_export($GLOBALS['latestNewsCache'], true).';
 $newsCache = '.var_export($GLOBALS['newsCache'], true).';
 ');
+
+	file_put_contents(__DIR__ . '/../../config/news.json', json_encode([
+		'latest' => array_values($GLOBALS['latestNewsCache']),
+		'news' => (object)$GLOBALS['newsCache'],
+	], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
 	date_default_timezone_set('America/Los_Angeles');
 	$indexData = file_get_contents('../../play.pokemonshowdown.com/caches/index-old.html');
