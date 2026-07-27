@@ -25,7 +25,7 @@
 
 		<div class="main"><section class="section">
 			<h2>Authorize {{client}}</h2><hr />
-			<div class="infobox">
+			<div class="infobox" id="authpanel">
 				{{client}} by {{client_name}} wants to access your Pokemon Showdown account<span id="username"></span>.<br />
 				This does not expose any private information, and will allow you to log in on their site using your Pokemon Showdown account for two weeks.<br /><br /><hr />
 				<a id="auth" class="button greenbutton nav-first nav-last">Authorize</a><br /><br />
@@ -55,6 +55,7 @@
 		var params = new URLSearchParams(location.search);
 		var tokenName = 'ps-' + params.get('client_id') + "-token";
 		var token = localStorage.getItem(tokenName);
+		var authorizedUser = '';
 		var username = document.cookie
 			.split('; ')
 			.filter(x => x.startsWith('showdown_username'))
@@ -76,31 +77,50 @@
 				client_id: params.get('client_id'),
 				challenge: params.get('challenge') || params.get('challstr'),
 			}, safeJSON(function (data) {
+				if (data.actionerror) {
+					acting = false;
+					return alert(`Error: ${data.actionerror}`);
+				}
 				if (data.success === false) {
 					params.delete('token');
 					localStorage.removeItem(tokenName);
 					$('#authpanel').css({display: ''});
-					return $('#auth').on('click', () => { // this should send a req to get a token
+					acting = false;
+					return $('#auth').off('click').on('click', () => {
 						if (acting) return;
 						acting = true;
 						authorize();
 					});
 				}
+				if (typeof data.data !== 'string' || data.data.startsWith(';')) {
+					acting = false;
+					return alert(`Error: ${data.data || "The loginserver returned an invalid assertion."}`);
+				}
+				var assertionData = data.data.split(';')[0].split(',');
+				authorizedUser = authorizedUser || assertionData[1] || '';
 				var redirect = new URL(params.get('redirect_uri'));
-				redirect.search = new URLSearchParams({assertion: data.data, token: token, user: data.user});
+				redirect.searchParams.set('assertion', data.data);
+				redirect.searchParams.set('token', params.get('token'));
+				redirect.searchParams.set('user', authorizedUser);
 				location.replace(redirect);
 			}));
 		}
 
 		function authorize() {
-			$.get('/api/oauth/api/authorize', {
+			$.post('/api/oauth/api/authorize', {
 				client_id: params.get('client_id'),
 			}, safeJSON(function (data) {
 				if (data.actionerror) {
+					acting = false;
 					return alert(`Error: ${data.actionerror}`);
+				}
+				if (!data.success) {
+					acting = false;
+					return alert("The loginserver could not create an OAuth token. Please try again.");
 				}
 				params.set('token', data.success);
 				localStorage.setItem(tokenName, data.success);
+				authorizedUser = data.user || '';
 				getAssertion();
 			}));
 		}
@@ -109,7 +129,7 @@
 		jqueryEl.src = '/js/lib/jquery-2.2.4.min.js';
 		jqueryEl.onload = function() {
 			if (!params.get('token')) {
-				$('#auth').on('click', () => { // this should send a req to get a token
+				$('#auth').on('click', () => {
 					if (acting) return;
 					acting = true;
 					authorize();
