@@ -32,17 +32,48 @@ export interface Suspect {
 }
 
 const OAUTH_TOKEN_TIME = 2 * 7 * 24 * 60 * 60 * 1000;
+const OAUTH_REFRESH_GRACE_TIME = 7 * 24 * 60 * 60 * 1000;
 
-async function getOAuthClient(clientId?: string, origin?: string) {
+async function getOAuthClient(clientId?: string) {
 	if (!clientId) throw new ActionError("No client_id provided.");
 	const data = await tables.oauthClients.get(clientId);
 	if (!data) throw new ActionError("Invalid client_id");
-	if (origin) {
-		if (new url.URL(origin).host !== new url.URL(data.origin_url).host) {
-			throw new ActionError("This origin is not permitted to use this OAuth client.");
-		}
-	}
 	return data;
+}
+
+function parseOAuthURL(rawUrl: string, label: string) {
+	let parsed: url.URL;
+	try {
+		parsed = new url.URL(rawUrl);
+	} catch {
+		throw new ActionError(`Invalid ${label}.`);
+	}
+	if (!['http:', 'https:'].includes(parsed.protocol)) {
+		throw new ActionError(`Invalid ${label}.`);
+	}
+	return parsed;
+}
+
+function validateOAuthOrigin(
+	client: Awaited<ReturnType<typeof getOAuthClient>>,
+	rawUrl: string,
+	label: string
+) {
+	const registeredOrigin = parseOAuthURL(client.origin_url, 'OAuth client origin').origin;
+	const requestedURL = parseOAuthURL(rawUrl, label);
+	if (requestedURL.origin !== registeredOrigin) {
+		throw new ActionError("This origin is not permitted to use this OAuth client.");
+	}
+	return requestedURL;
+}
+
+async function rotateOAuthToken(token: { id: string }) {
+	const id = crypto.randomBytes(16).toString('hex');
+	const result = await tables.oauthTokens.update(token.id, {
+		id,
+		time: Date.now(),
+	});
+	return result.affectedRows === 1 ? id : null;
 }
 
 const OAUTH_AUTHORIZE_CONTENT = readFileSync(
@@ -716,11 +747,11 @@ export const actions: { [k: string]: QueryHandler } = {
 	// oauth/page - public-facing part
 	// oauth/api/page - api part (does the actual action)
 	async 'oauth/authorize'(params) {
-		this.allowCORS();
 		if (!params.redirect_uri) {
 			throw new ActionError("No redirect_uri provided");
 		}
-		const clientInfo = await getOAuthClient(params.client_id, this.request.headers.origin);
+		const clientInfo = await getOAuthClient(params.client_id);
+		validateOAuthOrigin(clientInfo, params.redirect_uri, 'redirect_uri');
 
 		this.response.setHeader('Content-Type', 'text/html');
 		try {
@@ -729,7 +760,7 @@ export const actions: { [k: string]: QueryHandler } = {
 			// expects client, client_name, redirect_uri
 			content = content.replace(/\{\{client\}\}/g, escapeHTML(clientInfo.client_title));
 			content = content.replace(/\{\{client_name\}\}/g, escapeHTML(clientInfo.owner));
-			this.response.setHeader('Content-Length', content.length);
+			this.response.setHeader('Content-Length', Buffer.byteLength(content));
 			return content;
 		} catch (e) {
 			Server.crashlog(e, "oauth/authorize", params);
@@ -739,7 +770,14 @@ export const actions: { [k: string]: QueryHandler } = {
 
 	// make a token if they don't already have it
 	async 'oauth/api/authorize'(params) {
-		this.allowCORS();
+		if (this.request.method !== 'POST') {
+			throw new ActionError("OAuth authorization requires POST.");
+		}
+		const origin = this.request.headers.origin;
+		const host = this.request.headers.host;
+		if (!origin || parseOAuthURL(origin, 'request origin').host !== host?.toLowerCase()) {
+			throw new ActionError("OAuth authorization requires a same-origin request.");
+		}
 		const user = await this.getUser();
 		if (!user.loggedIn) {
 			throw new ActionError("You're not logged in.");
@@ -750,8 +788,13 @@ export const actions: { [k: string]: QueryHandler } = {
 		)`WHERE client = ${clientInfo.id} AND owner = ${user.id}`;
 		if (existing) {
 			if (Date.now() - existing.time > OAUTH_TOKEN_TIME) { // 2w
-				await tables.oauthTokens.delete(existing.id);
-				return { success: false };
+				const id = await rotateOAuthToken(existing);
+				if (!id) return { success: false, user: user.id };
+				return {
+					success: id,
+					expires: Date.now() + OAUTH_TOKEN_TIME,
+					user: user.id,
+				};
 			} else {
 				return { success: existing.id, user: user.id };
 			}
@@ -768,8 +811,12 @@ export const actions: { [k: string]: QueryHandler } = {
 	},
 
 	async 'oauth/api/refreshtoken'(params) {
-		this.allowCORS();
 		const clientInfo = await getOAuthClient(params.client_id);
+		const origin = this.request.headers.origin;
+		if (origin) {
+			validateOAuthOrigin(clientInfo, origin, 'request origin');
+			this.allowCORS(origin);
+		}
 		const token = (params.token || "").toString();
 		if (!token) {
 			throw new ActionError('No token provided.');
@@ -778,18 +825,26 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!tokenEntry) {
 			return { success: false };
 		}
-		const id = crypto.randomBytes(16).toString('hex');
-		await tables.oauthTokens.insert({
-			id, owner: tokenEntry.owner, client: clientInfo.id, time: Date.now(),
-		});
-		await tables.oauthTokens.delete(tokenEntry.id);
+		if (tokenEntry.client !== clientInfo.id) {
+			return { success: false };
+		}
+		if (Date.now() - tokenEntry.time > OAUTH_TOKEN_TIME + OAUTH_REFRESH_GRACE_TIME) {
+			await tables.oauthTokens.delete(tokenEntry.id);
+			return { success: false };
+		}
+		const id = await rotateOAuthToken(tokenEntry);
+		if (!id) return { success: false };
 		return { success: id, expires: Date.now() + OAUTH_TOKEN_TIME };
 	},
 
 	// validate assertion & get token if it's valid
 	async 'oauth/api/getassertion'(params) {
-		this.allowCORS();
-		await getOAuthClient(params.client_id);
+		const clientInfo = await getOAuthClient(params.client_id);
+		const origin = this.request.headers.origin;
+		if (origin) {
+			validateOAuthOrigin(clientInfo, origin, 'request origin');
+			this.allowCORS(origin);
+		}
 		const token = (params.token || "").toString();
 		if (!token) {
 			throw new ActionError('No token provided.');
@@ -802,8 +857,14 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (tokenEntry?.id !== token) {
 			return { success: false };
 		}
-		if ((Date.now() - tokenEntry.time) > OAUTH_TOKEN_TIME) { // 2w
-			await tables.oauthTokens.delete(tokenEntry.id);
+		if (tokenEntry.client !== clientInfo.id) {
+			return { success: false };
+		}
+		const tokenAge = Date.now() - tokenEntry.time;
+		if (tokenAge > OAUTH_TOKEN_TIME) {
+			if (tokenAge > OAUTH_TOKEN_TIME + OAUTH_REFRESH_GRACE_TIME) {
+				await tables.oauthTokens.delete(tokenEntry.id);
+			}
 			return { success: false };
 		}
 		const user = await this.getUser();
@@ -814,10 +875,9 @@ export const actions: { [k: string]: QueryHandler } = {
 	},
 
 	'oauth/authorized'() {
-		this.allowCORS();
 		this.response.setHeader('Content-Type', 'text/html');
 		const content = OAUTH_AUTHORIZED_CONTENT;
-		this.response.setHeader('Content-Length', content.length);
+		this.response.setHeader('Content-Length', Buffer.byteLength(content));
 		return content;
 	},
 
@@ -851,7 +911,9 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!client) {
 			throw new ActionError('No client found with that URL.');
 		}
-		const tokenEntry = await tables.oauthTokens.selectOne()`WHERE client = ${client.id}`;
+		const tokenEntry = await (
+			tables.oauthTokens.selectOne()
+		)`WHERE client = ${client.id} AND owner = ${user.id}`;
 		if (!tokenEntry) {
 			throw new ActionError("That application doesn't have access granted to your account.");
 		}

@@ -50,6 +50,20 @@ CREATE TABLE loginattempts (
 	time INTEGER NOT NULL
 );
 
+CREATE TABLE oauth_clients (
+	owner TEXT NOT NULL,
+	client_title TEXT NOT NULL,
+	origin_url TEXT NOT NULL,
+	id TEXT PRIMARY KEY
+);
+
+CREATE TABLE oauth_tokens (
+	owner TEXT NOT NULL,
+	client TEXT NOT NULL,
+	id TEXT PRIMARY KEY,
+	time INTEGER NOT NULL
+);
+
 CREATE TABLE usermodlog (
 	entryid INTEGER PRIMARY KEY AUTOINCREMENT,
 	userid TEXT NOT NULL,
