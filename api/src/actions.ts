@@ -493,7 +493,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		let code, stdout, stderr;
 		[code, stdout, stderr] = await bash('npm run typecheck');
 		if (code) throw new ActionError(`Type checking failed:\n${stderr || stdout}`);
-		[code, stdout, stderr] = await bash('npm run reload');
+		[code, stdout, stderr] = await bash('npm run api:reload');
 		if (code) throw new ActionError(stderr || stdout);
 		return { updated: update, success: true };
 	},

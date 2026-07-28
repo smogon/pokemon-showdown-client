@@ -1,7 +1,0 @@
-node_modules
-.dist
-.eslintcache
-config/*
-!config/config-example.cjs
-!config/pm2-example.config.cjs
-.DS_Store

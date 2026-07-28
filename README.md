@@ -45,8 +45,8 @@ New client
 Development is proceeding on the client rewrite! The live version is
 available at https://play.pokemonshowdown.com/beta
 
-Client testing requires a build step! Install the latest Node.js (we
-require v20 or later) and Git, and run `node build` (on Windows) or `./build`
+Client testing requires a build step! Install Node.js 24.12 or later and Git,
+and run `node build` (on Windows) or `./build`
 (on other OSes) to build after each change.
 
 (This will do a fast build with no checks. For tests, linting, and

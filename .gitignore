@@ -6,6 +6,10 @@ npm-debug.log
 /vendor/
 /caches/
 
+/api/config/*
+!/api/config/config-example.cjs
+!/api/config/pm2-example.config.cjs
+
 /play.pokemonshowdown.com/dirindex/webfonts/
 /play.pokemonshowdown.com/dirindex/fontawesome5*
 

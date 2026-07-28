@@ -19,7 +19,7 @@ export function time() {
 export function bash(command: string, cwd?: string): Promise<[string | number, string, string]> {
 	return new Promise(resolve => {
 		child_process.exec(command, {
-			cwd: cwd || `${import.meta.dirname}/..`,
+			cwd: cwd || `${import.meta.dirname}/../..`,
 		}, (error, stdout, stderr) => {
 			resolve([error?.code || 0, stdout, stderr]);
 		});
