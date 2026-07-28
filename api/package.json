@@ -1,0 +1,38 @@
+{
+  "name": "pokemon-showdown-login",
+  "version": "0.1.0",
+  "homepage": "https://pokemonshowdown.com",
+  "license": "AGPL-3.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24.12.0"
+  },
+  "scripts": {
+    "lint": "eslint --cache --max-warnings 0",
+    "run": "node src/index.js",
+    "start": "pm2 start src/index.js --name loginserver --interpreter node",
+    "test": "npm run lint && npx tsc && node --test",
+    "reload": "pm2 reload loginserver",
+    "stop": "pm2 stop loginserver"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "google-auth-library": "^10.9.0",
+    "mysql2": "^3.23.0",
+    "pg": "^8.22.0",
+    "pm2": "^7.0.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@types/bcrypt": "^6.0.0",
+    "@types/node": "^26.1.1",
+    "@types/pg": "^8.20.0",
+    "eslint": "^10.7.0",
+    "globals": "^17.7.0",
+    "nodemailer": "^9.0.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.64.0"
+  },
+  "private": true
+}
