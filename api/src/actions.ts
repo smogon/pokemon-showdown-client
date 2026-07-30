@@ -714,9 +714,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (this.request.method !== 'POST') {
 			throw new ActionError("OAuth authorization requires POST.");
 		}
-		const origin = this.request.headers.origin;
-		const host = this.request.headers.host;
-		if (!origin || OAuth.parseURL(origin, 'request origin').host !== host?.toLowerCase()) {
+		if (!OAuth.isSameOriginRequest(this.request.headers)) {
 			throw new ActionError("OAuth authorization requires a same-origin request.");
 		}
 		const user = await this.getUser();

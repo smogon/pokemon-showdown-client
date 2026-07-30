@@ -223,6 +223,31 @@ void suite('OAuth', () => {
 		assert.match(result.success, /^[0-9a-f]{32}$/);
 		assert.equal((await tables.oauthTokens.get(result.success))?.client, CLIENT_A);
 		assert.equal(authorized.headers['access-control-allow-origin'], undefined);
+
+		const defaultPort = await httpRequest(server, '/api/oauth/api/authorize', {
+			method: 'POST',
+			headers: {
+				cookie: sessionCookie,
+				host: 'login.example:443',
+				origin: 'https://login.example',
+				'content-type': 'application/x-www-form-urlencoded',
+			},
+			body: new URLSearchParams({ client_id: CLIENT_A }).toString(),
+		});
+		assert.equal(parseResponse(defaultPort.body).actionerror, undefined);
+
+		const proxied = await httpRequest(server, '/api/oauth/api/authorize', {
+			method: 'POST',
+			headers: {
+				cookie: sessionCookie,
+				host: 'internal.example:8000',
+				origin: 'https://login.example',
+				'sec-fetch-site': 'same-origin',
+				'content-type': 'application/x-www-form-urlencoded',
+			},
+			body: new URLSearchParams({ client_id: CLIENT_A }).toString(),
+		});
+		assert.equal(parseResponse(proxied.body).actionerror, undefined);
 	});
 
 	void test('restricts bearer endpoint CORS to the registered origin', async () => {

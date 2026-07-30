@@ -5,6 +5,7 @@
  */
 import { readFileSync } from 'node:fs';
 import * as crypto from 'node:crypto';
+import type { IncomingHttpHeaders } from 'node:http';
 import * as url from 'node:url';
 
 import { ActionError } from './server.ts';
@@ -43,6 +44,20 @@ export const OAuth = new class {
 			throw new ActionError(`Invalid ${label}.`);
 		}
 		return parsed;
+	}
+
+	isSameOriginRequest(headers: IncomingHttpHeaders) {
+		const rawOrigin = headers.origin;
+		if (!rawOrigin) return false;
+		if (headers['sec-fetch-site'] === 'same-origin') return true;
+
+		const rawHost = headers.host;
+		if (!rawHost) return false;
+		const origin = this.parseURL(rawOrigin, 'request origin');
+		const host = rawHost.toLowerCase();
+		if (host === origin.host) return true;
+		const defaultPort = origin.protocol === 'https:' ? 443 : 80;
+		return !origin.port && host === `${origin.host}:${defaultPort}`;
 	}
 
 	async getClient(clientId?: string, rawUrl?: string, label = 'request origin') {
