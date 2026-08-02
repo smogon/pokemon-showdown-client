@@ -491,7 +491,7 @@ if (!$user) {
 
 	// Ladder
 
-	$ladderTourID = str_starts_with($user['userid'], 'lt12');
+	$ladderTourID = str_starts_with($user['userid'], 'lt13');
 	if ($user['userid'] === $curuser['userid'] && !$ladderTourID) {
 		if ($users->csrfCheck() && @$_POST['resetLadder']) {
 			$formatLadder = new NTBBLadder(@$_POST['resetLadder']);
