@@ -3094,6 +3094,7 @@ export class Battle {
 					}
 				}
 				break;
+			// kept for backward compatibility
 			case 'lingeringaroma':
 			case 'mummy':
 				if (!kwArgs.ability) break; // if Mummy activated but failed, no ability will have been sent
