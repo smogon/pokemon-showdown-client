@@ -155,6 +155,38 @@ describe('BattleChoiceBuilder', () => {
 			assert.equal(choices.isDone(), true);
 		});
 
+		it('should deserialize and complete bracketed team choices', () => {
+			const request = teamRequest([
+				pokemon('Pikachu'),
+				pokemon('Raichu'),
+				pokemon('Plusle'),
+				pokemon('Minun'),
+				pokemon('Pachirisu'),
+				pokemon('Emolga'),
+			], 4);
+			const choices = new BattleChoiceBuilder(request);
+
+			assert.equal(choices.addChoices('team [3, 1]'), null);
+			assert.deepEqual(choices.choices, ['team 3', 'team 1', 'team 2', 'team 4']);
+			assert.equal(choices.toString(), 'team 3, 1, 2, 4');
+			assert.equal(choices.isDone(), true);
+		});
+
+		it('should deserialize a named team choice', () => {
+			const request = teamRequest([
+				pokemon('Pikachu'),
+				pokemon('Raichu'),
+				pokemon('Plusle'),
+				pokemon('Minun'),
+			], 3);
+			const choices = new BattleChoiceBuilder(request);
+
+			assert.equal(choices.addChoices('team Plusle, Raichu'), null);
+			assert.deepEqual(choices.choices, ['team 3', 'team 2', 'team 1']);
+			assert.equal(choices.toString(), 'team 3, 2, 1');
+			assert.equal(choices.isDone(), true);
+		});
+
 		it('should truncate a full team order to the requested team size', () => {
 			const request = teamRequest([
 				pokemon('Pikachu'),
@@ -168,6 +200,17 @@ describe('BattleChoiceBuilder', () => {
 
 			assert.equal(choices.addChoices('team 654321'), null);
 			assert.deepEqual(choices.choices, ['team 6', 'team 5', 'team 4']);
+			assert.equal(choices.isDone(), true);
+		});
+
+		it('should support a multi-digit lead in Team Preview', () => {
+			const pokemonList = Array.from({length: 24}, (_, i) => pokemon(`Pokémon ${i + 1}`));
+			const request = teamRequest(pokemonList, 1);
+			const choices = new BattleChoiceBuilder(request);
+
+			assert.equal(choices.addChoices('team 12'), null);
+			assert.deepEqual(choices.choices, ['team 12']);
+			assert.equal(choices.toString(), 'team 12');
 			assert.equal(choices.isDone(), true);
 		});
 

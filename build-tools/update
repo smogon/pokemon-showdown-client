@@ -23,6 +23,15 @@ function escapeRegex(string) {
 	return string.replace(/[/*.]/g, '\\$&');
 }
 
+function readOptionalFile(filename) {
+	try {
+		return fs.readFileSync(filename, UTF8);
+	} catch (error) {
+		if (error.code === 'ENOENT') return '';
+		throw error;
+	}
+}
+
 /*********************************************************
  * Update version number
  *********************************************************/
@@ -242,19 +251,20 @@ preactIndexContents = preactIndexContents.replace(/<!-- newsid -->/g, newsid);
 preactIndexContents = preactIndexContents.replace(/<!-- build-tools\/news-embed\.php -->/g, news);
 
 let indexContents2 = '';
-try {
-	const indexContentsOld = indexContents;
-	indexContents = indexContents
-		.replace(/<!-- config\/head-custom\.html -->/g, '' + fs.readFileSync('config/head-custom.html'));
-	preactIndexContents = preactIndexContents
-		.replace(/<!-- config\/head-custom\.html -->/g, '' + fs.readFileSync('config/head-custom.html'));
-	indexContents2 = indexContentsOld
-		.replace(/<!-- config\/head-custom\.html -->/g, '' + fs.readFileSync('config/head-custom-test.html'));
-} catch {}
+const customTestHead = readOptionalFile('config/head-custom-test.html');
+if (customTestHead) {
+	indexContents2 = indexContents.replace(/<!-- config\/head-custom\.html -->/g, customTestHead);
+}
+
+const customHead = readOptionalFile('config/head-custom.html');
+indexContents = indexContents.replace(/<!-- config\/head-custom\.html -->/g, customHead);
+preactIndexContents = preactIndexContents.replace(/<!-- config\/head-custom\.html -->/g, customHead);
 
 fs.writeFileSync('play.pokemonshowdown.com/caches/index-old.html', indexContents);
 if (indexContents2) {
 	fs.writeFileSync('play.pokemonshowdown.com/caches/index-test.html', indexContents2);
+} else {
+	fs.rmSync('play.pokemonshowdown.com/caches/index-test.html', { force: true });
 }
 fs.writeFileSync('play.pokemonshowdown.com/caches/index-new.html', preactIndexContents);
 fs.writeFileSync('play.pokemonshowdown.com/caches/crossprotocol.html', crossprotocolContents);
