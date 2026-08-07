@@ -315,6 +315,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		}
 
 		const unsaved = team.uploaded && team.uploadedPackedTeam ? team.uploadedPackedTeam !== team.packedTeam : false;
+		const canValidate = !!(team.packedTeam && team.format.length > 4);
 		return <PSPanelWrapper room={room}>
 			<div class="team-pad">
 				<a class="button" href="teambuilder" data-target="replace">
@@ -338,13 +339,17 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 						<i class="fa fa-laptop"></i> {TL`Local`}
 					</button>
 				)}
-				<div style={room.width < 550 ? "margin-top:8px" : "float:right"}><button
-					name="format" value={team.format} data-selecttype="teambuilder"
-					class="select formatselect" data-href="/formatdropdown" onChange={this.handleChangeFormat}
-				>
-					<i class="fa fa-folder-o"></i> {BattleLog.formatName(team.format)} {}
-					{team.format.length <= 4 && <em>{TL`(uncategorized)`}</em>}
-				</button></div>
+				<div style={room.width < 550 ? "margin-top:8px" : "float:right"}>
+					{canValidate && <>
+						<button data-cmd="/validate" class="button"><i class="fa fa-check"></i> {TL`[Validate]`}</button> {}
+					</>}
+					<button
+						name="format" value={team.format} data-selecttype="teambuilder"
+						class="select formatselect" data-href="/formatdropdown" onChange={this.handleChangeFormat}
+					>
+						<i class="fa fa-folder-o"></i> {BattleLog.formatName(team.format)} {}
+						{team.format.length <= 4 && <em>{TL`(uncategorized)`}</em>}
+					</button></div>
 				<label class="label teamname">
 					Team name:{}
 					<input
@@ -358,7 +363,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 				narrow={room.width < 550}
 				editorRef={(editor: TeamEditorState) => { room.editor = editor; }}
 			>
-				{!!(team.packedTeam && team.format.length > 4) && <p>
+				{canValidate && <p>
 					<button data-cmd="/validate" class="button"><i class="fa fa-check"></i> {TL`[Validate]`}</button>
 				</p>}
 				{!!(team.packedTeam || team.uploaded) && <p class="infobox" style="padding: 5px 8px">
