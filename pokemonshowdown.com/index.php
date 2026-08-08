@@ -43,7 +43,7 @@ include_once __DIR__ . '/../config/ads-landing.inc.php';
 		margin-left: 590px;
 	}
 	@media (max-width:880px) {
-		.left iframe {
+		.left iframe, .left .screenshot img {
 			width: 275px;
 			height: 144px;
 		}

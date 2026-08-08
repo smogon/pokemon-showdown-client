@@ -10,9 +10,12 @@
  */
 
 import preact from "../js/lib/preact";
-import { Config, PS, type PSRoom, type RoomID } from "./client-main";
-import { NARROW_MODE_HEADER_WIDTH, PSView, VERTICAL_HEADER_WIDTH } from "./panels";
+import {
+	Config, NARROW_MODE_HEADER_WIDTH, PS, type PSRoom, type RoomID, VERTICAL_HEADER_WIDTH,
+} from "./client-main";
+import { PSView } from "./panels";
 import type { Battle } from "./battle";
+import { Dex } from "./battle-dex";
 import { BattleLog } from "./battle-log"; // optional
 
 window.addEventListener('dragover', e => {
@@ -21,6 +24,16 @@ window.addEventListener('dragover', e => {
 });
 
 export class PSHeader extends preact.Component {
+	faviconNotifying = false;
+	updateFavicon = () => {
+		const notifying = Object.values(PS.rooms).some(room => room?.notifications.length);
+		if (notifying === this.faviconNotifying) return;
+
+		const favicon = document.querySelector<HTMLLinkElement>('#dynamic-favicon');
+		if (!favicon) return;
+		favicon.href = `${Dex.resourcePrefix}${notifying ? 'favicon-notify.ico' : 'favicon.ico'}`;
+		this.faviconNotifying = notifying;
+	};
 	static toggleMute = (e: Event) => {
 		PS.prefs.set('mute', !PS.prefs.mute);
 		PS.update();
@@ -104,7 +117,7 @@ export class PSHeader extends preact.Component {
 		}
 		return { icon, title };
 	}
-	static renderRoomTab(id: RoomID, noAria?: boolean) {
+	static renderRoomTab(id: RoomID, noAria?: boolean, includeMiniNotifications = true) {
 		const room = PS.rooms[id];
 		if (!room) return null;
 		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
@@ -112,7 +125,7 @@ export class PSHeader extends preact.Component {
 		let notifying = room.isSubtleNotifying ? ' subtle-notifying' : '';
 		let hoverTitle = '';
 		let notifications = room.notifications;
-		if (id === '') {
+		if (id === '' && includeMiniNotifications) {
 			for (const roomid of PS.miniRoomList) {
 				const miniNotifications = PS.rooms[roomid]?.notifications;
 				if (miniNotifications?.length) notifications = [...notifications, ...miniNotifications];
@@ -152,6 +165,9 @@ export class PSHeader extends preact.Component {
 			{closeButton}
 		</li>;
 	}
+	static notifyingMiniRoomTabs() {
+		return PS.miniRoomList.filter(roomid => PS.rooms[roomid]?.notifications.length);
+	}
 	handleResize = () => {
 		if (!this.base) return;
 
@@ -160,30 +176,33 @@ export class PSHeader extends preact.Component {
 			const oldNarrowMode = PSView.narrowMode;
 			PSView.narrowMode = width <= 700;
 			PSView.verticalHeaderWidth = PSView.narrowMode ? NARROW_MODE_HEADER_WIDTH : VERTICAL_HEADER_WIDTH;
-			document.documentElement.style.width = PSView.narrowMode ? `${width + NARROW_MODE_HEADER_WIDTH}px` : 'auto';
+			document.documentElement.style.width = PSView.useCSSScrollSnap() ?
+				`${width + NARROW_MODE_HEADER_WIDTH}px` : 'auto';
 			if (oldNarrowMode !== PSView.narrowMode) {
-				if (PSView.narrowMode) {
-					if (!PSView.textboxFocused) {
-						document.documentElement.classList?.add('scroll-snap-enabled');
-					}
-				} else {
-					document.documentElement.classList?.remove('scroll-snap-enabled');
-				}
+				PSView.updateScrollSnap();
 				PS.update();
 			}
 			return;
 		}
 		if (PSView.narrowMode) {
-			document.documentElement.classList?.remove('scroll-snap-enabled');
 			document.documentElement.style.width = 'auto';
 			PSView.narrowMode = false;
+			PSView.updateScrollSnap();
 		}
 
-		const userbarLeft = this.base.querySelector('div.userbar')?.getBoundingClientRect()?.left;
+		let userbarLeft = this.base.querySelector('div.userbar .icon.button')?.getBoundingClientRect()?.left;
+		if (userbarLeft) userbarLeft -= 5;
 		const plusTabRight = this.base.querySelector('a.roomtab[aria-label="Join chat"]')?.getBoundingClientRect()?.right;
 		const overflow = this.base.querySelector<HTMLElement>('.overflow');
 
 		if (!overflow || !userbarLeft || !plusTabRight) return;
+
+		const maintabbar = this.base.querySelector<HTMLElement>('div.maintabbar');
+		if (maintabbar) {
+			const userbarRight = window.innerWidth - userbarLeft;
+			maintabbar.style.marginRight = `${userbarRight}px`;
+			overflow.style.right = `${userbarRight}px`;
+		}
 
 		if (plusTabRight > userbarLeft - 3) {
 			overflow.style.display = 'block';
@@ -197,9 +216,11 @@ export class PSHeader extends preact.Component {
 		});
 		window.addEventListener('resize', this.handleResize);
 		this.handleResize();
+		this.updateFavicon();
 	}
 	override componentDidUpdate() {
 		this.handleResize();
+		this.updateFavicon();
 	}
 	renderUser() {
 		if (!PS.connection?.connected) {
@@ -217,6 +238,7 @@ export class PSHeader extends preact.Component {
 		</span>;
 	}
 	renderVertical() {
+		const miniRoomTabs = PSHeader.notifyingMiniRoomTabs();
 		return <div
 			id="header" class="header-vertical" role="navigation"
 			style={`width:${PSView.verticalHeaderWidth - 7}px`} onClick={PSView.scrollToHeader}
@@ -231,7 +253,8 @@ export class PSHeader extends preact.Component {
 				/>
 				<div class="tablist" role="tablist">
 					<ul>
-						{PSHeader.renderRoomTab(PS.leftRoomList[0])}
+						{PSHeader.renderRoomTab(PS.leftRoomList[0], false, false)}
+						{miniRoomTabs.map(roomid => PSHeader.renderRoomTab(roomid))}
 					</ul>
 					<ul>
 						{PS.leftRoomList.slice(1).map(roomid => PSHeader.renderRoomTab(roomid))}
@@ -241,7 +264,6 @@ export class PSHeader extends preact.Component {
 					</ul>
 				</div>
 			</div>
-			{null /* overflow */}
 			<div class="userbar">
 				{this.renderUser()} {}
 				<div style="float:right">
@@ -253,6 +275,8 @@ export class PSHeader extends preact.Component {
 					</button>
 				</div>
 			</div>
+			{null /* maintabbar */}
+			{null /* overflow */}
 		</div>;
 	}
 	override render() {
@@ -261,6 +285,16 @@ export class PSHeader extends preact.Component {
 		}
 		return <div id="header" class="header" role="navigation">
 			<div class="maintabbarbottom"></div>
+			{null /* vertical tabs */}
+			<div class="userbar">
+				{this.renderUser()} {}
+				<button class="icon button" data-href="volume" title="Sound" aria-label="Sound" onDblClick={PSHeader.toggleMute}>
+					<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
+				</button> {}
+				<button class="icon button" data-href="options" title="Options" aria-label="Options">
+					<i class="fa fa-cog" aria-hidden></i>
+				</button>
+			</div>
 			<div class="tabbar maintabbar"><div class="inner-1" role={PS.leftPanelWidth ? 'none' : 'tablist'}><div class="inner-2">
 				<ul class="maintabbar-left" style={{ width: `${PS.leftPanelWidth}px` }} role={PS.leftPanelWidth ? 'tablist' : 'none'}>
 					<li>
@@ -283,15 +317,6 @@ export class PSHeader extends preact.Component {
 					<i class="fa fa-caret-down" aria-hidden></i>
 				</button>
 			</div>
-			<div class="userbar">
-				{this.renderUser()} {}
-				<button class="icon button" data-href="volume" title="Sound" aria-label="Sound" onDblClick={PSHeader.toggleMute}>
-					<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
-				</button> {}
-				<button class="icon button" data-href="options" title="Options" aria-label="Options">
-					<i class="fa fa-cog" aria-hidden></i>
-				</button>
-			</div>
 		</div>;
 	}
 }
@@ -299,25 +324,22 @@ export class PSHeader extends preact.Component {
 export class PSMiniHeader extends preact.Component {
 	menuOpen?: boolean;
 	override componentDidMount() {
-		window.addEventListener('scroll', this.handleScroll);
+		PSView.addScrollListener(this.handleScroll);
 	}
 	override componentWillUnmount() {
-		window.removeEventListener('scroll', this.handleScroll);
+		PSView.removeScrollListener(this.handleScroll);
 	}
 	handleScroll = () => {
-		if (this.menuOpen !== !window.scrollX) this.forceUpdate();
+		if (this.menuOpen !== !PSView.getScrollX()) this.forceUpdate();
 	};
 	override render() {
-		this.menuOpen = !window.scrollX;
+		this.menuOpen = !PSView.getScrollX();
 
 		if (PS.leftPanelWidth !== null) return null;
 
-		let notificationsCount = 0;
-		const notificationRooms = [...PS.leftRoomList, ...PS.rightRoomList];
-		for (const roomid of notificationRooms) {
-			const miniNotifications = PS.rooms[roomid]?.notifications;
-			if (miniNotifications?.length) notificationsCount++;
-		}
+		const notificationsCount = Object.values(PS.rooms).filter(
+			room => room !== PS.room && room?.notifications.length
+		).length;
 		const { icon, title } = PSHeader.roomInfo(PS.panel);
 		const userColor = window.BattleLog && `color:${PS.user.away ? '#888' : BattleLog.usernameColor(PS.user.userid)}`;
 		const showMenuButton = PSView.narrowMode;

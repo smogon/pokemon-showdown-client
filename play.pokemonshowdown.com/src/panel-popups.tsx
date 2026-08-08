@@ -5,14 +5,23 @@ import { BattleLog } from "./battle-log";
 import { PSLoginServer } from "./client-connection";
 import { PSBackground } from "./client-core";
 import {
-	PS, PSRoom, Config, type RoomOptions, type PSLoginState, type RoomID, type TimestampOptions,
+	PS, PSRoom, Config, type PSRoomFocusOptions, type RoomOptions, type PSLoginState, type RoomID,
+	type TimestampOptions, type BattleLayoutPreference,
 } from "./client-main";
 import { type BattleRoom } from "./panel-battle";
-import { ChatUserList, type ChatRoom } from "./panel-chat";
+import { ChatUserList, PSTextarea, type ChatRoom } from "./panel-chat";
 import { PSRoomPanel, PSPanelWrapper, PSView } from "./panels";
 import { PSHeader } from "./panel-topbar";
 
 const WARNING_SECONDS = 5;
+const BATTLE_LAYOUT_LABELS: Record<BattleLayoutPreference, string> = {
+	'side-by-side': 'Side-by-side, controls below',
+	'side-by-side-overlay': 'Side-by-side, overlay controls',
+	'top-and-bottom': 'Top-and-bottom, controls below',
+	'top-and-bottom-overlay': 'Top-and-bottom, overlay controls',
+	'scrolling': 'Scrolling, controls below',
+	'scrolling-overlay': 'Scrolling, overlay controls',
+};
 
 /**
  * User popup
@@ -38,6 +47,105 @@ export class UserRoom extends PSRoom {
 	}
 }
 
+export class StatusEditor extends preact.Component {
+	declare state: { addingStatus?: boolean, statusChanged?: boolean };
+	fetchStatus() {
+		if (!PS.user.userid) return;
+		PS.mainmenu.makeQuery('userdetails', PS.user.userid).then(() => this.forceUpdate());
+	}
+	currentStatus() {
+		let status = PS.mainmenu.userdetailsCache[PS.user.userid]?.status || '';
+		if (status.startsWith('!')) status = status.slice(1);
+		return status.replace(/^\((?:Busy|Idle)\) ?/, '');
+	}
+	statusLabel() {
+		const status = PS.mainmenu.userdetailsCache[PS.user.userid]?.status || '';
+		return /^!?(\((?:Busy|Idle)\))/.exec(status)?.[1] || '';
+	}
+	statusInput() {
+		return this.base!.querySelector<HTMLTextAreaElement>('textarea[name=statustext]');
+	}
+	addStatus = (ev: Event) => {
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		this.setState({ addingStatus: true }, () => this.focusStatus());
+	};
+	focusStatus = (ev?: Event) => {
+		ev?.preventDefault();
+		ev?.stopImmediatePropagation();
+		const input = this.statusInput();
+		input?.focus();
+		input?.select();
+	};
+	handleStatusInput = (ev: Event) => {
+		const changed = (ev.currentTarget as HTMLTextAreaElement).value !== this.currentStatus();
+		if (changed !== !!this.state.statusChanged) this.setState({ statusChanged: changed });
+	};
+	handleStatusKeyDown = (ev: KeyboardEvent) => {
+		if (ev.key === 'Escape') {
+			ev.preventDefault();
+			ev.stopImmediatePropagation();
+			this.revertStatus();
+		}
+	};
+	revertStatus = (ev?: Event) => {
+		ev?.preventDefault();
+		ev?.stopImmediatePropagation();
+		const input = this.statusInput();
+		if (input) {
+			input.value = input.defaultValue;
+			input.dispatchEvent(new Event('input'));
+		}
+		this.setState({ addingStatus: false, statusChanged: false });
+	};
+	submitStatus = (ev: Event) => {
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		const status = (this.statusInput()?.value || '').trim();
+		PS.send(status ? `/noreply /status ${status}` : `/noreply /clearstatus`);
+		// optimistic update; the requery below will catch any server-side filtering
+		const details = PS.mainmenu.userdetailsCache[PS.user.userid];
+		if (details) {
+			const awayMarkers = /^!?(?:\((?:Busy|Idle)\) ?)?/.exec(details.status || '')![0];
+			details.status = awayMarkers + status;
+		}
+		this.setState({ addingStatus: false, statusChanged: false });
+		this.fetchStatus();
+	};
+	override render() {
+		const curStatus = this.currentStatus();
+		const label = this.statusLabel();
+		if (!curStatus && !this.state.addingStatus) {
+			return <div>
+				{label && <span class="userstatus" style="display:inline">{label}</span>} {}
+				<button class="button small" onClick={this.addStatus}>Add status</button>
+			</div>;
+		}
+		return <form onSubmit={this.submitStatus} class="statusform">
+			{label && <span class="userstatus" style="display:inline">{label}</span>} {}
+			<PSTextarea
+				class="userstatus"
+				key={curStatus} singleLine subtle name="statustext" defaultValue={curStatus}
+				onInput={this.handleStatusInput} onKeyDown={this.handleStatusKeyDown}
+			/> {}
+			{this.state.statusChanged || this.state.addingStatus ? (
+				<>
+					<button class="button" type="submit">
+						<strong>{curStatus ? 'Change' : 'Add'}</strong>
+					</button> {}
+					<button class="button" type="button" onClick={this.revertStatus}>
+						{curStatus ? 'Revert' : 'Cancel'}
+					</button>
+				</>
+			) : (
+				<button class="button small" type="button" onClick={this.focusStatus} aria-label="Edit">
+					<i class="fa fa-pencil" aria-hidden></i>
+				</button>
+			)}
+		</form>;
+	}
+}
+
 class UserPanel extends PSRoomPanel<UserRoom> {
 	static readonly id = 'user';
 	static readonly routes = ['user-*', 'viewuser-*', 'users'];
@@ -58,16 +166,18 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 
 		const group = PS.server.getGroup(room.name);
 		let groupName: preact.ComponentChild = group.name || null;
-		if (group.type === 'punishment') {
-			groupName = <span style="color:#777777">{groupName}</span>;
-		}
 
 		const globalGroup = PS.server.getGroup(user.group);
 		let globalGroupName: preact.ComponentChild = globalGroup.name && `Global ${globalGroup.name}` || null;
+		if (globalGroup.name === groupName) groupName = null;
+		let customGroup = toID(user.customgroup) !== toID(globalGroupName || groupName) ? user.customgroup : '';
+
+		if (group.type === 'punishment') {
+			groupName = <span style="color:#777777">{groupName}</span>;
+		}
 		if (globalGroup.type === 'punishment') {
 			globalGroupName = <span style="color:#777777">{globalGroupName}</span>;
 		}
-		if (globalGroup.name === group.name) groupName = null;
 
 		let roomsList: preact.ComponentChild = null;
 		if (user.rooms) {
@@ -173,10 +283,14 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			>
 				{user.name}
 			</a></strong><br />
-			{status && <div class="userstatus">{status}</div>}
+			{isSelf && !hideInteraction ? (
+				<StatusEditor />
+			) : status ? (
+				<div class="userstatus">{status}</div>
+			) : null}
 			{groupName && <div class="usergroup roomgroup">{groupName}</div>}
 			{globalGroupName && <div class="usergroup globalgroup">{globalGroupName}</div>}
-			{user.customgroup && <div class="usergroup globalgroup">{user.customgroup}</div>}
+			{customGroup && <div class="usergroup globalgroup">{customGroup}</div>}
 			{!hideInteraction && roomsList}
 		</div>, buttonbar];
 	}
@@ -218,133 +332,68 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 	}
 }
 
+const USER_PUNISHMENTS = {
+	mute: { label: 'Mute', duration: '7 minutes', scope: 'room' },
+	hourmute: { label: 'Hourmute', duration: '1 hour', scope: 'room' },
+	ban: { label: 'Ban', duration: '2 days', scope: 'room' },
+	weekban: { label: 'Weekban', duration: '1 week', scope: 'room' },
+	lock: { label: 'Lock', duration: '2 days', scope: 'global' },
+	weeklock: { label: 'Weeklock', duration: '1 week', scope: 'global' },
+	namelock: { label: 'Namelock', duration: '2 days', scope: 'global' },
+} as const;
+type UserPunishment = keyof typeof USER_PUNISHMENTS;
+
 class UserOptionsPanel extends PSRoomPanel {
 	static readonly id = 'useroptions';
 	static readonly routes = ['useroptions-*'];
 	static readonly location = 'popup';
 	static readonly noURL = true;
-	declare state: {
-		showMuteInput?: boolean,
-		showBanInput?: boolean,
-		showLockInput?: boolean,
-		showConfirm?: boolean,
-		requestSent?: boolean,
-		data?: Record<string, string>,
-	};
 	getTargets() {
 		const [, targetUser, targetRoomid] = PSUtils.splitFirst(this.props.room.id, '-', 2);
-		let targetRoom = (PS.rooms[targetRoomid] || null) as ChatRoom | null;
+		let targetRoom = (targetRoomid ? PS.rooms[targetRoomid] : null) as ChatRoom | null || null;
 		if (targetRoom?.type !== 'chat') targetRoom = targetRoom?.getParent() as ChatRoom;
 		if (targetRoom?.type !== 'chat') targetRoom = targetRoom?.getParent() as ChatRoom;
 		if (targetRoom?.type !== 'chat') targetRoom = null;
+		if (targetRoom?.pmTarget) targetRoom = null;
 		return { targetUser: targetUser as ID, targetRoomid: targetRoomid as RoomID, targetRoom };
 	}
 
-	handleMute = (ev: Event) => {
-		this.setState({ showMuteInput: true, showBanInput: false, showLockInput: false });
+	handleCommand = (ev: Event) => {
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
+		const command = (ev.currentTarget as HTMLButtonElement).getAttribute('data-cmdpreview');
+		if (!command) return PS.alert("Room not found", { parentElem: ev.currentTarget as HTMLElement });
+		this.send(command);
 	};
-	handleBan = (ev: Event) => {
-		this.setState({ showBanInput: true, showMuteInput: false, showLockInput: false });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-	handleLock = (ev: Event) => {
-		this.setState({ showLockInput: true, showMuteInput: false, showBanInput: false });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
-	handleCancel = (ev: Event) => {
-		this.setState({ showBanInput: false, showMuteInput: false, showLockInput: false, showConfirm: false });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
-	handleConfirm = (ev: Event) => {
-		const data = this.state.data;
-		if (!data) return;
+	send(command: string) {
 		const { targetUser, targetRoom } = this.getTargets();
-
-		let cmd = '';
-		if (data.action === "Mute") {
-			cmd += data.duration === "1 hour" ? "/hourmute " : "/mute ";
-		} else if (data.action === "Ban") {
-			cmd += data.duration === "1 week" ? "/weekban " : "/ban ";
-		} else if (data.action === "Lock") {
-			cmd += data.duration === "1 week" ? "/weeklock " : "/lock ";
-		} else if (data.action === "Namelock") {
-			cmd += "/namelock ";
+		if (targetRoom) {
+			targetRoom.send(command);
 		} else {
-			return;
+			PS.join(`dm-${targetUser}` as RoomID);
+			PS.rooms[`dm-${targetUser}`]!.send(command);
 		}
-		cmd += `${targetUser} ${data.reason ? ',' + data.reason : ''}`;
-		targetRoom?.send(cmd);
 		this.close();
-	};
+	}
 
-	handleAddFriend = (ev: Event) => {
+	openPunishment = (ev: Event) => {
+		const button = ev.currentTarget as HTMLButtonElement;
+		const punishment = button.value as UserPunishment;
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		if (!(punishment in USER_PUNISHMENTS)) return;
+
 		const { targetUser, targetRoom } = this.getTargets();
-		targetRoom?.send(`/friend add ${targetUser}`);
-		this.setState({ requestSent: true });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
-	handleIgnore = () => {
-		const { targetUser, targetRoom } = this.getTargets();
-		targetRoom?.send(`/ignore ${targetUser}`);
-		this.close();
-	};
-
-	handleUnignore = () => {
-		const { targetUser, targetRoom } = this.getTargets();
-		targetRoom?.send(`/unignore ${targetUser}`);
-		this.close();
-	};
-
-	muteUser = (ev: Event) => {
-		this.setState({ showMuteInput: false });
-		const hrMute = (ev.currentTarget as HTMLButtonElement).value === "1hr";
-		const reason = this.base?.querySelector<HTMLInputElement>("input[name=mutereason]")?.value;
-		const data = {
-			action: 'Mute',
-			reason,
-			duration: hrMute ? "1 hour" : "7 minutes",
-		};
-		this.setState({ data, showConfirm: true });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
-	banUser = (ev: Event) => {
-		this.setState({ showBanInput: false });
-		const weekBan = (ev.currentTarget as HTMLButtonElement).value === "1wk";
-		const reason = this.base?.querySelector<HTMLInputElement>("input[name=banreason]")?.value;
-		const data = {
-			action: 'Ban',
-			reason,
-			duration: weekBan ? "1 week" : "2 days",
-		};
-		this.setState({ data, showConfirm: true });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
-	lockUser = (ev: Event) => {
-		this.setState({ showLockInput: false });
-		const weekLock = (ev.currentTarget as HTMLButtonElement).value === "1wk";
-		const isNamelock = (ev.currentTarget as HTMLButtonElement).value === "nmlk";
-		const reason = this.base?.querySelector<HTMLInputElement>("input[name=lockreason]")?.value;
-		const data = {
-			action: isNamelock ? 'Namelock' : 'Lock',
-			reason,
-			duration: weekLock ? "1 week" : "2 days",
-		};
-		this.setState({ data, showConfirm: true });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
+		const action = USER_PUNISHMENTS[punishment];
+		const scope = action.scope === 'room' ? ` in ${targetRoom?.title || '???'}` : '';
+		PS.prompt(
+			`${action.label} ${targetUser}${scope} for ${action.duration}?`,
+			{ okButton: action.label, parentElem: button, label: "Reason (optional):" }
+		).then(reason => {
+			if (reason === null) return;
+			reason = reason.trim();
+			this.send(`/${punishment} ${targetUser}${reason ? `, ${reason}` : ''}`);
+		});
 	};
 
 	isIgnoringUser = (userid: string) => {
@@ -355,33 +404,27 @@ class UserOptionsPanel extends PSRoomPanel {
 
 	override render() {
 		const room = this.props.room;
-		const banPerms = ["@", "#", "~"];
-		const mutePerms = ["%", ...banPerms];
 		const { targetUser, targetRoom } = this.getTargets();
-		const userRoomGroup = targetRoom?.users[PS.user.userid].charAt(0) || '';
-		const canMute = mutePerms.includes(userRoomGroup);
-		const canBan = banPerms.includes(userRoomGroup);
-		const canLock = mutePerms.includes(PS.user.group);
-		const isVisible = (actionName: string) => {
-			if (actionName === 'mute') {
-				return canMute && !this.state.showLockInput && !this.state.showBanInput && !this.state.showConfirm;
-			}
-			if (actionName === 'ban') {
-				return canBan && !this.state.showLockInput && !this.state.showMuteInput && !this.state.showConfirm;
-			}
-			if (actionName === 'lock') {
-				return canLock && !this.state.showBanInput && !this.state.showMuteInput && !this.state.showConfirm;
-			}
-		};
+		const userRoomGroup = targetRoom?.users[PS.user.userid]?.charAt(0);
+		const roomGroupOrder = PS.server.getGroup(userRoomGroup).order;
+		const globalGroupOrder = PS.server.getGroup(PS.user.group).order;
+		const canMute = !!targetRoom && roomGroupOrder <= PS.server.getGroup('%').order;
+		const canBan = !!targetRoom && roomGroupOrder <= PS.server.getGroup('@').order;
+		const canLock = globalGroupOrder <= PS.server.getGroup('%').order;
 
-		return <PSPanelWrapper room={room} width={280}><div class="pad">
+		return <PSPanelWrapper room={room} width={280}><div class="pad buttonmenu">
+			<p>
+				<button data-cmd={`/dm ${targetUser}, /friend add ${targetUser}`} class="button">
+					Add friend
+				</button>
+			</p>
 			<p>
 				{this.isIgnoringUser(targetUser) ? (
-					<button onClick={this.handleUnignore} class="button">
+					<button data-cmdpreview={`/unignore ${targetUser}`} onClick={this.handleCommand} class="button">
 						Unignore
 					</button>
 				) : (
-					<button onClick={this.handleIgnore} class="button">
+					<button data-cmdpreview={`/ignore ${targetUser}`} onClick={this.handleCommand} class="button">
 						Ignore
 					</button>
 				)}
@@ -391,80 +434,76 @@ class UserOptionsPanel extends PSRoomPanel {
 					Report
 				</button>
 			</p>
-			<p>
-				{this.state.requestSent ? (
-					<button class="button disabled">
-						Sent request
+			{(canMute || canBan) && <fieldset class="fieldset">
+				<legend>Moderate in {targetRoom?.title}</legend>
+				{canMute && <p>
+					<button
+						class="button button-first" value="mute" onClick={this.openPunishment}
+						data-cmdpreview={`/mute ${targetUser}`}
+					>
+						Mute <small>7m</small>
 					</button>
-				) : (
-					<button onClick={this.handleAddFriend} class="button">
-						Add friend
+					<button
+						class="button button-last" value="hourmute" onClick={this.openPunishment}
+						data-cmdpreview={`/hourmute ${targetUser}`}
+					>
+						Hourmute <small>1h</small>
 					</button>
-				)}
-			</p>
-			{(canMute || canBan || canLock) && <hr />}
-			{this.state.showConfirm && <p>
-				<small>
-					{this.state.data?.action} <b>{targetUser}</b> {}
-					{!this.state.data?.action.endsWith('ock') ? <>from <b>{targetRoom?.title}</b></> : ''} for {this.state.data?.duration}?
-				</small>
-				<p class="buttonbar">
-					<button class="button" onClick={this.handleConfirm}>
-						<i class="fa fa-confirm" aria-hidden></i> Confirm
-					</button> {}
-					<button class="button" onClick={this.handleCancel}>
-						Cancel
+				</p>}
+				{canBan && <p>
+					<button
+						class="button button-first" value="ban" onClick={this.openPunishment}
+						data-cmdpreview={`/ban ${targetUser}`}
+					>
+						Ban <small>2d</small>
+					</button>
+					<button
+						class="button button-last" value="weekban" onClick={this.openPunishment}
+						data-cmdpreview={`/weekban ${targetUser}`}
+					>
+						Weekban <small>1w</small>
+					</button>
+				</p>}
+				<p>
+					<button
+						data-cmdpreview={`/modlog userid=${targetUser}, room=${targetRoom?.id}`} onClick={this.handleCommand} class="button"
+					>
+						Modlog
 					</button>
 				</p>
-			</p>}
-			<p class="buttonbar">
-				{isVisible('mute') && (this.state.showMuteInput ? (
-					<div>
-						<label class="label">
-							Reason: {}
-							<input name="mutereason" class="textbox autofocus" placeholder="Mute reason (optional)" />
-						</label> {} <br />
-						<button class="button" onClick={this.muteUser} value="7min">For 7 Mins</button> {}
-						<button class="button" onClick={this.muteUser} value="1hr">For 1 Hour</button> {}
-						<button class="button" onClick={this.handleCancel}> Cancel</button>
-					</div>
-				) : (
-					<button class="button" onClick={this.handleMute}>
-						<i class="fa fa-hourglass-half" aria-hidden></i> Mute
+			</fieldset>}
+			{canLock && <fieldset class="fieldset">
+				<legend>Global moderation</legend>
+				<p>
+					<button
+						class="button button-first" value="lock" onClick={this.openPunishment}
+						data-cmdpreview={`/lock ${targetUser}`}
+					>
+						Lock <small>2d</small>
 					</button>
-				))} {}
-				{isVisible('ban') && (this.state.showBanInput ? (
-					<div>
-						<label class="label">
-							Reason: {}
-							<input name="banreason" class="textbox autofocus" placeholder="Ban reason (optional)" />
-						</label><br />
-						<button class="button" onClick={this.banUser} value="2d">For 2 Days</button> {}
-						<button class="button" onClick={this.banUser} value="1wk">For 1 Week</button> {}
-						<button class="button" onClick={this.handleCancel}>Cancel</button>
-					</div>
-				) : (
-					<button class="button" onClick={this.handleBan}>
-						<i class="fa fa-gavel" aria-hidden></i> Ban
+					<button
+						class="button button-last" value="weeklock" onClick={this.openPunishment}
+						data-cmdpreview={`/weeklock ${targetUser}`}
+					>
+						Weeklock <small>1w</small>
 					</button>
-				))} {}
-				{isVisible('lock') && (this.state.showLockInput ? (
-					<div>
-						<label class="label">
-							Reason: {}
-							<input name="lockreason" class="textbox autofocus" placeholder="Lock reason (optional)" />
-						</label><br />
-						<button class="button" onClick={this.lockUser} value="2d">For 2 Days</button> {}
-						<button class="button" onClick={this.lockUser} value="1wk">For 1 Week</button> {}
-						<button class="button" onClick={this.lockUser} value="nmlk">Namelock</button> {}
-						<button class="button" onClick={this.handleCancel}>Cancel</button>
-					</div>
-				) : (
-					<button class="button" onClick={this.handleLock}>
-						<i class="fa fa-lock" aria-hidden></i> Lock/Namelock
+				</p>
+				<p>
+					<button
+						class="button" value="namelock" onClick={this.openPunishment}
+						data-cmdpreview={`/namelock ${targetUser}`}
+					>
+						Namelock <small>2d</small>
 					</button>
-				))}
-			</p>
+				</p>
+				<p>
+					<button
+						data-cmdpreview={`/modlog userid=${targetUser}, room=global`} onClick={this.handleCommand} class="button"
+					>
+						Global modlog
+					</button>
+				</p>
+			</fieldset>}
 		</div></PSPanelWrapper>;
 	}
 }
@@ -559,11 +598,11 @@ class OptionsPanel extends PSRoomPanel {
 	static readonly id = 'options';
 	static readonly routes = ['options'];
 	static readonly location = 'modal-popup';
-	declare state: { showStatusInput?: boolean, showStatusUpdated?: boolean };
 
 	override componentDidMount() {
 		super.componentDidMount();
 		this.subscribeTo(PS.user);
+		PS.mainmenu.makeQuery('userdetails', PS.user.userid).then(() => this.forceUpdate());
 	}
 	setTheme = (e: Event) => {
 		const theme = (e.currentTarget as HTMLSelectElement).value as 'light' | 'dark' | 'system';
@@ -595,12 +634,6 @@ class OptionsPanel extends PSRoomPanel {
 		PS.prefs.set('timestamps', { ...PS.prefs.timestamps, pms: timestamp || undefined });
 	};
 
-	handleShowStatusInput = (ev: Event) => {
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-		this.setState({ showStatusInput: !this.state.showStatusInput });
-	};
-
 	handleOnChange = (ev: Event) => {
 		let elem = ev.currentTarget as HTMLInputElement;
 		let setting = elem.name;
@@ -627,7 +660,7 @@ class OptionsPanel extends PSRoomPanel {
 			break;
 		}
 		case 'tournaments': {
-			PS.prefs.set(setting, !elem.value ? null : elem.value as 'hide' | 'notify');
+			PS.prefs.set(setting, elem.value as 'hide' | 'notify' | 'nonotify');
 			break;
 		}
 		case 'refreshprompt':
@@ -641,40 +674,22 @@ class OptionsPanel extends PSRoomPanel {
 		}
 	};
 
-	editStatus = (ev: Event) => {
-		const statusInput = this.base!.querySelector<HTMLInputElement>('input[name=statustext]');
-		PS.send(statusInput?.value?.length ? `/status ${statusInput.value}` : `/clearstatus`);
-		this.setState({ showStatusUpdated: true, showStatusInput: false });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
 	override render() {
 		const room = this.props.room;
 		const serverSettings = PS.prefs.serversettings;
 		return <PSPanelWrapper room={room} width={340}><div class="pad">
-			<p>
+			<p style="padding-left:50px">
 				<img
-					class="trainersprite yours" width="40" height="40" style={{ verticalAlign: 'middle' }}
+					class="trainersprite yours" width="40" height="40" style={{ float: 'left', marginLeft: '-50px' }}
 					src={Dex.resolveAvatar(`${PS.user.avatar}`)} data-href="avatars"
 				/> {}
 				<strong>{PS.user.name}</strong>
-			</p>
-			<p>
-				<button class="button" data-href="avatars"> Avatar...</button>
+				<StatusEditor />
 			</p>
 
-			{this.state.showStatusInput ? (
-				<p>
-					<input class="textbox" name="statustext" />
-					<button class="button" onClick={this.editStatus}><i class="fa fa-pencil" aria-hidden></i></button>
-				</p>
-			) : (
-				<p>
-					<button class="button" onClick={this.handleShowStatusInput} disabled={this.state.showStatusUpdated}>
-						{this.state.showStatusUpdated ? 'Status Updated' : 'Status...'}</button>
-				</p>
-			)}
+			<p style="clear:both">
+				<button class="button" data-href="avatars">Avatar...</button>
+			</p>
 
 			{PS.user.named && (PS.user.registered?.userid === PS.user.userid ?
 				<button className="button" data-href="changepassword">Password...</button> :
@@ -684,7 +699,7 @@ class OptionsPanel extends PSRoomPanel {
 			<h3>Graphics</h3>
 			<p>
 				<label class="optlabel">Theme: <select
-					name="theme" class="button" onChange={this.setTheme} value={PS.prefs.theme || 'light'}
+					name="theme" class="select" onChange={this.setTheme} value={PS.prefs.theme || 'light'}
 				>
 					<option value="light">Light</option>
 					<option value="dark">Dark</option>
@@ -693,10 +708,14 @@ class OptionsPanel extends PSRoomPanel {
 			</p>
 			<p>
 				<label class="optlabel">Layout: <select
-					name="layout" class="button" onChange={this.setLayout}
+					name="layout" class="select" onChange={this.setLayout}
 					value={PS.prefs.onepanel === true ? 'onepanel' : PS.prefs.onepanel || ''}
 				>
-					<option value="">Two panels (if wide enough)</option>
+					<option value="">
+						{window.innerWidth < 700 || window.innerHeight < 430 ? "Automatic (Vertical tabs)" :
+						window.innerWidth < 900 ? "Automatic (Single panel)" :
+						"Two panels (if wide enough)"}
+					</option>
 					<option value="onepanel">Single panel</option>
 					<option value="vertical">Vertical tabs</option>
 				</select></label>
@@ -758,7 +777,7 @@ class OptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="optlabel">
 					Language: {}
-					<select name="language" onChange={this.handleOnChange} class="button" value={serverSettings.language || 'english'}>
+					<select name="language" onChange={this.handleOnChange} class="select" value={serverSettings.language || 'english'}>
 						<option value="english">English</option>
 						<option value="german">Deutsch</option>
 						<option value="spanish">Español</option>
@@ -777,17 +796,17 @@ class OptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="optlabel">
 					Tournaments: <select
-						name="tournaments" class="button" onChange={this.handleOnChange} value={PS.prefs.tournaments || ''}
+						name="tournaments" class="select" onChange={this.handleOnChange} value={PS.prefs.tournaments || 'notify'}
 					>
-						<option value="">Notify when joined</option>
 						<option value="notify">Always notify</option>
+						<option value="nonotify">Notify when joined</option>
 						<option value="hide">Hide</option>
 					</select>
 				</label>
 			</p>
 			<p>
 				<label class="optlabel">Timestamps: <select
-					name="layout" class="button" onChange={this.setChatroomTimestamp} value={PS.prefs.timestamps.chatrooms || ''}
+					name="layout" class="select" onChange={this.setChatroomTimestamp} value={PS.prefs.timestamps.chatrooms || ''}
 				>
 					<option value="">Off</option>
 					<option value="minutes">[HH:MM]</option>
@@ -796,7 +815,7 @@ class OptionsPanel extends PSRoomPanel {
 			</p>
 			<p>
 				<label class="optlabel">Timestamps in DMs: <select
-					name="layout" class="button" onChange={this.setPMsTimestamp} value={PS.prefs.timestamps.pms || ''}
+					name="layout" class="select" onChange={this.setPMsTimestamp} value={PS.prefs.timestamps.pms || ''}
 				>
 					<option value="">Off</option>
 					<option value="minutes">[HH:MM]</option>
@@ -889,7 +908,7 @@ class LoginPanel extends PSRoomPanel {
 	update = () => {
 		this.forceUpdate();
 	};
-	override focus() {
+	override focus(_options?: PSRoomFocusOptions) {
 		const passwordBox = this.base!.querySelector<HTMLInputElement>('input[name=password]');
 		const usernameBox = this.base!.querySelector<HTMLInputElement>('input[name=username]');
 		(passwordBox || usernameBox)?.select();
@@ -1022,7 +1041,7 @@ class BattleForfeitPanel extends PSRoomPanel {
 			<p>
 				<button data-cmd="/closeand /inopener /closeand /forfeit" class="button"><strong>Forfeit and close</strong></button> {}
 				<button data-cmd="/closeand /inopener /forfeit" class="button">Just forfeit</button> {}
-				{!battleRoom.battle.rated && <button type="button" data-href="replaceplayer" class="button">
+				{battleRoom.battle && !battleRoom.battle.rated && <button type="button" data-href="replaceplayer" class="button">
 					Replace player
 				</button>} {}
 				<button type="button" data-cmd="/close" class="button">
@@ -1043,8 +1062,8 @@ class ReplacePlayerPanel extends PSRoomPanel {
 		const room = this.props.room;
 		const battleRoom = room.getParent()?.getParent() as BattleRoom;
 		const newPlayer = this.base?.querySelector<HTMLInputElement>("input[name=newplayer]")?.value;
-		if (!newPlayer?.length) return battleRoom.add("|error|Enter player's name");
-		if (battleRoom.battle.ended) return battleRoom.add("|error|Cannot replace player, battle has already ended.");
+		if (!newPlayer?.length) return battleRoom.errorReply("Enter player's name");
+		if (battleRoom.battle.ended) return battleRoom.errorReply("Cannot replace player, battle has already ended.");
 		let playerSlot = battleRoom.battle.p1.id === PS.user.userid ? "p1" : "p2";
 		battleRoom.send('/leavebattle');
 		battleRoom.send(`/addplayer ${newPlayer}, ${playerSlot}`);
@@ -1615,6 +1634,11 @@ class BattleOptionsPanel extends PSRoomPanel {
 		}
 		}
 	};
+	handleBattleLayout = (ev: Event) => {
+		const value = (ev.currentTarget as HTMLSelectElement).value as typeof PS.prefs.battlelayout;
+		PS.prefs.set('battlelayout', value || null);
+		PS.update();
+	};
 	getBattleRoom() {
 		const battleRoom = this.props.room.getParent() as BattleRoom | null;
 		return battleRoom?.battle ? battleRoom : null;
@@ -1623,11 +1647,24 @@ class BattleOptionsPanel extends PSRoomPanel {
 	override render() {
 		const room = this.props.room;
 		const battleRoom = this.getBattleRoom();
-		const isPlayer = !!battleRoom?.battle.myPokemon;
-		const canOfferTie = battleRoom && ((battleRoom.battle.turn >= 100 && isPlayer) || PS.user.group === '~');
+		const isPlaying = !!battleRoom?.isPlaying();
+		const canOfferTie = battleRoom && ((battleRoom.battle.turn >= 100 && isPlaying) || PS.user.group === '~');
+		let automaticLayout: BattleLayoutPreference | null = null;
+		if (battleRoom) {
+			const { layout, overlayControls } = PS.chooseBattleLayout(battleRoom.width, battleRoom.height);
+			automaticLayout = `${layout}${overlayControls ? '-overlay' : ''}` as BattleLayoutPreference;
+		}
 		return <PSPanelWrapper room={room} width={380}><div class="pad">
 			{battleRoom && <>
 				<p><strong>In this battle</strong></p>
+				<p class="buttonbar">
+					<button data-cmd="/closeand /inopener /forfeit" class="button" disabled={!isPlaying}>
+						Forfeit
+					</button> {}
+					<button data-cmd="/closeand /inopener /offertie" class="button" disabled={!canOfferTie}>
+						Offer tie {!canOfferTie && "(turn 100+)"}
+					</button>
+				</p>
 				<p>
 					<label class="checkbox">
 						<input
@@ -1662,6 +1699,34 @@ class BattleOptionsPanel extends PSRoomPanel {
 				</p>
 			</>}
 			<p><strong>All battles</strong></p>
+			<p>
+				<label class="optlabel">Layout: <select
+					name="battlelayout" class="select" onChange={this.handleBattleLayout}
+					value={PS.prefs.battlelayout || ''}
+				>
+					<option value="">
+						Automatic{automaticLayout ? ` (${BATTLE_LAYOUT_LABELS[automaticLayout]})` : ''}
+					</option>
+					<option value="side-by-side">
+						{BATTLE_LAYOUT_LABELS['side-by-side']} (DESKTOP)
+					</option>
+					<option value="side-by-side-overlay">
+						{BATTLE_LAYOUT_LABELS['side-by-side-overlay']}
+					</option>
+					<option value="top-and-bottom">
+						{BATTLE_LAYOUT_LABELS['top-and-bottom']} (MOBILE VERTICAL)
+					</option>
+					<option value="top-and-bottom-overlay">
+						{BATTLE_LAYOUT_LABELS['top-and-bottom-overlay']}
+					</option>
+					<option value="scrolling">
+						{BATTLE_LAYOUT_LABELS['scrolling']}
+					</option>
+					<option value="scrolling-overlay">
+						{BATTLE_LAYOUT_LABELS['scrolling-overlay']} (MOBILE HORIZONTAL)
+					</option>
+				</select></label>
+			</p>
 			<p>
 				<label class="checkbox">
 					<input
@@ -1707,7 +1772,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<input
 						name="autohardcore" checked={PS.prefs.autohardcore || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> Automatically enable hardcore mode
+					/> Hardcore mode
 				</label>
 			</p>
 			<p>
@@ -1718,7 +1783,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 					/> Start at turn 0 when spectating battles
 				</label>
 			</p>
-			{!PS.prefs.onepanel && document.body.offsetWidth >= 800 && <p>
+			{!PS.prefs.onepanel && window.innerWidth >= 800 && <p>
 				<label class="checkbox">
 					<input
 						name="rightpanel" checked={PS.prefs.rightpanelbattles || false}
@@ -1728,9 +1793,6 @@ class BattleOptionsPanel extends PSRoomPanel {
 			</p>}
 			<p class="buttonbar">
 				<button data-cmd="/close" class="button">Done</button> {}
-				{battleRoom && <button data-cmd="/closeand /inopener /offertie" class="button" disabled={!canOfferTie}>
-					Offer Tie
-				</button>}
 			</p>
 		</div>
 		</PSPanelWrapper>;
@@ -1797,9 +1859,9 @@ class PopupPanel extends PSRoomPanel<PopupRoom> {
 					style="white-space:pre-wrap;word-wrap:break-word"
 					dangerouslySetInnerHTML={{ __html: this.parseMessage(message as string || '') }}
 				></p>}
-				{!!type && <p><input
+				{!!type && <p><label class="label">{room.args?.label as string || ''} <input
 					name="value" type={type} inputMode={inputMode} class="textbox autofocus" style="width:100%;box-sizing:border-box"
-				/></p>}
+				/></label></p>}
 				<p class="buttonbar">
 					<button class={`button${!type ? ' autofocus' : ''}`} type="submit" style="min-width:50px">
 						<strong>{okButton}</strong>
@@ -1844,7 +1906,7 @@ class RoomTabListPanel extends PSRoomPanel {
 class BattleTimerPanel extends PSRoomPanel {
 	static readonly id = 'battletimer';
 	static readonly routes = ['battletimer'];
-	static readonly location = 'modal-popup';
+	static readonly location = 'popup';
 	static readonly noURL = true;
 
 	override render() {

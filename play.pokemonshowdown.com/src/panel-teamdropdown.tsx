@@ -11,10 +11,22 @@ import { Dex, toID, type ID } from "./battle-dex";
 import { Teams } from "./battle-teams";
 
 export class PSTeambuilder {
-	static exportPackedTeam(team: Team, newFormat?: boolean) {
+	static exportPackedTeam(team: Team) {
 		const sets = Teams.unpack(team.packedTeam);
 		const dex = Dex.forFormat(team.format);
-		return Teams.export(sets, dex, newFormat);
+		return Teams.export(sets, dex);
+	}
+	static exportTeamBackup(teams: Team[], readable = false) {
+		if (!readable) return PS.teams.packAll(teams);
+		let buf = '';
+		for (const team of teams) {
+			const format = team.format ? `[${team.format}${team.isBox ? '-box' : ''}] ` : '';
+			const folder = team.folder ? `${team.folder}/` : '';
+			buf += `=== ${format}${folder}${team.name} ===\n\n`;
+			buf += this.exportPackedTeam(team);
+			buf += `\n`;
+		}
+		return buf;
 	}
 	static splitPrefix(buffer: string, delimiter: string, prefixOffset = 0): [string, string] {
 		const delimIndex = buffer.indexOf(delimiter);
@@ -196,8 +208,8 @@ class TeamDropdownPanel extends PSRoomPanel {
 	gen = '';
 	format: string | null = null;
 	getTeams() {
-		if (!this.format && !this.gen) return PS.teams.list;
 		return PS.teams.list.filter(team => {
+			if (team.isBox) return false;
 			if (this.gen && !team.format.startsWith(this.gen)) return false;
 			if (this.format && team.format !== this.format) return false;
 			return true;
@@ -255,10 +267,10 @@ class TeamDropdownPanel extends PSRoomPanel {
 			teams = this.getTeams();
 		}
 
-		let availableWidth = document.body.offsetWidth;
-		let width = 307;
-		if (availableWidth > 636) width = 613;
-		if (availableWidth > 945) width = 919;
+		let availableWidth = window.innerWidth;
+		let width = 320;
+		if (availableWidth > 636) width = 618;
+		if (availableWidth > 945) width = 916;
 
 		let teamBuckets: { [folder: string]: Team[] } = {};
 		for (const team of teams) {
@@ -271,6 +283,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 		const baseGen = baseFormat.slice(0, 4);
 		let genList: string[] = [];
 		for (const team of PS.teams.list) {
+			if (team.isBox) continue;
 			const gen = team.format.slice(0, 4);
 			if (gen && !genList.includes(gen)) genList.push(gen);
 		}

@@ -119,7 +119,8 @@ export class ChatTournament extends PSModel {
 	}
 	receiveLine(args: Args) {
 		const data = args.slice(2);
-		const notify = PS.prefs.tournaments === 'notify' || (!PS.prefs.tournaments && this.info.isJoined);
+		const notify = (PS.prefs.tournaments || 'notify') === 'notify' ||
+			(PS.prefs.tournaments === 'nonotify' && this.info.isJoined);
 		let cmd = args[1].toLowerCase();
 		if (args[0] === 'tournaments') {
 			switch (cmd) {
@@ -487,7 +488,7 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 					<div class="tournament-challenge-user">vs. {info.challenges[tour.selectedChallenge]}</div>
 					<button type="submit" class="button"><strong>Ready!</strong></button>
 					{info.challenges.length > 1 && <span class="tournament-challenge-user-menu">
-						<select onChange={this.selectChallengeUser} value={tour.selectedChallenge}>
+						<select onChange={this.selectChallengeUser} value={tour.selectedChallenge} class="select">
 							{info.challenges.map((challenge, index) => (
 								<option value={index}>{challenge}</option>
 							))}
