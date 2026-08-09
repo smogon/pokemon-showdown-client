@@ -740,9 +740,20 @@ export class BattleScene implements BattleSceneStub {
 			}
 			badgehtml += '</span>';
 		}
+		let avatar = Dex.resolveAvatar(side.avatar);
+		let noflip = '';
+		if (posStr.startsWith('near')) {
+			if (avatar.includes('unknown.png')) {
+				avatar = avatar.replace('unknown.png', 'unknown-flipped.png');
+				noflip = ' noflip';
+			} else if (avatar.includes('unknownf.png')) {
+				avatar = avatar.replace('unknownf.png', 'unknownf-flipped.png');
+				noflip = ' noflip';
+			}
+		}
 		return (
 			`<div class="trainer trainer-${posStr}"${faded}><strong>${BattleLog.escapeHTML(side.name)}</strong>` +
-			`<div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})">` +
+			`<div class="trainersprite${noflip}"${ratinghtml} style="background-image:url(${avatar})">` +
 			`</div>${badgehtml}${pokemonhtml}</div>`
 		);
 	}
@@ -2843,7 +2854,7 @@ export class PokemonSprite extends Sprite {
 		}
 		if (pokemon.terastallized) {
 			status += `<img src="${Dex.resourcePrefix}sprites/types/${encodeURIComponent(pokemon.terastallized)}.png" alt="${pokemon.terastallized}" class="pixelated" /> `;
-		} else if (pokemon.volatiles.typechange && pokemon.volatiles.typechange[1]) {
+		} else if (pokemon.volatiles.typechange?.[1]) {
 			const types = pokemon.volatiles.typechange[1].split('/');
 			for (const type of types) {
 				status += '<img src="' + Dex.resourcePrefix + 'sprites/types/' + encodeURIComponent(type) + '.png" alt="' + type + '" class="pixelated" /> ';

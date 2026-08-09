@@ -180,6 +180,30 @@ https://replay.pokemonshowdown.com/gen7randomdoublesbattle-865046831.log
 	.mainbar.has-sidebar {
 		margin-left: 330px;
 	}
+	.bar-wrapper.has-sidebar:not(.short-viewport) .mainbar {
+		position: sticky;
+		top: 0;
+	}
+	.bar-wrapper.has-sidebar.short-viewport {
+		max-width: none;
+	}
+	.bar-wrapper.has-sidebar.short-viewport .sidebar {
+		box-sizing: border-box;
+		position: sticky;
+		top: 0;
+		max-height: 100vh;
+		overflow-y: auto;
+	}
+	@media (min-width: 1431px) and (max-width: 1510px) {
+		.bar-wrapper.has-sidebar.short-viewport .sidebar {
+			width: calc(50% - 395px);
+			padding-left: calc(50% - 715px);
+		}
+		.bar-wrapper.has-sidebar.short-viewport .mainbar {
+			margin-right: calc(50% - 715px);
+			margin-left: calc(50% - 385px);
+		}
+	}
 	@media (min-width: 1511px) {
 		.sidebar {
 			width: 400px;
@@ -189,6 +213,14 @@ https://replay.pokemonshowdown.com/gen7randomdoublesbattle-865046831.log
 		}
 		.mainbar.has-sidebar {
 			margin-left: 410px;
+		}
+		.bar-wrapper.has-sidebar.short-viewport .sidebar {
+			width: calc(50% - 355px);
+			padding-left: calc(50% - 755px);
+		}
+		.bar-wrapper.has-sidebar.short-viewport .mainbar {
+			margin-right: calc(50% - 755px);
+			margin-left: calc(50% - 345px);
 		}
 	}
 	.section.first-section {
@@ -272,7 +304,7 @@ https://replay.pokemonshowdown.com/gen7randomdoublesbattle-865046831.log
 <?php
 
 if ($replay) {
-	// `src/repays-battle.tsx` can also grab this data from our APIs, but
+	// `src/replays-battle.tsx` can also grab this data from our APIs, but
 	// doing it here increases page load speed
 	echo "<!-- don't scrape this data! just add .json or .log after the URL!\nFull API docs: https://github.com/smogon/pokemon-showdown-client/blob/master/WEB-API.md -->\n";
 	echo '<script type="text/plain" class="log" id="replaylog-'.$fullid.'">'."\n";
@@ -281,7 +313,7 @@ if ($replay) {
 	if (@$replay['safe_inputlog'] || $manage) {
 		if (!$replay['safe_inputlog']) echo '<!-- only available with ?manage -->'."\n";
 		echo '<script type="text/plain" class="inputlog" id="replayinputlog-'.$fullid.'">'."\n";
-		echo str_replace('</', '<\\/', $replay['inputlog'])."\n";
+		echo str_replace('</', '<\\/', $replay['inputlog'] ?? '')."\n";
 		echo '</script>'."\n";
 	}
 	unset($replay['log']);

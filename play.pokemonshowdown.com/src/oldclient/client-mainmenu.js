@@ -1081,7 +1081,7 @@
 				return '<button class="select teamselect" name="team" disabled></button>';
 			}
 			if (window.BattleFormats[formatid].team) {
-				return '<button class="select teamselect preselected" name="team" value="random" disabled>' + TeamPopup.renderTeam('random') + '</button>';
+				return '<button class="select teamselect team preselected" name="team" value="random" disabled>' + TeamPopup.renderTeam('random') + '</button>';
 			}
 
 			var format = window.BattleFormats[formatid];
@@ -1107,7 +1107,7 @@
 			} else {
 				teamIndex = +teamIndex;
 			}
-			return '<button class="select teamselect" name="team" value="' + (teamIndex < 0 ? '' : teamIndex) + '">' + TeamPopup.renderTeam(teamIndex) + '</button>';
+			return '<button class="select teamselect team" name="team" value="' + (teamIndex < 0 ? '' : teamIndex) + '">' + TeamPopup.renderTeam(teamIndex) + '</button>';
 		},
 
 		// buttons
@@ -1665,7 +1665,7 @@
 			if (i === 'random') {
 				var buf = '<strong>Random team</strong><small>';
 				for (var i = 0; i < 6; i++) {
-					buf += '<span class="picon" style="float:left;' + Dex.getPokemonIcon() + '"></span>';
+					buf += '<span class="picon" style="' + Dex.getPokemonIcon() + '"></span>';
 				}
 				buf += '</small>';
 				return buf;
@@ -1675,8 +1675,8 @@
 			}
 			var team = Storage.teams[i];
 			if (!team) return 'Error: Corrupted team';
-			var buf = '<strong>' + BattleLog.escapeHTML(team.name) + '</strong><small>';
-			buf += Storage.getTeamIcons(team) + '</small>';
+			var buf = '<strong>' + BattleLog.escapeHTML(team.name) + '</strong>';
+			buf += '<small>' + Storage.getTeamIcons(team) + '</small>';
 			return buf;
 		}
 	});

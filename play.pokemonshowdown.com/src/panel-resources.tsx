@@ -2,31 +2,18 @@
  * A panel displaying lists of commands and some basic informational resources
  * @author mia-pi-git
  */
-import { PS, PSRoom, type RoomOptions } from "./client-main";
+import { PS } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { PSUtils, toID } from "./battle-dex";
 declare const BattleChatCommands: Record<string, string[]>;
 
-class ResourceRoom extends PSRoom {
-	override readonly classType: string = 'resources';
-	override readonly canConnect = false;
-
-	constructor(options: RoomOptions) {
-		super(options);
-		this.title = 'Resources';
-	}
-	override connect() {}
-}
-
-class ResourcePanel extends PSRoomPanel<ResourceRoom> {
+class ResourcePanel extends PSRoomPanel {
 	static readonly id = 'resources';
 	static readonly routes = ['resources'];
-	static readonly Model = ResourceRoom;
 	static readonly icon = <i class="fa fa-question-circle" aria-hidden></i>;
 	static readonly title = 'Resources';
 
 	override state = { search: '' };
-	override receiveLine() {}
 	onChangeSearch = (e: Event) => {
 		this.setState({ search: (e.currentTarget as HTMLInputElement).value });
 	};

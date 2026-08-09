@@ -509,7 +509,8 @@ p.or:after {
 }
 .select, .team {
 	width: 230px;
-	height: 32px;
+	min-height: 32px;
+	height: auto;
 	padding: 0 5px;
 	font-size: 9pt;
 	text-align: left;
@@ -517,10 +518,6 @@ p.or:after {
 	cursor: pointer;
 
 	border-radius: 4px;
-	border: 1px solid #888888;
-	background: #EEEEEE;
-	box-shadow: inset 0 1px 0 #FFFFFF;
-	background: linear-gradient(to bottom,  #edf2f8,  #d7e3ec);
 	color: black;
 	box-sizing: border-box;
 }
@@ -529,64 +526,40 @@ p.or:after {
 	border: 1px solid #004488;
 	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
 }
-.select.teamselect {
-	height: 50px;
-	white-space: nowrap;
-	overflow: hidden;
+.team.teamselect {
+	padding-right: 15px;
+	padding-left: 0;
 }
-.teamselect strong {
-	display: block;
-	font-size: 8pt;
-	margin-right: 15px;
-	text-align: center;
+.team.teamselect small .picon {
+	margin-right: -6px;
 }
 .teamselect:disabled strong {
-	color: #777777;
+	color: #444444;
 }
 .dark .teamselect:disabled strong {
-	color: #505050;
+	color: #c7c7c7;
 }
-.teamselect small {
-	margin: -1px 0 0 -3px;
-	display: block;
-}
-.teamselect small .picon {
-	margin: 0 -3px;
-}
-.select:hover, .team.team-hover {
+.team.team-hover {
 	border-color: #555555;
 	background: #FFFFFF;
 	background: linear-gradient(to bottom,  #dce4ec,  #c6d3e0);
 }
-.select:active, .team:active {
+.team:active {
 	border-color: #777777;
 	background: #DDDDDD;
 	box-shadow: none;
-	background: linear-gradient(to bottom,  #d1dce6,  #e7edf2);
+	background: linear-gradient(to bottom,  #bbc4cd,  #e7edf2);
 }
-.select:after {
-	float: right;
-	font-size: 14px;
-	content: "\f0d7";
-	font-family: FontAwesome;
-	-webkit-font-smoothing: antialiased;
-	color: #777777;
+.dark .team.team-hover {
+	border-color: #34373b;
+	background: #FFFFFF;
+	color: white;
+	background: linear-gradient(to bottom, #8f98a1, #4a5057);
 }
-.select:disabled {
-	border-color: #999999;
-	background: rgba(220,220,220,.65);
-	color: #555555;
+.dark .team:active {
+	border-color: #34373b;
 	box-shadow: none;
-}
-.select:disabled:after {
-	color: #AAAAAA;
-}
-.select:disabled small {
-	opacity: 0.7;
-}
-.select.preselected,
-.select:disabled.preselected {
-	color: black;
+	background: linear-gradient(to bottom, #4a5057, #8f98a1);
 }
 
 /*********************************************************
@@ -2230,17 +2203,16 @@ p.or:after {
 .teamlist li {
 	margin: 3px 0;
 	padding: 0;
+	/* lazy windowing */
+	content-visibility: auto;
+	contain-intrinsic-size: 49px;
+	contain-intrinsic-size: auto none auto 49px;
 }
 
 .teamlist .team {
 	display: inline-block;
-	white-space: nowrap;
 	width: 350px;
-	height: 49px;
-	padding: 1px 6px 1px 6px;
-	font-size: 8pt;
 	vertical-align: middle;
-	text-align: center;
 }
 .teamlist .dragging button {
 	visibility: hidden;
@@ -2248,27 +2220,14 @@ p.or:after {
 .teamlist .dragging .team {
 	opacity: 0.4;
 }
-.teamlist .team small {
-	display: block;
-	padding: 0 45px 0 55px;
-}
-.teamlist .team .picon {
-	margin: 0 -2px;
-}
 .teamlist .team .picon span {
 	font-size: 9px !important;
 	display: block;
-	overflow: visible;
 	position: relative;
 	width: 32px;
 	top: 22px;
 	color: transparent;
 }
-.teamlist .team.pc-box {
-	min-height: 139px;
-	height: auto;
-}
-
 .teamedit {
 	position: absolute;
 	display: block;
@@ -3014,7 +2973,7 @@ p.or:after {
 	margin: 2px;
 	padding: 2px;
 }
-.avatarlist button {
+.avatarlist button, .dark .avatarlist button {
 	width: 80px;
 	height: 80px;
 	background: transparent url(https://play.pokemonshowdown.com/sprites/trainers-sheet.png) no-repeat scroll 0px 0px;
@@ -3146,38 +3105,6 @@ p.or:after {
 	background: rgba(40, 40, 40, .5);
 }
 
-/* semi-generic */
-
-.dark .select, .dark .team {
-	border-color: #000000;
-	box-shadow: none;
-	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.85), rgba(118, 128, 140, 0.85));
-	color: black;
-}
-.dark .select:hover, .dark .team.team-hover {
-	border-color: #000000;
-	background: #FFFFFF;
-	color: black;
-	background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(161, 175, 189, 0.85));
-}
-.dark .select:active, .dark .team:active {
-	border-color: #000000;
-	box-shadow: none;
-	background: linear-gradient(to bottom, rgba(161, 175, 189, 0.85), rgba(255, 255, 255, 0.85));
-}
-.dark .select:disabled {
-	border-color: #888888;
-	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.6), rgba(193, 199, 207, 0.6));
-	color: #444444;
-	box-shadow: none;
-}
-.dark .select:after {
-	color: #000000;
-}
-.dark .select:disabled:after {
-	color: #888888;
-}
-
 /* main menu */
 
 .dark .pm-window.focused h3,
@@ -3253,15 +3180,6 @@ p.or:after {
 
 /* teambuilder set */
 
-.dark .utilichart h3, .dark .dexentry h3, .dark .resultheader h3 {
-	background: #636363;
-	color: #F1F1F1;
-	border: 1px solid #A9A9A9;
-	text-shadow: 1px 1px 0 rgb(40, 43, 45);
-	box-shadow: inset 0px 1px 0 rgb(49, 49, 49);
-	border-right: none;
-}
-
 .dark .teambar button {
 	background: #5A6570;
 	color: #F1F1F1;
@@ -3306,15 +3224,6 @@ p.or:after {
 .dark .utilichart .pokemonnamecol,
 .dark .utilichart .movenamecol {
 	color: #DDD;
-}
-.dark .utilichart .col {
-	color: #DDD;
-}
-.dark .utilichart .cur .col {
-	color: #FFF;
-}
-.dark .utilichart a:hover .col {
-	color: #FFF;
 }
 
 .dark .setchart,

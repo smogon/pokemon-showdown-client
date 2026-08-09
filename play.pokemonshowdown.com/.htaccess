@@ -1,3 +1,8 @@
+RewriteEngine on
+RewriteRule ^api(/.*)?$ http://localhost:9000/api$1 [P,L]
+DirectoryIndex index.php index.html /dirindex/dirindex.php
+ErrorDocument 404 /dirindex/404.html
+
 AddType text/plain .phps
 AddType application/x-tgz .tgz
 AddType application/x-chrome-extension .crx
@@ -17,9 +22,6 @@ AddType application/x-web-app-manifest+json .webapp
     Header set Access-Control-Allow-Origin "*" 
     Header set Access-Control-Allow-Methods "GET,POST,OPTIONS"
 </filesMatch>
-
-<IfModule mod_rewrite.c>
-RewriteEngine on
 
 RewriteCond %{HTTP:X-Forwarded-Proto} ^http$
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
@@ -137,6 +139,9 @@ Header set Cache-Control "no-cache, no-store, must-revalidate" env=INDEX_PAGE
 Header set Pragma "no-cache" env=INDEX_PAGE
 Header set Expires "0" env=INDEX_PAGE
 
+# Crossprotocol cache page
+RewriteRule ^crossprotocol\.html$ ./caches/crossprotocol.html [L]
+
 # No direct linking to the lobby.
 # RewriteCond %{ENV:SCRIPT_URL} ^/(lobby/?)?$
 # RewriteCond %{HTTP_REFERER} !^$
@@ -164,7 +169,7 @@ RewriteRule ^backup/ - [F]
 RewriteRule ^\.git/ - [F]
 RewriteRule ^lib/ - [F]
 
-# TODO: figure this guy out
+# Disallow direct access to caches
 RewriteCond %{THE_REQUEST} \s/caches/
 RewriteRule ^caches/ - [F]
 RewriteRule ^testclient-old\.html$ - [F]
@@ -172,8 +177,3 @@ RewriteRule ^testclient-beta\.html$ - [F]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(apple-touch-icon-precomposed\.png)$ - [R=404,L]
-
-</IfModule>
-
-DirectoryIndex index.php index.html /dirindex/dirindex.php
-ErrorDocument 404 /dirindex/404.html

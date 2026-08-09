@@ -2251,7 +2251,7 @@ function toId() {
 		},
 		dispatchClickButton: function (e) {
 			var target = e.currentTarget;
-			var type = $(target).attr('type');
+			var type = $(target).attr('data-select');
 			if (type === 'submit') type = null;
 			if (target.name || type) {
 				app.dismissingSource = app.dismissPopups();

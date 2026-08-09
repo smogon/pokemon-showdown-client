@@ -33,7 +33,9 @@ export class MiniEdit {
 	 */
 	_setContent: (text: string) => void;
 	pushHistory?: (text: string, selection: MiniEditSelection) => void;
+	composing = false;
 	onKeyDown = (ev: KeyboardEvent) => {
+		if (ev.isComposing) return;
 		if (ev.keyCode === 13) { // enter
 			this.replaceSelection('\n');
 			ev.preventDefault();
@@ -51,7 +53,17 @@ export class MiniEdit {
 		this.element.setAttribute('contentEditable', 'true');
 		this.element.setAttribute('autoComplete', 'off');
 		this.element.setAttribute('spellCheck', 'false');
-		this.element.addEventListener('input', () => {
+		this.element.addEventListener('input', ev => {
+			if (this.composing || (ev as any).isComposing) return;
+			this.reformat();
+		});
+		this.element.addEventListener('compositionstart', () => {
+			this.composing = true;
+		});
+		this.element.addEventListener('compositionend', () => {
+			// browsers disagree on whether input or compositionend happens first,
+			// so run reformat on both
+			this.composing = false;
 			this.reformat();
 		});
 		this.element.addEventListener('keydown', this.onKeyDown);
@@ -158,6 +170,8 @@ const HTML_BLOCK_TAGS = [
 	'HEADER', 'HR', 'LI', 'MAIN', 'NAV', 'OL', 'P', 'PRE', 'SECTION', 'TABLE',
 	'TBODY', 'TD', 'TFOOT', 'TH', 'THEAD', 'TR', 'UL',
 ];
+// Pasting can disrupt newlines, so they get manually processed here.
+// Unfortunately, this is massively complicated by an Android Chrome bug.
 export class MiniEditPastePlugin {
 	constructor(editor: MiniEdit) {
 		editor.element.addEventListener('paste', e => {
@@ -176,7 +190,7 @@ export class MiniEditPastePlugin {
 		if (!html || text.includes('\n')) return text;
 
 		const htmlText = this.htmlToPlainText(html);
-		return htmlText.includes('\n') ? htmlText : text;
+		return htmlText.trim().includes('\n') ? htmlText : text;
 	}
 
 	htmlToPlainText(html: string): string {
@@ -188,7 +202,8 @@ export class MiniEditPastePlugin {
 			.replace(/<!--[\s\S]*?-->/g, '')
 			.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, '')
 			// handle newlines
-			.replace(/\n/g, '<br>') // in case they're in <pre>?
+			// .replace(/\n/g, '<br>') // in case they're in <pre>?
+			.replace(/\n/g, '') // Firefox bug: just adds random newlines for fun apparently???
 			.replace(new RegExp(`</?(?:${HTML_BLOCK_TAGS.join('|')})\\b[^>]*>`, 'gi'), '\n')
 			.replace(/\n{2,}/g, '\n')
 			.replace(/<br\b[^>]*>\n?/gi, '\n')
@@ -252,6 +267,7 @@ export class MiniEditUndoPlugin {
 	};
 
 	onKeyDown = (e: KeyboardEvent) => {
+		if (e.isComposing) return;
 		// ctrl+z or cmd+z
 		const undoPressed = (e.ctrlKey && e.keyCode === 90) || (e.metaKey && !e.shiftKey && e.keyCode === 90);
 		// ctrl+y or cmd+shift+z

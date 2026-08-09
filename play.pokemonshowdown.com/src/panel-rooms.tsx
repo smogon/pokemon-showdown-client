@@ -43,6 +43,7 @@ class RoomsPanel extends PSRoomPanel {
 		}));
 	}
 	override componentDidUpdate() {
+		super.componentDidUpdate();
 		const el = this.base?.querySelector('a.blocklink.cur');
 		if (!this.roomListFocusIndex) return;
 		el?.scrollIntoView({ behavior: 'auto', block: 'center' });
@@ -54,6 +55,11 @@ class RoomsPanel extends PSRoomPanel {
 	changeSearch = (ev: Event) => {
 		const target = ev.currentTarget as HTMLInputElement;
 		if (target.selectionStart !== target.selectionEnd) return;
+		if (target.value.startsWith('/')) {
+			this.updateRoomList(target.value);
+			this.forceUpdate();
+			return;
+		}
 		this.updateRoomList(target.value);
 		this.forceUpdate();
 	};
@@ -79,20 +85,26 @@ class RoomsPanel extends PSRoomPanel {
 			ev.preventDefault();
 		} else if (ev.keyCode === 13) { // enter
 			const target = ev.currentTarget as HTMLInputElement;
-			let value = this.getRoomListFocusTitle() || target.value;
-			const arrowIndex = value.indexOf(' \u21d2 ');
-			if (arrowIndex >= 0) value = value.slice(arrowIndex + 3);
-			if (!/^[a-z0-9-]$/.test(value)) value = toID(value);
+			let value = target.value.startsWith('/') ? target.value : this.getRoomListFocusTitle() || target.value;
 			ev.preventDefault();
 			ev.stopImmediatePropagation();
 			target.value = '';
 			this.updateRoomList('');
+			if (value.startsWith('/')) {
+				PS.join('dm-' as RoomID);
+				PS.rooms['dm-']?.send(value, target);
+				return;
+			}
+
+			const arrowIndex = value.indexOf(' \u21d2 ');
+			if (arrowIndex >= 0) value = value.slice(arrowIndex + 3);
+			if (!/^[a-z0-9-]$/.test(value)) value = toID(value);
 
 			PS.join(value as RoomID);
 		}
 	};
 	updateRoomList(search?: string) {
-		if (search) search = toID(search);
+		if (search && !search.startsWith('/')) search = toID(search);
 		const forceNoAutocomplete = this.search === `${search || ''}-`;
 		if (search || this.search) {
 			if (search === undefined || search === this.search) return;
@@ -105,6 +117,11 @@ class RoomsPanel extends PSRoomPanel {
 		}
 	}
 	getRoomList(forceNoAutocomplete?: boolean): RoomsSection[] {
+		if (this.search.startsWith('/')) {
+			return [["Command", [{
+				title: "Console", id: 'dm-' as RoomID, desc: `Enter = run command ${this.search}`,
+			}]]];
+		}
 		const searchid = toID(this.search);
 
 		if (!searchid) {
@@ -222,7 +239,7 @@ class RoomsPanel extends PSRoomPanel {
 				<div dangerouslySetInnerHTML={{ __html: Config.includes.roomlistTopHTML }} />
 			)}
 			<div>
-				<select name="sections" class="button" onChange={this.changeSection}>
+				<select name="sections" class="select" onChange={this.changeSection}>
 					<option value="">(All rooms)</option>
 					{rooms.sectionTitles?.map(title => {
 						return <option value={title}> {title} </option>;
@@ -268,7 +285,7 @@ class RoomsPanel extends PSRoomPanel {
 				<div class="roomlist">
 					<h2>{title}</h2>
 					{sortedRooms.map((roomInfo, i) => <div key={roomInfo.title}>
-						<a href={`/${toID(roomInfo.title)}`} class={`blocklink${i === index ? " cur" : ''}`}>
+						<a href={`/${roomInfo.id || toID(roomInfo.title)}`} class={`blocklink${i === index ? " cur" : ''}`}>
 							{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
 							<strong><i class="fa fa-comment-o" aria-hidden></i> {roomInfo.title}<br /></strong>
 							<small>{roomInfo.desc || ''}</small>
