@@ -91,6 +91,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	moves: string[] = [];
 	ability = '';
 	baseAbility = '';
+	abilityEffect = '';
 	item = '';
 	itemEffect = '';
 	prevItem = '';
@@ -399,6 +400,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	rememberAbility(ability: string, isNotBase?: boolean) {
 		ability = Dex.abilities.get(ability).name;
 		this.ability = ability;
+		this.abilityEffect = '';
 		if (!this.baseAbility && !isNotBase) {
 			this.baseAbility = ability;
 		}
@@ -458,6 +460,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	}
 	clearVolatile() {
 		this.ability = this.baseAbility;
+		this.abilityEffect = '';
 		this.boosts = {};
 		this.clearVolatiles();
 		for (let i = 0; i < this.moveTrack.length; i++) {
@@ -2502,6 +2505,7 @@ export class Battle {
 			let poke = this.getPokemon(args[1])!;
 			let ability = Dex.abilities.get(args[2]);
 			poke.ability = '(suppressed)';
+			poke.abilityEffect = '';
 
 			if (ability.id) {
 				if (!poke.baseAbility) poke.baseAbility = ability.name;
@@ -2543,6 +2547,7 @@ export class Battle {
 
 			poke.speciesForme = newSpeciesForme;
 			poke.ability = poke.baseAbility = (species.abilities ? species.abilities['0'] : '');
+			poke.abilityEffect = '';
 
 			poke.details = args[2];
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(args[1].indexOf(':')) + '|' + args[2];
@@ -2564,6 +2569,7 @@ export class Battle {
 			poke.boosts = { ...tpoke.boosts };
 			poke.copyTypesFrom(tpoke, true);
 			poke.ability = tpoke.ability;
+			poke.abilityEffect = tpoke.abilityEffect;
 			poke.timesAttacked = tpoke.timesAttacked;
 			const targetForme = tpoke.volatiles.formechange;
 			const speciesForme = (targetForme && !targetForme[1].endsWith('-Gmax')) ? targetForme[1] : tpoke.speciesForme;
@@ -3059,16 +3065,23 @@ export class Battle {
 				this.scene.anim(poke, { time: 100 });
 				break;
 			case 'skillswap': case 'wanderingspirit':
-				if (this.gen <= 4) break;
 				let pokeability = Dex.sanitizeName(kwArgs.ability) || target!.ability;
 				let targetability = Dex.sanitizeName(kwArgs.ability2) || poke.ability;
 				if (pokeability) {
 					poke.ability = pokeability;
+					poke.abilityEffect = '';
 					if (!target!.baseAbility) target!.baseAbility = pokeability;
+				} else {
+					poke.ability = '';
+					poke.abilityEffect = `swapped from ${target!.getSpeciesForme()}`;
 				}
 				if (targetability) {
 					target!.ability = targetability;
+					target!.abilityEffect = '';
 					if (!poke.baseAbility) poke.baseAbility = targetability;
+				} else {
+					target!.ability = '';
+					target!.abilityEffect = `swapped from ${poke.getSpeciesForme()}`;
 				}
 				if (poke.side !== target!.side) {
 					this.activateAbility(poke, pokeability, true);
