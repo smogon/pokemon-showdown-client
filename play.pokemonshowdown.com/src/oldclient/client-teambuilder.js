@@ -2283,15 +2283,20 @@
 				}
 			}
 
-			var generationNumber = 9;
-			if (format.substr(0, 3) === 'gen') {
-				var number = parseInt(format.charAt(3), 10);
-				if (1 <= number && number <= 8) {
-					generationNumber = number;
+			var generation: string;
+			if (this.curTeam.format.includes('champions')) {
+				generation = 'champions';
+			} else {
+				var generationNumber = 9;
+				if (format.substr(0, 3) === 'gen') {
+					var number = parseInt(format.charAt(3), 10);
+					if (1 <= number && number <= 8) {
+						generationNumber = number;
+					}
+					format = format.substr(4);
 				}
-				format = format.substr(4);
+				generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm', 'ss', 'sv'][generationNumber - 1];
 			}
-			var generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm', 'ss', 'sv'][generationNumber - 1];
 			if (format === 'battlespotdoubles') {
 				smogdexid += '/vgc15';
 			} else if (format === 'doublesou' || format === 'doublesuu') {
