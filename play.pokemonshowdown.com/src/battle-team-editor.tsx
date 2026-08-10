@@ -3391,15 +3391,20 @@ class StatForm extends preact.Component<{
 			}
 		}
 
-		let generationNumber = 9;
-		if (format.startsWith('gen')) {
-			let number = parseInt(format.charAt(3), 10);
-			if (1 <= number && number <= 8) {
-				generationNumber = number;
+		let generation: string;
+		if (editor.isChampions) {
+			generation = 'champions';
+		} else {
+			let generationNumber = 9;
+			if (format.startsWith('gen')) {
+				let number = parseInt(format.charAt(3), 10);
+				if (1 <= number && number <= 8) {
+					generationNumber = number;
+				}
+				format = format.slice(4);
 			}
-			format = format.slice(4);
+			generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm', 'ss', 'sv'][generationNumber - 1];
 		}
-		const generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm', 'ss', 'sv'][generationNumber - 1];
 		if (format === 'battlespotdoubles') {
 			smogdexid += '/vgc15';
 		} else if (format === 'doublesou' || format === 'doublesuu') {
