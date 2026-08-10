@@ -2283,7 +2283,7 @@
 				}
 			}
 
-			var generation: string;
+			var generation;
 			if (this.curTeam.format.includes('champions')) {
 				generation = 'champions';
 			} else {
