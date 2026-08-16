@@ -697,10 +697,11 @@ export const actions: { [k: string]: QueryHandler } = {
 			throw new ActionError("No redirect_uri provided");
 		}
 		const client = await OAuth.getClient(params.client_id, params.redirect_uri, 'redirect_uri');
+		const user = await this.getUser();
 
 		this.response.setHeader('Content-Type', 'text/html');
 		try {
-			const content = OAuth.renderAuthorizePage(client);
+			const content = OAuth.renderAuthorizePage(client, user.loggedIn ? user.name : '');
 			this.response.setHeader('Content-Length', Buffer.byteLength(content));
 			return content;
 		} catch (e) {

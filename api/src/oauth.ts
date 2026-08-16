@@ -77,10 +77,14 @@ export const OAuth = new class {
 		return requestedURL;
 	}
 
-	renderAuthorizePage(client: OAuthClient) {
+	renderAuthorizePage(client: OAuthClient, username: string) {
 		return this.authorizePage
 			.replace(/\{\{client\}\}/g, escapeHTML(client.client_title))
-			.replace(/\{\{client_name\}\}/g, escapeHTML(client.owner));
+			.replace(/\{\{client_name\}\}/g, escapeHTML(client.owner))
+			.replace(
+				/\{\{username\}\}/g,
+				username ? ` (logged in as &quot;${escapeHTML(username)}&quot;)` : ''
+			);
 	}
 
 	async rotateToken(token: { id: string }) {

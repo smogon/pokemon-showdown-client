@@ -162,7 +162,13 @@ void suite('OAuth', () => {
 		assert.match(valid.body, /OAuth fixture A/);
 		assert.match(valid.body, /\$\.post\('\/api\/oauth\/api\/authorize'/);
 		assert.match(valid.body, /redirect\.searchParams\.set\('token', params\.get\('token'\)\)/);
+		assert.doesNotMatch(valid.body, /document\.cookie/);
 		assert.equal(valid.headers['access-control-allow-origin'], undefined);
+
+		const loggedIn = await httpRequest(server, `/api/oauth/authorize?${validParams}`, {
+			headers: { cookie: sessionCookie },
+		});
+		assert.match(loggedIn.body, /logged in as &quot;OAuthFixture&quot;/);
 
 		for (const redirectUri of [
 			'not-a-url',
