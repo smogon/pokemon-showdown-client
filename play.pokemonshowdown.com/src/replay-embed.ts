@@ -30,7 +30,6 @@ function linkStyle(url: string) {
 }
 function requireScript(url: string) {
 	const scriptEl = document.createElement('script');
-	scriptEl.async = false;
 	scriptEl.src = url;
 	document.head.appendChild(scriptEl);
 }
@@ -61,7 +60,7 @@ requireScript('https://play.pokemonshowdown.com/js/replay-wake-lock.js?a7');
 const Replays = {
 	$el: null! as JQuery,
 	battle: null! as Battle,
-	screenWakeLock: null as ReplayScreenWakeLock | null,
+	screenWakeLock: null! as ReplayScreenWakeLock,
 	muted: false,
 	init() {
 		this.$el = $('.wrapper');
@@ -92,7 +91,7 @@ const Replays = {
 		});
 		this.screenWakeLock = new ReplayScreenWakeLock(this.battle);
 		window.addEventListener('beforeunload', () => {
-			this.screenWakeLock?.destroy();
+			this.screenWakeLock.destroy();
 		}, { once: true });
 
 		this.$('.replay-controls-2').html('<div class="chooser leftchooser speedchooser"> <em>Speed:</em> <div><button value="hyperfast">Hyperfast</button><button value="fast">Fast</button><button value="normal" class="sel">Normal</button><button value="slow">Slow</button><button value="reallyslow">Really Slow</button></div> </div> <div class="chooser colorchooser"> <em>Color&nbsp;scheme:</em> <div><button class="sel" value="light">Light</button><button value="dark">Dark</button></div> </div> <div class="chooser soundchooser" style="display:none"> <em>Music:</em> <div><button class="sel" value="on">On</button><button value="off">Off</button></div> </div>');
@@ -173,7 +172,7 @@ const Replays = {
 		}
 	},
 	update(state?: string) {
-		this.screenWakeLock?.update(this.battle);
+		this.screenWakeLock.update(this.battle);
 		if (state === 'error') {
 			const m = /^([a-z0-9]+)-[a-z0-9]+-[0-9]+$/.exec(this.battle.id);
 			if (m) {
