@@ -22,9 +22,9 @@ export class ReplayScreenWakeLock {
 	}
 
 	release() {
+		if (!this.wakeLock) return;
 		const wakeLock = this.wakeLock;
 		this.wakeLock = null;
-		if (!wakeLock) return;
 		wakeLock.removeEventListener('release', this.onRelease);
 		if (!wakeLock.released) wakeLock.release().catch(() => {});
 	}
@@ -38,8 +38,9 @@ export class ReplayScreenWakeLock {
 	}
 
 	private shouldLock() {
+		if (!this.battle) return false;
 		const battle = this.battle;
-		if (!battle || battle.paused || !battle.started || battle.ended || battle.atQueueEnd) return false;
+		if (battle.paused || !battle.started || battle.ended || battle.atQueueEnd) return false;
 		// Screen Wake Lock follows Page Visibility; PS panel visibility is not available on replay pages/embeds.
 		return typeof document === 'undefined' || document.visibilityState === 'visible';
 	}
