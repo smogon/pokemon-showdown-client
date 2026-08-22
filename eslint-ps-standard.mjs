@@ -349,7 +349,11 @@ export const defaultRulesES3TSChecked = {
 	// Map/Set can be polyfilled but it's nontrivial and it's easier just to use bare objects
 	// fetch can be polyfilled, but our standard is to use $.get or Net as appropriate.
 	"no-restricted-globals": ["error", "Proxy", "Reflect", "Symbol", "WeakSet", "WeakMap", "Set", "Map", "fetch"],
-	"no-restricted-syntax": ["error", "YieldExpression", "AwaitExpression", "BigIntLiteral"],
+	"no-restricted-syntax": ["error",
+		"YieldExpression", "AwaitExpression", "BigIntLiteral",
+		{ selector: "MethodDefinition[kind='get']", message: "Getters cannot be compiled to ES3" },
+		{ selector: "Property[kind='get']", message: "Getters cannot be compiled to ES3" },
+	],
 };
 
 /**

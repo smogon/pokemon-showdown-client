@@ -656,6 +656,12 @@ class OptionsPanel extends PSRoomPanel {
 		}
 		case 'language': {
 			PS.prefs.set('serversettings', { ...PS.prefs.serversettings, language: elem.value });
+			void Dex.loadTextData().then(() => {
+				for (const roomid in PS.rooms) {
+					const battle = (PS.rooms[roomid] as BattleRoom)?.battle;
+					if (battle) battle.resetToCurrentTurn();
+				}
+			});
 			PS.send(`/language ${elem.value}`);
 			break;
 		}
@@ -788,8 +794,9 @@ class OptionsPanel extends PSRoomPanel {
 						<option value="turkish">Türkçe</option>
 						<option value="hindi">हिंदी</option>
 						<option value="japanese">日本語</option>
+						<option value="korean">한국어</option>
 						<option value="simplifiedchinese">简体中文</option>
-						<option value="traditionalchinese">中文</option>
+						<option value="traditionalchinese">繁體中文</option>
 					</select>
 				</label>
 			</p>
