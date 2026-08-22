@@ -1,22 +1,29 @@
 const assert = require('assert').strict;
 const {describe, it} = require('node:test');
+const fs = require('fs');
+const path = require('path');
 
-global.window = global;
-global.BattleText = require('../play.pokemonshowdown.com/data/text/en.js').BattleText;
-global.BattleText['en-afd'] =
-	require('../play.pokemonshowdown.com/data/text/en-afd.js').BattleText['en-afd'];
-global.BattleText.en.Default.default.hitCount =
-	"  The Pok\u00E9mon was hit [NUMBER] [INFLECT:NUMBER:s=time:p=times]!";
-global.BattleText.en.Default.unboost.fail =
-	"  [POKEMON]'s [STAT] [INFLECT:STAT:s=was:p=were] not lowered!";
+const englishTextPath = path.resolve(__dirname, '../play.pokemonshowdown.com/data/text/en.js');
+const afdTextPath = path.resolve(__dirname, '../play.pokemonshowdown.com/data/text/en-afd.js');
+const hasBuiltText = fs.existsSync(englishTextPath) && fs.existsSync(afdTextPath);
 
-require('../play.pokemonshowdown.com/js/battle-dex-data.js');
-require('../play.pokemonshowdown.com/js/battle-dex.js');
-require('../play.pokemonshowdown.com/js/battle-text-parser.js');
+let BattleTextParser;
+if (hasBuiltText) {
+	global.window = global;
+	global.BattleText = require(englishTextPath).BattleText;
+	global.BattleText['en-afd'] = require(afdTextPath).BattleText['en-afd'];
+	global.BattleText.en.Default.default.hitCount =
+		"  The Pok\u00E9mon was hit [NUMBER] [INFLECT:NUMBER:s=time:p=times]!";
+	global.BattleText.en.Default.unboost.fail =
+		"  [POKEMON]'s [STAT] [INFLECT:STAT:s=was:p=were] not lowered!";
 
-const BattleTextParser = global.BattleTextParser;
+	require('../play.pokemonshowdown.com/js/battle-dex-data.js');
+	require('../play.pokemonshowdown.com/js/battle-dex.js');
+	require('../play.pokemonshowdown.com/js/battle-text-parser.js');
+	BattleTextParser = global.BattleTextParser;
+}
 
-describe('BattleTextParser', () => {
+describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not been built'}, () => {
 	it('uses en-afd as a sparse English overlay', () => {
 		global.Dex.afdMode = true;
 		const parser = new BattleTextParser();
