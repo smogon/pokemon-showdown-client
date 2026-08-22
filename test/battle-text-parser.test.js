@@ -104,4 +104,92 @@ describe('BattleTextParser', () => {
 		assert.equal(parser.extractMessage('|-fail|p1a: Mew|unboost|atk'), "  Mew's Attack was not lowered!\n");
 		assert.equal(parser.extractMessage('|-fail|p1a: Mew|unboost'), "  Mew's stats were not lowered!\n");
 	});
+
+	it('applies placeholder modifiers after substitution', () => {
+		global.BattleText.fr = {Default: {default: {
+			faint: "[POKEMON] voit le clone [POKEMON:de] disparaître !",
+		}}};
+		const parser = new BattleTextParser('p1', 'fr');
+		assert.equal(parser.extractMessage('|faint|p1a: Mew'), 'Mew voit le clone de Mew disparaître !\n');
+		assert.equal(parser.extractMessage('|faint|p1a: Eevee'), 'Eevee voit le clone d’Eevee disparaître !\n');
+	});
+
+	it('renders repeated placeholders with distinct values and literal dollar signs', () => {
+		const original = global.BattleText.en.Default.default.startBattle;
+		global.BattleText.en.Default.default.startBattle = '[TRAINER] vs. [TRAINER]... start!';
+		const parser = new BattleTextParser();
+		assert.equal(parser.extractMessage('|player|p1|Alice$1'), '');
+		assert.equal(parser.extractMessage('|player|p2|Bob$2'), '');
+		assert.equal(parser.extractMessage('|start'), 'Alice$1 vs. Bob$2... start!\n');
+		global.BattleText.en.Default.default.startBattle = original;
+	});
+
+	it('applies Korean placeholder particles', () => {
+		global.BattleText.ko = {Default: {default: {
+			faint: '[POKEMON:topic] 쓰러졌다!',
+		}}};
+		const parser = new BattleTextParser('p1', 'ko');
+		assert.equal(parser.extractMessage('|faint|p1a: 뮤'), '뮤는 쓰러졌다!\n');
+		assert.equal(parser.extractMessage('|faint|p1a: 팬텀'), '팬텀은 쓰러졌다!\n');
+	});
+
+	it('applies articles, contractions, and capitalization', () => {
+		assert.equal(BattleTextParser.modify('Baie Oran', ['indefinite'], 'fr', 'fs'), 'une Baie Oran');
+		assert.equal(BattleTextParser.modify('Angriff', ['definite', 'accusative'], 'de'), 'den Angriff');
+		assert.equal(BattleTextParser.modify('avversario', ['a', 'definite'], 'it'), "all’avversario");
+		assert.equal(BattleTextParser.modify('equipo', ['capitalize'], 'es'), 'Equipo');
+		assert.equal(
+			BattleTextParser.modify('Agua Mística', ['definite'], 'es', 'fu', 'stressed-a'),
+			'el Agua Mística'
+		);
+		assert.equal(
+			BattleTextParser.modify('Aguas Místicas', ['definite'], 'es', 'fp', 'stressed-a'),
+			'las Aguas Místicas'
+		);
+	});
+
+	it('uses localized grammar and classified item forms', () => {
+		global.BattleText.fr = {
+			Default: {default: {
+				addItem: '[POKEMON] obtient [ITEM:indefinite:classified] !',
+				useGem: '[ITEM:definite:capitalize:classified] agi[INFLECT:ITEM:s=t:p=ssent] !',
+			}},
+			Items: {brightpowder: {
+				name: 'Poudre Claire', grammar: 'fu',
+				classified: {name: 'sac de Poudre Claire', grammar: 'ms'},
+			}},
+		};
+		const parser = new BattleTextParser('p1', 'fr');
+		assert.equal(
+			parser.extractMessage('|-item|p1a: Mew|Bright Powder|[from] move: Not Real'),
+			'Mew obtient un sac de Poudre Claire !\n'
+		);
+		assert.equal(
+			parser.extractMessage('|-enditem|p1a: Mew|Bright Powder|[from] gem|[move] Tackle'),
+			'Le sac de Poudre Claire agit !\n'
+		);
+	});
+
+	it('uses localized article rules', () => {
+		global.BattleText.es = {
+			Default: {default: {activateItem: '[ITEM:definite:capitalize] actúa!'}},
+			Items: {mysticwater: {
+				name: 'Agua Mística', grammar: 'fu', articleRule: 'stressed-a',
+			}},
+		};
+		const parser = new BattleTextParser('p1', 'es');
+		assert.equal(
+			parser.extractMessage('|-enditem|p1a: Mew|Mystic Water'),
+			'El Agua Mística actúa!\n'
+		);
+	});
+
+	it('uses localized stat grammar', () => {
+		global.BattleText.fr = {Default: {
+			default: {boost: '[STAT:definite:capitalize] de [POKEMON] augmente !'},
+			atk: {statName: 'Attaque', grammar: 'fs'},
+		}};
+		const parser = new BattleTextParser('p1', 'fr');
+		assert.equal(parser.extractMessage('|-boost|p1a: Mew|atk|1'), 'L’Attaque de Mew augmente !\n');
+	});
 });

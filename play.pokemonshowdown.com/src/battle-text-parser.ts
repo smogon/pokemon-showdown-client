@@ -14,15 +14,17 @@ export type Args = [string, ...string[]];
 export type KWArgs = { [kw: string]: string };
 export type SideID = 'p1' | 'p2' | 'p3' | 'p4';
 export type InflectionCategories = { [placeholder: string]: string };
+type RenderValue = string | {
+	value: string,
+	table?: 'Items' | 'Default',
+	id?: string,
+	category?: string,
+};
 
 export class BattleTextParser {
-	/** escaped for string.replace */
 	p1 = "Player 1";
-	/** escaped for string.replace */
 	p2 = "Player 2";
-	/** escaped for string.replace */
 	p3 = "Player 3";
-	/** escaped for string.replace */
 	p4 = "Player 4";
 	perspective: SideID;
 	language: string;
@@ -255,6 +257,55 @@ export class BattleTextParser {
 		return this.textField('Default', 'default', field);
 	}
 
+	/**
+	 * Render template, resolving placeholders. Array means a different value for each placeholder.
+	 */
+	private render(
+		template: string, values: { [placeholder: string]: RenderValue | RenderValue[] | undefined } = {}
+	) {
+		const categories: InflectionCategories = {};
+		const indexes: { [placeholder: string]: number } = {};
+		const text = template.replace(
+			/\[([A-Z][A-Z0-9]*)(?::([a-z]+(?::[a-z]+)*))?\]/g,
+			(match, placeholder: string, modifierText: string | undefined) => {
+				const source = values[placeholder];
+				if (source === undefined) return match;
+				let value: RenderValue | undefined;
+				if (Array.isArray(source)) {
+					const index = indexes[placeholder] || 0;
+					value = source[index];
+					indexes[placeholder] = index + 1;
+				} else {
+					value = source;
+				}
+				if (value === undefined) return match;
+				return this.resolveRenderValue(
+					placeholder, value, modifierText ? modifierText.split(':') : [], categories
+				);
+			}
+		);
+		return BattleTextParser.inflect(text, categories);
+	}
+
+	private resolveRenderValue(
+		placeholder: string, source: RenderValue, modifiers: string[], categories: InflectionCategories
+	) {
+		let value = typeof source === 'string' ? source : source.value;
+		let category = typeof source === 'string' ? 'ms' : source.category || 'ms';
+		let articleRule = '';
+		if (typeof source !== 'string' && source.table && source.id) {
+			const entry = BattleText[this.language]?.[source.table]?.[source.id] ||
+				BattleText.en?.[source.table]?.[source.id];
+			let form = entry;
+			if (modifiers.includes('classified') && typeof entry?.classified === 'object') form = entry.classified;
+			value = typeof form?.name === 'string' ? form.name : value;
+			category = typeof form?.grammar === 'string' ? form.grammar : category;
+			articleRule = typeof form?.articleRule === 'string' ? form.articleRule : '';
+		}
+		categories[placeholder] = category;
+		return BattleTextParser.modify(value, modifiers, this.language, category, articleRule);
+	}
+
 	fixLowercase(input: string) {
 		if (this.lowercaseRegExp === undefined) {
 			const prefixes = ['pokemon', 'opposingPokemon', 'team', 'opposingTeam', 'party', 'opposingParty'].map(templateId => {
@@ -292,6 +343,9 @@ export class BattleTextParser {
 			(match, placeholder: string, source: string) => {
 				const category = categories[placeholder];
 				if (!category) return match;
+				const grammarCategory = /^[mfn][sup]$/.test(category);
+				const normalizedCategory = grammarCategory && category.endsWith('u') ? category.charAt(0) + 's' : category;
+				const categoryFallback = grammarCategory ? (category.endsWith('p') ? 'p' : 's') : '';
 
 				const fields: string[] = [];
 				let field = '';
@@ -317,7 +371,7 @@ export class BattleTextParser {
 							break;
 						}
 					}
-					if (equalsIndex < 0 || candidate.slice(0, equalsIndex) !== category) continue;
+					if (equalsIndex < 0 || ![normalizedCategory, categoryFallback].includes(candidate.slice(0, equalsIndex))) continue;
 					return candidate.slice(equalsIndex + 1).replace(/\\(.)/g, '$1');
 				}
 				return match;
@@ -325,16 +379,143 @@ export class BattleTextParser {
 		);
 	}
 
-	/** Returns a pokemon name escaped for passing into the second argument of string.replace */
+	static modify(value: string, modifiers: string[], language: string, category = 'ms', articleRule = '') {
+		const knownModifiers = [
+			'definite', 'indefinite', 'nominative', 'accusative', 'singular', 'plural', 'masculine',
+			'capitalize', 'classified', 'a', 'de', 'di', 'su', 'e', 'y',
+			'topic', 'object', 'subject', 'conjunctive', 'directional',
+		];
+		for (const modifier of modifiers) {
+			if (!knownModifiers.includes(modifier)) return value;
+		}
+
+		const has = (modifier: string) => modifiers.includes(modifier);
+		// Names without localized grammar metadata default to masculine singular
+		let plural = category.endsWith('p');
+		const uncountable = category.endsWith('u');
+		let feminine = category.startsWith('f');
+		let neuter = category.startsWith('n');
+		if (has('singular')) plural = false;
+		if (has('plural')) plural = true;
+		if (has('masculine')) feminine = neuter = false;
+		const initial = this.grammarInitial(value);
+		const vowel = /^[aeiouà-æè-ïò-öù-ü]/i.test(initial);
+		let prefix = '';
+
+		if (language === 'fr') {
+			let article = '';
+			if (has('definite')) {
+				article = plural ? 'les ' : vowel ? 'l’' : feminine ? 'la ' : 'le ';
+			} else if (has('indefinite')) {
+				article = uncountable ? '' : plural ? 'des ' : feminine ? 'une ' : 'un ';
+			}
+			if (has('a')) {
+				if (article === 'le ') prefix = 'au ';
+				else if (article === 'les ') prefix = 'aux ';
+				else prefix = 'à ' + article;
+			} else if (has('de')) {
+				if (article === 'le ') prefix = 'du ';
+				else if (article === 'les ') prefix = 'des ';
+				else if (article) prefix = 'de ' + article;
+				else prefix = vowel || /^h/i.test(initial) ? 'd’' : 'de ';
+			} else {
+				prefix = article;
+			}
+		} else if (language === 'es') {
+			const articleFeminine = feminine && articleRule !== 'stressed-a';
+			let article = '';
+			if (has('definite')) article = plural ? (feminine ? 'las ' : 'los ') : (articleFeminine ? 'la ' : 'el ');
+			else if (has('indefinite')) {
+				article = uncountable ? '' : plural ? (feminine ? 'unas ' : 'unos ') : (articleFeminine ? 'una ' : 'un ');
+			}
+			if (has('a')) prefix = article === 'el ' ? 'al ' : 'a ' + article;
+			else if (has('de')) prefix = article === 'el ' ? 'del ' : 'de ' + article;
+			else prefix = article;
+			if (has('y')) prefix = /^(?:i|hi)(?![aeou])/i.test(initial) ? 'e ' : 'y ';
+		} else if (language === 'it') {
+			const special = /^(?:s[^aeiouàèéìòù]|z|gn|ps|pn|x|y)/i.test(initial);
+			let article = '';
+			if (has('definite')) {
+				if (plural) article = feminine ? 'le ' : (vowel || special ? 'gli ' : 'i ');
+				else if (vowel) article = 'l’';
+				else article = feminine ? 'la ' : (special ? 'lo ' : 'il ');
+			} else if (has('indefinite')) {
+				if (uncountable) article = feminine ? (vowel ? 'dell’' : 'della ') : (vowel ? 'dell’' : special ? 'dello ' : 'del ');
+				else if (feminine) article = vowel ? 'un’' : 'una ';
+				else article = special ? 'uno ' : 'un ';
+			}
+			if (has('a') && has('definite')) {
+				prefix = this.italianContraction(article, ['al ', 'allo ', 'all’', 'alla ', 'ai ', 'agli ', 'alle ']);
+			} else if (has('di') && has('definite')) {
+				prefix = this.italianContraction(article, ['del ', 'dello ', 'dell’', 'della ', 'dei ', 'degli ', 'delle ']);
+			} else if (has('su') && has('definite')) {
+				prefix = this.italianContraction(article, ['sul ', 'sullo ', 'sull’', 'sulla ', 'sui ', 'sugli ', 'sulle ']);
+			} else if (has('a')) {
+				prefix = vowel ? 'ad ' : 'a ';
+			} else if (has('di')) {
+				prefix = vowel ? 'd’' : 'di ';
+			} else if (has('su')) {
+				prefix = 'su ';
+			} else if (has('e')) {
+				prefix = vowel ? 'ed ' : 'e ';
+			} else {
+				prefix = article;
+			}
+		} else if (language === 'de') {
+			const accusative = has('accusative');
+			if (has('definite')) {
+				prefix = plural ? 'die ' : feminine ? 'die ' : neuter ? 'das ' : accusative ? 'den ' : 'der ';
+			} else if (has('indefinite')) {
+				prefix = uncountable ? '' : feminine ? 'eine ' : neuter ? 'ein ' : accusative ? 'einen ' : 'ein ';
+			}
+		} else if (language === 'ko') {
+			const jong = this.koreanJongseong(value);
+			if (has('topic')) value += jong ? '은' : '는';
+			else if (has('object')) value += jong ? '을' : '를';
+			else if (has('subject')) value += jong ? '이' : '가';
+			else if (has('conjunctive')) value += jong ? '과' : '와';
+			else if (has('directional')) value += jong && jong !== 8 ? '으로' : '로';
+		}
+
+		value = prefix + value;
+		if (has('capitalize')) {
+			for (let i = 0; i < value.length; i++) {
+				const letter = value.charAt(i);
+				if (letter.toUpperCase() === letter.toLowerCase()) continue;
+				value = value.slice(0, i) + letter.toUpperCase() + value.slice(i + 1);
+				break;
+			}
+		}
+		return value;
+	}
+
+	private static grammarInitial(value: string) {
+		return value.replace(/\*\*/g, '').replace(/^[^A-Za-zÀ-ɏ0-9ㄱ-힣]+/, '');
+	}
+
+	private static italianContraction(article: string, forms: string[]) {
+		const articles = ['il ', 'lo ', 'l’', 'la ', 'i ', 'gli ', 'le '];
+		const index = articles.indexOf(article);
+		return index < 0 ? forms[0] : forms[index];
+	}
+
+	private static koreanJongseong(value: string) {
+		const text = value.replace(/\*\*/g, '').replace(/[^A-Za-z0-9가-힣]+$/g, '');
+		if (!text) return 0;
+		const code = text.charCodeAt(text.length - 1);
+		if (code >= 0xAC00 && code <= 0xD7A3) return (code - 0xAC00) % 28;
+		if (code >= 0x30 && code <= 0x39) return [1, 0, 0, 8, 0, 0, 1, 8, 8, 0][code - 0x30];
+		return /[lmnr]$/i.test(text) ? 8 : 0;
+	}
+
 	pokemonName = (pokemon: string) => {
 		if (!pokemon) return '';
 		if (!pokemon.startsWith('p')) return `???pokemon:${pokemon}???`;
-		if (pokemon.charAt(3) === ':') return BattleTextParser.escapeReplace(pokemon.slice(4).trim());
-		else if (pokemon.charAt(2) === ':') return BattleTextParser.escapeReplace(pokemon.slice(3).trim());
+		if (pokemon.charAt(3) === ':') return pokemon.slice(4).trim();
+		else if (pokemon.charAt(2) === ':') return pokemon.slice(3).trim();
 		return `???pokemon:${pokemon}???`;
 	};
 
-	/** Returns a string escaped for passing into the second argument of string.replace */
 	pokemon(pokemon: string) {
 		if (!pokemon) return '';
 		let side = pokemon.slice(0, 2);
@@ -342,11 +523,10 @@ export class BattleTextParser {
 		const name = this.pokemonName(pokemon);
 		const isNear = side === this.perspective || side === BattleTextParser.allyID(side as SideID);
 		const template = this.defaultText(isNear ? 'pokemon' : 'opposingPokemon');
-		return template.replace('[NICKNAME]', name).replace(/\$/g, '$$$$');
+		return this.render(template, { NICKNAME: name });
 	}
 
-	/** Returns a string escaped for passing into the second argument of string.replace */
-	pokemonFull(pokemon: string, details: string): [string, string] {
+	pokemonFull(pokemon: string, details: string): [side: string, fullName: string] {
 		const nickname = this.pokemonName(pokemon);
 
 		const species = details.split(',')[0];
@@ -408,10 +588,10 @@ export class BattleTextParser {
 
 	effect(effect?: string) {
 		if (!effect) return '';
-		if (effect.startsWith('item:')) return this.itemName(effect.slice(5));
+		if (effect.startsWith('item:')) return this.itemValue(effect.slice(5));
 		if (effect.startsWith('move:')) return this.moveName(effect.slice(5));
 		if (effect.startsWith('ability:')) return this.abilityName(effect.slice(8));
-		return BattleTextParser.escapeReplace(effect.trim());
+		return effect.trim();
 	}
 
 	textName(table: keyof BattleTextData, name: string) {
@@ -420,7 +600,7 @@ export class BattleTextParser {
 		const localized = BattleText[this.language]?.[table]?.[id]?.name;
 		const english = BattleText.en?.[table]?.[id]?.name;
 		const translated = localized || english;
-		return BattleTextParser.escapeReplace(typeof translated === 'string' ? translated : name);
+		return typeof translated === 'string' ? translated : name;
 	}
 
 	moveName(name: string) {
@@ -428,6 +608,9 @@ export class BattleTextParser {
 	}
 	itemName(name: string) {
 		return this.textName('Items', name);
+	}
+	private itemValue(name: string): RenderValue {
+		return { value: this.itemName(name), table: 'Items', id: toID(name) };
 	}
 	abilityName(name: string) {
 		return this.textName('Abilities', name);
@@ -478,8 +661,10 @@ export class BattleTextParser {
 
 	ability(name: string | undefined, holder: string) {
 		if (!name) return '';
-		return this.defaultText('abilityActivation').replace('[POKEMON]', this.pokemon(holder))
-			.replace('[ABILITY]', this.abilityName(name)) + '\n';
+		return this.render(this.defaultText('abilityActivation'), {
+			POKEMON: this.pokemon(holder),
+			ABILITY: this.abilityName(name),
+		}) + '\n';
 	}
 
 	static stat(stat: string, language = Dex.text.getLanguage()) {
@@ -490,6 +675,13 @@ export class BattleTextParser {
 	static statShortName(stat: string, language = Dex.text.getLanguage()) {
 		const name = BattleText[language]?.Default[stat]?.statShortName || BattleText.en?.Default[stat]?.statShortName;
 		return typeof name === 'string' ? name : `???stat:${stat}???`;
+	}
+	private statValue(stat: string): RenderValue {
+		const id = stat || 'stats';
+		return {
+			value: BattleTextParser.stat(stat, this.language), table: 'Default', id,
+			category: stat ? 's' : 'p',
+		};
 	}
 
 	lineSection(args: Args, kwArgs: KWArgs) {
@@ -561,13 +753,13 @@ export class BattleTextParser {
 		case 'player': {
 			const [, side, name] = args;
 			if (side === 'p1' && name) {
-				this.p1 = BattleTextParser.escapeReplace(name);
+				this.p1 = name;
 			} else if (side === 'p2' && name) {
-				this.p2 = BattleTextParser.escapeReplace(name);
+				this.p2 = name;
 			} else if (side === 'p3' && name) {
-				this.p3 = BattleTextParser.escapeReplace(name);
+				this.p3 = name;
 			} else if (side === 'p4' && name) {
-				this.p4 = BattleTextParser.escapeReplace(name);
+				this.p4 = name;
 			}
 			return '';
 		}
@@ -581,33 +773,33 @@ export class BattleTextParser {
 		case 'turn': {
 			const [, num] = args;
 			this.turn = Number.parseInt(num, 10);
-			return this.template('turn').replace('[NUMBER]', num) + '\n';
+			return this.render(this.template('turn'), { NUMBER: num }) + '\n';
 		}
 
 		case 'start': {
-			return this.template('startBattle').replace('[TRAINER]', this.p1).replace('[TRAINER]', this.p2);
+			return this.render(this.template('startBattle'), { TRAINER: [this.p1, this.p2] });
 		}
 
 		case 'win': case 'tie': {
 			const [, name] = args;
 			if (cmd === 'tie' || !name) {
-				return this.template('tieBattle').replace('[TRAINER]', this.p1).replace('[TRAINER]', this.p2);
+				return this.render(this.template('tieBattle'), { TRAINER: [this.p1, this.p2] });
 			}
-			return this.template('winBattle').replace('[TRAINER]', name);
+			return this.render(this.template('winBattle'), { TRAINER: name });
 		}
 
 		case 'switch': {
 			const [, pokemon, details] = args;
 			const [side, fullname] = this.pokemonFull(pokemon, details);
 			const template = this.template('switchIn', this.own(side));
-			return template.replace('[TRAINER]', this.trainer(side)).replace('[FULLNAME]', fullname);
+			return this.render(template, { TRAINER: this.trainer(side), FULLNAME: fullname });
 		}
 
 		case 'drag': {
 			const [, pokemon, details] = args;
 			const [side, fullname] = this.pokemonFull(pokemon, details);
 			const template = this.template('drag');
-			return template.replace('[TRAINER]', this.trainer(side)).replace('[FULLNAME]', fullname);
+			return this.render(template, { TRAINER: this.trainer(side), FULLNAME: fullname });
 		}
 
 		case 'detailschange': case '-transform': case '-formechange': {
@@ -646,41 +838,49 @@ export class BattleTextParser {
 			}
 			const template = this.template(templateName, id, kwArgs.msg ? '' : 'NODEFAULT');
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon))
-				.replace('[SPECIES]', this.speciesName(newSpecies));
+			return line1 + this.render(template, {
+				POKEMON: this.pokemon(pokemon),
+				SPECIES: this.speciesName(newSpecies),
+			});
 		}
 
 		case 'switchout': {
 			const [, pokemon] = args;
 			const side = pokemon.slice(0, 2);
 			const template = this.template('switchOut', kwArgs.from, this.own(side));
-			return template.replace('[TRAINER]', this.trainer(side)).replace('[NICKNAME]', this.pokemonName(pokemon)).replace('[POKEMON]', this.pokemon(pokemon));
+			return this.render(template, {
+				TRAINER: this.trainer(side),
+				NICKNAME: this.pokemonName(pokemon),
+				POKEMON: this.pokemon(pokemon),
+			});
 		}
 
 		case 'faint': {
 			const [, pokemon] = args;
 			const template = this.template('faint');
-			return template.replace('[POKEMON]', this.pokemon(pokemon));
+			return this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case 'swap': {
 			const [, pokemon, target] = args;
 			if (!target || !isNaN(Number(target))) {
 				const template = this.template('swapCenter');
-				return template.replace('[POKEMON]', this.pokemon(pokemon));
+				return this.render(template, { POKEMON: this.pokemon(pokemon) });
 			}
 			const template = this.template('swap');
-			return template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[TARGET]', this.pokemon(target));
+			return this.render(template, { POKEMON: this.pokemon(pokemon), TARGET: this.pokemon(target) });
 		}
 
 		case 'move': {
 			const [, pokemon, move] = args;
 			let line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			if (kwArgs.zeffect) {
-				line1 = this.template('zEffect').replace('[POKEMON]', this.pokemon(pokemon));
+				line1 = this.render(this.template('zEffect'), { POKEMON: this.pokemon(pokemon) });
 			}
 			const template = this.template('move', kwArgs.from);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[MOVE]', this.moveName(move));
+			return line1 + this.render(template, {
+				POKEMON: this.pokemon(pokemon), MOVE: this.moveName(move),
+			});
 		}
 
 		case 'cant': {
@@ -688,7 +888,9 @@ export class BattleTextParser {
 			const template = this.template('cant', effect, 'NODEFAULT') ||
 				this.template(move ? 'cant' : 'cantNoMove');
 			const line1 = this.maybeAbility(effect, kwArgs.of || pokemon);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[MOVE]', this.moveName(move));
+			return line1 + this.render(template, {
+				POKEMON: this.pokemon(pokemon), MOVE: this.moveName(move),
+			});
 		}
 
 		case '-candynamax': {
@@ -700,7 +902,7 @@ export class BattleTextParser {
 			} else {
 				template = this.template('canDynamax', own);
 			}
-			return template.replace('[TRAINER]', this.trainer(side));
+			return this.render(template, { TRAINER: this.trainer(side) });
 		}
 
 		case 'message': {
@@ -714,28 +916,30 @@ export class BattleTextParser {
 			let id = BattleTextParser.effectId(effect);
 			if (id === 'typechange') {
 				const template = this.template('typeChange', kwArgs.from);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[TYPE]', arg3)
-					.replace('[SOURCE]', this.pokemon(kwArgs.of));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon), TYPE: arg3, SOURCE: this.pokemon(kwArgs.of),
+				});
 			}
 			if (id === 'typeadd') {
 				const template = this.template('typeAdd', kwArgs.from);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[TYPE]', arg3);
+				return line1 + this.render(template, { POKEMON: this.pokemon(pokemon), TYPE: arg3 });
 			}
 			if (id.startsWith('stockpile')) {
 				const num = id.slice(9);
 				const template = this.template('start', 'stockpile');
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[NUMBER]', num);
+				return line1 + this.render(template, { POKEMON: this.pokemon(pokemon), NUMBER: num });
 			}
 			if (id.startsWith('perish')) {
 				const num = id.slice(6);
 				const template = this.template('activate', 'perishsong');
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[NUMBER]', num);
+				return line1 + this.render(template, { POKEMON: this.pokemon(pokemon), NUMBER: num });
 			}
 			if (id.startsWith('protosynthesis') || id.startsWith('quarkdrive')) {
 				const stat = id.slice(-3);
 				const template = this.template('start', id.slice(0, id.length - 3));
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon))
-					.replace('[STAT]', BattleTextParser.stat(stat, this.language));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon), STAT: this.statValue(stat),
+				});
 			}
 			let templateId = 'start';
 			if (kwArgs.already) templateId = 'alreadyStarted';
@@ -748,9 +952,13 @@ export class BattleTextParser {
 				templateId += 'FromItem';
 			}
 			const template = this.template(templateId, kwArgs.from, effect);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[EFFECT]', this.effect(effect))
-				.replace('[MOVE]', this.moveName(arg3)).replace('[SOURCE]', this.pokemon(kwArgs.of))
-				.replace('[ITEM]', this.effect(kwArgs.from));
+			return line1 + this.render(template, {
+				POKEMON: this.pokemon(pokemon),
+				EFFECT: this.effect(effect),
+				MOVE: this.moveName(arg3),
+				SOURCE: this.pokemon(kwArgs.of),
+				ITEM: this.effect(kwArgs.from),
+			});
 		}
 
 		case '-end': {
@@ -759,7 +967,7 @@ export class BattleTextParser {
 			let id = BattleTextParser.effectId(effect);
 			if (id === 'doomdesire' || id === 'futuresight') {
 				const template = this.template('activate', effect);
-				return line1 + template.replace('[TARGET]', this.pokemon(pokemon));
+				return line1 + this.render(template, { TARGET: this.pokemon(pokemon) });
 			}
 			let templateId = 'end';
 			let template = '';
@@ -767,8 +975,12 @@ export class BattleTextParser {
 				template = this.template('endFromItem', effect);
 			}
 			if (!template) template = this.template(templateId, effect);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[EFFECT]', this.effect(effect))
-				.replace('[SOURCE]', this.pokemon(kwArgs.of)).replace('[ITEM]', this.effect(kwArgs.from));
+			return line1 + this.render(template, {
+				POKEMON: this.pokemon(pokemon),
+				EFFECT: this.effect(effect),
+				SOURCE: this.pokemon(kwArgs.of),
+				ITEM: this.effect(kwArgs.from),
+			});
 		}
 
 		case '-ability': {
@@ -783,19 +995,21 @@ export class BattleTextParser {
 			if (kwArgs.from) {
 				if (!oldAbility) line1 = this.maybeAbility(kwArgs.from, pokemon) + line1;
 				const template = this.template('changeAbility', kwArgs.from);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon))
-					.replace('[ABILITY]', this.abilityName(ability))
-					.replace('[SOURCE]', this.pokemon(kwArgs.of));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon),
+					ABILITY: this.abilityName(ability),
+					SOURCE: this.pokemon(kwArgs.of),
+				});
 			}
 			const id = BattleTextParser.effectId(ability);
 			if (id === 'unnerve') {
 				const template = this.template('start', ability);
-				return line1 + template.replace('[TEAM]', this.team(pokemon.slice(0, 2), true));
+				return line1 + this.render(template, { TEAM: this.team(pokemon.slice(0, 2), true) });
 			}
 			let templateId = 'start';
 			if (id === 'anticipation' || id === 'sturdy') templateId = 'activate';
 			const template = this.template(templateId, ability, 'NODEFAULT');
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+			return line1 + this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case '-endability': {
@@ -803,7 +1017,7 @@ export class BattleTextParser {
 			if (ability) return this.ability(ability, pokemon);
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			const template = this.template('start', 'Gastro Acid');
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+			return line1 + this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case '-item': {
@@ -816,21 +1030,29 @@ export class BattleTextParser {
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			if (['thief', 'covet', 'bestow', 'magician', 'pickpocket'].includes(id)) {
 				const template = this.template('takeItem', kwArgs.from);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.itemName(item))
-					.replace('[SOURCE]', this.pokemon(target || kwArgs.of));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon),
+					ITEM: this.itemValue(item),
+					SOURCE: this.pokemon(target || kwArgs.of),
+				});
 			}
 			if (id === 'frisk') {
 				const hasTarget = kwArgs.of && pokemon && kwArgs.of !== pokemon;
 				const template = this.template(hasTarget ? 'activate' : 'activateNoTarget', "Frisk");
-				return line1 + template.replace('[POKEMON]', this.pokemon(kwArgs.of)).replace('[ITEM]', this.itemName(item))
-					.replace('[TARGET]', this.pokemon(pokemon));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(kwArgs.of),
+					ITEM: this.itemValue(item),
+					TARGET: this.pokemon(pokemon),
+				});
 			}
 			if (kwArgs.from) {
 				const template = this.template('addItem', kwArgs.from);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.itemName(item));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon), ITEM: this.itemValue(item),
+				});
 			}
 			const template = this.template('start', item, 'NODEFAULT');
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+			return line1 + this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case '-enditem': {
@@ -838,30 +1060,46 @@ export class BattleTextParser {
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			if (kwArgs.eat) {
 				const template = this.template('eatItem', kwArgs.from);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.itemName(item));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon), ITEM: this.itemValue(item),
+				});
 			}
 			const id = BattleTextParser.effectId(kwArgs.from);
 			if (id === 'gem') {
 				const template = this.template('useGem', item);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.itemName(item))
-					.replace('[MOVE]', this.moveName(kwArgs.move));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon),
+					ITEM: this.itemValue(item),
+					MOVE: this.moveName(kwArgs.move),
+				});
 			}
 			if (id === 'stealeat') {
 				const template = this.template('removeItem', "Bug Bite");
-				return line1 + template.replace('[SOURCE]', this.pokemon(kwArgs.of)).replace('[ITEM]', this.itemName(item));
+				return line1 + this.render(template, {
+					SOURCE: this.pokemon(kwArgs.of), ITEM: this.itemValue(item),
+				});
 			}
 			if (kwArgs.from) {
 				const template = this.template('removeItem', kwArgs.from);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.itemName(item))
-					.replace('[SOURCE]', this.pokemon(kwArgs.of));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon),
+					ITEM: this.itemValue(item),
+					SOURCE: this.pokemon(kwArgs.of),
+				});
 			}
 			if (kwArgs.weaken) {
 				const template = this.template('activateWeaken');
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.itemName(item));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon), ITEM: this.itemValue(item),
+				});
 			}
 			let template = this.template('end', item, 'NODEFAULT');
-			if (!template) template = this.template('activateItem').replace('[ITEM]', this.itemName(item));
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[TARGET]', this.pokemon(kwArgs.of));
+			if (!template) template = this.template('activateItem');
+			return line1 + this.render(template, {
+				POKEMON: this.pokemon(pokemon),
+				ITEM: this.itemValue(item),
+				TARGET: this.pokemon(kwArgs.of),
+			});
 		}
 
 		case '-status': {
@@ -869,34 +1107,40 @@ export class BattleTextParser {
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			if (kwArgs.from?.startsWith('item:')) {
 				const template = this.template('startFromItem', status);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(kwArgs.from));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon), ITEM: this.effect(kwArgs.from),
+				});
 			}
 			if (BattleTextParser.effectId(kwArgs.from) === 'rest') {
 				const template = this.template('startFromRest', status);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+				return line1 + this.render(template, { POKEMON: this.pokemon(pokemon) });
 			}
 			const template = this.template('start', status);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+			return line1 + this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case '-curestatus': {
 			const [, pokemon, status] = args;
 			if (BattleTextParser.effectId(kwArgs.from) === 'naturalcure') {
 				const template = this.template('activate', kwArgs.from);
-				return template.replace('[POKEMON]', this.pokemon(pokemon));
+				return this.render(template, { POKEMON: this.pokemon(pokemon) });
 			}
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			if (kwArgs.from?.startsWith('item:')) {
 				const template = this.template('endFromItem', status);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(kwArgs.from));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon), ITEM: this.effect(kwArgs.from),
+				});
 			}
 			if (kwArgs.thaw) {
 				const template = this.template('endFromMove', status);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[MOVE]', this.effect(kwArgs.from));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon), MOVE: this.effect(kwArgs.from),
+				});
 			}
 			let template = this.template('end', status, 'NODEFAULT');
-			if (!template) template = this.template('end').replace('[EFFECT]', status);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+			if (!template) template = this.template('end');
+			return line1 + this.render(template, { POKEMON: this.pokemon(pokemon), EFFECT: status });
 		}
 
 		case '-cureteam': {
@@ -910,33 +1154,45 @@ export class BattleTextParser {
 			let id = BattleTextParser.effectId(effect);
 			if (id === 'instruct') {
 				const template = this.template('activate', effect);
-				return line1 + template.replace('[POKEMON]', this.pokemon(kwArgs.of)).replace('[TARGET]', this.pokemon(pokemon));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(kwArgs.of), TARGET: this.pokemon(pokemon),
+				});
 			}
 			let template = this.template('start', effect, 'NODEFAULT');
-			if (!template) template = this.template('start').replace('[EFFECT]', this.effect(effect));
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(kwArgs.of))
-				.replace('[TEAM]', this.team(pokemon.slice(0, 2)));
+			if (!template) template = this.template('start');
+			return line1 + this.render(template, {
+				EFFECT: this.effect(effect),
+				POKEMON: this.pokemon(pokemon),
+				SOURCE: this.pokemon(kwArgs.of),
+				TEAM: this.team(pokemon.slice(0, 2)),
+			});
 		}
 
 		case '-sidestart': {
 			let [, side, effect] = args;
 			let template = this.template('start', effect, 'NODEFAULT');
-			if (!template) template = this.template('startTeamEffect').replace('[EFFECT]', this.effect(effect));
-			return template.replace('[TEAM]', this.team(side)).replace('[PARTY]', this.party(side));
+			if (!template) template = this.template('startTeamEffect');
+			return this.render(template, {
+				EFFECT: this.effect(effect), TEAM: this.team(side), PARTY: this.party(side),
+			});
 		}
 
 		case '-sideend': {
 			let [, side, effect] = args;
 			let template = this.template('end', effect, 'NODEFAULT');
-			if (!template) template = this.template('endTeamEffect').replace('[EFFECT]', this.effect(effect));
-			return template.replace('[TEAM]', this.team(side)).replace('[PARTY]', this.party(side));
+			if (!template) template = this.template('endTeamEffect');
+			return this.render(template, {
+				EFFECT: this.effect(effect), TEAM: this.team(side), PARTY: this.party(side),
+			});
 		}
 
 		case '-weather': {
 			const [, weather] = args;
 			if (!weather || weather === 'none') {
 				const template = this.template('end', kwArgs.from, 'NODEFAULT');
-				if (!template) return this.template('endFieldEffect').replace('[EFFECT]', this.effect(weather));
+				if (!template) {
+					return this.render(this.template('endFieldEffect'), { EFFECT: this.effect(weather) });
+				}
 				return template;
 			}
 			if (kwArgs.upkeep) {
@@ -944,28 +1200,32 @@ export class BattleTextParser {
 			}
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of);
 			let template = this.template('start', weather, 'NODEFAULT');
-			if (!template) template = this.template('startFieldEffect').replace('[EFFECT]', this.effect(weather));
-			return line1 + template;
+			if (!template) template = this.template('startFieldEffect');
+			return line1 + this.render(template, { EFFECT: this.effect(weather) });
 		}
 
 		case '-fieldstart': case '-fieldactivate': {
 			const [, effect] = args;
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of);
 			if (BattleTextParser.effectId(kwArgs.from) === 'hadronengine') {
-				return line1 + this.template('start', 'hadronengine').replace('[POKEMON]', this.pokemon(kwArgs.of));
+				return line1 + this.render(this.template('start', 'hadronengine'), {
+					POKEMON: this.pokemon(kwArgs.of),
+				});
 			}
 			let templateId = cmd.slice(6);
 			if (BattleTextParser.effectId(effect) === 'perishsong') templateId = 'start';
 			let template = this.template(templateId, effect, 'NODEFAULT');
-			if (!template) template = this.template('startFieldEffect').replace('[EFFECT]', this.effect(effect));
-			return line1 + template.replace('[POKEMON]', this.pokemon(kwArgs.of));
+			if (!template) template = this.template('startFieldEffect');
+			return line1 + this.render(template, {
+				EFFECT: this.effect(effect), POKEMON: this.pokemon(kwArgs.of),
+			});
 		}
 
 		case '-fieldend': {
 			let [, effect] = args;
 			let template = this.template('end', effect, 'NODEFAULT');
-			if (!template) template = this.template('endFieldEffect').replace('[EFFECT]', this.effect(effect));
-			return template;
+			if (!template) template = this.template('endFieldEffect');
+			return this.render(template, { EFFECT: this.effect(effect) });
 		}
 
 		case '-sethp': {
@@ -987,7 +1247,9 @@ export class BattleTextParser {
 			let [, pokemon, effect, target] = args;
 			let id = BattleTextParser.effectId(effect);
 			if (id === 'celebrate') {
-				return this.template('activate', 'celebrate').replace('[TRAINER]', this.trainer(pokemon.slice(0, 2)));
+				return this.render(this.template('activate', 'celebrate'), {
+					TRAINER: this.trainer(pokemon.slice(0, 2)),
+				});
 			}
 			if (!target &&
 				['hyperdrill', 'hyperspacefury', 'hyperspacehole', 'phantomforce', 'shadowforce', 'feint'].includes(id)) {
@@ -1000,14 +1262,16 @@ export class BattleTextParser {
 
 			if (id === 'lockon' || id === 'mindreader') {
 				const template = this.template('start', effect);
-				return line1 + template.replace('[POKEMON]', this.pokemon(kwArgs.of)).replace('[SOURCE]', this.pokemon(pokemon));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(kwArgs.of), SOURCE: this.pokemon(pokemon),
+				});
 			}
 
 			if ((id === 'mummy' || id === 'lingeringaroma') && kwArgs.ability) {
 				line1 += this.ability(kwArgs.ability, target);
 				line1 += this.ability(id === 'mummy' ? 'Mummy' : 'Lingering Aroma', target);
 				const template = this.template('changeAbility', id);
-				return line1 + template.replace('[TARGET]', this.pokemon(target));
+				return line1 + this.render(template, { TARGET: this.pokemon(target) });
 			}
 
 			if (id === 'commander') {
@@ -1015,7 +1279,9 @@ export class BattleTextParser {
 				// so this is for backwards compatibility
 				if (target === pokemon) return line1;
 				const template = this.template('activate', id);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace(/\[TARGET\]/g, this.pokemon(target));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon), TARGET: this.pokemon(target),
+				});
 			}
 
 			let templateId = 'activate';
@@ -1032,30 +1298,33 @@ export class BattleTextParser {
 			if (!template) {
 				if (line1) return line1; // Abilities don't have a default template
 				template = this.template('activate');
-				return line1 + template.replace('[EFFECT]', this.effect(effect));
+				return line1 + this.render(template, { EFFECT: this.effect(effect) });
 			}
 
-			if (id === 'brickbreak') {
-				template = template.replace('[TEAM]', this.team(target.slice(0, 2)));
-			}
 			if (kwArgs.ability) {
 				line1 += this.ability(kwArgs.ability, pokemon);
 			}
 			if (kwArgs.ability2) {
 				line1 += this.ability(kwArgs.ability2, target);
 			}
-			if (kwArgs.move || kwArgs.number || kwArgs.item || kwArgs.name) {
-				template = template.replace('[MOVE]', this.moveName(kwArgs.move)).replace('[NUMBER]', kwArgs.number)
-					.replace('[ITEM]', this.itemName(kwArgs.item)).replace('[NAME]', kwArgs.name);
-			}
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[TARGET]', this.pokemon(target))
-				.replace('[SOURCE]', this.pokemon(kwArgs.of));
+			return line1 + this.render(template, {
+				TEAM: id === 'brickbreak' ? this.team(target.slice(0, 2)) : undefined,
+				MOVE: kwArgs.move ? this.moveName(kwArgs.move) : undefined,
+				NUMBER: kwArgs.number,
+				ITEM: kwArgs.item ? this.itemValue(kwArgs.item) : undefined,
+				NAME: kwArgs.name,
+				POKEMON: this.pokemon(pokemon),
+				TARGET: this.pokemon(target),
+				SOURCE: this.pokemon(kwArgs.of),
+			});
 		}
 
 		case '-prepare': {
 			const [, pokemon, effect, target] = args;
 			const template = this.template('prepare', effect);
-			return template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[TARGET]', this.pokemon(target));
+			return this.render(template, {
+				POKEMON: this.pokemon(pokemon), TARGET: this.pokemon(target),
+			});
 		}
 
 		case '-damage': {
@@ -1064,26 +1333,33 @@ export class BattleTextParser {
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			const id = BattleTextParser.effectId(kwArgs.from);
 			if (template) {
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+				return line1 + this.render(template, { POKEMON: this.pokemon(pokemon) });
 			}
 
 			if (!kwArgs.from) {
 				template = this.template(percentage ? 'damagePercentage' : 'damage');
 				percentage = percentage ? percentage.replace(/%$/, '') : '';
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[PERCENTAGE]', percentage);
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon), PERCENTAGE: percentage,
+				});
 			}
 			if (kwArgs.from.startsWith('item:')) {
 				template = this.template(kwArgs.of ? 'damageFromPokemon' : 'damageFromItem');
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(kwArgs.from))
-					.replace('[SOURCE]', this.pokemon(kwArgs.of));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon),
+					ITEM: this.effect(kwArgs.from),
+					SOURCE: this.pokemon(kwArgs.of),
+				});
 			}
 			if (kwArgs.partiallytrapped || id === 'bind' || id === 'wrap') {
 				template = this.template('damageFromPartialTrapping');
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[MOVE]', this.effect(kwArgs.from));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon), MOVE: this.effect(kwArgs.from),
+				});
 			}
 
 			template = this.template('damage');
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+			return line1 + this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case '-heal': {
@@ -1091,17 +1367,22 @@ export class BattleTextParser {
 			let template = this.template('heal', kwArgs.from, 'NODEFAULT');
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			if (template) {
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(kwArgs.of))
-					.replace('[NICKNAME]', kwArgs.wisher);
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon),
+					SOURCE: this.pokemon(kwArgs.of),
+					NICKNAME: kwArgs.wisher,
+				});
 			}
 
 			if (kwArgs.from && !kwArgs.from.startsWith('ability:')) {
 				template = this.template('healFromEffect');
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[EFFECT]', this.effect(kwArgs.from));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon), EFFECT: this.effect(kwArgs.from),
+				});
 			}
 
 			template = this.template('heal');
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+			return line1 + this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case '-boost': case '-unboost': {
@@ -1117,13 +1398,16 @@ export class BattleTextParser {
 				templateId += (kwArgs.multiple ? 'MultipleFromZEffect' : 'FromZEffect');
 			} else if (amount && kwArgs.from?.startsWith('item:')) {
 				const template = this.template(templateId + 'FromItem', kwArgs.from);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon))
-					.replace('[STAT]', BattleTextParser.stat(stat, this.language))
-					.replace('[ITEM]', this.effect(kwArgs.from));
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon),
+					STAT: this.statValue(stat),
+					ITEM: this.effect(kwArgs.from),
+				});
 			}
 			const template = this.template(templateId, kwArgs.from);
-			return line1 + template.replace(/\[POKEMON\]/g, this.pokemon(pokemon))
-				.replace('[STAT]', BattleTextParser.stat(stat, this.language));
+			return line1 + this.render(template, {
+				POKEMON: this.pokemon(pokemon), STAT: this.statValue(stat),
+			});
 		}
 
 		case '-setboost': {
@@ -1131,7 +1415,7 @@ export class BattleTextParser {
 			const effect = kwArgs.from;
 			const line1 = this.maybeAbility(effect, kwArgs.of || pokemon);
 			const template = this.template('boost', effect);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+			return line1 + this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case '-swapboost': {
@@ -1142,14 +1426,18 @@ export class BattleTextParser {
 			if (id === 'guardswap') templateId = 'swapDefensiveBoost';
 			if (id === 'powerswap') templateId = 'swapOffensiveBoost';
 			const template = this.template(templateId, kwArgs.from);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[TARGET]', this.pokemon(target));
+			return line1 + this.render(template, {
+				POKEMON: this.pokemon(pokemon), TARGET: this.pokemon(target),
+			});
 		}
 
 		case '-copyboost': {
 			const [, pokemon, target] = args;
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			const template = this.template('copyBoost', kwArgs.from);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[TARGET]', this.pokemon(target));
+			return line1 + this.render(template, {
+				POKEMON: this.pokemon(pokemon), TARGET: this.pokemon(target),
+			});
 		}
 
 		case '-clearboost': case '-clearpositiveboost': case '-clearnegativeboost': {
@@ -1158,14 +1446,16 @@ export class BattleTextParser {
 			let templateId = 'clearBoost';
 			if (kwArgs.zeffect) templateId = 'clearBoostFromZEffect';
 			const template = this.template(templateId, kwArgs.from);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(source));
+			return line1 + this.render(template, {
+				POKEMON: this.pokemon(pokemon), SOURCE: this.pokemon(source),
+			});
 		}
 
 		case '-invertboost': {
 			const [, pokemon] = args;
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			const template = this.template('invertBoost', kwArgs.from);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+			return line1 + this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case '-clearallboost': {
@@ -1182,15 +1472,18 @@ export class BattleTextParser {
 			}
 			if (kwArgs.spread) templateId += 'Spread';
 			const template = this.template(templateId);
-			return template.replace('[POKEMON]', this.pokemon(pokemon));
+			return this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case '-block': {
 			let [, pokemon, effect, move, attacker] = args;
 			const line1 = this.maybeAbility(effect, kwArgs.of || pokemon);
 			const template = this.template('block', effect);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon))
-				.replace('[SOURCE]', this.pokemon(attacker || kwArgs.of)).replace('[MOVE]', this.moveName(move));
+			return line1 + this.render(template, {
+				POKEMON: this.pokemon(pokemon),
+				SOURCE: this.pokemon(attacker || kwArgs.of),
+				MOVE: this.moveName(move),
+			});
 		}
 
 		case '-fail': {
@@ -1207,13 +1500,14 @@ export class BattleTextParser {
 			}
 			let template = this.template(templateId, kwArgs.from);
 			if (template) {
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+				return line1 + this.render(template, { POKEMON: this.pokemon(pokemon) });
 			}
 
 			if (id === 'unboost') {
-				template = BattleTextParser.inflect(this.template('fail', 'unboost'), { STAT: stat ? 's' : 'p' });
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon))
-					.replace('[STAT]', BattleTextParser.stat(stat, this.language));
+				template = this.template('fail', 'unboost');
+				return line1 + this.render(template, {
+					POKEMON: this.pokemon(pokemon), STAT: this.statValue(stat),
+				});
 			}
 
 			templateId = 'fail';
@@ -1224,7 +1518,7 @@ export class BattleTextParser {
 			if (kwArgs.weak) templateId = 'fail';
 			if (kwArgs.forme) templateId = 'failWrongForme';
 			template = this.template(templateId, id);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+			return line1 + this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case '-immune': {
@@ -1235,7 +1529,7 @@ export class BattleTextParser {
 				const templateId = kwArgs.ohko ? 'immuneOHKO' : 'immune';
 				template = this.template(pokemon ? templateId : 'immuneNoPokemon', kwArgs.from);
 			}
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+			return line1 + this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case '-miss': {
@@ -1243,10 +1537,10 @@ export class BattleTextParser {
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			if (!pokemon) {
 				const template = this.template('missNoPokemon');
-				return line1 + template.replace('[SOURCE]', this.pokemon(source));
+				return line1 + this.render(template, { SOURCE: this.pokemon(source) });
 			}
 			const template = this.template('miss');
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+			return line1 + this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case '-center': case '-ohko': case '-combine': {
@@ -1270,11 +1564,14 @@ export class BattleTextParser {
 			const side = pokemon.slice(0, 2);
 			const pokemonName = this.pokemon(pokemon);
 			if (cmd === '-mega') {
-				const template2 = this.template('transformMega');
-				template += template2.replace('[POKEMON]', pokemonName).replace('[SPECIES]', this.speciesName(species));
+				template += this.template('transformMega');
 			}
-			return template.replace('[POKEMON]', pokemonName).replace('[ITEM]', this.itemName(item))
-				.replace('[TRAINER]', this.trainer(side));
+			return this.render(template, {
+				POKEMON: pokemonName,
+				SPECIES: this.speciesName(species),
+				ITEM: this.itemValue(item),
+				TRAINER: this.trainer(side),
+			});
 		}
 
 		case '-terastallize': {
@@ -1283,37 +1580,40 @@ export class BattleTextParser {
 			let templateId = cmd.slice(1);
 			let template = this.template(templateId, id);
 			const pokemonName = this.pokemon(pokemon);
-			return template.replace('[POKEMON]', pokemonName).replace('[TYPE]', type);
+			return this.render(template, { POKEMON: pokemonName, TYPE: type });
 		}
 
 		case '-zpower': {
 			const [, pokemon] = args;
 			const template = this.template('zPower');
-			return template.replace('[POKEMON]', this.pokemon(pokemon));
+			return this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case '-burst': {
 			const [, pokemon] = args;
 			const template = this.template('activate', "Ultranecrozium Z");
-			return template.replace('[POKEMON]', this.pokemon(pokemon));
+			return this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case '-zbroken': {
 			const [, pokemon] = args;
 			const template = this.template('zBroken');
-			return template.replace('[POKEMON]', this.pokemon(pokemon));
+			return this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
 		case '-hitcount': {
 			const [, , num] = args;
-			const template = BattleTextParser.inflect(this.template('hitCount'), { NUMBER: num === '1' ? 's' : 'p' });
-			return template.replace('[NUMBER]', num);
+			return this.render(this.template('hitCount'), {
+				NUMBER: { value: num, category: num === '1' ? 's' : 'p' },
+			});
 		}
 
 		case '-waiting': {
 			const [, pokemon, target] = args;
 			const template = this.template('activate', "Water Pledge");
-			return template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[TARGET]', this.pokemon(target));
+			return this.render(template, {
+				POKEMON: this.pokemon(pokemon), TARGET: this.pokemon(target),
+			});
 		}
 
 		case '-anim': {

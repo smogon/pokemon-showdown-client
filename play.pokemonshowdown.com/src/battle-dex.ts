@@ -97,9 +97,7 @@ interface ClientDexText {
 }
 
 function getTextLanguage() {
-	const storage = window.Storage as any;
-	const settings = storage?.prefs ? storage.prefs('serversettings') : window.PS?.prefs?.serversettings;
-	const preference = settings?.language || 'english';
+	const preference = Dex.prefs('language') || Dex.prefs('serversettings')?.language || 'english';
 	const language = TEXT_LANGUAGES[preference] || 'en';
 	return language === 'en' && Dex.afdMode === true ? 'en-afd' : language;
 }
