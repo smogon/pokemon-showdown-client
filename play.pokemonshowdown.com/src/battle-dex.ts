@@ -86,6 +86,45 @@ export function toUserid(text: any) {
 	return toID(text);
 }
 
+const TEXT_LANGUAGES: { [language: string]: string } = {
+	english: 'en', german: 'de', spanish: 'es', french: 'fr', italian: 'it',
+	japanese: 'ja', korean: 'ko', simplifiedchinese: 'zh-cn', traditionalchinese: 'zh-tw',
+};
+
+interface ClientDexText {
+	getLanguage(): string;
+	get(effect: Species | Item | Ability | Move, lang?: string): BattleTextEntry;
+}
+
+function getTextLanguage() {
+	const preference = Dex.prefs('language') || Dex.prefs('serversettings')?.language || 'english';
+	const language = TEXT_LANGUAGES[preference] || 'en';
+	return language === 'en' && Dex.afdMode === true ? 'en-afd' : language;
+}
+
+function getTextEntry(effect: Species | Item | Ability | Move, gen: number, lang: string): BattleTextEntry {
+	const tableName = `${effect.effectType === 'Species' ? 'Pokedex' : `${effect.effectType}s`}` as keyof BattleTextData;
+	const english = BattleText.en?.[tableName]?.[effect.id] || {};
+	const localized = BattleText[lang]?.[tableName]?.[effect.id] || {};
+	const entry: BattleTextEntry = { ...english, ...localized };
+	for (let i = 1; i <= 8; i++) {
+		const genName = `gen${i}`;
+		const englishGen = english[genName];
+		const localizedGen = localized[genName];
+		if (typeof englishGen === 'object' || typeof localizedGen === 'object') {
+			entry[genName] = {
+				...(typeof englishGen === 'object' ? englishGen : {}),
+				...(typeof localizedGen === 'object' ? localizedGen : {}),
+			};
+		}
+	}
+	for (let i = 8; i >= gen; i--) {
+		const genName = `gen${i}`;
+		Object.assign(entry, english[genName] || {}, localized[genName] || {});
+	}
+	return entry;
+}
+
 type Comparable = number | string | boolean | Comparable[] | { reverse: Comparable };
 export const PSUtils = new class {
 	/**
@@ -254,6 +293,7 @@ export const Dex = new class implements ModdedDex {
 	})();
 
 	loadedSpriteData = { xy: 1, bw: 0 };
+	loadedTextData: { [lang: string]: 1 | Promise<void> } = { en: 1 };
 	moddedDexes: { [mod: string]: ModdedDex } = {};
 
 	/**
@@ -342,6 +382,13 @@ export const Dex = new class implements ModdedDex {
 		// @ts-expect-error this is what I get for calling it Storage...
 		return window.Storage?.prefs ? window.Storage.prefs(prop) : window.PS?.prefs?.[prop];
 	}
+
+	text: ClientDexText = {
+		getLanguage: getTextLanguage,
+		get: (effect: Species | Item | Ability | Move, lang = getTextLanguage()) => {
+			return getTextEntry(effect, 9, lang);
+		},
+	};
 
 	getShortName(name: string) {
 		let shortName = name.replace(/[^A-Za-z0-9]+$/, '');
@@ -582,6 +629,29 @@ export const Dex = new class implements ModdedDex {
 		let el = document.createElement('script');
 		el.src = path + 'data/pokedex-mini-bw.js' + qs;
 		document.getElementsByTagName('body')[0].appendChild(el);
+	}
+	loadTextData(lang = this.text.getLanguage()): Promise<void> {
+		lang = TEXT_LANGUAGES[lang] || lang;
+		if (BattleText[lang] || typeof document === 'undefined') return Promise.resolve();
+		const existing = this.loadedTextData[lang];
+		if (existing) return existing === 1 ? Promise.resolve() : existing;
+
+		const loadScript = (src: string) => new Promise<void>((resolve, reject) => {
+			const el = document.createElement('script');
+			el.src = src;
+			el.onload = () => resolve();
+			el.onerror = () => reject(new Error(`Failed to load text data from ${src}`));
+			document.getElementsByTagName('body')[0].appendChild(el);
+		});
+		let loading = loadScript(Config.testclient ? `data/text/${lang}.js` : `${this.resourcePrefix}data/text/${lang}.js`);
+		if (Config.testclient) {
+			loading = loading.catch(() => loadScript(`https://play.pokemonshowdown.com/data/text/${lang}.js`));
+		}
+		loading = loading.catch(() => {
+			delete this.loadedTextData[lang];
+		});
+		this.loadedTextData[lang] = loading;
+		return loading;
 	}
 	getSpriteData(pokemon: Pokemon | Species | string, isFront: boolean, options: {
 		gen?: number,
@@ -980,6 +1050,12 @@ export class ModdedDex {
 		if ((modid !== 'champions' && !modid.startsWith('gen')) || !gen) throw new Error("Unsupported modid");
 		this.gen = gen;
 	}
+	text: ClientDexText = {
+		getLanguage: getTextLanguage,
+		get: (effect: Species | Item | Ability | Move, lang = getTextLanguage()) => {
+			return getTextEntry(effect, this.gen, lang);
+		},
+	};
 	moves = {
 		get: (name: string): Move => {
 			let id = toID(name);

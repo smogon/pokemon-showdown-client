@@ -147,6 +147,7 @@ export class MainMenuRoom extends PSRoom {
 			if (named) PS.user.initializing = false;
 			if (settingsJSON) {
 				PS.prefs.set('serversettings', { ...PS.prefs.serversettings, ...JSON.parse(settingsJSON) });
+				Dex.loadTextData();
 			}
 			PS.user.setName(fullName, named, avatar);
 			PS.teams.loadRemoteTeams();
@@ -858,7 +859,7 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 	};
 	getDefaultTeam(teambuilderFormat: string) {
 		for (const team of PS.teams.list) {
-			if (team.format === teambuilderFormat) return team.key;
+			if (!team.isBox && team.format === teambuilderFormat) return team.key;
 		}
 		return '';
 	}

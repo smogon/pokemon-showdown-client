@@ -105,6 +105,10 @@ export class BattleLog {
 		this.atBottom = (distanceFromBottom < 30);
 	};
 	reset() {
+		if (this.battleParser) {
+			this.battleParser.language = Dex.text.getLanguage();
+			this.battleParser.lowercaseRegExp = undefined;
+		}
 		this.innerElem.innerHTML = '';
 		if (this.preemptElem) this.preemptElem.innerHTML = '';
 		this.atBottom = true;
@@ -1049,7 +1053,7 @@ export class BattleLog {
 	hideChatFrom(userid: ID, showRevealButton = true, lineCount = 0) {
 		const classStart = 'chat chatmessage-' + userid + ' ';
 		let nodes: HTMLElement[] = [];
-		const lastChild = this.innerElem.lastChild;
+		let buttonContainer = this.innerElem.lastChild as HTMLElement | null;
 		for (const node of this.innerElem.childNodes as any as HTMLElement[]) {
 			if (node.className && (node.className + ' ').startsWith(classStart)) {
 				nodes.push(node);
@@ -1068,15 +1072,23 @@ export class BattleLog {
 			node.style.display = 'none';
 			node.className = 'revealed ' + node.className;
 		}
-		if (!nodes.length || !showRevealButton || !lastChild) return;
+		if (!nodes.length || !showRevealButton) return;
 		const button = document.createElement('button');
 		button.name = 'toggleMessages';
 		button.setAttribute('data-cmd', '/togglemessages ' + userid);
 		button.value = userid;
 		button.className = 'subtle';
 		button.innerHTML = `<small>(${nodes.length} line${nodes.length > 1 ? 's' : ''} from ${userid} hidden)</small>`;
-		lastChild.appendChild(document.createTextNode(' '));
-		lastChild.appendChild(button);
+		if (
+			!buttonContainer || !(` ${buttonContainer.className} `.includes(' chat ')) ||
+			buttonContainer.style.display === 'none'
+		) {
+			buttonContainer = document.createElement('div');
+			buttonContainer.className = 'chat';
+			this.addNode(buttonContainer);
+		}
+		buttonContainer.appendChild(document.createTextNode(' '));
+		buttonContainer.appendChild(button);
 	}
 
 	static unlinkNodeList(nodeList: ArrayLike<HTMLElement>) {

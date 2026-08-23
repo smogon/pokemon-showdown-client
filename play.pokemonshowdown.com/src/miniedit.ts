@@ -34,6 +34,32 @@ export class MiniEdit {
 	_setContent: (text: string) => void;
 	pushHistory?: (text: string, selection: MiniEditSelection) => void;
 	composing = false;
+	lastSelection: MiniEditSelection = null;
+	selectionChangeTimeout: ReturnType<typeof setTimeout> | null = null;
+	pointerFocus = false;
+	pointerFocusTimeout: ReturnType<typeof setTimeout> | null = null;
+	onSelectionChange = () => {
+		if (this.selectionChangeTimeout) clearTimeout(this.selectionChangeTimeout);
+		// while blurring, selectionchange can fire after `getSelection()` is reset to 0,0
+		// but before `activeElement` is changed; setTimeout avoids recording this wrong selection
+		this.selectionChangeTimeout = setTimeout(() => {
+			this.selectionChangeTimeout = null;
+			if (document.activeElement !== this.element || !document.hasFocus()) return;
+			this.lastSelection = this.getSelection() || this.lastSelection;
+		}, 0);
+	};
+	onPointerDown = () => {
+		this.pointerFocus = true;
+		if (this.pointerFocusTimeout) clearTimeout(this.pointerFocusTimeout);
+		this.pointerFocusTimeout = setTimeout(() => {
+			this.pointerFocus = false;
+			this.pointerFocusTimeout = null;
+		}, 0);
+	};
+	onFocus = () => {
+		// Chrome bug: unlike textarea, contentEditable doesn't restore selection on focus
+		if (!this.pointerFocus) this.setSelection(this.lastSelection);
+	};
 	onKeyDown = (ev: KeyboardEvent) => {
 		if (ev.isComposing) return;
 		if (ev.keyCode === 13) { // enter
@@ -66,9 +92,17 @@ export class MiniEdit {
 			this.composing = false;
 			this.reformat();
 		});
+		this.element.addEventListener('pointerdown', this.onPointerDown);
+		this.element.addEventListener('focus', this.onFocus);
 		this.element.addEventListener('keydown', this.onKeyDown);
+		document.addEventListener('selectionchange', this.onSelectionChange);
 
 		for (const Plugin of MiniEdit.plugins) new Plugin(this);
+	}
+	destroy() {
+		document.removeEventListener('selectionchange', this.onSelectionChange);
+		if (this.selectionChangeTimeout) clearTimeout(this.selectionChangeTimeout);
+		if (this.pointerFocusTimeout) clearTimeout(this.pointerFocusTimeout);
 	}
 
 	/** return true from callback for an early return */
@@ -132,6 +166,7 @@ export class MiniEdit {
 
 	setSelection(sel: MiniEditSelection): void {
 		if (sel === null) return;
+		this.lastSelection = sel;
 
 		const range = document.createRange();
 		let offset = 0;

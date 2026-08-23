@@ -562,6 +562,9 @@ export class PSView extends preact.Component {
 		if (dx > 0) return scrollX > 1;
 		return true;
 	}
+	static hasTextSelection() {
+		return window.getSelection()?.type === 'Range';
+	}
 	static clearSnap() {
 		if (this.snapTimeout) {
 			clearTimeout(this.snapTimeout);
@@ -689,7 +692,8 @@ export class PSView extends preact.Component {
 		this.snapFrame = requestAnimationFrame(animate);
 	}
 	static startSnapGesture(x: number, y: number, target: EventTarget | null) {
-		if (!this.shouldJSSnap()) return;
+		if (!this.shouldJSSnap() || this.hasTextSelection()) return;
+		if ((target as HTMLInputElement)?.type === 'range') return;
 		this.clearSnap();
 		const now = performance.now();
 		this.snapStart = {
@@ -704,7 +708,16 @@ export class PSView extends preact.Component {
 		this.updateSnapDebug('start');
 	}
 	static moveSnapGesture(x: number, y: number) {
-		if (!this.shouldJSSnap() || !this.snapStart) return false;
+		if (!this.snapStart) return false;
+		if (!this.shouldJSSnap()) {
+			this.clearSnap();
+			return false;
+		}
+		if (this.hasTextSelection()) {
+			this.snapStart = null;
+			this.updateSnapDebug('text selection');
+			return false;
+		}
 		const start = this.snapStart;
 		const now = performance.now();
 		const dx = x - start.x;
@@ -742,7 +755,16 @@ export class PSView extends preact.Component {
 		return true;
 	}
 	static finishSnapGesture(x: number, y: number) {
-		if (!this.shouldJSSnap() || !this.snapStart) return;
+		if (!this.snapStart) return;
+		if (!this.shouldJSSnap()) {
+			this.clearSnap();
+			return;
+		}
+		if (this.hasTextSelection()) {
+			this.snapStart = null;
+			this.updateSnapDebug('text selection');
+			return;
+		}
 		const now = performance.now();
 		const dx = x - this.snapStart.x;
 		const dy = y - this.snapStart.y;

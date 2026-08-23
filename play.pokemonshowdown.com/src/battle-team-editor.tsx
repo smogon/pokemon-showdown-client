@@ -1110,16 +1110,16 @@ export class TeamEditor extends preact.Component<{
 		const spacious = this.getSpacious();
 		const zoomOutForms = this.getZoomOutForms();
 		const zoomOutSearch = this.getZoomOutSearch();
-		const useFullSizeEditor = zoomOutForms && mobileOptions;
+		const useZoomedOutForms = this.mode === 'form' && zoomOutForms && mobileOptions;
 		const narrow = this.props.narrow ?? window.innerWidth < 500;
-		editor.narrow = !useFullSizeEditor && narrow;
-		editor.narrowStats = useFullSizeEditor || narrow;
+		editor.narrow = !useZoomedOutForms && narrow;
+		editor.narrowStats = useZoomedOutForms || narrow;
 		if (this.props.team.format !== editor.format) {
 			editor.setFormat(this.props.team.format);
 		}
-		const useSpaciousCSS = spacious && !mobileOptions || zoomOutForms && mobileOptions;
+		const useSpaciousCSS = spacious && !mobileOptions || useZoomedOutForms;
 		const className = `teameditor${useSpaciousCSS ? ' teameditor-spacious' : ''}` +
-			`${zoomOutForms && mobileOptions ? ' teameditor-zoom-out-forms' : ''}` +
+			`${useZoomedOutForms ? ' teameditor-zoom-out-forms' : ''}` +
 			`${zoomOutSearch && mobileOptions ? ' teameditor-full-size-search' : ''}`;
 		const layout = window.PS ? window.PS.prefs.teameditorspacious : this.spacious;
 		const automaticLayout = document.documentElement.clientHeight >= 950 ? 'Comfortable' : 'Compact';

@@ -2345,6 +2345,14 @@ pre.textbox.textbox-empty[placeholder]:before {
 	display: inline-block;
 	vertical-align: middle;
 }
+.teamdropdown {
+	list-style: none;
+	margin: 0 -3px;
+	padding: 0;
+}
+.teamdropdown .team {
+	width: 285px;
+}
 
 /*********************************************************
  * Popups

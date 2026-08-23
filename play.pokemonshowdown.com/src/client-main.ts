@@ -20,9 +20,6 @@ import type { BattleRoom } from './panel-battle';
 import { Teams } from './battle-teams';
 import type preact from '../js/lib/preact';
 
-declare const BattleTextAFD: any;
-declare const BattleTextNotAFD: any;
-
 export const VERTICAL_HEADER_WIDTH = 240;
 export const NARROW_MODE_HEADER_WIDTH = 280;
 
@@ -291,17 +288,6 @@ class PSPrefs extends PSStreamModel<string | null> {
 
 	setAFD(mode?: typeof this['afd']) {
 		if (mode === undefined) {
-			// init
-			if (typeof BattleTextAFD !== 'undefined') {
-				for (const id in BattleTextNotAFD) {
-					if (!BattleTextAFD[id]) {
-						BattleTextAFD[id] = BattleTextNotAFD[id];
-					} else {
-						BattleTextAFD[id] = { ...BattleTextNotAFD[id], ...BattleTextAFD[id] };
-					}
-				}
-			}
-
 			if (Config.server?.afd) {
 				mode = true;
 			} else if (this.afd !== undefined) {
@@ -313,14 +299,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 		}
 
 		Dex.afdMode = mode;
-
-		if (typeof BattleTextAFD !== 'undefined') {
-			if (mode === true) {
-				(BattleText as any) = BattleTextAFD;
-			} else {
-				(BattleText as any) = BattleTextNotAFD;
-			}
-		}
+		if (mode === true) Dex.loadTextData('en-afd');
 	}
 	setShowDebug(mode = this.showdebug) {
 		const css = mode ? `.debug {display: block;}` : `.debug {display: none;}`;
@@ -1343,7 +1322,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		},
 		'workoffline'() {
 			if (PS.isOffline) {
-				return this.add(`|error|You are already offline.`);
+				return this.errorReply(`You are already offline.`);
 			}
 			PS.connection?.disconnect();
 		},
@@ -1551,11 +1530,12 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				this.add('||AFD is currently set to ' + curMode);
 				this.send('/help afd');
 			}
-			for (let roomid in PS.rooms) {
-				let battle = PS.rooms[roomid] && (PS.rooms[roomid] as BattleRoom).battle;
-				if (!battle) continue;
-				battle.resetToCurrentTurn();
-			}
+			void Dex.loadTextData().then(() => {
+				for (const roomid in PS.rooms) {
+					const battle = (PS.rooms[roomid] as BattleRoom)?.battle;
+					if (battle) battle.resetToCurrentTurn();
+				}
+			});
 		},
 		'clearpms'() {
 			let rooms = PS.miniRoomList.filter(roomid => roomid.startsWith('dm-'));
@@ -1600,11 +1580,15 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 							try {
 								new RegExp(targets[i]);
 							} catch (e: any) {
-								return this.add(`|error|${(e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message)}`);
+								return this.errorReply(
+									e.message.startsWith('Invalid regular expression: ') ?
+										e.message :
+										'Invalid regular expression: /' + targets[i] + '/: ' + e.message
+								);
 							}
 						}
 						if (highlightList.includes(targets[i])) {
-							return this.add(`|error|${targets[i]} is already on your highlights list.`);
+							return this.errorReply(`${targets[i]} is already on your highlights list.`);
 						}
 					}
 					highlights[key] = highlightList.concat(targets);
@@ -2162,7 +2146,8 @@ export const PS = new class extends PSModel {
 				maxWidth: 660,
 			};
 		case 'battle': {
-			const sideBySide = !this.prefs.battlelayout || this.prefs.battlelayout === 'side-by-side';
+			const sideBySide = !this.prefs.battlelayout ||
+				this.prefs.battlelayout === 'side-by-side' || this.prefs.battlelayout === 'side-by-side-overlay';
 			return {
 				minWidth: 320,
 				width: sideBySide ? 956 : 640,
