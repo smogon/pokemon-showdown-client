@@ -1400,8 +1400,9 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 	const Moves = requireNoCache('../caches/pokemon-showdown/dist/data/moves.js').Moves;
 	for (const id in Moves) {
 		const move = Dex.moves.get(Moves[id].name);
-		if (move.desc) Moves[id].desc = move.desc;
-		if (move.shortDesc) Moves[id].shortDesc = move.shortDesc;
+		const text = Dex.text.get(move);
+		if (text.desc) Moves[id].desc = text.desc;
+		if (text.shortDesc) Moves[id].shortDesc = text.shortDesc;
 		if (move.basePowerCallback) Moves[id].basePowerCallback = true;
 	}
 	const buf = 'exports.BattleMovedex = ' + es3stringify(Moves) + ';';
@@ -1417,8 +1418,9 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 	const Items = requireNoCache('../caches/pokemon-showdown/dist/data/items.js').Items;
 	for (const id in Items) {
 		const item = Dex.items.get(Items[id].name);
-		if (item.desc) Items[id].desc = item.desc;
-		if (item.shortDesc) Items[id].shortDesc = item.shortDesc;
+		const text = Dex.text.get(item);
+		if (text.desc) Items[id].desc = text.desc;
+		if (text.shortDesc) Items[id].shortDesc = text.shortDesc;
 	}
 	const buf = 'exports.BattleItems = ' + es3stringify(Items) + ';';
 	fs.writeFileSync('play.pokemonshowdown.com/data/items.js', buf);
@@ -1432,8 +1434,9 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 	const Abilities = requireNoCache('../caches/pokemon-showdown/dist/data/abilities.js').Abilities;
 	for (const id in Abilities) {
 		const ability = Dex.abilities.get(Abilities[id].name);
-		if (ability.desc) Abilities[id].desc = ability.desc;
-		if (ability.shortDesc) Abilities[id].shortDesc = ability.shortDesc;
+		const text = Dex.text.get(ability);
+		if (text.desc) Abilities[id].desc = text.desc;
+		if (text.shortDesc) Abilities[id].shortDesc = text.shortDesc;
 	}
 	const buf = 'exports.BattleAbilities = ' + es3stringify(Abilities) + ';';
 	fs.writeFileSync('play.pokemonshowdown.com/data/abilities.js', buf);
@@ -1491,34 +1494,24 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 }
 
 /*********************************************************
- * Build text.js
+ * Build text/*.js
  *********************************************************/
 
 {
-	const textData = Dex.loadTextData();
-	const Text = textData.Default;
+	const LANGS = fs.readdirSync('caches/pokemon-showdown/data/text', { withFileTypes: true })
+		.filter(entry => entry.isDirectory())
+		.map(entry => entry.name)
+		.concat('en');
 
-	function assignData(id, entry) {
-		for (const key in entry) {
-			if (['name', 'desc', 'shortDesc'].includes(key)) continue;
-			const textEntry = Text[id] || (Text[id] = {});
-			if (key.startsWith('gen')) {
-				for (const modKey in entry[key]) {
-					if (['desc', 'shortDesc'].includes(key)) continue;
-					textEntry[modKey + 'Gen' + key.charAt(3)] = entry[key][modKey];
-				}
-			} else {
-				textEntry[key] = entry[key];
-			}
-		}
+	fs.mkdirSync('play.pokemonshowdown.com/data/text', { recursive: true });
+	for (const lang of LANGS) {
+		const translation = Dex.loadTextData(lang);
+		fs.writeFileSync(
+			`play.pokemonshowdown.com/data/text/${lang}.js`,
+			'exports.BattleText = exports.BattleText || {};\n' +
+			`exports.BattleText[${JSON.stringify(lang)}] = ` + es3stringify(translation) + ';'
+		);
 	}
-
-	for (const id in textData.Moves) assignData(id, textData.Moves[id]);
-	for (const id in textData.Abilities) assignData(id, textData.Abilities[id]);
-	for (const id in textData.Items) assignData(id, textData.Items[id]);
-
-	const buf = 'exports.BattleText = ' + es3stringify(Text) + ';';
-	fs.writeFileSync('play.pokemonshowdown.com/data/text.js', buf);
 }
 
 console.log("DONE");

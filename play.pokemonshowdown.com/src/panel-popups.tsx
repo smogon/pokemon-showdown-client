@@ -656,6 +656,12 @@ class OptionsPanel extends PSRoomPanel {
 		}
 		case 'language': {
 			PS.prefs.set('serversettings', { ...PS.prefs.serversettings, language: elem.value });
+			void Dex.loadTextData().then(() => {
+				for (const roomid in PS.rooms) {
+					const battle = (PS.rooms[roomid] as BattleRoom)?.battle;
+					if (battle) battle.resetToCurrentTurn();
+				}
+			});
 			PS.send(`/language ${elem.value}`);
 			break;
 		}
@@ -696,7 +702,29 @@ class OptionsPanel extends PSRoomPanel {
 				<button className="button" data-href="register">Register</button>)}
 
 			<hr />
-			<h3>Graphics</h3>
+			<h3>General</h3>
+			<p>
+				<label class="optlabel">
+					<i class="fa fa-globe" aria-hidden></i> Language: {}
+					<select name="language" onChange={this.handleOnChange} class="select" value={serverSettings.language || 'english'}>
+						<option value="english">English</option>
+						<option value="german">Deutsch</option>
+						<option value="spanish">Español</option>
+						<option value="french">Français</option>
+						<option value="italian">Italiano</option>
+						<option value="dutch">Nederlands</option>
+						<option value="portuguese">Português</option>
+						<option value="turkish">Türkçe</option>
+						<option value="hindi">हिंदी</option>
+						<option value="japanese">日本語</option>
+						<option value="korean">한국어</option>
+						<option value="simplifiedchinese">简体中文</option>
+						<option value="traditionalchinese">繁體中文</option>
+					</select>
+				</label>
+			</p>
+			<hr />
+			<h3>Appearance</h3>
 			<p>
 				<label class="optlabel">Theme: <select
 					name="theme" class="select" onChange={this.setTheme} value={PS.prefs.theme || 'light'}
@@ -773,25 +801,6 @@ class OptionsPanel extends PSRoomPanel {
 				<label class="checkbox"><input
 					name="refreshprompt" checked={PS.prefs.refreshprompt || false} type="checkbox" onChange={this.handleOnChange}
 				/> Confirm before refreshing</label>
-			</p>
-			<p>
-				<label class="optlabel">
-					Language: {}
-					<select name="language" onChange={this.handleOnChange} class="select" value={serverSettings.language || 'english'}>
-						<option value="english">English</option>
-						<option value="german">Deutsch</option>
-						<option value="spanish">Español</option>
-						<option value="french">Français</option>
-						<option value="italian">Italiano</option>
-						<option value="dutch">Nederlands</option>
-						<option value="portuguese">Português</option>
-						<option value="turkish">Türkçe</option>
-						<option value="hindi">हिंदी</option>
-						<option value="japanese">日本語</option>
-						<option value="simplifiedchinese">简体中文</option>
-						<option value="traditionalchinese">中文</option>
-					</select>
-				</label>
 			</p>
 			<p>
 				<label class="optlabel">

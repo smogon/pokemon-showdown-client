@@ -4,7 +4,16 @@
 ///////////
 
 type AnyObject = { [k: string]: any };
-declare const BattleText: { [id: string]: { [templateName: string]: string } };
+type BattleTextEntry = { [templateName: string]: string | BattleTextEntry };
+type BattleTextTable = { [id: string]: BattleTextEntry };
+type BattleTextData = {
+	Default: BattleTextTable,
+	Pokedex: BattleTextTable,
+	Moves: BattleTextTable,
+	Abilities: BattleTextTable,
+	Items: BattleTextTable,
+};
+declare const BattleText: { [lang: string]: BattleTextData };
 declare const BattleFormats: { [id: string]: import('./panel-teamdropdown').FormatData };
 declare const BattlePokedex: { [id: string]: AnyObject };
 declare const BattleMovedex: { [id: string]: AnyObject };

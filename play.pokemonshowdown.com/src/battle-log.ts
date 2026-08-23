@@ -105,6 +105,10 @@ export class BattleLog {
 		this.atBottom = (distanceFromBottom < 30);
 	};
 	reset() {
+		if (this.battleParser) {
+			this.battleParser.language = Dex.text.getLanguage();
+			this.battleParser.lowercaseRegExp = undefined;
+		}
 		this.innerElem.innerHTML = '';
 		if (this.preemptElem) this.preemptElem.innerHTML = '';
 		this.atBottom = true;
