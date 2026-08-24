@@ -13,7 +13,7 @@ import { TeamForm } from "./panel-mainmenu";
 import { BattleLog } from "./battle-log";
 import type { Battle } from "./battle";
 import { MiniEdit } from "./miniedit";
-import { Dex, PSUtils, toID, type ID } from "./battle-dex";
+import { Dex, PSUtils, TL, toID, type ID } from "./battle-dex";
 import { BattleTextParser, type Args } from "./battle-text-parser";
 import { PSLoginServer } from "./client-connection";
 import type { BattleRoom } from "./panel-battle";
@@ -238,7 +238,7 @@ export class ChatRoom extends PSRoom {
 			} else {
 				this.setUsers(2, [nameWithGroup, selfWithGroup]);
 			}
-			this.title = `[DM] ${nameWithGroup.trim()}`;
+			this.title = `[${TL`DM`}] ${nameWithGroup.trim()}`;
 		}
 	}
 	static getHighlight(message: string, roomid: string) {
@@ -1402,7 +1402,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 				format={room.challenging.formatName} teamFormat={room.challenging.teamFormat}
 				onSubmit={null} selectType="challenge"
 			>
-				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
+				<button data-cmd="/cancelchallenge" class="button">{TL`Cancel`}</button>
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge outgoing">
 			<TeamForm onSubmit={this.makeChallenge} defaultFormat={defaultFormat} selectType="challenge">
@@ -1410,12 +1410,12 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 					Challenging...
 				</button>}
 				{!challengeSent && <button type="submit" class="button button-first" disabled={!!room.challenged}>
-					<strong>Challenge</strong>
+					<strong>{TL`Challenge`}</strong>
 				</button>}
-				{!challengeSent && <button data-href="battleoptions" class="button button-last" aria-label="Battle options">
+				{!challengeSent && <button data-href="battleoptions" class="button button-last" aria-label={TL`Battle options`}>
 					<i class="fa fa-caret-down" aria-hidden></i>
 				</button>} {}
-				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
+				<button data-cmd="/cancelchallenge" class="button">{TL`Cancel`}</button>
 			</TeamForm>
 		</div> : null;
 
@@ -1432,14 +1432,14 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 					type="submit" class={room.challenged.formatName ? `button button-first` : `button`}
 					data-cmdpreview="/accept"
 				>
-					<strong>{room.challenged.acceptButtonLabel || 'Accept'}</strong>
+					<strong>{room.challenged.acceptButtonLabel || TL`Accept`}</strong>
 				</button>}
 				{!room.teamSent && room.challenged.formatName && <button
-					data-href="battleoptions" class="button button-last" aria-label="Battle options"
+					data-href="battleoptions" class="button button-last" aria-label={TL`Battle options`}
 				>
 					<i class="fa fa-caret-down" aria-hidden></i>
 				</button>} {}
-				<button data-cmd="/reject" class="button">{room.challenged.rejectButtonLabel || 'Reject'}</button>
+				<button data-cmd="/reject" class="button">{room.challenged.rejectButtonLabel || TL`Reject`}</button>
 			</TeamForm>
 		</div> : null;
 
@@ -1492,28 +1492,29 @@ export class ChatUserList extends preact.Component<{
 	override render() {
 		const room = this.props.room;
 		const pmTargetid = room.pmTarget ? toID(room.pmTarget) : null;
+		const userCountText = room.userCount === 1 ? TL`${room.userCount} user` : TL`${room.userCount} users`;
 		return <div
 			class={'userlist' + (this.props.minimized ? ' userlist-hidden' : this.props.static ? ' userlist-static' : '')}
 			style={{ left: this.props.left || 0, top: this.props.top || 0 }}
 		>
 			{!this.props.minimized ? (
-				<div class="userlist-count"><small>{room.userCount} users</small></div>
+				<div class="userlist-count"><small>{userCountText}</small></div>
 			) : room.id === 'dm-' ? (
 				<>
 					<button class="button button-middle" data-cmd="/help">Commands</button>
 				</>
 			) : pmTargetid ? (
 				<>
-					<button class="button button-middle" data-cmd="/challenge">Challenge</button>
+					<button class="button button-middle" data-cmd="/challenge">{TL`Challenge`}</button>
 					<button class="button button-middle" data-href={`useroptions-${pmTargetid}`}>{'\u2026'}</button>
 				</>
 			) : room.battle ? (
 				<>
-					<button data-href="userlist" class="button button-middle">{room.userCount} users</button>
-					<button data-href="battleoptions" class="button button-middle">Battle options</button>
+					<button data-href="userlist" class="button button-middle">{userCountText}</button>
+					<button data-href="battleoptions" class="button button-middle">{TL`Battle options`}</button>
 				</>
 			) : (
-				<button data-href="userlist" class="button button-middle">{room.userCount} users</button>
+				<button data-href="userlist" class="button button-middle">{userCountText}</button>
 			)}
 			<ul>
 				{room.onlineUsers.map(([userid, name]) => {

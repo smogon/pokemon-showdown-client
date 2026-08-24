@@ -14,7 +14,7 @@ import { ChatLog, ChatRoom, ChatTextEntry, ChatUserList } from "./panel-chat";
 import { FormatDropdown } from "./panel-mainmenu";
 import { Battle, type Pokemon, type ServerPokemon } from "./battle";
 import { BattleScene } from "./battle-animations";
-import { Dex, toID, type ID } from "./battle-dex";
+import { Dex, TL, toID, type ID } from "./battle-dex";
 import {
 	BattleChoiceBuilder, type BattleRequestActivePokemon, type BattleRequestSideInfo,
 	type BattleRequest, type BattleMoveRequest, type BattleSwitchRequest, type BattleTeamRequest,
@@ -65,6 +65,9 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 	static readonly location = 'right';
 	static readonly icon = <i class="fa fa-caret-square-o-right" aria-hidden></i>;
 	static readonly title = 'Battles';
+	static getTitle() {
+		return TL`Battles`;
+	}
 	refresh = () => {
 		this.props.room.refresh();
 	};
@@ -106,7 +109,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 				</p>
 
 				<p>
-					<label class="label">Format:</label><FormatDropdown onChange={this.changeFormat} placeholder="(All formats)" />
+					<label class="label">{TL`Format:`}</label><FormatDropdown onChange={this.changeFormat} placeholder="(All formats)" />
 				</p>
 				<label class="label">
 					Minimum Elo: <select name="elofilter" class="select" onChange={this.applyFilters}>
@@ -261,7 +264,7 @@ class BattleDiv extends preact.Component<{ room: BattleRoom }> {
 }
 
 class TimerButton extends preact.Component<{ room: BattleRoom, top: number }> {
-	timerInterval: number | null = null;
+	timerInterval: ReturnType<typeof setInterval> | null = null;
 	override componentWillUnmount() {
 		if (this.timerInterval) {
 			clearInterval(this.timerInterval);
@@ -573,7 +576,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		}
 		return <div class="pad"><div class="broadcast-red pad">
 			<h3>{room.connectError || "Error"}</h3>
-			<p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p>
+			<p class="buttonbar"><button class="button" data-cmd="/close"><strong>{TL`Close`}</strong></button></p>
 		</div></div>;
 	}
 	renderControls(overlayVersion = false, hidePlayerControls = false) {
@@ -768,7 +771,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				const gmaxTooltip = maxMoveData.id.startsWith('gmax') ? `|${maxMoveData.id}` : ``;
 				const tooltip = `maxmove|${moveData.name}|${pokemonIndex}${gmaxTooltip}`;
 				return this.renderMoveButton({
-					name: maxMoveData.name,
+					name: TL(dex.moves.get(maxMoveData.name)),
 					cmd: `/move ${i + 1} max`,
 					type: moveType,
 					tags,
@@ -789,10 +792,12 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				}
 				const specialMove = dex.moves.get(zMoveData.name);
 				const move = specialMove.exists ? specialMove : dex.moves.get(moveData.name);
+				let moveName = TL(move);
+				if (zMoveData.name.startsWith('Z-') && !moveName.startsWith('Z-')) moveName = `Z-${moveName}`;
 				const [moveType, tags] = tooltips.getMoveTypeText(move, valueTracker);
 				const tooltip = `zmove|${moveData.name}|${pokemonIndex}`;
 				return this.renderMoveButton({
-					name: zMoveData.name,
+					name: moveName,
 					cmd: `/move ${i + 1} zmove`,
 					type: moveType,
 					tags,
@@ -808,7 +813,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const [moveType, tags] = tooltips.getMoveTypeText(move, valueTracker);
 			const tooltip = `move|${moveData.name}|${pokemonIndex}`;
 			return this.renderMoveButton({
-				name: move.name,
+				name: TL(move),
 				cmd: `/move ${i + 1}${special}`,
 				type: moveType,
 				tags,
@@ -918,7 +923,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const team = this.team;
 		if (!team) return;
 		return <div class="switchcontrols">
-			{!overlayVersion && <h3 class="switchselect">Team</h3>}
+			{!overlayVersion && <h3 class="switchselect">{TL`Team`}</h3>}
 			<div class="switchmenu">
 				{team.map((serverPokemon, i) => {
 					return this.renderPokemonButton({
@@ -951,7 +956,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		}
 
 		let buf: preact.ComponentChild[] = [
-			<button data-cmd="/cancelone" class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>, ' ',
+			<button data-cmd="/cancelone" class="button"><i class="fa fa-chevron-left" aria-hidden></i> {TL`Back`}</button>, ' ',
 		];
 		if (choices.isDone() && (
 			choices.noCancel || this.props.room.battle.hardcoreMode ||
@@ -1061,8 +1066,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			if (overlayVersion) {
 				return <>
 					<div class="overlay-controls-list">
-						<button class="button move-button cur"><strong>Battle</strong></button> {}
-						<button class="button switch-button disabled"><strong>Switch</strong></button>
+						<button class="button move-button cur"><strong>{TL`Battle`}</strong></button> {}
+						<button class="button switch-button disabled"><strong>{TL`Switch`}</strong></button>
 					</div>
 					<div class="targetcontrols">
 						<p class="overlay-message">
@@ -1093,8 +1098,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (overlayVersion) {
 			return <>
 				<div class="overlay-controls-list">
-					<button class={this.overlayControlClass('move')} data-cmd="/movemenu"><strong>Battle</strong></button> {}
-					<button class={this.overlayControlClass('switch')} data-cmd="/switchmenu"><strong>Switch</strong></button>
+					<button class={this.overlayControlClass('move')} data-cmd="/movemenu"><strong>{TL`Battle`}</strong></button> {}
+					<button class={this.overlayControlClass('switch')} data-cmd="/switchmenu"><strong>{TL`Switch`}</strong></button>
 				</div>
 				{!room.overlayActive && <div class="whatdo">
 					{this.renderOldChoices(request, choices, true)}
@@ -1117,7 +1122,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				What will <strong>{pokemon.name}</strong> do?
 			</div>
 			<div class="movecontrols">
-				<h3 class="moveselect">Battle</h3>
+				<h3 class="moveselect">{TL`Battle`}</h3>
 				{this.renderMoveMenu(choices)}
 			</div>
 			<div class="switchcontrols">
@@ -1125,7 +1130,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					<h3 class="shiftselect">Shift</h3>,
 					<button data-cmd="/shift">Move to center</button>,
 				]}
-				<h3 class="switchselect">Switch</h3>
+				<h3 class="switchselect">{TL`Switch`}</h3>
 				{this.renderSwitchMenu(request, choices)}
 			</div>
 		</div>;
@@ -1138,7 +1143,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (overlayVersion) {
 			return <>
 				<div class="overlay-controls-list">
-					<button class="button switch-button cur"><strong>Switch</strong></button>
+					<button class="button switch-button cur"><strong>{TL`Switch`}</strong></button>
 				</div>
 				<div class="switchcontrols">
 					<p class="overlay-message">
@@ -1155,14 +1160,14 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				{prompt}
 			</div>
 			<div class="switchcontrols">
-				<h3 class="switchselect">Switch</h3>
+				<h3 class="switchselect">{TL`Switch`}</h3>
 				{this.renderSwitchMenu(request, choices, true)}
 			</div>
 		</div>;
 	}
 	renderPlayerTeamPreviewControls(request: BattleTeamRequest, choices: BattleChoiceBuilder, overlayVersion = false) {
 		const prompt = choices.alreadySwitchingIn.length > 0 ? (
-			[<button data-cmd="/cancelone" class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>,
+			[<button data-cmd="/cancelone" class="button"><i class="fa fa-chevron-left" aria-hidden></i> {TL`Back`}</button>,
 				" What about the rest of your team? "]
 		) : (
 			"How will you start the battle? "
@@ -1173,7 +1178,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (overlayVersion) {
 			return <>
 				<div class="overlay-controls-list">
-					<button class="button switch-button cur"><strong>Team</strong></button>
+					<button class="button switch-button cur"><strong>{TL`Team`}</strong></button>
 				</div>
 				<div class="teamcontrols">
 					<p class="overlay-message">{prompt}</p>
@@ -1229,7 +1234,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			if (overlayVersion) {
 				return <>
 					<div class="overlay-controls-list">
-						<button class={this.overlayControlClass('switch')} data-cmd="/switchmenu"><strong>Team</strong></button>
+						<button class={this.overlayControlClass('switch')} data-cmd="/switchmenu"><strong>{TL`Team`}</strong></button>
 					</div>
 					{!room.overlayActive && <div class="whatdo">
 						{this.renderOldChoices(request, choices, true)}
@@ -1241,7 +1246,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				<div class="whatdo">
 					{this.renderOldChoices(request, choices)}
 					<em>Waiting for opponent...</em> {choices.noCancel || room.battle.hardcoreMode ?
-						null : <button data-cmd="/cancel" class="button">Cancel</button>}
+						null : <button data-cmd="/cancel" class="button">{TL`Cancel`}</button>}
 				</div>
 				{this.renderTeamList()}
 			</div>;
@@ -1295,10 +1300,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			{room.side ? (
 				<p>
 					<button class="button" data-cmd="/close">
-						<strong>Main menu</strong><br /><small>(closes this battle)</small>
+						<strong>{TL`Main menu`}</strong><br /><small>(closes this battle)</small>
 					</button> {}
 					<button class="button" data-cmd={`/closeand /challenge ${room.battle.farSide.id},${room.battle.tier}`}>
-						<strong>Rematch</strong><br /><small>(closes this battle)</small>
+						<strong>{TL`Rematch`}</strong><br /><small>(closes this battle)</small>
 					</button>
 				</p>
 			) : (

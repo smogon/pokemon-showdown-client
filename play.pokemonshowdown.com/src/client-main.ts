@@ -1097,6 +1097,9 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		this.noURL = options.noURL || false;
 		this.args = options.args || null;
 	}
+	getTitle() {
+		return PS.roomTypes[this.type]?.getTitle?.(this) ?? this.title;
+	}
 	getParent() {
 		if (this.parentRoomid) return PS.rooms[this.parentRoomid] || null;
 		return null;
@@ -1836,6 +1839,7 @@ type PSRoomPanelSubclass<T extends PSRoom = PSRoom> = (new () => PSRoomPanel<T>)
 	noURL?: boolean,
 	icon?: preact.ComponentChildren,
 	title?: string,
+	getTitle?: (room: T) => string,
 	handleDrop?: (ev: DragEvent) => boolean | void,
 };
 

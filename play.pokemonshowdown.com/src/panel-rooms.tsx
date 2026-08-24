@@ -8,7 +8,7 @@
 import { Config, PS, PSRoom, type RoomID, type RoomOptions } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { RoomInfo } from "./panel-mainmenu";
-import { Dex, toID } from "./battle-dex";
+import { Dex, TL, toID } from "./battle-dex";
 
 export class RoomsRoom extends PSRoom {
 	override readonly classType: string = 'rooms';
@@ -142,9 +142,9 @@ class RoomsPanel extends PSRoomPanel {
 				}
 			}
 			return [
-				["Official chat rooms", officialRooms],
+				[TL`Official chat rooms`, officialRooms],
 				[spotLightLabel, spotLightRooms],
-				["Chat rooms", chatRooms],
+				[TL`Chat rooms`, chatRooms],
 				["Hidden rooms", hiddenRooms],
 			];
 		}
@@ -217,7 +217,7 @@ class RoomsPanel extends PSRoomPanel {
 
 		return <PSPanelWrapper room={this.props.room}><div class="pad">
 			<button class="button" style="float:right;font-size:10pt;margin-top:3px" onClick={this.hide}>
-				<i class="fa fa-caret-right" aria-hidden></i> Hide
+				<i class="fa fa-caret-right" aria-hidden></i> {TL`Hide`}
 			</button>
 			<div class="roomcounters">
 				<a class="button" href="users" title="Find an online user">
@@ -225,14 +225,14 @@ class RoomsPanel extends PSRoomPanel {
 						class={`pixelated usercount${Dex.afdMode === true ? ' afd' : ''}`}
 						title="Meloetta is PS's mascot! The Aria forme is about using its voice, and represents our chatrooms."
 					></span>
-					<strong>{rooms.userCount || '-'}</strong> users online
+					<strong>{rooms.userCount || '-'}</strong> {TL`users online`}
 				</a> {}
 				<a class="button" href="battles" title="Watch an active battle">
 					<span
 						class={`pixelated battlecount${Dex.afdMode ? ' afd' : ''}`}
 						title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
 					></span>
-					<strong>{rooms.battleCount || '-'}</strong> active battles
+					<strong>{rooms.battleCount || '-'}</strong> {TL`active battles`}
 				</a>
 			</div>
 			{!!PS.leftPanelWidth && Config.includes?.roomlistTopHTML && (
@@ -260,14 +260,14 @@ class RoomsPanel extends PSRoomPanel {
 	renderRoomList() {
 		const roomsCache = PS.mainmenu.roomsCache;
 		if (roomsCache.userCount === undefined) {
-			return <div class="roomlist"><h2>Official chat rooms</h2><p><em>Connecting...</em></p></div>;
+			return <div class="roomlist"><h2>{TL`Official chat rooms`}</h2><p><em>Connecting...</em></p></div>;
 		}
 		if (this.search) {
 			// do nothing
 		} else if (PS.isOffline) {
 			return <div class="roomlist"><h2>Offline</h2></div>;
 		} else if (roomsCache.userCount === undefined) {
-			return <div class="roomlist"><h2>Official chat rooms</h2><p><em>Connecting...</em></p></div>;
+			return <div class="roomlist"><h2>{TL`Official chat rooms`}</h2><p><em>Connecting...</em></p></div>;
 		}
 
 		// Descending order

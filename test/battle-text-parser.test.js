@@ -70,11 +70,45 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 
 	it('Dex.text.get returns localized entries with English fallback', () => {
 		global.BattleText.en.Moves.testmove = {name: 'Test Move', desc: 'English description'};
-		global.BattleText.ja.Moves.testmove = {name: 'テスト技'};
+		global.BattleText.ja.Moves.testmove = {name: 'テスト技', desc: null};
+		global.BattleText.ja.Abilities.levitate = {name: 'ふゆう'};
 		const move = new global.Dex.Move('testmove', 'Test Move', {});
 		assert.deepEqual(global.Dex.text.get(move, 'ja'), {
-			name: 'テスト技', desc: 'English description',
+			name: 'テスト技', desc: 'English description', shortDesc: 'English description',
 		});
+		const ability = new global.Dex.Ability('levitate', 'Levitate', {});
+		assert.equal(global.Dex.text.get(ability, 'ja').name, 'ふゆう');
+	});
+
+	it('TL translates UI strings and effect text', () => {
+		global.BattleUIText = {en: {
+			'Hello [1]!': '你好，[1]！',
+			Open: {verb: '打开'},
+			Untranslated: null,
+		}};
+		assert.equal(global.TL`Hello ${'Mew'}!`, '你好，Mew！');
+		assert.equal(global.TL('Open', 'verb'), '打开');
+		assert.equal(global.TL`Untranslated`, 'Untranslated');
+
+		global.BattleText.en.Moves.testmove = {name: 'Localized Name', start: 'modern', gen4: {start: 'old'}};
+		const move = new global.Dex.Move('testmove', 'Fallback Name', {desc: 'Fallback description'});
+		assert.equal(global.TL(move), 'Localized Name');
+
+		const untranslated = new global.Dex.Ability('untranslated', 'Fallback Name', {desc: 'Fallback description'});
+		assert.equal(global.TL(untranslated), 'Fallback Name');
+	});
+
+	it('rejects empty UI translations', () => {
+		const {validateBattleUIText} = require('../build-tools/translations.mts');
+		assert.deepEqual(validateBattleUIText({Missing: null}, 'zh-cn.ts'), {Missing: null});
+		assert.throws(
+			() => validateBattleUIText({Missing: ''}, 'zh-cn.ts'),
+			/must use null to fall back to English/
+		);
+		assert.throws(
+			() => validateBattleUIText({Open: {verb: ''}}, 'zh-cn.ts'),
+			/must use null to fall back to English/
+		);
 	});
 
 	it('selects and unescapes INFLECT values', () => {

@@ -88,12 +88,28 @@ export function toUserid(text: any) {
 
 const TEXT_LANGUAGES: { [language: string]: string } = {
 	english: 'en', german: 'de', spanish: 'es', french: 'fr', italian: 'it',
-	japanese: 'ja', korean: 'ko', simplifiedchinese: 'zh-cn', traditionalchinese: 'zh-tw',
+	dutch: 'nl', portuguese: 'pt', turkish: 'tr', hindi: 'hi',
+	japanese: 'ja', simplifiedchinese: 'zh-cn', traditionalchinese: 'zh-tw', korean: 'ko',
 };
+
+type TranslatableEffect = Species | Item | Ability | Move;
+
+const TEXT_TABLES = {
+	Species: 'Pokedex',
+	Item: 'Items',
+	Ability: 'Abilities',
+	Move: 'Moves',
+} as const;
+
+interface ClientDexTextEntry extends BattleTextEntry {
+	name: string;
+	desc: string;
+	shortDesc: string;
+}
 
 interface ClientDexText {
 	getLanguage(): string;
-	get(effect: Species | Item | Ability | Move, lang?: string): BattleTextEntry;
+	get(effect: TranslatableEffect, lang?: string): ClientDexTextEntry;
 }
 
 function getTextLanguage() {
@@ -102,25 +118,75 @@ function getTextLanguage() {
 	return language === 'en' && Dex.afdMode === true ? 'en-afd' : language;
 }
 
-function getTextEntry(effect: Species | Item | Ability | Move, gen: number, lang: string): BattleTextEntry {
-	const tableName = `${effect.effectType === 'Species' ? 'Pokedex' : `${effect.effectType}s`}` as keyof BattleTextData;
+export function TL(strings: TemplateStringsArray, ...values: unknown[]): string;
+export function TL(text: string, context: string): string;
+export function TL(effect: TranslatableEffect): string;
+export function TL(strings: TemplateStringsArray | string | TranslatableEffect, ...values: unknown[]): string {
+	if (typeof strings !== 'string' && 'effectType' in strings) {
+		return typeof BattleText === 'undefined' ? strings.name : Dex.text.get(strings).name;
+	}
+
+	let source: string;
+	let context = 'default';
+	if (typeof strings === 'string') {
+		source = strings;
+		context = values[0] as string;
+		values = [];
+	} else {
+		source = strings[0];
+		for (let i = 1; i < strings.length; i++) {
+			source += `[${i}]${strings[i]}`;
+		}
+	}
+
+	const translation = typeof BattleUIText === 'undefined' ? undefined :
+		BattleUIText[Dex.text.getLanguage()]?.[source];
+	const translated = (typeof translation === 'string' ? translation : translation?.[context]) ?? source;
+	return translated.replace(/\[(\d+)\]/g, (placeholder, indexText) => {
+		const index = Number(indexText) - 1;
+		return index >= 0 && index < values.length ? String(values[index]) : placeholder;
+	});
+}
+
+function assignTextFields(target: BattleTextEntry, source: BattleTextEntry) {
+	for (const [key, value] of Object.entries(source)) {
+		if (value !== null) target[key] = value;
+	}
+}
+
+function getTextEntry(effect: Species | Item | Ability | Move, gen: number, lang: string): ClientDexTextEntry {
+	const tableName = TEXT_TABLES[effect.effectType];
 	const english = BattleText.en?.[tableName]?.[effect.id] || {};
 	const localized = BattleText[lang]?.[tableName]?.[effect.id] || {};
-	const entry: BattleTextEntry = { ...english, ...localized };
+	const entry = {} as ClientDexTextEntry;
+	assignTextFields(entry, english);
+	assignTextFields(entry, localized);
 	for (let i = 1; i <= 8; i++) {
 		const genName = `gen${i}`;
 		const englishGen = english[genName];
 		const localizedGen = localized[genName];
 		if (typeof englishGen === 'object' || typeof localizedGen === 'object') {
-			entry[genName] = {
-				...(typeof englishGen === 'object' ? englishGen : {}),
-				...(typeof localizedGen === 'object' ? localizedGen : {}),
-			};
+			const genEntry: BattleTextEntry = {};
+			if (englishGen && typeof englishGen === 'object') assignTextFields(genEntry, englishGen);
+			if (localizedGen && typeof localizedGen === 'object') assignTextFields(genEntry, localizedGen);
+			entry[genName] = genEntry;
 		}
 	}
 	for (let i = 8; i >= gen; i--) {
 		const genName = `gen${i}`;
-		Object.assign(entry, english[genName] || {}, localized[genName] || {});
+		const englishGen = english[genName];
+		const localizedGen = localized[genName];
+		if (englishGen && typeof englishGen === 'object') assignTextFields(entry, englishGen);
+		if (localizedGen && typeof localizedGen === 'object') assignTextFields(entry, localizedGen);
+	}
+	const fallback = effect as unknown as { desc?: string, shortDesc?: string };
+	if (typeof entry.name !== 'string') entry.name = effect.name;
+	if (typeof entry.desc !== 'string') {
+		entry.desc = fallback.desc || fallback.shortDesc ||
+			(typeof entry.shortDesc === 'string' ? entry.shortDesc : '');
+	}
+	if (typeof entry.shortDesc !== 'string') {
+		entry.shortDesc = fallback.shortDesc || fallback.desc || entry.desc;
 	}
 	return entry;
 }
@@ -1256,5 +1322,6 @@ export class ModdedDex {
 if (typeof require === 'function') {
 	// in Node
 	global.Dex = Dex;
+	global.TL = TL;
 	global.toID = toID;
 }

@@ -1498,20 +1498,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const LANGS = fs.readdirSync('caches/pokemon-showdown/data/text', { withFileTypes: true })
-		.filter(entry => entry.isDirectory())
-		.map(entry => entry.name)
-		.concat('en');
-
-	fs.mkdirSync('play.pokemonshowdown.com/data/text', { recursive: true });
-	for (const lang of LANGS) {
-		const translation = Dex.loadTextData(lang);
-		fs.writeFileSync(
-			`play.pokemonshowdown.com/data/text/${lang}.js`,
-			'exports.BattleText = exports.BattleText || {};\n' +
-			`exports.BattleText[${JSON.stringify(lang)}] = ` + es3stringify(translation) + ';'
-		);
-	}
+	require('./build-translations').buildTextFiles(Dex);
 }
 
 console.log("DONE");

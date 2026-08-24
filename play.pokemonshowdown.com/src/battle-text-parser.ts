@@ -247,8 +247,8 @@ export class BattleTextParser {
 			const genName = `gen${i}`;
 			const englishGen = english?.[genName];
 			const localizedGen = localized?.[genName];
-			if (typeof localizedGen === 'object' && localizedGen[field]) value = localizedGen[field];
-			else if (typeof englishGen === 'object' && englishGen[field]) value = englishGen[field];
+			if (localizedGen && typeof localizedGen === 'object' && localizedGen[field]) value = localizedGen[field];
+			else if (englishGen && typeof englishGen === 'object' && englishGen[field]) value = englishGen[field];
 		}
 		return typeof value === 'string' ? value : '';
 	}
@@ -295,9 +295,11 @@ export class BattleTextParser {
 		let articleRule = '';
 		if (typeof source !== 'string' && source.table && source.id) {
 			const entry = BattleText[this.language]?.[source.table]?.[source.id] ||
-				BattleText.en?.[source.table]?.[source.id];
+				BattleText.en?.[source.table]?.[source.id] || undefined;
 			let form = entry;
-			if (modifiers.includes('classified') && typeof entry?.classified === 'object') form = entry.classified;
+			if (modifiers.includes('classified') && entry?.classified && typeof entry.classified === 'object') {
+				form = entry.classified;
+			}
 			value = typeof form?.name === 'string' ? form.name : value;
 			category = typeof form?.grammar === 'string' ? form.grammar : category;
 			articleRule = typeof form?.articleRule === 'string' ? form.articleRule : '';
@@ -594,7 +596,8 @@ export class BattleTextParser {
 		return effect.trim();
 	}
 
-	textName(table: keyof BattleTextData, name: string) {
+	textName(table: keyof BattleTextData, name?: string) {
+		if (!name) return '';
 		name = name.trim();
 		const id = toID(name);
 		const localized = BattleText[this.language]?.[table]?.[id]?.name;
@@ -603,19 +606,19 @@ export class BattleTextParser {
 		return typeof translated === 'string' ? translated : name;
 	}
 
-	moveName(name: string) {
+	moveName(name?: string) {
 		return this.textName('Moves', name);
 	}
-	itemName(name: string) {
+	itemName(name?: string) {
 		return this.textName('Items', name);
 	}
 	private itemValue(name: string): RenderValue {
 		return { value: this.itemName(name), table: 'Items', id: toID(name) };
 	}
-	abilityName(name: string) {
+	abilityName(name?: string) {
 		return this.textName('Abilities', name);
 	}
-	speciesName(name: string) {
+	speciesName(name?: string) {
 		return this.textName('Pokedex', name);
 	}
 

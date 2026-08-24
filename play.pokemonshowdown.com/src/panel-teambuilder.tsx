@@ -8,7 +8,7 @@
 import { PS, PSRoom, type RoomID, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { PSTeambuilder, TeamBox } from "./panel-teamdropdown";
-import { Dex, PSUtils, toID, type ID } from "./battle-dex";
+import { Dex, PSUtils, TL, toID, type ID } from "./battle-dex";
 import { Teams } from "./battle-teams";
 import { BattleLog } from "./battle-log";
 import { TeamEditorState } from "./battle-team-editor";
@@ -245,6 +245,9 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 	static readonly Model = TeambuilderRoom;
 	static readonly icon = <i class="fa fa-pencil-square-o" aria-hidden></i>;
 	static readonly title = 'Teambuilder';
+	static getTitle() {
+		return TL`Teams`;
+	}
 	mobileFormatFolderButton: HTMLButtonElement | null = null;
 	backupCopiedTimeout: ReturnType<typeof setTimeout> | null = null;
 	override componentDidUpdate() {
@@ -923,10 +926,11 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			)}
 			<p>
 				<button data-cmd="/newteam" class="button big">
-					<i class="fa fa-plus-circle" aria-hidden></i> New {teamTerm}
+					<i class="fa fa-plus-circle" aria-hidden></i> {}
+					{teamTerm === 'team' ? TL`New team` : <>New {teamTerm}</>}
 				</button> {}
 				<button data-cmd="/newteam box" class="button">
-					<i class="fa fa-archive" aria-hidden></i> New box
+					<i class="fa fa-archive" aria-hidden></i> {TL`New box`}
 				</button>
 				<input
 					type="search" class="textbox" placeholder="Search teams"
@@ -1005,10 +1009,11 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			</ul>
 			<p>
 				<button data-cmd="/newteam bottom" class="button">
-					<i class="fa fa-plus-circle" aria-hidden></i> New {teamTerm}
+					<i class="fa fa-plus-circle" aria-hidden></i> {}
+					{teamTerm === 'team' ? TL`New team` : <>New {teamTerm}</>}
 				</button> {}
 				<button data-cmd="/newteam box bottom" class="button">
-					<i class="fa fa-archive" aria-hidden></i> New box
+					<i class="fa fa-archive" aria-hidden></i> {TL`New box`}
 				</button>
 			</p>
 			<p>

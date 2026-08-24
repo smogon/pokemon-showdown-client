@@ -15,7 +15,7 @@ import {
 } from "./client-main";
 import { PSView } from "./panels";
 import type { Battle } from "./battle";
-import { Dex } from "./battle-dex";
+import { Dex, TL } from "./battle-dex";
 import { BattleLog } from "./battle-log"; // optional
 
 window.addEventListener('dragover', e => {
@@ -78,7 +78,7 @@ export class PSHeader extends preact.Component {
 	static roomInfo(room: PSRoom) {
 		const RoomType = PS.roomTypes[room.type];
 		let icon = RoomType?.icon || <i class="fa fa-file-text-o" aria-hidden></i>;
-		let title = room.title;
+		let title = room.getTitle();
 		switch (room.type) {
 		case 'battle':
 			const idChunks = room.id.split('-');
@@ -146,7 +146,7 @@ export class PSHeader extends preact.Component {
 
 		let closeButton = null;
 		if (closable) {
-			closeButton = <button class="closebutton" name="closeRoom" value={id} aria-label="Close">
+			closeButton = <button class="closebutton" name="closeRoom" value={id} aria-label={TL`Close`}>
 				<i class="fa fa-times-circle" aria-hidden></i>
 			</button>;
 		}
@@ -267,10 +267,13 @@ export class PSHeader extends preact.Component {
 			<div class="userbar">
 				{this.renderUser()} {}
 				<div style="float:right">
-					<button class="icon button" data-href="volume" title="Sound" aria-label="Sound" onDblClick={PSHeader.toggleMute}>
+					<button
+						class="icon button" data-href="volume" title={TL`Sound`} aria-label={TL`Sound`}
+						onDblClick={PSHeader.toggleMute}
+					>
 						<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 					</button> {}
-					<button class="icon button" data-href="options" title="Options" aria-label="Options">
+					<button class="icon button" data-href="options" title={TL`Options`} aria-label={TL`Options`}>
 						<i class="fa fa-cog" aria-hidden></i>
 					</button>
 				</div>
@@ -288,10 +291,13 @@ export class PSHeader extends preact.Component {
 			{null /* vertical tabs */}
 			<div class="userbar">
 				{this.renderUser()} {}
-				<button class="icon button" data-href="volume" title="Sound" aria-label="Sound" onDblClick={PSHeader.toggleMute}>
+				<button
+					class="icon button" data-href="volume" title={TL`Sound`} aria-label={TL`Sound`}
+					onDblClick={PSHeader.toggleMute}
+				>
 					<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 				</button> {}
-				<button class="icon button" data-href="options" title="Options" aria-label="Options">
+				<button class="icon button" data-href="options" title={TL`Options`} aria-label={TL`Options`}>
 					<i class="fa fa-cog" aria-hidden></i>
 				</button>
 			</div>
@@ -361,7 +367,7 @@ export class PSMiniHeader extends preact.Component {
 		return <div class="mini-header" style={`left:${PSView.verticalHeaderWidth + (PSView.narrowMode ? 0 : -1)}px;`}>
 			{menuButton}
 			{icon} {title}
-			<button data-href="options" class="mini-header-right" aria-label="Options">
+			<button data-href="options" class="mini-header-right" aria-label={TL`Options`}>
 				{PS.user.named ? <strong style={userColor}>{PS.user.name}</strong> : <i class="fa fa-cog" aria-hidden></i>}
 			</button>
 		</div>;

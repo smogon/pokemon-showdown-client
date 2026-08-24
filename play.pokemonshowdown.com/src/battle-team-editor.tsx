@@ -8,7 +8,7 @@
 
 import preact from "../js/lib/preact";
 import { type Team, Config, PS } from "./client-main";
-import { Dex, type ModdedDex, toID, type ID, PSUtils } from "./battle-dex";
+import { Dex, type ModdedDex, toID, type ID, PSUtils, TL } from "./battle-dex";
 import { Teams } from './battle-teams';
 import { DexSearch, type SearchRow, type SearchType } from "./battle-dex-search";
 import { PSSearchResults } from "./battle-searchresults";
@@ -1134,7 +1134,7 @@ export class TeamEditor extends preact.Component<{
 				</button></li>
 				<li class="teameditor-options" style="float: right; margin-top: 1px; margin-right: 8px;">
 					<details ref={el => { this.optionsMenu = el; }}>
-						<summary class="button button-first">Options</summary>
+						<summary class="button button-first">{TL`Options`}</summary>
 						<div class="teameditor-options-menu">
 							{mobileOptions ? <label class="checkbox"><input
 								name="zoomoutforms" type="checkbox"
@@ -1922,7 +1922,7 @@ class TeamTextbox extends preact.Component<{
 					{editor.canAdd() && !(this.innerFocus && this.innerFocus.setIndex >= this.setInfo.length) && (
 						<div style={`top:${this.bottomY() - 3}px;left:${editor.narrow ? 55 : 105}px;position:absolute`}>
 							<button class="button" onClick={this.addPokemon}>
-								<i class="fa fa-plus" aria-hidden></i> Add Pok&eacute;mon
+								<i class="fa fa-plus" aria-hidden></i> {TL`Add Pokémon`}
 							</button>
 						</div>
 					)}
@@ -2306,7 +2306,7 @@ class TeamEditorForm extends preact.Component<{
 				class="button big" name="addpokemon" onClick={this.setFocus}
 				value={`set-${editor.sets.length}-pokemon`}
 			>
-				<i class="fa fa-plus" aria-hidden></i> Add Pok&eacute;mon
+				<i class="fa fa-plus" aria-hidden></i> {TL`Add Pokémon`}
 			</button></p>}
 		</div>;
 	}
@@ -3027,7 +3027,7 @@ class TeamEditorForm extends preact.Component<{
 					</div></td>
 					<td rowSpan={2} class={`set-moves${overfull}`}><div class="border-collapse">
 						<label class={`label ${this.cur('move', i)}`}>
-							Moves <button
+							{TL`Moves`} <button
 								class={`button ${this.cur('move', i)}`} onClick={this.setFocus} value={`set-${i}-move`}
 							>+</button>
 						</label> {}
@@ -3051,7 +3051,7 @@ class TeamEditorForm extends preact.Component<{
 				<tr>
 					<td class="set-ability"><div class="border-collapse">
 						{editor.showAbility(set) && <label class="label">
-							Ability {}
+							{TL`Ability`} {}
 							{this.renderInput(i, 'ability', set.ability, -1, editor.gen <= 2 ? '(no ability)' : '(choose ability)')}
 						</label>}
 					</div></td>
@@ -3059,7 +3059,7 @@ class TeamEditorForm extends preact.Component<{
 						{editor.showItem(set) && <>
 							{set.item && <PSIcon item={set.item} />}
 							<label class="label">
-								Item {}
+								{TL`Item`} {}
 								{this.renderInput(i, 'item', set.item, -1, '(no item)')}
 							</label>
 						</>}

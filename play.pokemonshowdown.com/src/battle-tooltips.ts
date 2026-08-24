@@ -9,7 +9,7 @@
  */
 
 import { Pokemon, type Battle, type PPState, type ServerPokemon } from "./battle";
-import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
+import { Dex, type ModdedDex, TL, toID, type ID } from "./battle-dex";
 import type { BattleScene } from "./battle-animations";
 import { BattleLog } from "./battle-log";
 import { Move, BattleNatures } from "./battle-dex-data";
@@ -158,7 +158,7 @@ export class BattleTooltips {
 	// Shorter time will cause the button to click
 	static LONG_TAP_DELAY = 500; // ms
 	static LONG_CLICK_DELAY = 700; // ms
-	static longTapTimeout = 0;
+	static longTapTimeout: ReturnType<typeof setTimeout> | null = null;
 	static elem: HTMLDivElement | null = null;
 	static parentElem: HTMLElement | null = null;
 	static isLocked = false;
@@ -181,7 +181,7 @@ export class BattleTooltips {
 	static cancelLongTap() {
 		if (BattleTooltips.longTapTimeout) {
 			clearTimeout(BattleTooltips.longTapTimeout);
-			BattleTooltips.longTapTimeout = 0;
+			BattleTooltips.longTapTimeout = null;
 		}
 		$('#tooltipwrapper').removeClass('tooltip-locking-click tooltip-locking-tap');
 	}
@@ -274,7 +274,7 @@ export class BattleTooltips {
 		const isClick = (e.type === 'mousedown' && target.tagName === 'BUTTON');
 
 		BattleTooltips.longTapTimeout = setTimeout(() => {
-			BattleTooltips.longTapTimeout = 0;
+			BattleTooltips.longTapTimeout = null;
 			this.lockTooltip();
 		}, isClick ? BattleTooltips.LONG_CLICK_DELAY : BattleTooltips.LONG_TAP_DELAY);
 		if (isClick) {
@@ -664,7 +664,9 @@ export class BattleTooltips {
 			});
 		}
 
-		text += `<h2>${move.name}<br />`;
+		let moveName = TL(move);
+		if (move.name.startsWith('Z-') && !moveName.startsWith('Z-')) moveName = `Z-${moveName}`;
+		text += `<h2>${moveName}<br />`;
 
 		text += Dex.getTypeIcon(moveType);
 		text += ` ${Dex.getCategoryIcon(category)}</h2>`;
@@ -724,14 +726,14 @@ export class BattleTooltips {
 				calls = 'Swift';
 			}
 			let calledMove = this.battle.dex.moves.get(calls);
-			text += `Calls ${Dex.getTypeIcon(this.getMoveType(calledMove, value)[0])} ${calledMove.name}`;
+			text += `Calls ${Dex.getTypeIcon(this.getMoveType(calledMove, value)[0])} ${TL(calledMove)}`;
 		}
 
 		text += `<p>Accuracy: ${accuracy}</p>`;
 		if (zEffect) text += `<p>Z-Effect: ${zEffect}</p>`;
 
 		if (this.battle.hardcoreMode) {
-			text += `<p class="tooltip-section">${move.shortDesc}</p>`;
+			text += `<p class="tooltip-section">${this.battle.dex.text.get(move).shortDesc}</p>`;
 		} else {
 			text += '<p class="tooltip-section">';
 			if (move.priority > 1) {
@@ -746,7 +748,7 @@ export class BattleTooltips {
 				}
 			}
 
-			text += '' + (move.desc || move.shortDesc || '') + '</p>';
+			text += this.battle.dex.text.get(move).desc + '</p>';
 
 			if (this.battle.gameType === 'doubles' || this.battle.gameType === 'multi') {
 				if (move.target === 'allAdjacent') {
@@ -862,7 +864,9 @@ export class BattleTooltips {
 	}
 	getNickname(pokemon: Pokemon | ServerPokemon) {
 		const ignoreNicks = this.battle.ignoreNicks || this.battle.ignoreOpponent;
-		return ignoreNicks ? Dex.species.get(pokemon.speciesForme).baseSpecies : pokemon.name;
+		if (!ignoreNicks) return pokemon.name;
+		const species = this.battle.dex.species.get(pokemon.speciesForme);
+		return TL(this.battle.dex.species.get(species.baseSpecies));
 	}
 
 	/**
@@ -888,8 +892,9 @@ export class BattleTooltips {
 
 		const nickname = this.getNickname(pokemon);
 		let name = BattleLog.escapeHTML(nickname);
-		if (pokemon.speciesForme !== nickname) {
-			name += ` <small>(${BattleLog.escapeHTML(pokemon.speciesForme)})</small>`;
+		const speciesName = TL(this.battle.dex.species.get(pokemon.speciesForme));
+		if (speciesName !== nickname) {
+			name += ` <small>(${speciesName})</small>`;
 		}
 
 		let levelBuf = (pokemon.level !== 100 ? ` <small>L${pokemon.level}</small>` : ``);
@@ -976,10 +981,10 @@ export class BattleTooltips {
 			let itemEffect = '';
 			if (clientPokemon?.prevItem) {
 				item = 'None';
-				let prevItem = this.battle.dex.items.get(clientPokemon.prevItem).name;
+				let prevItem = TL(this.battle.dex.items.get(clientPokemon.prevItem));
 				itemEffect += clientPokemon.prevItemEffect ? prevItem + ' was ' + clientPokemon.prevItemEffect : 'was ' + prevItem;
 			}
-			if (serverPokemon.item) item = this.battle.dex.items.get(serverPokemon.item).name;
+			if (serverPokemon.item) item = TL(this.battle.dex.items.get(serverPokemon.item));
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
 			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
 		} else if (clientPokemon) {
@@ -988,10 +993,10 @@ export class BattleTooltips {
 			if (clientPokemon.prevItem) {
 				item = 'None';
 				if (itemEffect) itemEffect += '; ';
-				let prevItem = this.battle.dex.items.get(clientPokemon.prevItem).name;
+				let prevItem = TL(this.battle.dex.items.get(clientPokemon.prevItem));
 				itemEffect += clientPokemon.prevItemEffect ? prevItem + ' was ' + clientPokemon.prevItemEffect : 'was ' + prevItem;
 			}
-			if (pokemon.item) item = this.battle.dex.items.get(pokemon.item).name;
+			if (pokemon.item) item = TL(this.battle.dex.items.get(pokemon.item));
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
 			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
 		}
@@ -1021,10 +1026,10 @@ export class BattleTooltips {
 			const battlePokemon = clientPokemon || this.battle.findCorrespondingPokemon(pokemon);
 			for (const moveid of serverPokemon.moves) {
 				const move = this.battle.dex.moves.get(moveid);
-				let moveName = `&#8226; ${move.name}`;
+				let moveName = `&#8226; ${TL(move)}`;
 				if (battlePokemon?.moveTrack) {
 					for (const row of battlePokemon.moveTrack) {
-						if (moveName === row[0]) {
+						if (move.name === row[0]) {
 							moveName = this.getPPUseText(row, true);
 							break;
 						}
@@ -1038,7 +1043,7 @@ export class BattleTooltips {
 			text += `<p class="tooltip-section">`;
 			for (const [moveName] of clientPokemon.moveTrack) {
 				const move = this.battle.dex.moves.get(moveName);
-				text += `&#8226; ${move.name}<br />`;
+				text += `&#8226; ${TL(move)}<br />`;
 			}
 			text += `</p>`;
 		} else if (!this.battle.hardcoreMode && clientPokemon?.moveTrack.length) {
@@ -1567,16 +1572,16 @@ export class BattleTooltips {
 		}
 		const bullet = moveName.startsWith('*') || move.isZ ? '<span style="color:#888">&#8226;</span>' : '&#8226;';
 		if (ppUsed === Infinity) {
-			return `${bullet} ${move.name} <small>(0/${maxpp})</small>`;
+			return `${bullet} ${TL(move)} <small>(0/${maxpp})</small>`;
 		}
 		if (ppUsed || moveName.startsWith('*')) {
 			if (typeof ppUsed === 'number') {
-				return `${bullet} ${move.name} <small>(${maxpp - ppUsed}/${maxpp})</small>`;
+				return `${bullet} ${TL(move)} <small>(${maxpp - ppUsed}/${maxpp})</small>`;
 			} else {
-				return `${bullet} ${move.name} <small>(${maxpp - ppUsed[0]}/${maxpp} to ${maxpp - ppUsed[1]}/${maxpp})</small>`;
+				return `${bullet} ${TL(move)} <small>(${maxpp - ppUsed[0]}/${maxpp} to ${maxpp - ppUsed[1]}/${maxpp})</small>`;
 			}
 		}
-		return `${bullet} ${move.name} ${showKnown ? ' <small>(revealed)</small>' : ''}`;
+		return `${bullet} ${TL(move)} ${showKnown ? ' <small>(revealed)</small>' : ''}`;
 	}
 
 	ppUsed(move: Dex.Move, pokemon: Pokemon) {
@@ -2932,12 +2937,12 @@ export class BattleTooltips {
 		if (!isActive) {
 			// for switch tooltips, only show the original ability
 			const ability = abilityData.baseAbility || abilityData.ability;
-			if (ability) text = '<small>Ability:</small> ' + this.battle.dex.abilities.get(ability).name;
+			if (ability) text = '<small>Ability:</small> ' + TL(this.battle.dex.abilities.get(ability));
 		} else {
 			if (abilityData.ability) {
-				const abilityName = this.battle.dex.abilities.get(abilityData.ability).name;
+				const abilityName = TL(this.battle.dex.abilities.get(abilityData.ability));
 				text = '<small>Ability:</small> ' + abilityName;
-				const baseAbilityName = this.battle.dex.abilities.get(abilityData.baseAbility).name;
+				const baseAbilityName = TL(this.battle.dex.abilities.get(abilityData.baseAbility));
 				if (baseAbilityName && baseAbilityName !== abilityName) text += ' (base: ' + baseAbilityName + ')';
 			}
 		}
@@ -2945,7 +2950,8 @@ export class BattleTooltips {
 		if (!text && abilityData.possibilities.length && !hidePossible &&
 			!(tier.includes('Almost Any Ability') || tier.includes('Hackmons') ||
 				tier.includes('Inheritance') || tier.includes('Metronome'))) {
-			text = '<small>Possible abilities:</small> ' + abilityData.possibilities.join(', ');
+			text = '<small>Possible abilities:</small> ' + abilityData.possibilities
+				.map(ability => TL(this.battle.dex.abilities.get(ability))).join(', ');
 		}
 		return text;
 	}

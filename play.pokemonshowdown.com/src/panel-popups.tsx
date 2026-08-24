@@ -1,5 +1,5 @@
 import preact from "../js/lib/preact";
-import { toID, toRoomid, toUserid, Dex, PSUtils } from "./battle-dex";
+import { toID, toRoomid, toUserid, Dex, PSUtils, TL } from "./battle-dex";
 import type { ID } from "./battle-dex-data";
 import { BattleLog } from "./battle-log";
 import { PSLoginServer } from "./client-connection";
@@ -243,19 +243,19 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		if (!hideInteraction) {
 			buttonbar.push(isSelf ? (
 				<p class="buttonbar">
-					<button class="button" disabled>Challenge</button> {}
+					<button class="button" disabled>{TL`Challenge`}</button> {}
 					<button class="button" data-href="dm-">Chat Self</button>
 				</p>
 			) : !PS.user.named ? (
 				<p class="buttonbar">
-					<button class="button" disabled>Challenge</button> {}
-					<button class="button" disabled>Chat</button> {}
+					<button class="button" disabled>{TL`Challenge`}</button> {}
+					<button class="button" disabled>{TL`Chat`}</button> {}
 					<button class="button" disabled>{'\u2026'}</button>
 				</p>
 			) : (
 				<p class="buttonbar">
-					<button class="button" data-href={`challenge-${user.userid}`}>Challenge</button> {}
-					<button class="button" data-href={`dm-${user.userid}`}>Chat</button> {}
+					<button class="button" data-href={`challenge-${user.userid}`}>{TL`Challenge`}</button> {}
+					<button class="button" data-href={`dm-${user.userid}`}>{TL`Chat`}</button> {}
 					<button class="button" data-href={`useroptions-${user.userid}-${room.parentRoomid || ''}`}>{'\u2026'}</button>
 				</p>
 			));
@@ -661,6 +661,7 @@ class OptionsPanel extends PSRoomPanel {
 					const battle = (PS.rooms[roomid] as BattleRoom)?.battle;
 					if (battle) battle.resetToCurrentTurn();
 				}
+				PS.update();
 			});
 			PS.send(`/language ${elem.value}`);
 			break;
@@ -717,9 +718,9 @@ class OptionsPanel extends PSRoomPanel {
 						<option value="turkish">Türkçe</option>
 						<option value="hindi">हिंदी</option>
 						<option value="japanese">日本語</option>
-						<option value="korean">한국어</option>
 						<option value="simplifiedchinese">简体中文</option>
 						<option value="traditionalchinese">繁體中文</option>
+						<option value="korean">한국어</option>
 					</select>
 				</label>
 			</p>
@@ -1049,7 +1050,7 @@ class BattleForfeitPanel extends PSRoomPanel {
 			<p>Forfeiting makes you lose the battle. Are you sure?</p>
 			<p>
 				<button data-cmd="/closeand /inopener /closeand /forfeit" class="button"><strong>Forfeit and close</strong></button> {}
-				<button data-cmd="/closeand /inopener /forfeit" class="button">Just forfeit</button> {}
+				<button data-cmd="/closeand /inopener /forfeit" class="button">{TL`Forfeit`}</button> {}
 				{battleRoom.battle && !battleRoom.battle.rated && <button type="button" data-href="replaceplayer" class="button">
 					Replace player
 				</button>} {}
