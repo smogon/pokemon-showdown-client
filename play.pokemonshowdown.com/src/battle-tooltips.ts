@@ -13,7 +13,6 @@ import { Dex, type ModdedDex, TL, toID, type ID } from "./battle-dex";
 import type { BattleScene } from "./battle-animations";
 import { BattleLog } from "./battle-log";
 import { Move, BattleNatures } from "./battle-dex-data";
-import { BattleTextParser } from "./battle-text-parser";
 
 export class ModifiableValue {
 	value = 0;
@@ -519,7 +518,7 @@ export class BattleTooltips {
 		let boostText = '';
 		if (move.zMove!.boost) {
 			boostText = Object.entries(move.zMove!.boost).map(([stat, boost]) =>
-				`${BattleTextParser.stat(stat)} +${boost}`
+				`${TL.stat[stat] || stat} +${boost}`
 			).join(', ');
 		}
 		return boostText;
@@ -687,7 +686,7 @@ export class BattleTooltips {
 				basePower = `${value}`;
 				if (prevBasePower === null) prevBasePower = basePower;
 				if (prevBasePower !== basePower) difference = true;
-				basePowers.push(`Base power vs ${active.name}: ${basePower}`);
+				basePowers.push(`${TL.tag.basepower} vs ${active.name}: ${basePower}`);
 			}
 			if (difference) {
 				text += '<p>' + basePowers.join('<br />') + '</p>';
@@ -698,7 +697,7 @@ export class BattleTooltips {
 		if (!showingMultipleBasePowers && category !== 'Status') {
 			let activeTarget = foeActive[0] || foeActive[1] || foeActive[2];
 			value = this.getMoveBasePower(move, moveType, value, activeTarget);
-			text += `<p>Base power: ${value}</p>`;
+			text += `<p>${TL.tag.basepower}: ${value}</p>`;
 		}
 
 		let accuracy = this.getMoveAccuracy(move, value);
@@ -729,7 +728,7 @@ export class BattleTooltips {
 			text += `Calls ${Dex.getTypeIcon(this.getMoveType(calledMove, value)[0])} ${TL(calledMove)}`;
 		}
 
-		text += `<p>Accuracy: ${accuracy}</p>`;
+		text += `<p>${TL.tag.accuracy}: ${accuracy}</p>`;
 		if (zEffect) text += `<p>Z-Effect: ${zEffect}</p>`;
 
 		if (this.battle.hardcoreMode) {
@@ -776,44 +775,44 @@ export class BattleTooltips {
 				text += `<p class="movetag">The user thaws out if it is frozen.</p>`;
 			}
 			if (!move.flags.protect && !['self', 'allySide'].includes(move.target)) {
-				text += `<p class="movetag">Not blocked by Protect <small>(and Detect, King's Shield, Spiky Shield)</small></p>`;
+				text += `<p class="movetag">${TL.tag.bypassprotect} <small>(and Detect, King's Shield, Spiky Shield)</small></p>`;
 			}
 			if (move.flags.bypasssub) {
-				text += `<p class="movetag">Bypasses Substitute <small>(but does not break it)</small></p>`;
+				text += `<p class="movetag">${TL.tag.bypasssubstitute} <small>(but does not break it)</small></p>`;
 			}
 			if (!move.flags.reflectable && !['self', 'allySide'].includes(move.target) && move.category === 'Status') {
-				text += `<p class="movetag">&#x2713; Not bounceable <small>(can't be bounced by Magic Coat/Bounce)</small></p>`;
+				text += `<p class="movetag">&#x2713; ${TL.tag.nonreflectable} <small>(can't be bounced by Magic Coat/Bounce)</small></p>`;
 			}
 
 			if (move.flags.contact) {
-				text += `<p class="movetag">&#x2713; Contact <small>(triggers Iron Barbs, Spiky Shield, etc)</small></p>`;
+				text += `<p class="movetag">&#x2713; ${TL.tag.contact} <small>(triggers Iron Barbs, Spiky Shield, etc)</small></p>`;
 			}
 			if (move.flags.sound) {
-				text += `<p class="movetag">&#x2713; Sound <small>(doesn't affect Soundproof pokemon)</small></p>`;
+				text += `<p class="movetag">&#x2713; ${TL.tag.sound} <small>(doesn't affect Soundproof pokemon)</small></p>`;
 			}
 			if (move.flags.powder && this.battle.gen > 5) {
-				text += `<p class="movetag">&#x2713; Powder <small>(doesn't affect Grass, Overcoat, Safety Goggles)</small></p>`;
+				text += `<p class="movetag">&#x2713; ${TL.tag.powder} <small>(doesn't affect Grass, Overcoat, Safety Goggles)</small></p>`;
 			}
 			if (move.flags.punch && ability === 'ironfist') {
-				text += `<p class="movetag">&#x2713; Fist <small>(boosted by Iron Fist)</small></p>`;
+				text += `<p class="movetag">&#x2713; ${TL.tag.fist} <small>(boosted by Iron Fist)</small></p>`;
 			}
 			if (move.flags.pulse && ability === 'megalauncher') {
-				text += `<p class="movetag">&#x2713; Pulse <small>(boosted by Mega Launcher)</small></p>`;
+				text += `<p class="movetag">&#x2713; ${TL.tag.pulse} <small>(boosted by Mega Launcher)</small></p>`;
 			}
 			if (move.flags.bite && ability === 'strongjaw') {
-				text += `<p class="movetag">&#x2713; Bite <small>(boosted by Strong Jaw)</small></p>`;
+				text += `<p class="movetag">&#x2713; ${TL.tag.bite} <small>(boosted by Strong Jaw)</small></p>`;
 			}
 			if ((move.recoil || move.hasCrashDamage) && ability === 'reckless') {
 				text += `<p class="movetag">&#x2713; Recoil <small>(boosted by Reckless)</small></p>`;
 			}
 			if (move.flags.bullet) {
-				text += `<p class="movetag">&#x2713; Bullet-like <small>(doesn't affect Bulletproof pokemon)</small></p>`;
+				text += `<p class="movetag">&#x2713; ${TL.tag.bullet} <small>(doesn't affect Bulletproof pokemon)</small></p>`;
 			}
 			if (move.flags.slicing) {
-				text += `<p class="movetag">&#x2713; Slicing <small>(boosted by Sharpness)</small></p>`;
+				text += `<p class="movetag">&#x2713; ${TL.tag.slicing} <small>(boosted by Sharpness)</small></p>`;
 			}
 			if (move.flags.wind) {
-				text += `<p class="movetag">&#x2713; Wind <small>(activates Wind Power and Wind Rider)</small></p>`;
+				text += `<p class="movetag">&#x2713; ${TL.tag.wind} <small>(activates Wind Power and Wind Rider)</small></p>`;
 			}
 			// RBY healing move glitch
 			if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium') &&
@@ -846,17 +845,17 @@ export class BattleTooltips {
 			if (effectiveness === null) {
 				// do nothing
 			} else if (effectiveness === 0) {
-				text += `<p><span class="effectiveness-icon">&times;</span> <strong>No effect</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))}</p>`;
+				text += `<p><span class="effectiveness-icon">&times;</span> <strong>${TL.term.noeffect}</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))}</p>`;
 			} else if (effectiveness < 0.5) {
 				const effectivenessText = effectiveness === 0.25 ? '&#x00BC;' : effectiveness;
-				text += `<p><span class="effectiveness-icon">&#x25BC;</span> <strong>Mostly ineffective</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))} <small>(${effectivenessText}&times;)</small></p>`;
+				text += `<p><span class="effectiveness-icon">&#x25BC;</span> <strong>${TL.term.mostlyineffective}</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))} <small>(${effectivenessText}&times;)</small></p>`;
 			} else if (effectiveness < 1) {
 				const effectivenessText = effectiveness === 0.5 ? '&#x00BD;' : effectiveness;
-				text += `<p><span class="effectiveness-icon">&#x25B3;</span> <strong>Not very effective</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))} <small>(${effectivenessText}&times;)</small></p>`;
+				text += `<p><span class="effectiveness-icon">&#x25B3;</span> <strong>${TL.term.notveryeffective}</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))} <small>(${effectivenessText}&times;)</small></p>`;
 			} else if (effectiveness > 2) {
-				text += `<p><span class="effectiveness-icon">&#x2605;</span> <strong>Extremely effective</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))} <small>(${effectiveness}&times;)</small></p>`;
+				text += `<p><span class="effectiveness-icon">&#x2605;</span> <strong>${TL.term.extremelyeffective}</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))} <small>(${effectiveness}&times;)</small></p>`;
 			} else if (effectiveness > 1) {
-				text += `<p><span class="effectiveness-icon">&#x29BF;</span> <strong>Super effective</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))} <small>(${effectiveness}&times;)</small></p>`;
+				text += `<p><span class="effectiveness-icon">&#x29BF;</span> <strong>${TL.term.supereffective}</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))} <small>(${effectiveness}&times;)</small></p>`;
 			}
 		}
 
@@ -887,7 +886,8 @@ export class BattleTooltips {
 		let genderBuf = '';
 		const gender = pokemon.gender;
 		if (gender === 'M' || gender === 'F') {
-			genderBuf = ` <img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" /> `;
+			const genderName = TL.gender[gender === 'M' ? 'male' : 'female'] || gender;
+			genderBuf = ` <img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${BattleLog.escapeHTML(genderName)}" width="7" height="10" class="pixelated" /> `;
 		}
 
 		const nickname = this.getNickname(pokemon);
@@ -897,15 +897,16 @@ export class BattleTooltips {
 			name += ` <small>(${speciesName})</small>`;
 		}
 
-		let levelBuf = (pokemon.level !== 100 ? ` <small>L${pokemon.level}</small>` : ``);
+		let levelBuf = (pokemon.level !== 100 ? ` <small>${TL.term.level} ${pokemon.level}</small>` : ``);
 		if (!illusionIndex || illusionIndex === 1) {
 			text += `<h2>${name}${genderBuf}${illusionIndex ? '' : levelBuf}<br />`;
 
 			if (clientPokemon?.volatiles.formechange) {
+				const forme = TL(this.battle.dex.species.get(clientPokemon.volatiles.formechange[1]));
 				if (clientPokemon.volatiles.transform) {
-					text += `<small>(Transformed into ${clientPokemon.volatiles.formechange[1]})</small><br />`;
+					text += `<small>(Transformed into ${forme})</small><br />`;
 				} else {
-					text += `<small>(Changed forme: ${clientPokemon.volatiles.formechange[1]})</small><br />`;
+					text += `<small>(Changed forme: ${forme})</small><br />`;
 				}
 			}
 
@@ -921,7 +922,10 @@ export class BattleTooltips {
 			if (pokemon.terastallized) {
 				text += `&nbsp; &nbsp; <small>(base: <span class="textaligned-typeicons">${this.getPokemonTypes(pokemon, true).map(type => Dex.getTypeIcon(type)).join(' ')}</span>)</small>`;
 			} else if (knownPokemon.teraType) {
-				text += `&nbsp; &nbsp; <small>(Tera Type: <span class="textaligned-typeicons">${Dex.getTypeIcon(knownPokemon.teraType)}</span>)</small>`;
+				const teraType = `<span class="textaligned-typeicons">${Dex.getTypeIcon(knownPokemon.teraType)}</span>`;
+				const teraTypeText = TL.term.teratype.includes('[TYPE]') ?
+					TL.term.teratype.replace('[TYPE]', teraType) : `${TL.term.teratype}: ${teraType}`;
+				text += `&nbsp; &nbsp; <small>(${teraTypeText})</small>`;
 			}
 			text += `</h2>`;
 		}
@@ -930,14 +934,18 @@ export class BattleTooltips {
 			text += `<p class="tooltip-section"><strong>Possible Illusion #${illusionIndex}</strong>${levelBuf}</p>`;
 		}
 
+		const hpName = TL.stat.hp || 'HP';
+		const faintedName = TL.status.fnt || 'fainted';
+		const statusName = pokemon.status ? TL.status[pokemon.status] || pokemon.status.toUpperCase() : '';
+		const status = pokemon.status ?
+			` <span class="status ${pokemon.status}">${statusName}</span>` : '';
 		if (pokemon.fainted && pokemon.maxhp === 100) {
-			text += `<p><small>HP:</small> (fainted)</p>`;
+			text += `<p><small>${hpName}:</small> (${faintedName})</p>`;
 		} else if (pokemon.fainted) {
-			text += `<p><small>HP:</small> <span class="gray">0/${pokemon.maxhp} (fainted)</span></p>`;
+			text += `<p><small>${hpName}:</small> <span class="gray">0/${pokemon.maxhp} (${faintedName})</span></p>`;
 		} else if (this.battle.hardcoreMode) {
 			if (serverPokemon) {
-				const status = pokemon.status ? ` <span class="status ${pokemon.status}">${pokemon.status.toUpperCase()}</span>` : '';
-				text += `<p><small>HP:</small> ${serverPokemon.hp}/${serverPokemon.maxhp}${status}</p>`;
+				text += `<p><small>${hpName}:</small> ${serverPokemon.hp}/${serverPokemon.maxhp}${status}</p>`;
 			}
 		} else {
 			let exacthp = '';
@@ -946,8 +954,7 @@ export class BattleTooltips {
 			} else if (pokemon.maxhp === 48) {
 				exacthp = ` <small>(${pokemon.hp}/${pokemon.maxhp} pixels)</small>`;
 			}
-			const status = pokemon.status ? ` <span class="status ${pokemon.status}">${pokemon.status.toUpperCase()}</span>` : '';
-			text += `<p><small>HP:</small> ${Pokemon.getHPText(pokemon, this.battle.reportExactHP)}${exacthp}${status}`;
+			text += `<p><small>${hpName}:</small> ${Pokemon.getHPText(pokemon, this.battle.reportExactHP)}${exacthp}${status}`;
 			if (clientPokemon) {
 				if (pokemon.status === 'tox') {
 					if (pokemon.ability === 'Poison Heal' || pokemon.ability === 'Magic Guard') {
@@ -986,7 +993,7 @@ export class BattleTooltips {
 			}
 			if (serverPokemon.item) item = TL(this.battle.dex.items.get(serverPokemon.item));
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
-			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
+			if (item) itemText = `<small>${TL.term.item}:</small> ` + item + itemEffect;
 		} else if (clientPokemon) {
 			let item = '';
 			let itemEffect = clientPokemon.itemEffect || '';
@@ -998,7 +1005,7 @@ export class BattleTooltips {
 			}
 			if (pokemon.item) item = TL(this.battle.dex.items.get(pokemon.item));
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
-			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
+			if (item) itemText = `<small>${TL.term.item}:</small> ` + item + itemEffect;
 		}
 
 		if (abilityText || itemText) {
@@ -1014,7 +1021,8 @@ export class BattleTooltips {
 
 		// Only display when you don't also have stats
 		if (clientPokemon?.nature && !serverPokemon) {
-			let natureText = '<small>Nature:</small> ' + clientPokemon.nature;
+			const nature = TL.nature[toID(clientPokemon.nature)] || clientPokemon.nature;
+			let natureText = `<small>${TL.term.nature}:</small> ` + nature;
 			text += `<p>${natureText}</p>`;
 		}
 
@@ -1496,21 +1504,22 @@ export class BattleTooltips {
 		if (!serverPokemon || isTransformed) {
 			if (!clientPokemon) throw new Error('Must pass either clientPokemon or serverPokemon');
 			let { min, ev0, ev84, ev252, max } = this.getSpeedRange(clientPokemon);
+			const speedName = TL.statShort.spe || 'Spe';
 			if (this.battle.gen < 3) {
 				if (this.battle.tier.includes('Random')) {
-					return `<p><small>Spe</small> ${max} <small>(before stat stage changes)</small></p>`;
+					return `<p><small>${speedName}</small> ${max} <small>(before stat stage changes)</small></p>`;
 				}
-				return `<p><small>Spe</small> ${min} to ${max} <small>(before stat stage changes)</small></p>`;
+				return `<p><small>${speedName}</small> ${min} to ${max} <small>(before stat stage changes)</small></p>`;
 			}
 			if (this.battle.tier.includes('Random')) {
-				return `<p><small>Spe</small> ${min} or ${ev84} <small>(before external modifiers)</small></p>`;
+				return `<p><small>${speedName}</small> ${min} or ${ev84} <small>(before external modifiers)</small></p>`;
 			} else if (this.battle.tier.includes("Let's Go")) {
-				return `<p><small>Spe</small> ${min}<small class="gray">&ndash;${ev0}&ndash;</small>${max} <small>(before external modifiers)</small></p>`;
+				return `<p><small>${speedName}</small> ${min}<small class="gray">&ndash;${ev0}&ndash;</small>${max} <small>(before external modifiers)</small></p>`;
 			} else if (clientPokemon.nature) {
 				// Nature already taken into account in min/max
-				return `<p><small>Spe</small> ${min} to ${max} <small>(before external modifiers)</small></p>`;
+				return `<p><small>${speedName}</small> ${min} to ${max} <small>(before external modifiers)</small></p>`;
 			} else {
-				return `<p><small>Spe</small> ${min}<small class="gray">&ndash;${ev0}&ndash;${ev252}&ndash;</small>${max}<br><small>(before external modifiers)</small></p>`;
+				return `<p><small>${speedName}</small> ${min}<small class="gray">&ndash;${ev0}&ndash;${ev252}&ndash;</small>${max}<br><small>(before external modifiers)</small></p>`;
 			}
 		}
 		const stats = serverPokemon.stats;
@@ -1524,7 +1533,7 @@ export class BattleTooltips {
 				if (this.battle.gen === 1 && statName === 'spd') continue;
 				let statLabel = this.battle.gen === 1 && statName === 'spa' ? 'spc' : statName;
 				buf += statName === 'atk' ? '<small>' : '<small> / ';
-				buf += `${BattleTextParser.statShortName(statLabel)}&nbsp;</small>`;
+				buf += `${TL.statShort[statLabel] || statLabel}&nbsp;</small>`;
 				buf += `${stats[statName]}`;
 				if (modifiedStats[statName] !== stats[statName]) hasModifiedStat = true;
 			}
@@ -1540,7 +1549,7 @@ export class BattleTooltips {
 			if (this.battle.gen === 1 && statName === 'spd') continue;
 			let statLabel = this.battle.gen === 1 && statName === 'spa' ? 'spc' : statName;
 			buf += statName === 'atk' ? '<small>' : '<small> / ';
-			buf += `${BattleTextParser.statShortName(statLabel)}&nbsp;</small>`;
+			buf += `${TL.statShort[statLabel] || statLabel}&nbsp;</small>`;
 			if (modifiedStats[statName] === stats[statName]) {
 				buf += `${modifiedStats[statName]}`;
 			} else if (modifiedStats[statName] < stats[statName]) {
@@ -2937,11 +2946,11 @@ export class BattleTooltips {
 		if (!isActive) {
 			// for switch tooltips, only show the original ability
 			const ability = abilityData.baseAbility || abilityData.ability;
-			if (ability) text = '<small>Ability:</small> ' + TL(this.battle.dex.abilities.get(ability));
+			if (ability) text = `<small>${TL.term.ability}:</small> ` + TL(this.battle.dex.abilities.get(ability));
 		} else {
 			if (abilityData.ability) {
 				const abilityName = TL(this.battle.dex.abilities.get(abilityData.ability));
-				text = '<small>Ability:</small> ' + abilityName;
+				text = `<small>${TL.term.ability}:</small> ` + abilityName;
 				const baseAbilityName = TL(this.battle.dex.abilities.get(abilityData.baseAbility));
 				if (baseAbilityName && baseAbilityName !== abilityName) text += ' (base: ' + baseAbilityName + ')';
 			}

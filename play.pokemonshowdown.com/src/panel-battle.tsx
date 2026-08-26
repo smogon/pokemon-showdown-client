@@ -95,7 +95,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}><div class="pad">
 			<button class="button" style="float:right;font-size:10pt;margin-top:3px" name="closeRoom">
-				<i class="fa fa-times" aria-hidden></i> Close
+				<i class="fa fa-times" aria-hidden></i> {TL`Close`}
 			</button>
 			<div class="roomlist">
 				<p>

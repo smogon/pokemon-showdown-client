@@ -131,28 +131,36 @@ for (const natureName in BattleNatureData) {
 		exists: true,
 	};
 }
+/** exportable-to-stat. most of the complexity is just "spd" can be Sp. Def or Speed */
 export const BattleStatIDs: { [k: string]: StatName | undefined } = {
+	H: 'hp',
 	HP: 'hp',
 	hp: 'hp',
+	A: 'atk',
 	Atk: 'atk',
 	atk: 'atk',
+	B: 'def',
 	Def: 'def',
 	def: 'def',
+	C: 'spa',
 	SpA: 'spa',
 	SAtk: 'spa',
 	SpAtk: 'spa',
 	spa: 'spa',
+	CD: 'spa',
 	spc: 'spa',
 	Spc: 'spa',
+	D: 'spd',
 	SpD: 'spd',
 	SDef: 'spd',
 	SpDef: 'spd',
 	spd: 'spd',
+	S: 'spe',
 	Spe: 'spe',
 	Spd: 'spe',
 	spe: 'spe',
 };
-/** Stat short names */
+/** Stat short names; should only be used for exportables. Use TL.statShort otherwise. */
 export const BattleStatNames = {
 	hp: 'HP',
 	atk: 'Atk',
@@ -162,10 +170,14 @@ export const BattleStatNames = {
 	spe: 'Spe',
 } as const;
 
+/** Allows correct sprites to be loaded without pokedex loaded.
+ *  Now that we support tooltips in battles, we always want pokedex loaded,
+ *  so this is mostly historical. Which is also why it's so out-of-date. */
 export const BattleBaseSpeciesChart = [
 	"unown", "burmy", "shellos", "gastrodon", "deerling", "sawsbuck", "vivillon", "flabebe", "floette", "florges", "furfrou", "minior", "alcremie", "tatsugiri", "pokestarufo", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestartransport", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit", "pokestarblackdoor", "pokestarwhitedoor", "pokestarblackbelt",
 ] as ID[];
 
+/** Offsets for the sprite sheets. */
 export const BattlePokemonIconIndexes: { [id: string]: number } = {
 	// alt forms
 	egg: 1032 + 1,
@@ -809,6 +821,7 @@ export const BattlePokemonIconIndexesLeft: { [id: string]: number } = {
 	blacephalon: 1452 + 105,
 };
 
+/** Back-compat for the old number-based avatar system. */
 export const BattleAvatarNumbers: { [k: string]: string } = {
 	1: 'lucas',
 	2: 'dawn',
