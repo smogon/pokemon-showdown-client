@@ -637,9 +637,9 @@ export class BattleTextParser {
 			}
 			let id = BattleTextParser.effectId(namespace);
 			let tables: BattleTextTableName[];
-			if (namespace.startsWith('item:')) tables = ['Items'];
-			else if (namespace.startsWith('ability:')) tables = ['Abilities'];
-			else if (namespace.startsWith('move:')) tables = ['Moves'];
+			if (namespace.startsWith('item:')) tables = ['Items', 'Default'];
+			else if (namespace.startsWith('ability:')) tables = ['Abilities', 'Default'];
+			else if (namespace.startsWith('move:')) tables = ['Moves', 'Default'];
 			else tables = ['Items', 'Abilities', 'Moves', 'Default'];
 			for (const table of tables) {
 				let template = this.textField(table, id, type);

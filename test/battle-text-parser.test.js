@@ -225,6 +225,22 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		assert.equal(parser.extractMessage('|-hitcount|p1a: Mew|3'), '  The Pok\u00E9mon was hit 3 times!\n');
 	});
 
+	it('falls back to default text for namespaced effects', () => {
+		const parser = new BattleTextParser('p1');
+		assert.equal(
+			parser.extractMessage('|-activate|p2a: Indeedee|move: Psychic Terrain'),
+			'  The opposing Indeedee is protected by the Psychic Terrain!\n'
+		);
+		assert.equal(
+			parser.extractMessage('|-activate|p2a: Pikachu|move: Electric Terrain'),
+			'  The opposing Pikachu is protected by the Electric Terrain!\n'
+		);
+		assert.equal(
+			parser.extractMessage('|-activate|p2a: Garchomp|move: Misty Terrain'),
+			'  The opposing Garchomp surrounds itself with a protective mist!\n'
+		);
+	});
+
 	it('lets translations place the percentage symbol', () => {
 		global.BattleText.en.Default.default.damagePercentage =
 			'  ([POKEMON] lost [PERCENTAGE]% of its health!)';
