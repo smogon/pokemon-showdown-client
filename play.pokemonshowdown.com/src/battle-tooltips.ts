@@ -2950,7 +2950,7 @@ export class BattleTooltips {
 		if (!text && abilityData.possibilities.length && !hidePossible &&
 			!(tier.includes('Almost Any Ability') || tier.includes('Hackmons') ||
 				tier.includes('Inheritance') || tier.includes('Metronome'))) {
-			text = '<small>Possible abilities:</small> ' + abilityData.possibilities
+			text = '<small>' + TL`Possible abilities:` + '</small> ' + abilityData.possibilities
 				.map(ability => TL(this.battle.dex.abilities.get(ability))).join(', ');
 		}
 		return text;

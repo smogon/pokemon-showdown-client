@@ -11,11 +11,14 @@ describe('UI translation catalogs', () => {
 		const calls = TLCalls.fromSource(`
 			const greeting = TL\`Hello \${name}!\`;
 			const action = TL("Open", "verb");
+			const term = TL.term.moves;
+			const directUI = TL("Add Pokémon");
 			const moveName = TL(move);
 		`, 'panel-battle.tsx');
-		assert.deepEqual([...calls.keys()], ['Hello [1]!', 'Open']);
+		assert.deepEqual([...calls.keys()], ['Hello [1]!', 'Open', 'Add Pokémon']);
 		assert.deepEqual([...calls.get('Hello [1]!').contexts], ['default']);
 		assert.deepEqual([...calls.get('Open').contexts], ['verb']);
+		assert.deepEqual([...calls.get('Add Pokémon').contexts], ['default']);
 	});
 
 	it('adds new strings to their mapped region without rewriting existing text', () => {
@@ -68,22 +71,26 @@ export const translations: UIText = {
 	// #endregion Navigation
 };
 `;
-		const locale = `export const translations = {
+	const locale = `export const translations = {
 	"Main menu": "主菜单",
 	// This wording is intentionally short.
 	"Home": "首页",
+	"Removed": "已删除",
 };
 `;
 		const templateCatalog = new ParsedUIText(template);
 		const localeCatalog = new ParsedUIText(locale, 'zh-cn.ts');
 		assert.equal(templateCatalog.compare(localeCatalog).orderMismatch, true);
+		assert.deepEqual(templateCatalog.compare(localeCatalog).extra, ['Removed']);
 		const synced = templateCatalog.sync(localeCatalog);
 		assert.doesNotMatch(synced.source, /import type|UIText/);
 		assert.match(synced.source, /\/\/ TRANSLATORS: Home may match Main menu\./);
 		assert.match(synced.source, /\/\/ This wording is intentionally short\.\n\t"Home": "首页",/);
 		assert.ok(synced.source.indexOf('"Home"') < synced.source.indexOf('"Main menu"'));
 		assert.match(synced.source, /"Main menu": "主菜单"/);
+		assert.doesNotMatch(synced.source, /Removed|已删除/);
 		const comparison = templateCatalog.compare(new ParsedUIText(synced.source));
+		assert.deepEqual(synced.comparison, comparison);
 		assert.deepEqual(comparison, {
 			missing: [], extra: [], incompatible: [], commentMismatches: [], orderMismatch: false,
 		});

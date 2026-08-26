@@ -7,7 +7,7 @@
 
 import { PS, PSRoom, type RoomOptions, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
-import { toID, type ID } from "./battle-dex";
+import { TL, toID, type ID } from "./battle-dex";
 import { BattleLog } from "./battle-log";
 import { TeamEditor, type TeamEditorState } from "./battle-team-editor";
 import { Net, PSLoginServer } from "./client-connection";
@@ -41,6 +41,9 @@ class TeamRoom extends PSRoom {
 	override onParentKeyDown = (e?: Event) => {
 		return this.editor?.handleParentKeyDown?.(e as KeyboardEvent);
 	};
+	override getTitle() {
+		return `[${TL.term.team}] ${this.team?.name || (this.teamDeleted ? 'Team deleted' : 'Not found')}`;
+	}
 	getTeam() {
 		const team = PS.teams.byKey[this.id.slice(5)] || null;
 		this.teamDeleted = !team && (!!this.team || this.teamDeleted);
@@ -315,7 +318,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		return <PSPanelWrapper room={room}>
 			<div class="team-pad">
 				<a class="button" href="teambuilder" data-target="replace">
-					<i class="fa fa-chevron-left" aria-hidden></i> Teams
+					<i class="fa fa-chevron-left" aria-hidden></i> {TL`Teams`}
 				</a> {}
 				{team.uploaded ? (
 					<>

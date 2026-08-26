@@ -981,9 +981,10 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 								null
 							)} {}
 							{!clipboardTeams && !team.uploaded && <button
-								data-cmd={`/deleteteam ${team.key}`} class="option" aria-label="Delete" title={team.teamid ? "Delete" : ""}
+								data-cmd={`/deleteteam ${team.key}`} class="option"
+								aria-label={TL`Delete`} title={team.teamid ? TL`Delete` : ""}
 							>
-								<i class="fa fa-trash" aria-hidden></i> {!team.teamid && "Delete"}
+								<i class="fa fa-trash" aria-hidden></i> {!team.teamid && TL`Delete`}
 							</button>} {}
 						</span>
 					</li>
@@ -994,7 +995,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 				) : (
 					<li key="undelete">
 						<button data-cmd="/undeleteteam" class="option">
-							<i class="fa fa-undo" aria-hidden></i> Undo delete
+							<i class="fa fa-undo" aria-hidden></i> {TL`Undo delete`}
 						</button>
 					</li>
 				))}

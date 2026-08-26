@@ -151,8 +151,8 @@ export class MainMenuRoom extends PSRoom {
 			if (named) PS.user.initializing = false;
 			if (settingsJSON) {
 				PS.prefs.set('serversettings', { ...PS.prefs.serversettings, ...JSON.parse(settingsJSON) });
-				void Dex.loadTextData().then(() => this.update(null));
 			}
+			void Dex.loadTextData().then(() => PS.updateTranslatedText());
 			PS.user.setName(fullName, named, avatar);
 			PS.teams.loadRemoteTeams();
 			return;

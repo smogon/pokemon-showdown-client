@@ -31,10 +31,65 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		global.Dex.afdMode = false;
 	});
 
+	it('handles a missing English text preload', async () => {
+		const battleText = global.BattleText;
+		const loadedEnglish = global.Dex.loadedTextData.en;
+		const document = global.document;
+		const config = global.Config;
+		let fail = true;
+		try {
+			delete global.BattleText;
+			global.Config = {testclient: false};
+			global.document = {
+				createElement() { return {}; },
+				getElementsByTagName() {
+					return [{appendChild(element) {
+						if (fail) {
+							element.onerror();
+						} else {
+							global.BattleText = battleText;
+							element.onload();
+						}
+					}}];
+				},
+			};
+			await assert.doesNotReject(global.Dex.loadTextData('en'));
+			assert.equal(global.Dex.loadedTextData.en, undefined);
+			fail = false;
+			await global.Dex.loadTextData('en');
+			assert.equal(global.TL.term, battleText.en.TermNames);
+		} finally {
+			global.BattleText = battleText;
+			global.Dex.loadedTextData.en = loadedEnglish;
+			if (document === undefined) {
+				delete global.document;
+			} else {
+				global.document = document;
+			}
+			if (config === undefined) {
+				delete global.Config;
+			} else {
+				global.Config = config;
+			}
+		}
+	});
+
 	it('uses canonical language tables with English field fallback', () => {
 		global.BattleText.ja = {
 			Default: {default: {hitCount: '[NUMBER]回 当たった！'}},
-			Pokedex: {ironleaves: {name: 'テツノイサハ'}},
+			PokedexNames: {ironleaves: 'テツノイサハ'},
+			TypeNames: {fire: 'ほのお'},
+			NatureNames: {adamant: 'いじっぱり'},
+			TermNames: {egggroup: 'タマゴグループ', moves: '技'},
+			TagNames: {physical: 'ぶつり'},
+			GenderNames: {female: 'メス'},
+			EggGroupNames: {humanlike: 'ひとがた'},
+			ColorNames: {purple: 'むらさき'},
+			StatusNames: {brn: 'やけど'},
+			TargetNames: {self: '自分'},
+			StatNames: {atk: '攻撃'},
+			StatMediumNames: {atk: 'こうげき'},
+			StatShortNames: {atk: 'Ａ'},
 			Moves: {knockoff: {name: 'はたきおとす'}},
 			Abilities: {levitate: {name: 'ふゆう'}},
 			Items: {lifeorb: {name: 'いのちのたま'}},
@@ -49,6 +104,17 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		assert.equal(parser.moveName('Knock Off'), 'はたきおとす');
 		assert.equal(parser.itemName('Life Orb'), 'いのちのたま');
 		assert.equal(parser.abilityName('Levitate'), 'ふゆう');
+		assert.equal(global.Dex.text.get(global.Dex.types.get('Fire'), 'ja').name, 'ほのお');
+		assert.equal(global.Dex.text.typeName('Fire', 'ja'), 'ほのお');
+		assert.equal(global.Dex.text.get(global.BattleNatures.Adamant, 'ja').name, 'いじっぱり');
+		assert.equal(global.Dex.text.natureName('Adamant', 'ja'), 'いじっぱり');
+		assert.equal(global.Dex.text.get(global.BattleNatures.Adamant, 'en').name, 'Adamant');
+		assert.equal(global.Dex.text.natureName('Adamant', 'en'), 'Adamant');
+		assert.equal(global.Dex.text.termName('Egg Group', 'ja'), 'タマゴグループ');
+		assert.equal(global.Dex.text.categoryName('Physical', 'ja'), 'ぶつり');
+		assert.equal(global.Dex.text.genderName('F', 'ja'), 'メス');
+		assert.equal(global.Dex.text.eggGroupName('Human-Like', 'ja'), 'ひとがた');
+		assert.equal(global.Dex.text.colorName('Purple', 'ja'), 'むらさき');
 		assert.deepEqual(
 			parser.pokemonFull('p1a: Salad', 'Iron Leaves'),
 			['p1', 'Salad (**テツノイサハ**)']
@@ -85,10 +151,40 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 			'Hello [1]!': '你好，[1]！',
 			Open: {verb: '打开'},
 			Untranslated: null,
+		}, ja: {
+			'Add Pokémon': 'ポケモンを追加',
+			Moves: 'UIの技',
 		}};
 		assert.equal(global.TL`Hello ${'Mew'}!`, '你好，Mew！');
 		assert.equal(global.TL('Open', 'verb'), '打开');
 		assert.equal(global.TL`Untranslated`, 'Untranslated');
+		const prefs = global.Dex.prefs;
+		global.Dex.prefs = () => 'japanese';
+		void global.Dex.loadTextData();
+		for (const [property, table] of Object.entries({
+			term: 'TermNames',
+			type: 'TypeNames',
+			nature: 'NatureNames',
+			gender: 'GenderNames',
+			egggroup: 'EggGroupNames',
+			tag: 'TagNames',
+			color: 'ColorNames',
+			status: 'StatusNames',
+			target: 'TargetNames',
+			stat: 'StatNames',
+			statShort: 'StatShortNames',
+			statMedium: 'StatMediumNames',
+		})) {
+			assert.equal(global.TL[property], global.BattleText.ja[table]);
+		}
+		assert.equal(global.TL('Moves'), 'UIの技');
+		assert.equal(global.TL`Moves`, 'UIの技');
+		assert.equal(global.TL.term.moves, '技');
+		assert.equal(global.TL('Add Pokémon'), 'ポケモンを追加');
+		assert.equal(global.TL`Add Pokémon`, 'ポケモンを追加');
+		assert.equal(global.TL('Unknown term'), 'Unknown term');
+		global.Dex.prefs = prefs;
+		void global.Dex.loadTextData();
 
 		global.BattleText.en.Moves.testmove = {name: 'Localized Name', start: 'modern', gen4: {start: 'old'}};
 		const move = new global.Dex.Move('testmove', 'Fallback Name', {desc: 'Fallback description'});
@@ -226,11 +322,18 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 	});
 
 	it('uses localized stat grammar', () => {
-		global.BattleText.fr = {Default: {
-			default: {boost: '[STAT:definite:capitalize] de [POKEMON] augmente !'},
-			atk: {statName: 'Attaque', grammar: 'fs'},
-		}};
+		global.BattleText.fr = {
+			Default: {default: {boost: '[STAT:definite:capitalize] de [POKEMON] augmente !'}},
+			TermNames: {stats: 'Stats', 'stats:grammar': 'fp'},
+			StatNames: {atk: 'Attaque', 'atk:grammar': 'fs'},
+			StatMediumNames: {atk: 'Atq.'},
+			StatShortNames: {atk: 'Atq'},
+		};
 		const parser = new BattleTextParser('p1', 'fr');
+		assert.equal(BattleTextParser.stat('atk', 'fr'), 'Attaque');
+		assert.equal(BattleTextParser.stat('', 'fr'), 'Stats');
+		assert.equal(BattleTextParser.statMediumName('atk', 'fr'), 'Atq.');
+		assert.equal(BattleTextParser.statShortName('atk', 'fr'), 'Atq');
 		assert.equal(parser.extractMessage('|-boost|p1a: Mew|atk|1'), 'L’Attaque de Mew augmente !\n');
 	});
 });

@@ -1533,12 +1533,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				this.add('||AFD is currently set to ' + curMode);
 				this.send('/help afd');
 			}
-			void Dex.loadTextData().then(() => {
-				for (const roomid in PS.rooms) {
-					const battle = (PS.rooms[roomid] as BattleRoom)?.battle;
-					if (battle) battle.resetToCurrentTurn();
-				}
-			});
+			void Dex.loadTextData().then(() => PS.updateTranslatedText());
 		},
 		'clearpms'() {
 			let rooms = PS.miniRoomList.filter(roomid => roomid.startsWith('dm-'));
@@ -2243,6 +2238,13 @@ export const PS = new class extends PSModel {
 	override update() {
 		this.updateLayout();
 		super.update();
+	}
+	updateTranslatedText() {
+		for (const room of Object.values(this.rooms)) {
+			const battle = (room as BattleRoom | undefined)?.battle;
+			if (battle) battle.resetToCurrentTurn();
+		}
+		this.update();
 	}
 	receive(msg: string) {
 		msg = msg.endsWith('\n') ? msg.slice(0, -1) : msg;

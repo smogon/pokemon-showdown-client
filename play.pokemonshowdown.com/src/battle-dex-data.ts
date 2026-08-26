@@ -26,7 +26,11 @@ export interface Nature {
 	minus?: StatNameExceptHP;
 }
 
-export const BattleNatures: { [k in NatureName]: Nature } = {
+export interface NatureEffect extends Nature, Effect {
+	readonly effectType: 'Nature';
+}
+
+const BattleNatureData: { [k in NatureName]: Nature } = {
 	Adamant: {
 		plus: 'atk',
 		minus: 'spa',
@@ -113,6 +117,20 @@ export const BattleNatures: { [k in NatureName]: Nature } = {
 		minus: 'atk',
 	},
 };
+
+export const BattleNatures = {} as { [k in NatureName]: NatureEffect };
+for (const natureName in BattleNatureData) {
+	const name = natureName as NatureName;
+	const data = BattleNatureData[name];
+	BattleNatures[name] = {
+		...data,
+		id: name.toLowerCase() as ID,
+		name,
+		gen: 3,
+		effectType: 'Nature',
+		exists: true,
+	};
+}
 export const BattleStatIDs: { [k: string]: StatName | undefined } = {
 	HP: 'hp',
 	hp: 'hp',
@@ -1122,7 +1140,7 @@ export interface Effect {
 	readonly id: ID;
 	readonly name: string;
 	readonly gen: number;
-	readonly effectType: 'Item' | 'Move' | 'Ability' | 'Species' | 'PureEffect';
+	readonly effectType: 'Item' | 'Move' | 'Ability' | 'Species' | 'Nature' | 'Type' | 'PureEffect';
 	/**
 	 * Do we have data on this item/move/ability/species?
 	 * WARNING: Always false if the relevant data files aren't loaded.
@@ -1652,6 +1670,7 @@ export class Species implements Effect {
 }
 
 export interface Type extends Effect {
+	readonly effectType: 'Type';
 	damageTaken?: Record<Dex.TypeName | 'powder' | 'prankster' | 'trapped', Dex.WeaknessType>;
 	HPivs?: Partial<Dex.StatsTable>;
 	HPdvs?: Partial<Dex.StatsTable>;

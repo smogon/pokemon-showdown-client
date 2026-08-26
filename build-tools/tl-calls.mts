@@ -1,5 +1,5 @@
 // Library for searching source files for
-// `` TL`text` `` and `` TL(text, context) `` calls.
+// `` TL`text` ``, `` TL(text) ``, and `` TL(text, context) `` calls.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -45,16 +45,18 @@ SOURCE FOR CALLED_TL_REGEX (compile with https://regexfree.k55.io/ )
 	|
 		'(?<singleQuotedKey> ( \\ [\s\S] | [^'\\] )* )'
 	)
-	\s* , \s*
 	(
-		"(?<doubleQuotedContext> ( \\ [\s\S] | [^"\\] )* )"
-	|
-		'(?<singleQuotedContext> ( \\ [\s\S] | [^'\\] )* )'
-	)
+		\s* , \s*
+		(
+			"(?<doubleQuotedContext> ( \\ [\s\S] | [^"\\] )* )"
+		|
+			'(?<singleQuotedContext> ( \\ [\s\S] | [^'\\] )* )'
+		)
+	)?
 	\s* \)
 
 */
-const CALLED_TL_REGEX = /\bTL\s*\(\s*(?:"((?:\\[\s\S]|[^"\\])*)"|'((?:\\[\s\S]|[^'\\])*)')\s*,\s*(?:"((?:\\[\s\S]|[^"\\])*)"|'((?:\\[\s\S]|[^'\\])*)')\s*\)/g;
+const CALLED_TL_REGEX = /\bTL\s*\(\s*(?:"((?:\\[\s\S]|[^"\\])*)"|'((?:\\[\s\S]|[^'\\])*)')(?:\s*,\s*(?:"((?:\\[\s\S]|[^"\\])*)"|'((?:\\[\s\S]|[^'\\])*)'))?\s*\)/g;
 
 /** map from key to TL calls */
 export class TLCalls extends Map<string, TLCallsForKey> {
@@ -73,9 +75,12 @@ export class TLCalls extends Map<string, TLCallsForKey> {
 		}
 		for (const match of source.matchAll(CALLED_TL_REGEX)) {
 			const keyQuote = match[1] === undefined ? "'" : '"';
-			const contextQuote = match[3] === undefined ? "'" : '"';
 			const key = TLCalls.decodeLiteral(match[1] ?? match[2], keyQuote);
-			const context = TLCalls.decodeLiteral(match[3] ?? match[4], contextQuote);
+			let context = 'default';
+			if (match[3] !== undefined || match[4] !== undefined) {
+				const contextQuote = match[3] === undefined ? "'" : '"';
+				context = TLCalls.decodeLiteral(match[3] ?? match[4], contextQuote);
+			}
 			this.addCall(key, context, filename, match.index);
 		}
 		return this;

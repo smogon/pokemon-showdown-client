@@ -656,13 +656,7 @@ class OptionsPanel extends PSRoomPanel {
 		}
 		case 'language': {
 			PS.prefs.set('serversettings', { ...PS.prefs.serversettings, language: elem.value });
-			void Dex.loadTextData().then(() => {
-				for (const roomid in PS.rooms) {
-					const battle = (PS.rooms[roomid] as BattleRoom)?.battle;
-					if (battle) battle.resetToCurrentTurn();
-				}
-				PS.update();
-			});
+			void Dex.loadTextData().then(() => PS.updateTranslatedText());
 			PS.send(`/language ${elem.value}`);
 			break;
 		}

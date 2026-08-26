@@ -14,6 +14,7 @@ export type Args = [string, ...string[]];
 export type KWArgs = { [kw: string]: string };
 export type SideID = 'p1' | 'p2' | 'p3' | 'p4';
 export type InflectionCategories = { [placeholder: string]: string };
+type BattleTextTableName = 'Default' | 'Moves' | 'Abilities' | 'Items';
 type RenderValue = string | {
 	value: string,
 	table?: 'Items' | 'Default',
@@ -239,7 +240,7 @@ export class BattleTextParser {
 		return out;
 	}
 
-	private textField(table: keyof BattleTextData, id: string, field: string) {
+	private textField(table: BattleTextTableName, id: string, field: string) {
 		const english = BattleText.en?.[table]?.[id];
 		const localized = BattleText[this.language]?.[table]?.[id];
 		let value = localized?.[field] || english?.[field];
@@ -596,7 +597,7 @@ export class BattleTextParser {
 		return effect.trim();
 	}
 
-	textName(table: keyof BattleTextData, name?: string) {
+	textName(table: 'Moves' | 'Items' | 'Abilities', name?: string) {
 		if (!name) return '';
 		name = name.trim();
 		const id = toID(name);
@@ -619,7 +620,10 @@ export class BattleTextParser {
 		return this.textName('Abilities', name);
 	}
 	speciesName(name?: string) {
-		return this.textName('Pokedex', name);
+		if (!name) return '';
+		name = name.trim();
+		const id = toID(name);
+		return BattleText[this.language]?.PokedexNames?.[id] || BattleText.en?.PokedexNames?.[id] || name;
 	}
 
 	template(type: string, ...namespaces: (string | undefined)[]) {
@@ -632,7 +636,7 @@ export class BattleTextParser {
 				return '';
 			}
 			let id = BattleTextParser.effectId(namespace);
-			let tables: (keyof BattleTextData)[];
+			let tables: BattleTextTableName[];
 			if (namespace.startsWith('item:')) tables = ['Items'];
 			else if (namespace.startsWith('ability:')) tables = ['Abilities'];
 			else if (namespace.startsWith('move:')) tables = ['Moves'];
@@ -672,18 +676,26 @@ export class BattleTextParser {
 
 	static stat(stat: string, language = Dex.text.getLanguage()) {
 		const id = stat || 'stats';
-		const name = BattleText[language]?.Default[id]?.statName || BattleText.en?.Default[id]?.statName;
+		const table = id === 'stats' ? 'TermNames' : 'StatNames';
+		const name = BattleText[language]?.[table]?.[id] || BattleText.en?.[table]?.[id];
+		return typeof name === 'string' ? name : `???stat:${stat}???`;
+	}
+	static statMediumName(stat: string, language = Dex.text.getLanguage()) {
+		const name = BattleText[language]?.StatMediumNames?.[stat] || BattleText.en?.StatMediumNames?.[stat];
 		return typeof name === 'string' ? name : `???stat:${stat}???`;
 	}
 	static statShortName(stat: string, language = Dex.text.getLanguage()) {
-		const name = BattleText[language]?.Default[stat]?.statShortName || BattleText.en?.Default[stat]?.statShortName;
+		const name = BattleText[language]?.StatShortNames?.[stat] || BattleText.en?.StatShortNames?.[stat];
 		return typeof name === 'string' ? name : `???stat:${stat}???`;
 	}
 	private statValue(stat: string): RenderValue {
 		const id = stat || 'stats';
+		const table = id === 'stats' ? 'TermNames' : 'StatNames';
+		const grammar = BattleText[this.language]?.[table]?.[`${id}:grammar`] ||
+			BattleText.en?.[table]?.[`${id}:grammar`];
 		return {
-			value: BattleTextParser.stat(stat, this.language), table: 'Default', id,
-			category: stat ? 's' : 'p',
+			value: BattleTextParser.stat(stat, this.language),
+			category: grammar || (stat ? 's' : 'p'),
 		};
 	}
 

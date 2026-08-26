@@ -8,13 +8,14 @@ export const translations: UIText = {
 	// #region Navigation
 	// ==================================================================
 
-	// TRANSLATORS: It's fine if "Home" and "Main Menu" are the same word in your language
+	// TRANSLATORS: Note that "Home" and "Main Menu" refer to the same place
+	// TRANSLATORS: So it's fine if they're the same word in your language
 	"Home": null, // NEEDS TRANSLATION
+	// TRANSLATORS: This is used as a "Back to Home" button after battles
 	"Main menu": null, // NEEDS TRANSLATION
 	// TRANSLATORS: It's fine if "Teambuilder" and "Teams" are the same word in your language
 	// TRANSLATORS: Also consider something like "Edit teams" for "Teambuilder"
 	"Teambuilder": "队伍编辑器", // NEEDS QC
-	"Teams": null, // NEEDS TRANSLATION
 	"Ladder": "天梯", // NEEDS QC
 	"Tournaments": "锦标赛", // NEEDS QC
 	"Friends": "好友",
@@ -27,10 +28,13 @@ export const translations: UIText = {
 	// #region Generic UI
 	// ==================================================================
 
-	// TRANSLATORS: if these only appear in one panel, it should probably go in that panel's section
 	"Hide": null, // NEEDS TRANSLATION
 	"Close": null, // NEEDS TRANSLATION
 	"Back": null, // NEEDS TRANSLATION
+	// TRANSLATORS: A computer copy command, like Ctrl+C
+	"Copy": null, // NEEDS TRANSLATION
+	"Delete": null, // NEEDS TRANSLATION
+	"Undo delete": null, // NEEDS TRANSLATION
 	"Challenge": null, // NEEDS TRANSLATION
 	// TRANSLATORS: "DM" is used to label DMs and "Chat" is used for the button to start a DM
 	// TRANSLATORS: Feel free to use the same word for both
@@ -39,17 +43,15 @@ export const translations: UIText = {
 	"Cancel": null, // NEEDS TRANSLATION
 	"Accept": null, // NEEDS TRANSLATION
 	"Reject": null, // NEEDS TRANSLATION
-	"Format": null, // NEEDS TRANSLATION
-	"Team": null, // NEEDS TRANSLATION
 	"Random team": null, // NEEDS TRANSLATION
 	"Sound": null, // NEEDS TRANSLATION
 	"Options": null, // NEEDS TRANSLATION
 	"Battle options": null, // NEEDS TRANSLATION
-	"Ability": null, // NEEDS TRANSLATION
-	"Item": null, // NEEDS TRANSLATION
-	"Moves": null, // NEEDS TRANSLATION
+	"Format": null, // NEEDS TRANSLATION
 	"Format:": null, // NEEDS TRANSLATION
 	"Team:": null, // NEEDS TRANSLATION
+	// TRANSLATORS: From a tooltip listing the abilities a pokemon might have
+	"Possible abilities:": null, // NEEDS TRANSLATION
 
 	// #endregion Generic UI
 
@@ -79,6 +81,7 @@ export const translations: UIText = {
 	// #region Battle
 	// ==================================================================
 
+	"Team": null, // NEEDS TRANSLATION
 	"Battle": null, // NEEDS TRANSLATION
 	"Switch": null, // NEEDS TRANSLATION
 	"Rematch": null, // NEEDS TRANSLATION
@@ -97,6 +100,10 @@ export const translations: UIText = {
 	// #region Teambuilder
 	// ==================================================================
 
+	// TRANSLATORS: This is for the Teams list view so it can't be singular
+	// TRANSLATORS: Should be something like "Teams List" if you have no singular
+	// TRANSLATORS: Can be different from TL.term.teams, which "Teams" as in "plural of Team"
+	"Teams": null, // NEEDS TRANSLATION
 	"New team": null, // NEEDS TRANSLATION
 	"New box": null, // NEEDS TRANSLATION
 	"Add Pokémon": null, // NEEDS TRANSLATION

@@ -217,7 +217,7 @@ export class ParsedUIText {
 	/** Update a locale file to match this template */
 	sync(locale: ParsedUIText): { source: string, comparison: UITextComparison } {
 		const comparison = this.compare(locale);
-		if (comparison.extra.length || comparison.incompatible.length) {
+		if (comparison.incompatible.length) {
 			return { source: locale.source, comparison };
 		}
 
@@ -235,7 +235,8 @@ export class ParsedUIText {
 		}
 		output.push(...this.filterScaffolding(this.lines.slice(cursor, this.objectEnd)));
 		output.push(...locale.lines.slice(locale.objectEnd));
-		return { source: output.join('\n'), comparison };
+		const source = output.join('\n');
+		return { source, comparison: this.compare(new ParsedUIText(source)) };
 	}
 
 	private schema(value: TranslationValue): string {
