@@ -26,6 +26,7 @@ import {
 import type * as DexData from "./battle-dex-data";
 import type { Teams } from "./battle-teams";
 import { Config } from "./client-main";
+import { BattleLog } from "./battle-log";
 
 export declare namespace Dex {
 	/* eslint-disable @typescript-eslint/no-shadow */
@@ -100,15 +101,17 @@ const TEXT_TABLES = {
 	Move: 'Moves',
 } as const;
 
-interface ClientDexTextEntry extends BattleTextEntry {
+interface ClientEffectTextEntry extends BattleTextEntry {
 	name: string;
 	desc: string;
 	shortDesc: string;
+	baseSpecies: string;
+	forme: string | null;
 }
 
 interface ClientDexText {
 	getLanguage(): string;
-	get(effect: TranslatableEffect, lang?: string): ClientDexTextEntry;
+	get(effect: TranslatableEffect, lang?: string): ClientEffectTextEntry;
 	termName(name: string, lang?: string): string;
 	typeName(name: string, lang?: string): string;
 	natureName(name: string, lang?: string): string;
@@ -208,22 +211,28 @@ function getOtherName(table: OtherNameTable, name: string, lang: string): string
 	return BattleText[lang]?.[table]?.[id] || BattleText.en?.[table]?.[id] || name;
 }
 
-function getTextEntry(effect: TranslatableEffect, gen: number, lang: string): ClientDexTextEntry {
+/**
+ * Does actually match ClientEffectTextEntry exactly.
+ */
+function getTextEntry(effect: TranslatableEffect, gen: number, lang: string): ClientEffectTextEntry {
 	if (effect.effectType === 'Species') {
-		const name = BattleText[lang]?.PokedexNames?.[effect.id] ||
-			BattleText.en?.PokedexNames?.[effect.id] || effect.name;
-		return { name, desc: '', shortDesc: '' };
+		const entry = BattleText[lang]?.Pokedex?.[effect.id] || BattleText.en?.Pokedex?.[effect.id];
+		return {
+			name: entry?.name || effect.name,
+			baseSpecies: entry?.baseSpecies || effect.baseSpecies,
+			forme: entry?.forme || null,
+		} as ClientEffectTextEntry;
 	}
 	if (effect.effectType === 'Type') {
-		return { name: getOtherName('TypeNames', effect.name, lang), desc: '', shortDesc: '' };
+		return { name: getOtherName('TypeNames', effect.name, lang) } as ClientEffectTextEntry;
 	}
 	if (effect.effectType === 'Nature') {
-		return { name: getOtherName('NatureNames', effect.name, lang), desc: '', shortDesc: '' };
+		return { name: getOtherName('NatureNames', effect.name, lang) } as ClientEffectTextEntry;
 	}
 	const tableName = TEXT_TABLES[effect.effectType];
 	const english = BattleText.en?.[tableName]?.[effect.id] || {};
 	const localized = BattleText[lang]?.[tableName]?.[effect.id] || {};
-	const entry = {} as ClientDexTextEntry;
+	const entry = {} as ClientEffectTextEntry;
 	assignTextFields(entry, english);
 	assignTextFields(entry, localized);
 	for (let i = 1; i <= 8; i++) {

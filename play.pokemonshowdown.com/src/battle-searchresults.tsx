@@ -101,10 +101,12 @@ export class PSSearchResults extends preact.Component<{
 		const pokemon = search.dex.species.get(id);
 		if (!pokemon) return `<li class="result" value="${index}">Unrecognized pokemon</li>`;
 
-		const tagStart = (pokemon.forme ? pokemon.name.length - pokemon.forme.length - 1 : 0);
-		const displayName = search.dex.text.get(pokemon).name;
+		const pokemonText = search.dex.text.get(pokemon);
+		const displayName = pokemonText.name;
 		[matchStart, matchEnd] = getLocalizedMatch(displayName, pokemon.name, matchStart, matchEnd);
-		const displayTagStart = displayName === pokemon.name ? tagStart : 0;
+		const baseIndex = pokemonText.baseSpecies ? displayName.indexOf(pokemonText.baseSpecies) : -1;
+		const baseStart = Math.max(0, baseIndex);
+		const baseEnd = baseIndex < 0 ? 0 : baseIndex + pokemonText.baseSpecies.length;
 		const stats = pokemon.baseStats;
 		let bst = 0;
 		for (const stat of Object.values(stats)) bst += stat;
@@ -115,7 +117,9 @@ export class PSSearchResults extends preact.Component<{
 			`data-entry="pokemon|${escapeHTML(pokemon.name)}">` +
 			`<span class="col numcol">${escapeHTML(search.getTier(pokemon))}</span>` +
 			`<span class="col iconcol"><span class="pixelated" style="${escapeHTML(Dex.getPokemonIcon(pokemon.id))}"></span></span>` +
-			`<span class="col pokemonnamecol">${this.renderNameHTML(displayName, matchStart, matchEnd, displayTagStart)}</span>`;
+			`<span class="col pokemonnamecol">${this.renderNameHTML(
+				displayName, matchStart, matchEnd, baseStart, baseEnd
+			)}</span>`;
 		if (errorMessage) return `${buf}${errorMessage}</a></li>`;
 
 		buf += `<span class="col typecol">${pokemon.types.map(type =>
@@ -158,8 +162,21 @@ export class PSSearchResults extends preact.Component<{
 		return buf;
 	}
 
-	renderNameHTML(name: string, matchStart: number, matchEnd: number, tagStart?: number) {
+	renderNameHTML(name: string, matchStart: number, matchEnd: number, tagStart?: number, tagEnd?: number) {
 		if (name === 'No Ability') return `<i>(no ability)</i>`;
+		if (tagStart !== undefined && tagEnd !== undefined) {
+			const renderPart = (start: number, end: number) => {
+				if (!matchEnd || matchEnd <= start || matchStart >= end) return escapeHTML(name.slice(start, end));
+				const boldStart = Math.max(start, matchStart);
+				const boldEnd = Math.min(end, matchEnd);
+				return escapeHTML(name.slice(start, boldStart)) +
+					`<b>${escapeHTML(name.slice(boldStart, boldEnd))}</b>` +
+					escapeHTML(name.slice(boldEnd, end));
+			};
+			return (tagStart ? `<small>${renderPart(0, tagStart)}</small>` : '') +
+				renderPart(tagStart, tagEnd) +
+				(tagEnd < name.length ? `<small>${renderPart(tagEnd, name.length)}</small>` : '');
+		}
 
 		if (!matchEnd) {
 			if (!tagStart) return escapeHTML(name);

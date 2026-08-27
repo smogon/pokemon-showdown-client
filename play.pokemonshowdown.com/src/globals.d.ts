@@ -8,7 +8,7 @@ type BattleTextEntry = { [templateName: string]: string | null | BattleTextEntry
 type BattleTextTable = { [id: string]: BattleTextEntry };
 type BattleTextData = {
 	Default: BattleTextTable,
-	PokedexNames: { [id: string]: string },
+	Pokedex: { [id: string]: { name: string, baseSpecies: string, forme?: string, grammar?: string } },
 	TermNames: { [id: string]: string },
 	TypeNames: { [id: string]: string },
 	NatureNames: { [id: string]: string },

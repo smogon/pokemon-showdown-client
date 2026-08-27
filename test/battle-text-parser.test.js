@@ -77,10 +77,12 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 	it('uses canonical language tables with English field fallback', () => {
 		global.BattleText.ja = {
 			Default: {default: {hitCount: '[NUMBER]回 当たった！'}},
-			PokedexNames: {ironleaves: 'テツノイサハ'},
+			Pokedex: {ironleaves: {name: 'テツノイサハ', baseSpecies: 'テツノイサハ'}},
 			TypeNames: {fire: 'ほのお'},
 			NatureNames: {adamant: 'いじっぱり'},
-			TermNames: {egggroup: 'タマゴグループ', moves: '技'},
+			TermNames: {
+				egggroup: 'タマゴグループ', moves: '技', nicknamespecies: '[NICKNAME]（[SPECIES]）',
+			},
 			TagNames: {physical: 'ぶつり'},
 			GenderNames: {female: 'メス'},
 			EggGroupNames: {humanlike: 'ひとがた'},
@@ -117,13 +119,17 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		assert.equal(global.Dex.text.colorName('Purple', 'ja'), 'むらさき');
 		assert.deepEqual(
 			parser.pokemonFull('p1a: Salad', 'Iron Leaves'),
-			['p1', 'Salad (**テツノイサハ**)']
+			['p1', 'Salad（**テツノイサハ**）']
 		);
 		assert.deepEqual(
 			parser.pokemonFull('p1a: Iron Leaves', 'Iron Leaves'),
-			['p1', 'Iron Leaves (**テツノイサハ**)']
+			['p1', 'Iron Leaves（**テツノイサハ**）']
 		);
 		assert.deepEqual(parser.pokemonFull('p1a: テツノイサハ', 'Iron Leaves'), ['p1', '**テツノイサハ**']);
+		assert.equal(
+			parser.extractMessage('|switch|p1a: Salad|Iron Leaves, L50|100/100'),
+			'Go! Salad（**テツノイサハ**）!\n'
+		);
 	});
 
 	it('falls back by field for past-generation text', () => {
@@ -340,14 +346,14 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 	it('uses localized stat grammar', () => {
 		global.BattleText.fr = {
 			Default: {default: {boost: '[STAT:definite:capitalize] de [POKEMON] augmente !'}},
-			TermNames: {stats: 'Stats', 'stats:grammar': 'fp'},
-			StatNames: {atk: 'Attaque', 'atk:grammar': 'fs'},
+			TermNames: {stats: 'Stats'},
+			StatNames: {stats: 'stats', 'stats:grammar': 'fp', atk: 'Attaque', 'atk:grammar': 'fs'},
 			StatMediumNames: {atk: 'Atq.'},
 			StatShortNames: {atk: 'Atq'},
 		};
 		const parser = new BattleTextParser('p1', 'fr');
 		assert.equal(BattleTextParser.stat('atk', 'fr'), 'Attaque');
-		assert.equal(BattleTextParser.stat('', 'fr'), 'Stats');
+		assert.equal(BattleTextParser.stat('', 'fr'), 'stats');
 		assert.equal(BattleTextParser.statMediumName('atk', 'fr'), 'Atq.');
 		assert.equal(BattleTextParser.statShortName('atk', 'fr'), 'Atq');
 		assert.equal(parser.extractMessage('|-boost|p1a: Mew|atk|1'), 'L’Attaque de Mew augmente !\n');

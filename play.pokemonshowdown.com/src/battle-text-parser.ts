@@ -535,7 +535,12 @@ export class BattleTextParser {
 		const species = details.split(',')[0];
 		const localizedSpecies = this.speciesName(species);
 		if (nickname === localizedSpecies) return [pokemon.slice(0, 2), `**${localizedSpecies}**`];
-		return [pokemon.slice(0, 2), `${nickname} (**${localizedSpecies}**)`];
+		const template = BattleText[this.language]?.TermNames?.nicknamespecies ||
+			BattleText.en?.TermNames?.nicknamespecies || '[NICKNAME] ([SPECIES])';
+		return [pokemon.slice(0, 2), this.render(template, {
+			NICKNAME: nickname,
+			SPECIES: `**${localizedSpecies}**`,
+		})];
 	}
 
 	trainer(side: string) {
@@ -622,8 +627,7 @@ export class BattleTextParser {
 	speciesName(name?: string) {
 		if (!name) return '';
 		name = name.trim();
-		const id = toID(name);
-		return BattleText[this.language]?.PokedexNames?.[id] || BattleText.en?.PokedexNames?.[id] || name;
+		return Dex.text.get(Dex.species.get(name), this.language).name || name;
 	}
 
 	template(type: string, ...namespaces: (string | undefined)[]) {
@@ -676,8 +680,7 @@ export class BattleTextParser {
 
 	static stat(stat: string, language = Dex.text.getLanguage()) {
 		const id = stat || 'stats';
-		const table = id === 'stats' ? 'TermNames' : 'StatNames';
-		const name = BattleText[language]?.[table]?.[id] || BattleText.en?.[table]?.[id];
+		const name = BattleText[language]?.StatNames?.[id] || BattleText.en?.StatNames?.[id];
 		return typeof name === 'string' ? name : `???stat:${stat}???`;
 	}
 	static statMediumName(stat: string, language = Dex.text.getLanguage()) {
@@ -690,9 +693,8 @@ export class BattleTextParser {
 	}
 	private statValue(stat: string): RenderValue {
 		const id = stat || 'stats';
-		const table = id === 'stats' ? 'TermNames' : 'StatNames';
-		const grammar = BattleText[this.language]?.[table]?.[`${id}:grammar`] ||
-			BattleText.en?.[table]?.[`${id}:grammar`];
+		const grammar = BattleText[this.language]?.StatNames?.[`${id}:grammar`] ||
+			BattleText.en?.StatNames?.[`${id}:grammar`];
 		return {
 			value: BattleTextParser.stat(stat, this.language),
 			category: grammar || (stat ? 's' : 'p'),
