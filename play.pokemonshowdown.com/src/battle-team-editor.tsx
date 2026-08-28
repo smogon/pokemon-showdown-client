@@ -2989,7 +2989,7 @@ class TeamEditorForm extends preact.Component<{
 					</div></td>
 					<td colSpan={2} class="set-details"><div class="border-collapse">
 						<label class="label">
-							Details {}
+							{TL`Details`} {}
 							<button
 								class={`textbox${this.cur('details', i)}`} onClick={this.clickPanelButton}
 								onKeyDown={this.keyDownPanelButton} name="details"

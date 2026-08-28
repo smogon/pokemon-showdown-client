@@ -259,6 +259,7 @@ export const translations: UIText = {
 
 	// TRANSLATORS: for the team editor
 	"Add Pokémon": null,
+	"Details": null,
 	"Form": null,
 	"Tera": null,
 	// TRANSLATORS: These two are for Hidden Power type
