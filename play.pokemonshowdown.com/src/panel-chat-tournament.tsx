@@ -289,6 +289,7 @@ export class ChatTournament extends PSModel {
 
 			case 'battlestart': {
 				const roomid = toRoomid(data[2]);
+				PS.mainmenu.rejectBattleSearch(roomid as RoomID);
 				this.tryAdd(`|uhtml|tournament-${roomid}|<div class="tournament-message-battlestart"><a href="${roomid}" class="ilink">Tournament battle between ${BattleLog.escapeHTML(data[0])} and ${BattleLog.escapeHTML(data[1])} started.</a></div>`);
 				break;
 			}

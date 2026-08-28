@@ -11,7 +11,7 @@ import {
 } from "./client-main";
 import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
 import { ChatLog, ChatRoom, ChatTextEntry, ChatUserList } from "./panel-chat";
-import { FormatDropdown } from "./panel-mainmenu";
+import { FormatDropdown, type BattleSearch } from "./panel-mainmenu";
 import { Battle, type Pokemon, type ServerPokemon } from "./battle";
 import { BattleScene } from "./battle-animations";
 import { Dex, toID, type ID } from "./battle-dex";
@@ -155,6 +155,29 @@ export class BattleRoom extends ChatRoom {
 		* null = initializing, we don't know yet */
 	rejoining: boolean | null = null;
 	overlayActive: 'move' | 'switch' | null = null;
+	search: BattleSearch | null = null;
+	searchFormat = '';
+	searchRated: string | boolean = false;
+
+	override receiveLine(args: Args) {
+		switch (args[0]) {
+		case 'tier':
+			this.searchFormat = args[1];
+			break;
+		case 'rated':
+			this.searchRated = args[1] || true;
+			break;
+		case 'teampreview': case 'start':
+			if (!this.search) {
+				this.search = PS.mainmenu.claimBattleSearch(this.id, {
+					tier: this.searchFormat,
+					rated: this.searchRated,
+				});
+			}
+			break;
+		}
+		return super.receiveLine(args);
+	}
 
 	override interruptClose(explicit?: boolean, elem?: HTMLElement | null) {
 		if (this.isPlaying() || this.requireForfeit) {
@@ -1297,6 +1320,11 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					<button class="button" data-cmd="/close">
 						<strong>Main menu</strong><br /><small>(closes this battle)</small>
 					</button> {}
+					{room.search && <>
+						<button class="button" onClick={this.handleNewGame}>
+							<strong>New Game</strong><br /><small>(closes this battle)</small>
+						</button> {}
+					</>}
 					<button class="button" data-cmd={`/closeand /challenge ${room.battle.farSide.id},${room.battle.tier}`}>
 						<strong>Rematch</strong><br /><small>(closes this battle)</small>
 					</button>
@@ -1311,6 +1339,17 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			)}
 		</div>;
 	}
+	handleNewGame = (e: MouseEvent) => {
+		const room = this.props.room;
+		if (!room.search) return;
+		if (!PS.user.named) {
+			PS.join('login' as RoomID, { parentElem: e.currentTarget as HTMLElement });
+			return;
+		}
+		PS.mainmenu.startSearchWithTeam(
+			room.search.format, room.search.packedTeam, e.currentTarget as HTMLElement, room.id
+		);
+	};
 
 	handleDownloadReplay = (e: MouseEvent) => {
 		let room = this.props.room;
