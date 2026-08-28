@@ -13,9 +13,9 @@ if (hasBuiltText) {
 	global.BattleText = require(englishTextPath).BattleText;
 	global.BattleText['en-afd'] = require(afdTextPath).BattleText['en-afd'];
 	global.BattleText.en.Default.default.hitCount =
-		"  The Pok\u00E9mon was hit [NUMBER] [INFLECT:NUMBER:s=time:p=times]!";
+		"  The Pok\u00E9mon was hit {NUMBER} {INFLECT:NUMBER:s=time:p=times}!";
 	global.BattleText.en.Default.unboost.fail =
-		"  [POKEMON]'s [STAT] [INFLECT:STAT:s=was:p=were] not lowered!";
+		"  {POKEMON}'s {STAT} {INFLECT:STAT:s=was:p=were} not lowered!";
 
 	require('../play.pokemonshowdown.com/js/battle-dex-data.js');
 	require('../play.pokemonshowdown.com/js/battle-dex.js');
@@ -76,12 +76,12 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 
 	it('uses canonical language tables with English field fallback', () => {
 		global.BattleText.ja = {
-			Default: {default: {hitCount: '[NUMBER]回 当たった！'}},
+			Default: {default: {hitCount: '{NUMBER}回 当たった！'}},
 			Pokedex: {ironleaves: {name: 'テツノイサハ', baseSpecies: 'テツノイサハ'}},
 			TypeNames: {fire: 'ほのお'},
 			NatureNames: {adamant: 'いじっぱり'},
 			TermNames: {
-				egggroup: 'タマゴグループ', moves: '技', nicknamespecies: '[NICKNAME]（[SPECIES]）',
+				egggroup: 'タマゴグループ', moves: '技', nicknamespecies: '{NICKNAME}（{SPECIES}）',
 			},
 			TagNames: {physical: 'ぶつり'},
 			GenderNames: {female: 'メス'},
@@ -154,7 +154,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 
 	it('TL translates UI strings and effect text', () => {
 		global.BattleUIText = {en: {
-			'Hello [1]!': '你好，[1]！',
+			'Hello {1}!': '你好，{1}！',
 			Open: {verb: '打开'},
 			Untranslated: null,
 		}, ja: {
@@ -214,13 +214,13 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 	});
 
 	it('selects and unescapes INFLECT values', () => {
-		const template = String.raw`[INFLECT:ITEM:s=one:p=two\:three\=four\]five\\six]`;
+		const template = String.raw`{INFLECT:ITEM:s=one:p=two\:three\=four\}five\\six}`;
 		assert.equal(BattleTextParser.inflect(template, {ITEM: 's'}), 'one');
-		assert.equal(BattleTextParser.inflect(template, {ITEM: 'p'}), 'two:three=four]five\\six');
+		assert.equal(BattleTextParser.inflect(template, {ITEM: 'p'}), 'two:three=four}five\\six');
 	});
 
 	it('leaves unresolved INFLECT expressions visible', () => {
-		const template = '[INFLECT:ITEM:s=one:p=many]';
+		const template = '{INFLECT:ITEM:s=one:p=many}';
 		assert.equal(BattleTextParser.inflect(template, {}), template);
 		assert.equal(BattleTextParser.inflect(template, {ITEM: 'z'}), template);
 	});
@@ -249,7 +249,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 
 	it('lets translations place the percentage symbol', () => {
 		global.BattleText.en.Default.default.damagePercentage =
-			'  ([POKEMON] lost [PERCENTAGE]% of its health!)';
+			'  ({POKEMON} lost {PERCENTAGE}% of its health!)';
 		const parser = new BattleTextParser();
 		assert.equal(
 			parser.extractMessage('|-damage|p1a: Mew|58/100|42%'),
@@ -266,7 +266,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 
 	it('applies placeholder modifiers after substitution', () => {
 		global.BattleText.fr = {Default: {default: {
-			faint: "[POKEMON] voit le clone [POKEMON:de] disparaître !",
+			faint: "{POKEMON} voit le clone {POKEMON:de} disparaître !",
 		}}};
 		const parser = new BattleTextParser('p1', 'fr');
 		assert.equal(parser.extractMessage('|faint|p1a: Mew'), 'Mew voit le clone de Mew disparaître !\n');
@@ -275,7 +275,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 
 	it('renders repeated placeholders with distinct values and literal dollar signs', () => {
 		const original = global.BattleText.en.Default.default.startBattle;
-		global.BattleText.en.Default.default.startBattle = '[TRAINER] vs. [TRAINER]... start!';
+		global.BattleText.en.Default.default.startBattle = '{TRAINER} vs. {TRAINER}... start!';
 		const parser = new BattleTextParser();
 		assert.equal(parser.extractMessage('|player|p1|Alice$1'), '');
 		assert.equal(parser.extractMessage('|player|p2|Bob$2'), '');
@@ -285,7 +285,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 
 	it('applies Korean placeholder particles', () => {
 		global.BattleText.ko = {Default: {default: {
-			faint: '[POKEMON:topic] 쓰러졌다!',
+			faint: '{POKEMON:topic} 쓰러졌다!',
 		}}};
 		const parser = new BattleTextParser('p1', 'ko');
 		assert.equal(parser.extractMessage('|faint|p1a: 뮤'), '뮤는 쓰러졌다!\n');
@@ -310,8 +310,8 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 	it('uses localized grammar and classified item forms', () => {
 		global.BattleText.fr = {
 			Default: {default: {
-				addItem: '[POKEMON] obtient [ITEM:indefinite:classified] !',
-				useGem: '[ITEM:definite:capitalize:classified] agi[INFLECT:ITEM:s=t:p=ssent] !',
+				addItem: '{POKEMON} obtient {ITEM:indefinite:classified} !',
+				useGem: '{ITEM:definite:capitalize:classified} agi{INFLECT:ITEM:s=t:p=ssent} !',
 			}},
 			Items: {brightpowder: {
 				name: 'Poudre Claire', grammar: 'fu',
@@ -331,7 +331,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 
 	it('uses localized article rules', () => {
 		global.BattleText.es = {
-			Default: {default: {activateItem: '[ITEM:definite:capitalize] actúa!'}},
+			Default: {default: {activateItem: '{ITEM:definite:capitalize} actúa!'}},
 			Items: {mysticwater: {
 				name: 'Agua Mística', grammar: 'fu', articleRule: 'stressed-a',
 			}},
@@ -345,7 +345,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 
 	it('uses localized stat grammar', () => {
 		global.BattleText.fr = {
-			Default: {default: {boost: '[STAT:definite:capitalize] de [POKEMON] augmente !'}},
+			Default: {default: {boost: '{STAT:definite:capitalize} de {POKEMON} augmente !'}},
 			TermNames: {stats: 'Stats'},
 			StatNames: {stats: 'stats', 'stats:grammar': 'fp', atk: 'Attaque', 'atk:grammar': 'fs'},
 			StatMediumNames: {atk: 'Atq.'},

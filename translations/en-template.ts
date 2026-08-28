@@ -103,7 +103,7 @@ export const translations: UIText = {
 	"OK": null,
 	"Report a user": null,
 	"Join the Help room for live help": null,
-	"([1] sec)": null,
+	"({1} sec)": null,
 
 	// TRANSLATORS: team chooser
 	"(uncategorized)": null,
@@ -130,9 +130,9 @@ export const translations: UIText = {
 	"Format:": null,
 	"Team:": null,
 	"Custom rules:": null,
-	// TRANSLATORS: Search countdown. [1] = a number of seconds
+	// TRANSLATORS: Search countdown. {1} = a number of seconds
 	// TRANSLATORS: English doesn't include the unit (seconds) but your language can
-	"Searching in [1]...": null,
+	"Searching in {1}...": null,
 	"Searching...": null,
 
 	// #endregion Main Menu
@@ -195,8 +195,8 @@ export const translations: UIText = {
 	// #region Chat
 	// ==================================================================
 
-	"[1] user": null,
-	"[1] users": null,
+	"{1} user": null,
+	"{1} users": null,
 	"Join": null,
 	"Leave": null,
 	"Ready!": null,
@@ -221,8 +221,8 @@ export const translations: UIText = {
 	"Teams": null,
 	"New team": null,
 	"New team in folder": null,
-	// TRANSLATORS: [1] = format
-	"New [1] team": null,
+	// TRANSLATORS: {1} = format
+	"New {1} team": null,
 	"New box": null,
 	// TRANSLATORS: When deleting a folder, button to add folder name to all teams in it
 	"Convert to prefix": null,

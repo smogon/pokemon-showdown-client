@@ -143,14 +143,14 @@ function translate(strings: TemplateStringsArray | string | TranslatableEffect, 
 	} else {
 		source = strings[0];
 		for (let i = 1; i < strings.length; i++) {
-			source += `[${i}]${strings[i]}`;
+			source += `{${i}}${strings[i]}`;
 		}
 	}
 
 	const translation = typeof BattleUIText === 'undefined' ? undefined :
 		BattleUIText[Dex.text.getLanguage()]?.[source];
 	const translated = (typeof translation === 'string' ? translation : translation?.[context]) ?? source;
-	return translated.replace(/\[(\d+)\]/g, (placeholder, indexText) => {
+	return translated.replace(/\{(\d+)\}/g, (placeholder, indexText) => {
 		const index = Number(indexText) - 1;
 		return index >= 0 && index < values.length ? String(values[index]) : placeholder;
 	});

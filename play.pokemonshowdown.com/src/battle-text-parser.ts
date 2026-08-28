@@ -267,7 +267,7 @@ export class BattleTextParser {
 		const categories: InflectionCategories = {};
 		const indexes: { [placeholder: string]: number } = {};
 		const text = template.replace(
-			/\[([A-Z][A-Z0-9]*)(?::([a-z]+(?::[a-z]+)*))?\]/g,
+			/\{([A-Z][A-Z0-9]*)(?::([a-z]+(?::[a-z]+)*))?\}/g,
 			(match, placeholder: string, modifierText: string | undefined) => {
 				const source = values[placeholder];
 				if (source === undefined) return match;
@@ -314,12 +314,12 @@ export class BattleTextParser {
 			const prefixes = ['pokemon', 'opposingPokemon', 'team', 'opposingTeam', 'party', 'opposingParty'].map(templateId => {
 				const template = this.defaultText(templateId);
 				if (template.startsWith(template.charAt(0).toUpperCase())) return '';
-				const bracketIndex = template.indexOf('[');
-				if (bracketIndex >= 0) return template.slice(0, bracketIndex);
+				const braceIndex = template.indexOf('{');
+				if (braceIndex >= 0) return template.slice(0, braceIndex);
 				return template;
 			}).filter(prefix => prefix);
 			if (prefixes.length) {
-				let buf = `((?:^|\n)(?:  |  \\(|\\[)?)(` +
+				let buf = `((?:^|\n)(?:  |  \\(|\\[|\\{)?)(` +
 					prefixes.map(BattleTextParser.escapeRegExp).join('|') +
 					`)`;
 				this.lowercaseRegExp = new RegExp(buf, 'g');
@@ -342,7 +342,7 @@ export class BattleTextParser {
 
 	static inflect(template: string, categories: InflectionCategories) {
 		return template.replace(
-			/\[INFLECT:([A-Z][A-Z0-9]*):((?:\\.|[^\]\\])*)\]/g,
+			/\{INFLECT:([A-Z][A-Z0-9]*):((?:\\.|[^}\\])*)\}/g,
 			(match, placeholder: string, source: string) => {
 				const category = categories[placeholder];
 				if (!category) return match;
@@ -536,7 +536,7 @@ export class BattleTextParser {
 		const localizedSpecies = this.speciesName(species);
 		if (nickname === localizedSpecies) return [pokemon.slice(0, 2), `**${localizedSpecies}**`];
 		const template = BattleText[this.language]?.TermNames?.nicknamespecies ||
-			BattleText.en?.TermNames?.nicknamespecies || '[NICKNAME] ([SPECIES])';
+			BattleText.en?.TermNames?.nicknamespecies || '{NICKNAME} ({SPECIES})';
 		return [pokemon.slice(0, 2), this.render(template, {
 			NICKNAME: nickname,
 			SPECIES: `**${localizedSpecies}**`,
@@ -794,13 +794,13 @@ export class BattleTextParser {
 		}
 
 		case 'start': {
-			return this.render(this.template('startBattle'), { TRAINER: [this.p1, this.p2] });
+			return this.render(this.template('startBattle'), { TRAINER1: this.p1, TRAINER2: this.p2 });
 		}
 
 		case 'win': case 'tie': {
 			const [, name] = args;
 			if (cmd === 'tie' || !name) {
-				return this.render(this.template('tieBattle'), { TRAINER: [this.p1, this.p2] });
+				return this.render(this.template('tieBattle'), { TRAINER1: this.p1, TRAINER2: this.p2 });
 			}
 			return this.render(this.template('winBattle'), { TRAINER: name });
 		}

@@ -114,7 +114,7 @@ export class TLCalls extends Map<string, TLCallsForKey> {
 		let index = 0;
 		for (const match of raw.matchAll(expressionRegex)) {
 			key += this.decodeLiteral(raw.slice(lastIndex, match.index), '`');
-			key += `[${++index}]`;
+			key += `{${++index}}`;
 			lastIndex = match.index + match[0].length;
 		}
 		const remainder = raw.slice(lastIndex);
