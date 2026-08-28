@@ -78,10 +78,10 @@ class ResourcePanel extends PSRoomPanel {
 						<a href="https://www.smogon.com/articles/getting-started">Next Steps for Competitive Battling</a>
 					</li>
 					<li>
-						<button className="button" data-cmd="/report">{TL`Report a user`}</button>
+						<button className="button" data-cmd="/report">{TL`[Report a user]`}</button>
 					</li>
 					<li>
-						<button className="button" data-cmd="/join help">{TL`Join the Help room for live help`}</button>
+						<button className="button" data-cmd="/join help">{TL`[Join the Help room for live help]`}</button>
 					</li>
 				</ul>
 				<hr />

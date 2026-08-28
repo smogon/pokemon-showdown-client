@@ -694,7 +694,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 				</button>
 				{PS.isOffline && <p class="buttonbar">
 					<button class="button" data-cmd="/reconnect">
-						<i class="fa fa-plug" aria-hidden></i> <strong>{TL`Reconnect`}</strong>
+						<i class="fa fa-plug" aria-hidden></i> <strong>{TL`[Reconnect]`}</strong>
 					</button> {}
 					<ReconnectTimer />
 				</p>}
@@ -707,25 +707,25 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		>
 			<p>
 				<button class="button small" data-href="battleoptions">
-					{TL`Battle options`} <i class="fa fa-caret-down" aria-hidden></i>
+					{TL`[Battle options]`} <i class="fa fa-caret-down" aria-hidden></i>
 				</button></p>
 			{PS.mainmenu.searchCountdown ? (
 				<>
 					<button class="mainmenu1 mainmenu big button disabled" disabled><strong>
 						<i class="fa fa-refresh fa-spin" aria-hidden></i> {TL`Searching in ${PS.mainmenu.searchCountdown.countdown}...`}
 					</strong></button>
-					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">{TL`Cancel`}</button></p>
+					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">{TL`[Cancel]`}</button></p>
 				</>
 			) : PS.mainmenu.searchingFormat() ? (
 				<>
 					<button class="mainmenu1 mainmenu big button disabled" disabled>
 						<strong><i class="fa fa-refresh fa-spin" aria-hidden></i> {TL`Searching...`}</strong>
 					</button>
-					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">{TL`Cancel`}</button></p>
+					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">{TL`[Cancel]`}</button></p>
 				</>
 			) : (
 				<button class="mainmenu1 mainmenu big button" type="submit">
-					<strong>{TL`Battle!`}</strong><br />
+					<strong>{TL`[Battle!]`}</strong><br />
 					<small>{TL`Find a random opponent`}</small>
 				</button>
 			)}
@@ -780,12 +780,12 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 				<div class="mainmenu-footer">
 					<div class="bgcredit">{this.renderBackgroundCredit()}</div>
 					<small>
-						<a href={`//${Config.routes.dex}/`} target="_blank">Pok&eacute;dex</a> | {}
-						<a href={`//${Config.routes.replays}/`} target="_blank">Replays</a> | {}
-						<a href="//smogon.com/forums/" target="_blank">Forum</a> | {}
-						<a href={`//${Config.routes.root}/rules`} target="_blank">Rules</a> | {}
-						<a href={`//${Config.routes.root}/credits`} target="_blank">Credits</a> | {}
-						<a href={`//${Config.routes.root}/privacy`} target="_blank">Privacy</a>
+						<a href={`//${Config.routes.dex}/`} target="_blank">{TL`Pokédex`}</a> | {}
+						<a href={`//${Config.routes.replays}/`} target="_blank">{TL`Replays`}</a> | {}
+						<a href="//smogon.com/forums/" target="_blank">{TL`Forum`}</a> | {}
+						<a href={`//${Config.routes.root}/rules`} target="_blank">{TL`Rules`}</a> | {}
+						<a href={`//${Config.routes.root}/credits`} target="_blank">{TL`Credits`}</a> | {}
+						<a href={`//${Config.routes.root}/privacy`} target="_blank">{TL`Privacy`}</a>
 					</small>
 					<CCPAIntercept />
 				</div>

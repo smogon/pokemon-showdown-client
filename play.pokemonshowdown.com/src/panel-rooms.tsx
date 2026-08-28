@@ -217,7 +217,7 @@ class RoomsPanel extends PSRoomPanel {
 
 		return <PSPanelWrapper room={this.props.room}><div class="pad">
 			<button class="button" style="float:right;font-size:10pt;margin-top:3px" onClick={this.hide}>
-				<i class="fa fa-caret-right" aria-hidden></i> {TL`Hide`}
+				<i class="fa fa-caret-right" aria-hidden></i> {TL`[Hide]`}
 			</button>
 			<div class="roomcounters">
 				<a class="button" href="users" title="Find an online user">
@@ -286,12 +286,12 @@ class RoomsPanel extends PSRoomPanel {
 					<h2>{title}</h2>
 					{sortedRooms.map((roomInfo, i) => <div key={roomInfo.title}>
 						<a href={`/${roomInfo.id || toID(roomInfo.title)}`} class={`blocklink${i === index ? " cur" : ''}`}>
-							{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
+							{roomInfo.userCount !== undefined && <small style="float:right">({TL`${roomInfo.userCount} users`})</small>}
 							<strong><i class="fa fa-comment-o" aria-hidden></i> {roomInfo.title}<br /></strong>
 							<small>{roomInfo.desc || ''}</small>
 						</a>
 						{roomInfo.subRooms && <div class="subrooms">
-							<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> Subrooms: {}
+							<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> {TL`Subrooms:`} {}
 							{roomInfo.subRooms.map(roomName => [<a href={`/${toID(roomName)}`} class="blocklink">
 								<i class="fa fa-comment-o" aria-hidden></i> <strong>{roomName}</strong>
 							</a>, ' '])}

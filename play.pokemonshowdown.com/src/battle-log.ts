@@ -945,7 +945,7 @@ export class BattleLog {
 		return false;
 	}
 	messageFromLog(line: string) {
-		this.message(...this.parseLogMessage(line));
+		this.message(...BattleLog.parseLogMessage(line));
 	}
 	textList(list: string[]) {
 		let message = '';
@@ -969,7 +969,7 @@ export class BattleLog {
 	 * To avoid trolling with nicknames, we can't just run this through
 	 * parseMessage
 	 */
-	parseLogMessage(message: string): [string, string] {
+	static parseLogMessage(message: string): [string, string] {
 		const messages = message.split('\n').map(line => {
 			line = BattleLog.escapeHTML(line);
 			line = line.replace(/\*\*(.*)\*\*/, '<strong>$1</strong>');

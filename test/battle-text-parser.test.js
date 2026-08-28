@@ -155,6 +155,9 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 	it('TL translates UI strings and effect text', () => {
 		global.BattleUIText = {en: {
 			'Hello {1}!': '你好，{1}！',
+			'[OK]': 'Translated OK',
+			'[Keep translated brackets]': '[Keep these]',
+			'[Untranslated button]': null,
 			Open: {verb: '打开'},
 			Untranslated: null,
 		}, ja: {
@@ -164,6 +167,10 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		assert.equal(global.TL`Hello ${'Mew'}!`, '你好，Mew！');
 		assert.equal(global.TL('Open', 'verb'), '打开');
 		assert.equal(global.TL`Untranslated`, 'Untranslated');
+		assert.equal(global.TL`[OK]`, 'Translated OK');
+		assert.equal(global.TL`[Keep translated brackets]`, '[Keep these]');
+		assert.equal(global.TL`[Untranslated button]`, 'Untranslated button');
+		assert.equal(global.TL('[Missing button]'), 'Missing button');
 		const prefs = global.Dex.prefs;
 		global.Dex.prefs = () => 'japanese';
 		void global.Dex.loadTextData();

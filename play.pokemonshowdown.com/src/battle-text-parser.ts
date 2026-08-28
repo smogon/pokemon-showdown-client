@@ -258,6 +258,19 @@ export class BattleTextParser {
 		return this.textField('Default', 'default', field);
 	}
 
+	uiText(field: string, values?: { [placeholder: string]: RenderValue | undefined }) {
+		const template = this.textField('Default', 'ui', field);
+		if (!template) return '';
+		return this.render(template, values);
+	}
+
+	private static uiParser: BattleTextParser | null = null;
+	static ui(field: string, values?: { [placeholder: string]: RenderValue | undefined }) {
+		const parser = (BattleTextParser.uiParser ||= new BattleTextParser());
+		parser.language = Dex.text.getLanguage();
+		return parser.uiText(field, values);
+	}
+
 	/**
 	 * Render template, resolving placeholders.
 	 */

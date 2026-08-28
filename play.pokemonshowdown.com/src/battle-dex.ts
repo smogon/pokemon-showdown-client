@@ -149,7 +149,8 @@ function translate(strings: TemplateStringsArray | string | TranslatableEffect, 
 
 	const translation = typeof BattleUIText === 'undefined' ? undefined :
 		BattleUIText[Dex.text.getLanguage()]?.[source];
-	const translated = (typeof translation === 'string' ? translation : translation?.[context]) ?? source;
+	const fallback = source.startsWith('[') && source.endsWith(']') ? source.slice(1, -1) : source;
+	const translated = (typeof translation === 'string' ? translation : translation?.[context]) ?? fallback;
 	return translated.replace(/\{(\d+)\}/g, (placeholder, indexText) => {
 		const index = Number(indexText) - 1;
 		return index >= 0 && index < values.length ? String(values[index]) : placeholder;

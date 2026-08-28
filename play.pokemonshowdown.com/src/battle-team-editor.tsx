@@ -952,7 +952,7 @@ export class TeamEditorState extends PSModel {
 			))}
 			{TeamEditorState.clipboard.otherSets?.map(set => renderSet(set))}
 			<button class="button" onClick={cancelClipboard}>
-				<i class="fa fa-times" aria-hidden></i> {TL`Cancel`}
+				<i class="fa fa-times" aria-hidden></i> {TL`[Cancel]`}
 			</button>
 		</div>;
 	}
@@ -1134,7 +1134,7 @@ export class TeamEditor extends preact.Component<{
 				</button></li>
 				<li class="teameditor-options" style="float: right; margin-top: 1px; margin-right: 8px;">
 					<details ref={el => { this.optionsMenu = el; }}>
-						<summary class="button button-first">{TL`Options`}</summary>
+						<summary class="button button-first">{TL`[Options]`}</summary>
 						<div class="teameditor-options-menu">
 							{mobileOptions ? <label class="checkbox"><input
 								name="zoomoutforms" type="checkbox"
@@ -1864,7 +1864,7 @@ class TeamTextbox extends preact.Component<{
 					{this.state.copyButtonUsed ? (
 						<><i class="fa fa-check" aria-hidden></i> {TL`Copied!`}</>
 					) : (
-						<><i class="fa fa-copy" aria-hidden></i> {TL`Copy`}</>
+						<><i class="fa fa-copy" aria-hidden></i> {TL`[Copy]`}</>
 					)}
 				</button>
 			</p>
@@ -1919,7 +1919,7 @@ class TeamTextbox extends preact.Component<{
 					{editor.canAdd() && !(this.innerFocus && this.innerFocus.setIndex >= this.setInfo.length) && (
 						<div style={`top:${this.bottomY() - 3}px;left:${editor.narrow ? 55 : 105}px;position:absolute`}>
 							<button class="button" onClick={this.addPokemon}>
-								<i class="fa fa-plus" aria-hidden></i> {TL`Add Pokémon`}
+								<i class="fa fa-plus" aria-hidden></i> {TL`[Add Pokémon]`}
 							</button>
 						</div>
 					)}
@@ -1934,14 +1934,14 @@ class TeamTextbox extends preact.Component<{
 					this.innerFocus.type === 'stats' ? (
 						<div class="searchresults" style={resultsCSS}>
 							<button class="button closesearch" onClick={this.closeMenu}>
-								{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> {TL`Close`}
+								{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> {TL`[Close]`}
 							</button>
 							<StatForm editor={editor} set={this.editor.sets[this.innerFocus.setIndex]} onChange={this.handleSetChange} />
 						</div>
 					) : this.innerFocus.type === 'details' ? (
 						<div class="searchresults" style={resultsCSS}>
 							<button class="button closesearch" onClick={this.closeMenu}>
-								{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> {TL`Close`}
+								{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> {TL`[Close]`}
 							</button>
 							<DetailsForm editor={editor} set={this.editor.sets[this.innerFocus.setIndex]} onChange={this.handleSetChange} />
 						</div>
@@ -1949,7 +1949,7 @@ class TeamTextbox extends preact.Component<{
 						<PSSearchResults
 							class="searchresults" style={resultsCSS}
 							prepend={<button class="button closesearch" onClick={this.closeMenu}>
-								{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> {TL`Close`}
+								{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> {TL`[Close]`}
 							</button>}
 							search={editor.search}
 							onSelect={this.selectResult}
@@ -2216,7 +2216,7 @@ class TeamEditorForm extends preact.Component<{
 			<div class={isSearchMode && (set?.moves.length || 0) > 5 ? 'team-focus-top' : ''}>
 				<ul class="tabbar">
 					<li class="home-li"><button class="button" onClick={this.closeInnerFocus}>
-						<i class="fa fa-chevron-left" aria-hidden></i> {TL`Back`}
+						<i class="fa fa-chevron-left" aria-hidden></i> {TL`[Back]`}
 					</button></li>
 					{editor.sets.map((curSet, i) => <li><button
 						class={`button picontab${cur(i)}`} onClick={this.setFocus}
@@ -2283,14 +2283,14 @@ class TeamEditorForm extends preact.Component<{
 			null
 		) : clipboard ? <p>
 			<button class="button notifying" onClick={this.pasteSet} value={i}>
-				<i class="fa fa-clipboard" aria-hidden></i> {TL`Paste copy here`}
+				<i class="fa fa-clipboard" aria-hidden></i> {TL`[Paste copy here]`}
 			</button> {}
 			{!willNotMove(i) && <button class="button notifying" onClick={this.moveSet} value={i} disabled={clipboard.readonly}>
-				<i class="fa fa-arrow-right" aria-hidden></i> {TL`Move here`}
+				<i class="fa fa-arrow-right" aria-hidden></i> {TL`[Move here]`}
 			</button>}
 		</p> : editor.deletedSet?.index === i ? <p style="text-align:right">
 			<button class="button" onClick={this.undeleteSet}>
-				<i class="fa fa-undo" aria-hidden></i> {TL`Undo delete`}
+				<i class="fa fa-undo" aria-hidden></i> {TL`[Undo delete]`}
 			</button>
 		</p> : null;
 		return <div class={`set-list team-pad${editor.readonly ? ' readonly' : ''}`}>
@@ -2303,7 +2303,7 @@ class TeamEditorForm extends preact.Component<{
 				class="button big" name="addpokemon" onClick={this.setFocus}
 				value={`set-${editor.sets.length}-pokemon`}
 			>
-				<i class="fa fa-plus" aria-hidden></i> {TL`Add Pokémon`}
+				<i class="fa fa-plus" aria-hidden></i> {TL`[Add Pokémon]`}
 			</button></p>}
 		</div>;
 	}
@@ -2919,15 +2919,15 @@ class TeamEditorForm extends preact.Component<{
 			return <div class="set-form" data-set-index={i}>
 				<div style="text-align:right">
 					{editor.deletedSet ? (
-						<button onClick={this.undeleteSet} class="option"><i class="fa fa-undo" aria-hidden></i> {TL`Undo delete`}</button>
+						<button onClick={this.undeleteSet} class="option"><i class="fa fa-undo" aria-hidden></i> {TL`[Undo delete]`}</button>
 					) : (
-						<button class="option" style="visibility:hidden"><i class="fa fa-trash" aria-hidden></i> {TL`Delete`}</button>
+						<button class="option" style="visibility:hidden"><i class="fa fa-trash" aria-hidden></i> {TL`[Delete]`}</button>
 					)} {}
 					<button
 						class="option" name="import" onClick={this.clickPanelButton}
 						value={`set-${i}-import`}
 					>
-						<i class="fa fa-upload" aria-hidden></i> {TL`Import`}
+						<i class="fa fa-upload" aria-hidden></i> {TL`[Import]`}
 					</button>
 				</div>
 				<table class={spriteClass} style={sprite}>
@@ -2959,22 +2959,22 @@ class TeamEditorForm extends preact.Component<{
 			<div style="text-align:right">
 				<button class="option" onClick={this.copySet} value={i}>
 					<i class="fa fa-copy" aria-hidden></i> {
-						isCur ? TL`Deselect` :
-						TeamEditorState.clipboard ? TL`Add to clipboard` :
-						editor.readonly ? TL`Copy` :
-						TL`Copy/Move`
+						isCur ? TL`[Deselect]` :
+						TeamEditorState.clipboard ? TL`[Add to clipboard]` :
+						editor.readonly ? TL`[Copy]` :
+						TL`[Copy/Move]`
 					}
 				</button> {}
 				{!(TeamEditorState.clipboard || editor.readonly) && <button
 					class="option" name="import" onClick={this.clickPanelButton}
 					value={`set-${i}-import`}
 				>
-					<i class="fa fa-upload" aria-hidden></i> {TL`Import/Export`}
+					<i class="fa fa-upload" aria-hidden></i> {TL`[Import/Export]`}
 				</button>} {}
 				{!(TeamEditorState.clipboard || editor.readonly) && <button
 					class="option" name="delete" onClick={this.deleteSet} value={i}
 				>
-					<i class="fa fa-trash" aria-hidden></i> {TL`Delete`}
+					<i class="fa fa-trash" aria-hidden></i> {TL`[Delete]`}
 				</button>}
 			</div>
 			<table class={`${spriteClass}${tintClass}`} style={sprite}>
@@ -3233,12 +3233,12 @@ class SetImportForm extends preact.Component<{
 				<p>
 					<button class={`button${this.state.copied ? ' cur' : ''}`} onClick={this.copyText}>
 						<i class={`fa fa-${this.state.copied ? 'check' : 'copy'}`} aria-hidden></i> {}
-						{this.state.copied ? TL`Copied!` : TL`Copy`}
+						{this.state.copied ? TL`Copied!` : TL`[Copy]`}
 					</button> {}
 					{this.state.dirty && <button
 						class="button" onClick={this.revertTextToRevertPoint} disabled={editor.readonly}
 					>
-						<i class="fa fa-undo" aria-hidden></i> {TL`Revert`}
+						<i class="fa fa-undo" aria-hidden></i> {TL`[Revert]`}
 					</button>}
 				</p>
 				{this.state.error && <p class="message-error">{this.state.error}</p>}

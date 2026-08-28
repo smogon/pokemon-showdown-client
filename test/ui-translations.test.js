@@ -13,9 +13,11 @@ describe('UI translation catalogs', () => {
 			const action = TL("Open", "verb");
 			const term = TL.term.moves;
 			const directUI = TL("Add Pokémon");
+			const button = TL\`[OK]\`;
 			const moveName = TL(move);
 		`, 'panel-battle.tsx');
-		assert.deepEqual([...calls.keys()], ['Hello {1}!', 'Open', 'Add Pokémon']);
+		assert.deepEqual([...calls.keys()], ['Hello {1}!', '[OK]', 'Open', 'Add Pokémon']);
+		assert.deepEqual([...calls.get('[OK]').contexts], ['default']);
 		assert.deepEqual([...calls.get('Hello {1}!').contexts], ['default']);
 		assert.deepEqual([...calls.get('Open').contexts], ['verb']);
 		assert.deepEqual([...calls.get('Add Pokémon').contexts], ['default']);

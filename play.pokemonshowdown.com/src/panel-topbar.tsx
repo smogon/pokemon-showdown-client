@@ -146,7 +146,7 @@ export class PSHeader extends preact.Component {
 
 		let closeButton = null;
 		if (closable) {
-			closeButton = <button class="closebutton" name="closeRoom" value={id} aria-label={TL`Close`}>
+			closeButton = <button class="closebutton" name="closeRoom" value={id} aria-label={TL`[Close]`}>
 				<i class="fa fa-times-circle" aria-hidden></i>
 			</button>;
 		}
@@ -230,7 +230,7 @@ export class PSHeader extends preact.Component {
 			return <button class="button" disabled><em>{TL`Connecting...`}</em></button>;
 		}
 		if (!PS.user.named) {
-			return <a class="button" href="login">Choose name</a>;
+			return <a class="button" href="login">{TL`[Choose name]`}</a>;
 		}
 		const userColor = window.BattleLog && `color:${PS.user.away ? '#888' : BattleLog.usernameColor(PS.user.userid)}`;
 		return <span class="username" style={userColor}>
@@ -268,12 +268,12 @@ export class PSHeader extends preact.Component {
 				{this.renderUser()} {}
 				<div style="float:right">
 					<button
-						class="icon button" data-href="volume" title={TL`Sound`} aria-label={TL`Sound`}
+						class="icon button" data-href="volume" title={TL`[Sound]`} aria-label={TL`[Sound]`}
 						onDblClick={PSHeader.toggleMute}
 					>
 						<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 					</button> {}
-					<button class="icon button" data-href="options" title={TL`Options`} aria-label={TL`Options`}>
+					<button class="icon button" data-href="options" title={TL`[Options]`} aria-label={TL`[Options]`}>
 						<i class="fa fa-cog" aria-hidden></i>
 					</button>
 				</div>
@@ -292,12 +292,12 @@ export class PSHeader extends preact.Component {
 			<div class="userbar">
 				{this.renderUser()} {}
 				<button
-					class="icon button" data-href="volume" title={TL`Sound`} aria-label={TL`Sound`}
+					class="icon button" data-href="volume" title={TL`[Sound]`} aria-label={TL`[Sound]`}
 					onDblClick={PSHeader.toggleMute}
 				>
 					<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 				</button> {}
-				<button class="icon button" data-href="options" title={TL`Options`} aria-label={TL`Options`}>
+				<button class="icon button" data-href="options" title={TL`[Options]`} aria-label={TL`[Options]`}>
 					<i class="fa fa-cog" aria-hidden></i>
 				</button>
 			</div>
@@ -367,7 +367,7 @@ export class PSMiniHeader extends preact.Component {
 		return <div class="mini-header" style={`left:${PSView.verticalHeaderWidth + (PSView.narrowMode ? 0 : -1)}px;`}>
 			{menuButton}
 			{icon} {title}
-			<button data-href="options" class="mini-header-right" aria-label={TL`Options`}>
+			<button data-href="options" class="mini-header-right" aria-label={TL`[Options]`}>
 				{PS.user.named ? <strong style={userColor}>{PS.user.name}</strong> : <i class="fa fa-cog" aria-hidden></i>}
 			</button>
 		</div>;

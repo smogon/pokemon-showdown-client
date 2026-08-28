@@ -95,12 +95,12 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}><div class="pad">
 			<button class="button" style="float:right;font-size:10pt;margin-top:3px" name="closeRoom">
-				<i class="fa fa-times" aria-hidden></i> {TL`Close`}
+				<i class="fa fa-times" aria-hidden></i> {TL`[Close]`}
 			</button>
 			<div class="roomlist">
 				<p>
 					<button class="button" name="refresh" onClick={this.refresh}>
-						<i class="fa fa-refresh" aria-hidden></i> {TL`Refresh`}
+						<i class="fa fa-refresh" aria-hidden></i> {TL`[Refresh]`}
 					</button> {}
 					<span
 						style={Dex.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle'} class="picon"
@@ -121,7 +121,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 				<form class="search" onSubmit={this.applyFilters}>
 					<p>
 						<input type="text" name="prefixsearch" class="textbox" placeholder="Username prefix" autocomplete="off" />
-						<button type="submit" class="button">{TL`Search`}</button>
+						<button type="submit" class="button">{TL`[Search]`}</button>
 					</p>
 				</form>
 				<div class="list">{!room.battles ? (
@@ -583,7 +583,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		}
 		return <div class="pad"><div class="broadcast-red pad">
 			<h3>{room.connectError || "Error"}</h3>
-			<p class="buttonbar"><button class="button" data-cmd="/close"><strong>{TL`Close`}</strong></button></p>
+			<p class="buttonbar"><button class="button" data-cmd="/close"><strong>{TL`[Close]`}</strong></button></p>
 		</div></div>;
 	}
 	renderControls(overlayVersion = false, hidePlayerControls = false) {
@@ -606,38 +606,38 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<p>
 				{atEnd ? (
 					<button class="button disabled" aria-disabled data-cmd="/play" style="min-width:4.5em">
-						<i class="fa fa-play" aria-hidden></i><br />{TL`Play`}
+						<i class="fa fa-play" aria-hidden></i><br />{TL`[Play]`}
 					</button>
 				) : room.battle.paused ? (
 					<button class="button" data-cmd="/play" style="min-width:4.5em">
-						<i class="fa fa-play" aria-hidden></i><br />{TL`Play`}
+						<i class="fa fa-play" aria-hidden></i><br />{TL`[Play]`}
 					</button>
 				) : (
 					<button class="button" data-cmd="/pause" style="min-width:4.5em">
-						<i class="fa fa-pause" aria-hidden></i><br />{TL`Pause`}
+						<i class="fa fa-pause" aria-hidden></i><br />{TL`[Pause]`}
 					</button>
 				)} {}
 				{!room.battle.hardcoreMode && <>
 					<button class={"button button-first" + (atStart ? " disabled" : "")} data-cmd="/ffto 0" style="margin-right:2px">
-						<i class="fa fa-undo" aria-hidden></i><br />{TL`First turn`}
+						<i class="fa fa-undo" aria-hidden></i><br />{TL`[First turn]`}
 					</button>
 					<button class={"button button-first" + (atStart ? " disabled" : "")} data-cmd="/ffto -1">
-						<i class="fa fa-step-backward" aria-hidden></i><br />{TL`Prev turn`}
+						<i class="fa fa-step-backward" aria-hidden></i><br />{TL`[Prev turn]`}
 					</button>
 					<button class={"button button-last" + (atEnd ? " disabled" : "")} data-cmd="/ffto +1" style="margin-right:2px">
-						<i class="fa fa-step-forward" aria-hidden></i><br />{TL`Skip turn`}
+						<i class="fa fa-step-forward" aria-hidden></i><br />{TL`[Skip turn]`}
 					</button>
 					<button class={"button button-last" + (atEnd ? " disabled" : "")} data-cmd="/ffto end">
-						<i class="fa fa-fast-forward" aria-hidden></i><br />{TL`Skip to end`}
+						<i class="fa fa-fast-forward" aria-hidden></i><br />{TL`[Skip to end]`}
 					</button>
 				</>}
 			</p>
 			<p>
 				<button class="button" data-cmd="/switchsides">
-					<i class="fa fa-random" aria-hidden></i> {TL`Switch viewpoint`}
+					<i class="fa fa-random" aria-hidden></i> {TL`[Switch viewpoint]`}
 				</button> {}
 				{!room.battle.hardcoreMode && <button class="button" data-cmd="/ffto">
-					<i class="fa fa-random" aria-hidden></i> {TL`Go to turn`}
+					<i class="fa fa-random" aria-hidden></i> {TL`[Go to turn]`}
 				</button>}
 			</p>
 		</div>;
@@ -717,7 +717,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			</em></p>}
 			{maybeLocked && <p><em class="movewarning">
 				You <strong>might</strong> be locked into a move. {}
-				<button class="button" data-cmd="/choose testfight">{TL`Try Fight button`}</button> {}
+				<button class="button" data-cmd="/choose testfight">{TL`[Try Fight button]`}</button> {}
 				(prevents switching if you're locked)
 			</em></p>}
 			{!overlayVersion && this.renderMoveControls(moveRequest, choices)}
@@ -960,7 +960,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		}
 
 		let buf: preact.ComponentChild[] = [
-			<button data-cmd="/cancelone" class="button"><i class="fa fa-chevron-left" aria-hidden></i> {TL`Back`}</button>, ' ',
+			<button data-cmd="/cancelone" class="button"><i class="fa fa-chevron-left" aria-hidden></i> {TL`[Back]`}</button>, ' ',
 		];
 		if (choices.isDone() && (
 			choices.noCancel || this.props.room.battle.hardcoreMode ||
@@ -1049,14 +1049,14 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const canSkip = !room.battle.hardcoreMode;
 			return <>
 				{canSkip && <div class="overlay-controls-skip">
-					<button class="button" data-cmd="/ffto end"><i class="fa fa-fast-forward" aria-hidden></i><br />{TL`Skip`}</button>
+					<button class="button" data-cmd="/ffto end"><i class="fa fa-fast-forward" aria-hidden></i><br />{TL`[Skip]`}</button>
 				</div>}
 			</>;
 		}
 		return <div class="inline-controls">
 			{!room.battle.hardcoreMode && <div class="whatdo" style="padding-bottom:0">
 				<button class="button" data-cmd="/ffto end">
-					<i class="fa fa-fast-forward" aria-hidden></i><br />{TL`Skip animation`}
+					<i class="fa fa-fast-forward" aria-hidden></i><br />{TL`[Skip animation]`}
 				</button>
 			</div>}
 			{this.renderTeamList()}
@@ -1116,7 +1116,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</div>}
 				{room.overlayActive === 'switch' && <div class="switchcontrols">
 					{canShift && (
-						<button data-cmd="/shift">{TL`Move to center`}</button>
+						<button data-cmd="/shift">{TL`[Move to center]`}</button>
 					)}
 					{this.renderSwitchMenu(request, choices)}
 				</div>}
@@ -1134,7 +1134,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<div class="switchcontrols">
 				{canShift && [
 					<h3 class="shiftselect">Shift</h3>,
-					<button data-cmd="/shift">{TL`Move to center`}</button>,
+					<button data-cmd="/shift">{TL`[Move to center]`}</button>,
 				]}
 				<h3 class="switchselect">{TL`Switch`}</h3>
 				{this.renderSwitchMenu(request, choices)}
@@ -1173,7 +1173,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	}
 	renderPlayerTeamPreviewControls(request: BattleTeamRequest, choices: BattleChoiceBuilder, overlayVersion = false) {
 		const prompt = choices.alreadySwitchingIn.length > 0 ? (
-			[<button data-cmd="/cancelone" class="button"><i class="fa fa-chevron-left" aria-hidden></i> {TL`Back`}</button>,
+			[<button data-cmd="/cancelone" class="button"><i class="fa fa-chevron-left" aria-hidden></i> {TL`[Back]`}</button>,
 				" ", this.renderUIText('teamRest'), " "]
 		) : (
 			[this.renderUIText('teamStart'), " "]
@@ -1254,7 +1254,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				<div class="whatdo">
 					{this.renderOldChoices(request, choices)}
 					<em>{this.renderUIText('waitingOpponent')}</em> {choices.noCancel || room.battle.hardcoreMode ?
-						null : <button data-cmd="/cancel" class="button">{TL`Cancel`}</button>}
+						null : <button data-cmd="/cancel" class="button">{TL`[Cancel]`}</button>}
 				</div>
 				{this.renderTeamList()}
 			</div>;
@@ -1289,38 +1289,38 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					<br />
 					<br />
 					<button class="button" data-cmd="/savereplay">
-						<i class="fa fa-upload" aria-hidden></i> {TL`Upload and share replay`}
+						<i class="fa fa-upload" aria-hidden></i> {TL`[Upload and share replay]`}
 					</button>
 				</span>
 
 				<button class="button" data-cmd="/play" style="min-width:4.5em">
-					<i class="fa fa-undo" aria-hidden></i><br />{TL`Replay`}
+					<i class="fa fa-undo" aria-hidden></i><br />{TL`[Replay]`}
 				</button> {}
 				{isNotTiny && !room.battle.hardcoreMode && <>
 					<button class="button button-first" data-cmd="/ffto 0" style="margin-right:2px">
-						<i class="fa fa-undo" aria-hidden></i><br />{TL`First turn`}
+						<i class="fa fa-undo" aria-hidden></i><br />{TL`[First turn]`}
 					</button>
 					<button class="button button-first" data-cmd="/ffto -1">
-						<i class="fa fa-step-backward" aria-hidden></i><br />{TL`Prev turn`}
+						<i class="fa fa-step-backward" aria-hidden></i><br />{TL`[Prev turn]`}
 					</button>
 				</>}
 			</p>
 			{room.side ? (
 				<p>
 					<button class="button" data-cmd="/close">
-						<strong>{TL`Main menu`}</strong><br /><small>{TL`(closes this battle)`}</small>
+						<strong>{TL`[Main menu]`}</strong><br /><small>{TL`(closes this battle)`}</small>
 					</button> {}
 					<button class="button" data-cmd={`/closeand /challenge ${room.battle.farSide.id},${room.battle.tier}`}>
-						<strong>{TL`Rematch`}</strong><br /><small>{TL`(closes this battle)`}</small>
+						<strong>{TL`[Rematch]`}</strong><br /><small>{TL`(closes this battle)`}</small>
 					</button>
 				</p>
 			) : (
 				<p>
 					<button class="button" data-cmd="/switchsides">
-						<i class="fa fa-random" aria-hidden></i> {TL`Switch viewpoint`}
+						<i class="fa fa-random" aria-hidden></i> {TL`[Switch viewpoint]`}
 					</button> {}
 					{!room.battle.hardcoreMode && <button class="button" data-cmd="/ffto">
-						<i class="fa fa-random" aria-hidden></i> {TL`Go to turn`}
+						<i class="fa fa-random" aria-hidden></i> {TL`[Go to turn]`}
 					</button>}
 				</p>
 			)}

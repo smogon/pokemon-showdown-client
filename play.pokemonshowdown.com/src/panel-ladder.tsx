@@ -166,7 +166,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 				placeholder="username prefix"
 				onChange={this.changeSearch}
 			/> {}
-			<button type="submit" class="button">{TL`Search`}</button>
+			<button type="submit" class="button">{TL`[Search]`}</button>
 		</p></form>;
 	}
 	renderLocalLadder() {
@@ -234,7 +234,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 				<div class="ladder pad">
 					<p>
 						<button class="button" data-href="ladder" data-target="replace">
-							<i class="fa fa-chevron-left" aria-hidden></i> {TL`All formats`}
+							<i class="fa fa-chevron-left" aria-hidden></i> {TL`[All formats]`}
 						</button>
 					</p>
 					{this.renderLocalLadder()}
@@ -245,12 +245,12 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 			<div class="ladder pad">
 				<p>
 					<button class="button" data-href="ladder" data-target="replace">
-						<i class="fa fa-chevron-left" aria-hidden></i> {TL`All formats`}
+						<i class="fa fa-chevron-left" aria-hidden></i> {TL`[All formats]`}
 					</button>
 				</p>
 				<p>
 					<button class="button" data-href="ladder" data-target="replace">
-						<i class="fa fa-refresh" aria-hidden></i> {TL`Refresh`}
+						<i class="fa fa-refresh" aria-hidden></i> {TL`[Refresh]`}
 					</button> <a class="button" href="/view-seasonladder-gen9randombattle">
 						<i class="fa fa-trophy" aria-hidden></i> Seasonal rankings
 					</a>
@@ -303,7 +303,7 @@ class LadderListPanel extends PSRoomPanel {
 				</p>
 				<p>
 					<button data-href="view-ladderhelp" class="button">
-						<i class="fa fa-info-circle" aria-hidden></i> {TL`How the ladder works`}
+						<i class="fa fa-info-circle" aria-hidden></i> {TL`[How the ladder works]`}
 					</button>
 				</p>
 				{this.renderList()}

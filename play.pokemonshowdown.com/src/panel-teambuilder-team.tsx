@@ -326,7 +326,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 							<i class="fa fa-globe"></i> {team.uploaded.private ? TL`Account` : TL`Account (public)`}
 						</button>
 						{unsaved && <button class="button button-last notifying" onClick={this.uploadTeam}>
-							<strong>{TL`Upload changes`}</strong>
+							<strong>{TL`[Upload changes]`}</strong>
 						</button>}
 					</>
 				) : team.teamid ? (
@@ -359,7 +359,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 				editorRef={(editor: TeamEditorState) => { room.editor = editor; }}
 			>
 				{!!(team.packedTeam && team.format.length > 4) && <p>
-					<button data-cmd="/validate" class="button"><i class="fa fa-check"></i> {TL`Validate`}</button>
+					<button data-cmd="/validate" class="button"><i class="fa fa-check"></i> {TL`[Validate]`}</button>
 				</p>}
 				{!!(team.packedTeam || team.uploaded) && <p class="infobox" style="padding: 5px 8px">
 					{team.uploadedPackedTeam && !team.uploaded ? <>
@@ -371,13 +371,13 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 						/> {}
 						{unsaved && <div style="padding-top:5px">
 							<button class="button notifying" onClick={this.uploadTeam}>
-								<i class="fa fa-upload"></i> <strong>{TL`Upload changes`}</strong>
+								<i class="fa fa-upload"></i> <strong>{TL`[Upload changes]`}</strong>
 							</button> {}
 							<button class="button" onClick={this.restore}>
-								{TL`Revert to uploaded version`}
+								{TL`[Revert to uploaded version]`}
 							</button> {}
 							<button class="button" onClick={this.compare}>
-								{TL`Compare`}
+								{TL`[Compare]`}
 							</button>
 						</div>}
 					</> : !team.teamid ? <>
@@ -389,9 +389,9 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 						</label>
 						<button class="button exportbutton" onClick={this.uploadTeam}>
 							<i class="fa fa-upload"></i> {PS.prefs.uploadprivacy ? (
-								TL`Upload for shareable URL`
+								TL`[Upload for shareable URL]`
 							) : (
-								TL`Upload for shareable/searchable URL`
+								TL`[Upload for shareable/searchable URL]`
 							)}
 						</button>
 					</> : <>

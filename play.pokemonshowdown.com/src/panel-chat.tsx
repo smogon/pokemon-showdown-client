@@ -600,7 +600,7 @@ export class ChatRoom extends PSRoom {
 				PS.prompt("Turn number?", {
 					defaultValue: `${this.battle.turn}`,
 					type: 'numeric',
-					okButton: TL`Go`,
+					okButton: TL`[Go]`,
 					parentElem,
 				}).then(turnNum => {
 					if (turnNum?.trim()) this.send(`/ffto ${turnNum}`, parentElem);
@@ -908,9 +908,9 @@ export class CopyableURLBox extends preact.Component<{ url: string }> {
 				name="url" type="text" class="textbox" readOnly size={45} value={this.props.url}
 				style="field-sizing:content"
 			/> {}
-			<button class="button" onClick={this.copy}>{TL`Copy`}</button> {}
+			<button class="button" onClick={this.copy}>{TL`[Copy]`}</button> {}
 			<a href={this.props.url} target="_blank" class="no-panel-intercept">
-				<button class="button">{TL`Visit`}</button>
+				<button class="button">{TL`[Visit]`}</button>
 			</a>
 		</div>;
 	}
@@ -1309,7 +1309,7 @@ export class ChatTextEntry extends preact.Component<{
 				/>}
 			</form>
 			{!canTalk && <button data-href="login" class="button autofocus">
-				{TL`Choose a name before sending messages`}
+				{TL`[Choose a name before sending messages]`}
 			</button>}
 		</div>;
 	}
@@ -1402,7 +1402,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 				format={room.challenging.formatName} teamFormat={room.challenging.teamFormat}
 				onSubmit={null} selectType="challenge"
 			>
-				<button data-cmd="/cancelchallenge" class="button">{TL`Cancel`}</button>
+				<button data-cmd="/cancelchallenge" class="button">{TL`[Cancel]`}</button>
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge outgoing">
 			<TeamForm onSubmit={this.makeChallenge} defaultFormat={defaultFormat} selectType="challenge">
@@ -1410,12 +1410,12 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 					{TL`Challenging...`}
 				</button>}
 				{!challengeSent && <button type="submit" class="button button-first" disabled={!!room.challenged}>
-					<strong>{TL`Challenge`}</strong>
+					<strong>{TL`[Challenge]`}</strong>
 				</button>}
-				{!challengeSent && <button data-href="battleoptions" class="button button-last" aria-label={TL`Battle options`}>
+				{!challengeSent && <button data-href="battleoptions" class="button button-last" aria-label={TL`[Battle options]`}>
 					<i class="fa fa-caret-down" aria-hidden></i>
 				</button>} {}
-				<button data-cmd="/cancelchallenge" class="button">{TL`Cancel`}</button>
+				<button data-cmd="/cancelchallenge" class="button">{TL`[Cancel]`}</button>
 			</TeamForm>
 		</div> : null;
 
@@ -1432,14 +1432,14 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 					type="submit" class={room.challenged.formatName ? `button button-first` : `button`}
 					data-cmdpreview="/accept"
 				>
-					<strong>{room.challenged.acceptButtonLabel || TL`Accept`}</strong>
+					<strong>{room.challenged.acceptButtonLabel || TL`[Accept]`}</strong>
 				</button>}
 				{!room.teamSent && room.challenged.formatName && <button
-					data-href="battleoptions" class="button button-last" aria-label={TL`Battle options`}
+					data-href="battleoptions" class="button button-last" aria-label={TL`[Battle options]`}
 				>
 					<i class="fa fa-caret-down" aria-hidden></i>
 				</button>} {}
-				<button data-cmd="/reject" class="button">{room.challenged.rejectButtonLabel || TL`Reject`}</button>
+				<button data-cmd="/reject" class="button">{room.challenged.rejectButtonLabel || TL`[Reject]`}</button>
 			</TeamForm>
 		</div> : null;
 
@@ -1448,7 +1448,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			{connectError}
 			{challengeTo}{challengeFrom}{PS.isOffline && <p class="buttonbar">
 				<button class="button" data-cmd="/reconnect">
-					<i class="fa fa-plug" aria-hidden></i> <strong>{TL`Reconnect`}</strong>
+					<i class="fa fa-plug" aria-hidden></i> <strong>{TL`[Reconnect]`}</strong>
 				</button> {}
 				<ReconnectTimer />
 			</p>}
@@ -1461,7 +1461,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		}
 		return <div class="pad"><div class="broadcast-red pad">
 			<h3>{room.connectError || "Error"}</h3>
-			<p class="buttonbar"><button class="button" data-cmd="/close"><strong>{TL`Close`}</strong></button></p>
+			<p class="buttonbar"><button class="button" data-cmd="/close"><strong>{TL`[Close]`}</strong></button></p>
 		</div></div>;
 	}
 
@@ -1501,17 +1501,17 @@ export class ChatUserList extends preact.Component<{
 				<div class="userlist-count"><small>{userCountText}</small></div>
 			) : room.id === 'dm-' ? (
 				<>
-					<button class="button button-middle" data-cmd="/help">{TL`Commands`}</button>
+					<button class="button button-middle" data-cmd="/help">{TL`[Commands]`}</button>
 				</>
 			) : pmTargetid ? (
 				<>
-					<button class="button button-middle" data-cmd="/challenge">{TL`Challenge`}</button>
+					<button class="button button-middle" data-cmd="/challenge">{TL`[Challenge]`}</button>
 					<button class="button button-middle" data-href={`useroptions-${pmTargetid}`}>{'\u2026'}</button>
 				</>
 			) : room.battle ? (
 				<>
 					<button data-href="userlist" class="button button-middle">{userCountText}</button>
-					<button data-href="battleoptions" class="button button-middle">{TL`Battle options`}</button>
+					<button data-href="battleoptions" class="button button-middle">{TL`[Battle options]`}</button>
 				</>
 			) : (
 				<button data-href="userlist" class="button button-middle">{userCountText}</button>

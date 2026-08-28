@@ -462,8 +462,8 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 			if (info.isStarted) return null;
 			return <div class="tournament-tools">
 				<p>
-					<button data-cmd="/tournament join" class="button"><strong>{TL`Join`}</strong></button> {}
-					<button onClick={this.toggleBoxVisibility} class="button">{TL`Close`}</button>
+					<button data-cmd="/tournament join" class="button"><strong>{TL`[Join]`}</strong></button> {}
+					<button onClick={this.toggleBoxVisibility} class="button">{TL`[Close]`}</button>
 				</p>
 			</div>;
 		}
@@ -476,17 +476,17 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 				onSubmit={this.acceptChallenge} onValidate={this.validate}
 			>
 				{(info.isJoined && !info.challenging && !info.challenged && !info.challenges?.length) && (
-					<button name="validate" class="button"><i class="fa fa-check" aria-hidden></i> {TL`Validate`}</button>
+					<button name="validate" class="button"><i class="fa fa-check" aria-hidden></i> {TL`[Validate]`}</button>
 				)} {}
 				{!!(!info.isStarted && info.isJoined) && (
-					<button data-cmd="/tournament leave" class="button">{TL`Leave`}</button>
+					<button data-cmd="/tournament leave" class="button">{TL`[Leave]`}</button>
 				)}
 				{(info.isStarted && noMatches) && (
 					<div class="tournament-nomatches">Waiting for battles to become available...</div>
 				)}
 				{!!info.challenges?.length && <div class="tournament-challenge">
 					<div class="tournament-challenge-user">vs. {info.challenges[tour.selectedChallenge]}</div>
-					<button type="submit" class="button"><strong>{TL`Ready!`}</strong></button>
+					<button type="submit" class="button"><strong>{TL`[Ready!]`}</strong></button>
 					{info.challenges.length > 1 && <span class="tournament-challenge-user-menu">
 						<select onChange={this.selectChallengeUser} value={tour.selectedChallenge} class="select">
 							{info.challenges.map((challenge, index) => (
@@ -501,11 +501,11 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 				</div>}
 				{!!info.challenging && <div class="tournament-challenging">
 					<div class="tournament-challenging-message">Waiting for {info.challenging}...</div>
-					<button data-cmd="/tournament cancelchallenge" class="button">{TL`Cancel`}</button>
+					<button data-cmd="/tournament cancelchallenge" class="button">{TL`[Cancel]`}</button>
 				</div>}
 				{!!info.challenged && <div class="tournament-challenged">
 					<div class="tournament-challenged-message">vs. {info.challenged}</div>
-					<button type="submit" class="button"><strong>{TL`Ready!`}</strong></button>
+					<button type="submit" class="button"><strong>{TL`[Ready!]`}</strong></button>
 				</div>}
 			</TeamForm>
 		</div>;
@@ -662,11 +662,11 @@ export class TournamentBracket extends preact.Component<{
 			null}
 			{this.props.poppedOut ? (
 				<button class="tournament-close-link button" data-cmd="/close">
-					<i class="fa fa-times" aria-hidden></i> {TL`Close`}
+					<i class="fa fa-times" aria-hidden></i> {TL`[Close]`}
 				</button>
 			) : (
 				<button class="tournament-popout-link button" onClick={this.popOut}>
-					<i class="fa fa-arrows-alt" aria-hidden></i> {TL`Pop-out`}
+					<i class="fa fa-arrows-alt" aria-hidden></i> {TL`[Pop-out]`}
 				</button>
 			)}
 		</div>;

@@ -245,7 +245,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 					<p>This team selector is no longer available (the challenge was cancelled or something).</p>
 					<p class="buttonbar">
 						<button type="button" data-cmd="/close" class="button">
-							{TL`Close`}
+							{TL`[Close]`}
 						</button>
 					</p>
 				</div>
@@ -309,7 +309,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 				<i class="fa fa-folder-o" aria-hidden></i> [{baseGen}] <em>{TL`(all)`}</em>
 			</button> {}
 			{hasOtherGens && !this.gen && (
-				<button class="button" onClick={this.setFormat} name="gen" value={baseGen}>{TL`Other gens`}</button>
+				<button class="button" onClick={this.setFormat} name="gen" value={baseGen}>{TL`[Other gens]`}</button>
 			)}
 		</p>);
 
@@ -421,7 +421,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 					<p>This format selector is no longer available.</p>
 					<p class="buttonbar">
 						<button type="button" data-cmd="/close" class="button">
-							{TL`Close`}
+							{TL`[Close]`}
 						</button>
 					</p>
 				</div>
