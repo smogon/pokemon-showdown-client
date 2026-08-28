@@ -259,26 +259,16 @@ export class BattleTextParser {
 	}
 
 	/**
-	 * Render template, resolving placeholders. Array means a different value for each placeholder.
+	 * Render template, resolving placeholders.
 	 */
 	private render(
-		template: string, values: { [placeholder: string]: RenderValue | RenderValue[] | undefined } = {}
+		template: string, values: { [placeholder: string]: RenderValue | undefined } = {}
 	) {
 		const categories: InflectionCategories = {};
-		const indexes: { [placeholder: string]: number } = {};
 		const text = template.replace(
 			/\{([A-Z][A-Z0-9]*)(?::([a-z]+(?::[a-z]+)*))?\}/g,
 			(match, placeholder: string, modifierText: string | undefined) => {
-				const source = values[placeholder];
-				if (source === undefined) return match;
-				let value: RenderValue | undefined;
-				if (Array.isArray(source)) {
-					const index = indexes[placeholder] || 0;
-					value = source[index];
-					indexes[placeholder] = index + 1;
-				} else {
-					value = source;
-				}
+				const value = values[placeholder];
 				if (value === undefined) return match;
 				return this.resolveRenderValue(
 					placeholder, value, modifierText ? modifierText.split(':') : [], categories

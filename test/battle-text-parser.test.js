@@ -273,13 +273,13 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		assert.equal(parser.extractMessage('|faint|p1a: Eevee'), 'Eevee voit le clone d’Eevee disparaître !\n');
 	});
 
-	it('renders repeated placeholders with distinct values and literal dollar signs', () => {
+	it('renders numbered trainer placeholders and literal dollar signs', () => {
 		const original = global.BattleText.en.Default.default.startBattle;
-		global.BattleText.en.Default.default.startBattle = '{TRAINER} vs. {TRAINER}... start!';
+		global.BattleText.en.Default.default.startBattle = '{TRAINER2} vs. {TRAINER1}... start!';
 		const parser = new BattleTextParser();
 		assert.equal(parser.extractMessage('|player|p1|Alice$1'), '');
 		assert.equal(parser.extractMessage('|player|p2|Bob$2'), '');
-		assert.equal(parser.extractMessage('|start'), 'Alice$1 vs. Bob$2... start!\n');
+		assert.equal(parser.extractMessage('|start'), 'Bob$2 vs. Alice$1... start!\n');
 		global.BattleText.en.Default.default.startBattle = original;
 	});
 
