@@ -55,7 +55,12 @@ case 'commands':
 	execSync(`node ./build-tools/build-commands`, options);
 	break;
 case 'translations':
-	execFileSync(process.execPath, ['./build-tools/build-translations'].concat(process.argv.slice(3)), options);
+	try {
+		execFileSync(process.execPath, ['./build-tools/build-translations'].concat(process.argv.slice(3)), options);
+	} catch (error) {
+		if (typeof error.status === 'number') process.exit(error.status);
+		throw error;
+	}
 	break;
 case 'test-only':
 
