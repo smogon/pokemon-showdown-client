@@ -11,7 +11,7 @@ import { Config, PS, PSRoom } from "./client-main";
 import { Net } from "./client-connection";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { BattleLog } from "./battle-log";
-import { toID, type ID } from "./battle-dex";
+import { TL, toID, type ID } from "./battle-dex";
 import { SanitizedHTML } from "./panel-page";
 
 type LadderData = {
@@ -166,7 +166,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 				placeholder="username prefix"
 				onChange={this.changeSearch}
 			/> {}
-			<button type="submit" class="button">Search</button>
+			<button type="submit" class="button">{TL`Search`}</button>
 		</p></form>;
 	}
 	renderLocalLadder() {
@@ -234,7 +234,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 				<div class="ladder pad">
 					<p>
 						<button class="button" data-href="ladder" data-target="replace">
-							<i class="fa fa-chevron-left" aria-hidden></i> Format List
+							<i class="fa fa-chevron-left" aria-hidden></i> {TL`All formats`}
 						</button>
 					</p>
 					{this.renderLocalLadder()}
@@ -245,12 +245,12 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 			<div class="ladder pad">
 				<p>
 					<button class="button" data-href="ladder" data-target="replace">
-						<i class="fa fa-chevron-left" aria-hidden></i> Format List
+						<i class="fa fa-chevron-left" aria-hidden></i> {TL`All formats`}
 					</button>
 				</p>
 				<p>
 					<button class="button" data-href="ladder" data-target="replace">
-						<i class="fa fa-refresh" aria-hidden></i> Refresh
+						<i class="fa fa-refresh" aria-hidden></i> {TL`Refresh`}
 					</button> <a class="button" href="/view-seasonladder-gen9randombattle">
 						<i class="fa fa-trophy" aria-hidden></i> Seasonal rankings
 					</a>
@@ -303,7 +303,7 @@ class LadderListPanel extends PSRoomPanel {
 				</p>
 				<p>
 					<button data-href="view-ladderhelp" class="button">
-						<i class="fa fa-info-circle" aria-hidden></i> How the ladder works
+						<i class="fa fa-info-circle" aria-hidden></i> {TL`How the ladder works`}
 					</button>
 				</p>
 				{this.renderList()}

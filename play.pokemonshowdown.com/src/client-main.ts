@@ -14,7 +14,7 @@ import { PSModel, PSStreamModel } from './client-core';
 import type { PSRoomPanel, PSRouter } from './panels';
 import { ChatRoom } from './panel-chat';
 import type { MainMenuRoom } from './panel-mainmenu';
-import { Dex, toID, type ID } from './battle-dex';
+import { Dex, TL, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
 import type { BattleRoom } from './panel-battle';
 import { Teams } from './battle-teams';
@@ -1312,7 +1312,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			const uptime = Date.now() - PS.startTime;
 			if (uptime > 24 * 60 * 60 * 1000) {
 				PS.confirm(`It's been over a day since you first connected. Please refresh.`, {
-					okButton: 'Refresh',
+					okButton: TL`Refresh`,
 				}).then(confirmed => {
 					if (confirmed) this.send(`/refresh`);
 				});
@@ -2650,7 +2650,7 @@ export const PS = new class extends PSModel {
 		okButton?: string, cancelButton?: string,
 		otherButtons?: preact.ComponentChildren, parentElem?: HTMLElement,
 	} = {}) {
-		opts.cancelButton ??= 'Cancel';
+		opts.cancelButton ??= TL`Cancel`;
 		return new Promise<boolean>(resolve => {
 			this.join(`popup-${this.popups.length}` as RoomID, {
 				args: { message, okValue: true, cancelValue: false, callback: resolve, ...opts, parentElem: null },
@@ -2662,7 +2662,7 @@ export const PS = new class extends PSModel {
 		defaultValue?: string, okButton?: string, cancelButton?: string, type?: 'text' | 'password' | 'number' | 'numeric',
 		label?: string, otherButtons?: preact.ComponentChildren, parentElem?: HTMLElement | null,
 	} = {}): Promise<string | null> {
-		opts.cancelButton ??= 'Cancel';
+		opts.cancelButton ??= TL`Cancel`;
 		return new Promise(resolve => {
 			this.join(`popup-${this.popups.length}` as RoomID, {
 				args: {

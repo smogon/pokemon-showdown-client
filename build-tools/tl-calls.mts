@@ -19,11 +19,17 @@ const REGION_BY_FILE: Record<string, string> = {
 	'panel-mainmenu.tsx': 'Main Menu',
 	'panel-rooms.tsx': 'Rooms',
 	'panel-battle.tsx': 'Battle',
+	'battle-tooltips.ts': 'Battle',
 	'panel-chat.tsx': 'Chat',
 	'panel-chat-tournament.tsx': 'Chat',
 	'panel-teambuilder.tsx': 'Teambuilder',
 	'panel-teambuilder-team.tsx': 'Teambuilder',
 	'battle-team-editor.tsx': 'Teambuilder',
+	'battle-searchresults.tsx': 'Teambuilder',
+	'panel-popups.tsx': 'Popups',
+	'panel-teamdropdown.tsx': 'Popups',
+	'panel-resources.tsx': 'Popups',
+	'panel-ladder.tsx': 'Ladder',
 };
 
 /*

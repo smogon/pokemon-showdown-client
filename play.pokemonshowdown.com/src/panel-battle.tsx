@@ -100,7 +100,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 			<div class="roomlist">
 				<p>
 					<button class="button" name="refresh" onClick={this.refresh}>
-						<i class="fa fa-refresh" aria-hidden></i> Refresh
+						<i class="fa fa-refresh" aria-hidden></i> {TL`Refresh`}
 					</button> {}
 					<span
 						style={Dex.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle'} class="picon"
@@ -121,7 +121,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 				<form class="search" onSubmit={this.applyFilters}>
 					<p>
 						<input type="text" name="prefixsearch" class="textbox" placeholder="Username prefix" autocomplete="off" />
-						<button type="submit" class="button">Search</button>
+						<button type="submit" class="button">{TL`Search`}</button>
 					</p>
 				</form>
 				<div class="list">{!room.battles ? (
@@ -599,38 +599,38 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<p>
 				{atEnd ? (
 					<button class="button disabled" aria-disabled data-cmd="/play" style="min-width:4.5em">
-						<i class="fa fa-play" aria-hidden></i><br />Play
+						<i class="fa fa-play" aria-hidden></i><br />{TL`Play`}
 					</button>
 				) : room.battle.paused ? (
 					<button class="button" data-cmd="/play" style="min-width:4.5em">
-						<i class="fa fa-play" aria-hidden></i><br />Play
+						<i class="fa fa-play" aria-hidden></i><br />{TL`Play`}
 					</button>
 				) : (
 					<button class="button" data-cmd="/pause" style="min-width:4.5em">
-						<i class="fa fa-pause" aria-hidden></i><br />Pause
+						<i class="fa fa-pause" aria-hidden></i><br />{TL`Pause`}
 					</button>
 				)} {}
 				{!room.battle.hardcoreMode && <>
 					<button class={"button button-first" + (atStart ? " disabled" : "")} data-cmd="/ffto 0" style="margin-right:2px">
-						<i class="fa fa-undo" aria-hidden></i><br />First turn
+						<i class="fa fa-undo" aria-hidden></i><br />{TL`First turn`}
 					</button>
 					<button class={"button button-first" + (atStart ? " disabled" : "")} data-cmd="/ffto -1">
-						<i class="fa fa-step-backward" aria-hidden></i><br />Prev turn
+						<i class="fa fa-step-backward" aria-hidden></i><br />{TL`Prev turn`}
 					</button>
 					<button class={"button button-last" + (atEnd ? " disabled" : "")} data-cmd="/ffto +1" style="margin-right:2px">
-						<i class="fa fa-step-forward" aria-hidden></i><br />Skip turn
+						<i class="fa fa-step-forward" aria-hidden></i><br />{TL`Skip turn`}
 					</button>
 					<button class={"button button-last" + (atEnd ? " disabled" : "")} data-cmd="/ffto end">
-						<i class="fa fa-fast-forward" aria-hidden></i><br />Skip to end
+						<i class="fa fa-fast-forward" aria-hidden></i><br />{TL`Skip to end`}
 					</button>
 				</>}
 			</p>
 			<p>
 				<button class="button" data-cmd="/switchsides">
-					<i class="fa fa-random" aria-hidden></i> Switch viewpoint
+					<i class="fa fa-random" aria-hidden></i> {TL`Switch viewpoint`}
 				</button> {}
 				{!room.battle.hardcoreMode && <button class="button" data-cmd="/ffto">
-					<i class="fa fa-random" aria-hidden></i> Go to turn
+					<i class="fa fa-random" aria-hidden></i> {TL`Go to turn`}
 				</button>}
 			</p>
 		</div>;
@@ -663,7 +663,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				aria-disabled={props.disabled}
 				style={props.disabled === 'fade' ? 'opacity: 0.5' : ''} data-tooltip={props.tooltip}
 			>
-				(empty slot)
+				{TL`(empty slot)`}
 			</button>;
 		}
 
@@ -710,7 +710,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			</em></p>}
 			{maybeLocked && <p><em class="movewarning">
 				You <strong>might</strong> be locked into a move. {}
-				<button class="button" data-cmd="/choose testfight">Try Fight button</button> {}
+				<button class="button" data-cmd="/choose testfight">{TL`Try Fight button`}</button> {}
 				(prevents switching if you're locked)
 			</em></p>}
 			{!overlayVersion && this.renderMoveControls(moveRequest, choices)}
@@ -1045,13 +1045,15 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const canSkip = !room.battle.hardcoreMode;
 			return <>
 				{canSkip && <div class="overlay-controls-skip">
-					<button class="button" data-cmd="/ffto end"><i class="fa fa-fast-forward" aria-hidden></i><br />Skip</button>
+					<button class="button" data-cmd="/ffto end"><i class="fa fa-fast-forward" aria-hidden></i><br />{TL`Skip`}</button>
 				</div>}
 			</>;
 		}
 		return <div class="inline-controls">
 			{!room.battle.hardcoreMode && <div class="whatdo" style="padding-bottom:0">
-				<button class="button" data-cmd="/ffto end"><i class="fa fa-fast-forward" aria-hidden></i><br />Skip animation</button>
+				<button class="button" data-cmd="/ffto end">
+					<i class="fa fa-fast-forward" aria-hidden></i><br />{TL`Skip animation`}
+				</button>
 			</div>}
 			{this.renderTeamList()}
 		</div>;
@@ -1110,7 +1112,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</div>}
 				{room.overlayActive === 'switch' && <div class="switchcontrols">
 					{canShift && (
-						<button data-cmd="/shift">Move to center</button>
+						<button data-cmd="/shift">{TL`Move to center`}</button>
 					)}
 					{this.renderSwitchMenu(request, choices)}
 				</div>}
@@ -1128,7 +1130,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<div class="switchcontrols">
 				{canShift && [
 					<h3 class="shiftselect">Shift</h3>,
-					<button data-cmd="/shift">Move to center</button>,
+					<button data-cmd="/shift">{TL`Move to center`}</button>,
 				]}
 				<h3 class="switchselect">{TL`Switch`}</h3>
 				{this.renderSwitchMenu(request, choices)}
@@ -1281,36 +1283,38 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					<br />
 					<br />
 					<button class="button" data-cmd="/savereplay">
-						<i class="fa fa-upload" aria-hidden></i> Upload and share replay
+						<i class="fa fa-upload" aria-hidden></i> {TL`Upload and share replay`}
 					</button>
 				</span>
 
 				<button class="button" data-cmd="/play" style="min-width:4.5em">
-					<i class="fa fa-undo" aria-hidden></i><br />Replay
+					<i class="fa fa-undo" aria-hidden></i><br />{TL`Replay`}
 				</button> {}
 				{isNotTiny && !room.battle.hardcoreMode && <>
 					<button class="button button-first" data-cmd="/ffto 0" style="margin-right:2px">
-						<i class="fa fa-undo" aria-hidden></i><br />First turn
+						<i class="fa fa-undo" aria-hidden></i><br />{TL`First turn`}
 					</button>
 					<button class="button button-first" data-cmd="/ffto -1">
-						<i class="fa fa-step-backward" aria-hidden></i><br />Prev turn
+						<i class="fa fa-step-backward" aria-hidden></i><br />{TL`Prev turn`}
 					</button>
 				</>}
 			</p>
 			{room.side ? (
 				<p>
 					<button class="button" data-cmd="/close">
-						<strong>{TL`Main menu`}</strong><br /><small>(closes this battle)</small>
+						<strong>{TL`Main menu`}</strong><br /><small>{TL`(closes this battle)`}</small>
 					</button> {}
 					<button class="button" data-cmd={`/closeand /challenge ${room.battle.farSide.id},${room.battle.tier}`}>
-						<strong>{TL`Rematch`}</strong><br /><small>(closes this battle)</small>
+						<strong>{TL`Rematch`}</strong><br /><small>{TL`(closes this battle)`}</small>
 					</button>
 				</p>
 			) : (
 				<p>
-					<button class="button" data-cmd="/switchsides"><i class="fa fa-random" aria-hidden></i> Switch viewpoint</button> {}
+					<button class="button" data-cmd="/switchsides">
+						<i class="fa fa-random" aria-hidden></i> {TL`Switch viewpoint`}
+					</button> {}
 					{!room.battle.hardcoreMode && <button class="button" data-cmd="/ffto">
-						<i class="fa fa-random" aria-hidden></i> Go to turn
+						<i class="fa fa-random" aria-hidden></i> {TL`Go to turn`}
 					</button>}
 				</p>
 			)}
@@ -1440,11 +1444,11 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</div>
 				{showingChat ? (
 					<button class="battle-chat-toggle button" name="hideChat" onClick={this.showMobileBattle}>
-						Battle <i class="fa fa-caret-right" aria-hidden></i>
+						{TL`Battle`} <i class="fa fa-caret-right" aria-hidden></i>
 					</button>
 				) : (
 					<button class="battle-chat-toggle button" name="showChat" onClick={this.showMobileChat}>
-						<i class="fa fa-caret-left" aria-hidden></i> Chat
+						<i class="fa fa-caret-left" aria-hidden></i> {TL`Chat`}
 					</button>
 				)}
 			</PSPanelWrapper>;

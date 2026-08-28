@@ -690,11 +690,11 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					<em>{PS.isOffline ? [<span class="fa-stack fa-lg">
 						<i class="fa fa-plug fa-flip-horizontal fa-stack-1x" aria-hidden></i>
 						<i class="fa fa-ban fa-stack-2x text-danger" aria-hidden></i>
-					</span>, " Disconnected"] : "Connecting..."}</em>
+					</span>, ' ', TL`Disconnected`] : TL`Connecting...`}</em>
 				</button>
 				{PS.isOffline && <p class="buttonbar">
 					<button class="button" data-cmd="/reconnect">
-						<i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong>
+						<i class="fa fa-plug" aria-hidden></i> <strong>{TL`Reconnect`}</strong>
 					</button> {}
 					<ReconnectTimer />
 				</p>}
@@ -712,14 +712,14 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			{PS.mainmenu.searchCountdown ? (
 				<>
 					<button class="mainmenu1 mainmenu big button disabled" disabled><strong>
-						<i class="fa fa-refresh fa-spin" aria-hidden></i> Searching in {PS.mainmenu.searchCountdown.countdown}...
+						<i class="fa fa-refresh fa-spin" aria-hidden></i> {TL`Searching in ${PS.mainmenu.searchCountdown.countdown}...`}
 					</strong></button>
 					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">{TL`Cancel`}</button></p>
 				</>
 			) : PS.mainmenu.searchingFormat() ? (
 				<>
 					<button class="mainmenu1 mainmenu big button disabled" disabled>
-						<strong><i class="fa fa-refresh fa-spin" aria-hidden></i> Searching...</strong>
+						<strong><i class="fa fa-refresh fa-spin" aria-hidden></i> {TL`Searching...`}</strong>
 					</button>
 					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">{TL`Cancel`}</button></p>
 				</>
@@ -846,7 +846,7 @@ export class FormatDropdown extends preact.Component<{
 				name="format" value={this.format} class="select formatselect preselected" disabled
 			>
 				{formatName}
-				{!!customRules && [<br />, <small>Custom rules: {customRules}</small>]}
+				{!!customRules && [<br />, <small>{TL`Custom rules:`} {customRules}</small>]}
 			</button>;
 		}
 		return <button
@@ -854,7 +854,7 @@ export class FormatDropdown extends preact.Component<{
 			class="select formatselect" data-href="/formatdropdown" onChange={this.change}
 		>
 			{formatName || (!!this.props.placeholder && <em>{this.props.placeholder}</em>) || null}
-			{!!customRules && [<br />, <small>Custom rules: {customRules}</small>]}
+			{!!customRules && [<br />, <small>{TL`Custom rules:`} {customRules}</small>]}
 		</button>;
 	}
 }

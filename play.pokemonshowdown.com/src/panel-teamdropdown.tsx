@@ -7,7 +7,7 @@
 
 import { PS, type Team } from "./client-main";
 import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
-import { Dex, toID, type ID } from "./battle-dex";
+import { Dex, TL, toID, type ID } from "./battle-dex";
 import { Teams } from "./battle-teams";
 
 export class PSTeambuilder {
@@ -245,7 +245,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 					<p>This team selector is no longer available (the challenge was cancelled or something).</p>
 					<p class="buttonbar">
 						<button type="button" data-cmd="/close" class="button">
-							Close
+							{TL`Close`}
 						</button>
 					</p>
 				</div>
@@ -301,15 +301,15 @@ class TeamDropdownPanel extends PSRoomPanel {
 			<button
 				class={'button' + (baseGen === this.format ? ' disabled' : '')} onClick={this.setFormat} name="format" value={baseGen}
 			>
-				<i class="fa fa-folder-o" aria-hidden></i> [{baseGen}] <em>(uncategorized)</em>
+				<i class="fa fa-folder-o" aria-hidden></i> [{baseGen}] <em>{TL`(uncategorized)`}</em>
 			</button> {}
 			<button
 				class={'button' + (baseGen === this.gen ? ' disabled' : '')} onClick={this.setFormat} name="gen" value={baseGen}
 			>
-				<i class="fa fa-folder-o" aria-hidden></i> [{baseGen}] <em>(all)</em>
+				<i class="fa fa-folder-o" aria-hidden></i> [{baseGen}] <em>{TL`(all)`}</em>
 			</button> {}
 			{hasOtherGens && !this.gen && (
-				<button class="button" onClick={this.setFormat} name="gen" value={baseGen}>Other gens</button>
+				<button class="button" onClick={this.setFormat} name="gen" value={baseGen}>{TL`Other gens`}</button>
 			)}
 		</p>);
 
@@ -317,7 +317,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 			teamList.push(<h2>Other gens</h2>);
 			teamList.push(<p>{genList.sort().map(gen => [
 				<button class={'button' + (gen === this.gen ? ' disabled' : '')} onClick={this.setFormat} name="gen" value={gen}>
-					<i class="fa fa-folder-o" aria-hidden></i> [{gen}] <em>(all)</em>
+					<i class="fa fa-folder-o" aria-hidden></i> [{gen}] <em>{TL`(all)`}</em>
 				</button>,
 				" ",
 			])}</p>);
@@ -421,7 +421,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 					<p>This format selector is no longer available.</p>
 					<p class="buttonbar">
 						<button type="button" data-cmd="/close" class="button">
-							Close
+							{TL`Close`}
 						</button>
 					</p>
 				</div>
@@ -443,7 +443,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 				type="search" name="search" placeholder="Search formats" class="textbox autofocus" autocomplete="off"
 				onInput={this.updateSearch} onChange={this.updateSearch}
 			/> {}
-			<button onClick={this.toggleGen} value="gen9" class={`button button-first${curGen('gen9')}`}>Gen 9</button>
+			<button onClick={this.toggleGen} value="gen9" class={`button button-first${curGen('gen9')}`}>{TL`Gen 9`}</button>
 			<button onClick={this.toggleGen} value="gen8" class={`button button-middle${curGen('gen8')}`}>8</button>
 			<button onClick={this.toggleGen} value="gen7" class={`button button-middle${curGen('gen7')}`}>7</button>
 			<button onClick={this.toggleGen} value="gen6" class={`button button-middle${curGen('gen6')}`}>6</button>
@@ -541,7 +541,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 						if (selectType === 'teambuilder' && format.team) return null;
 						return <li><button value={format.name} class={`option${curFormat === format.id ? ' cur' : ''}`}>
 							{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
-							{format.section === 'No Format' && <em> (uncategorized)</em>}
+							{format.section === 'No Format' && <em> {TL`(uncategorized)`}</em>}
 							<i class="star fa fa-star cur" data-cmd={`/unstar ${format.id}`}></i>
 						</button></li>;
 					})}
@@ -554,7 +554,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 								class={`option${curFormat === format.id ? ' cur' : ''}`}
 							>
 								{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
-								{format.section === 'No Format' && <em> (uncategorized)</em>}
+								{format.section === 'No Format' && <em> {TL`(uncategorized)`}</em>}
 								<i class="star fa fa-star-o" data-cmd={`/star ${format.id}`}></i>
 							</button></li>;
 						} else {

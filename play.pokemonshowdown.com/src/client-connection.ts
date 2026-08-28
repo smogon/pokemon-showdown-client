@@ -6,6 +6,7 @@
  */
 
 import { Config, PS } from "./client-main";
+import { TL } from "./battle-dex";
 
 declare const SockJS: any;
 declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
@@ -66,7 +67,7 @@ export class PSConnection {
 		const uptime = Date.now() - PS.startTime;
 		if (uptime > 24 * 60 * 60 * 1000) {
 			PS.confirm(`It's been over a day since you first connected. Please refresh.`, {
-				okButton: 'Refresh',
+				okButton: TL`Refresh`,
 			}).then(confirmed => {
 				if (confirmed) PS.room?.send(`/refresh`);
 			});

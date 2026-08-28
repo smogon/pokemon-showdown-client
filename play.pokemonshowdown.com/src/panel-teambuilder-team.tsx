@@ -323,19 +323,19 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 				{team.uploaded ? (
 					<>
 						<button class={`button${unsaved ? ' button-first' : ''}`} data-href={`teamstorage-${team.key}`}>
-							<i class="fa fa-globe"></i> Account {team.uploaded.private ? '' : "(public)"}
+							<i class="fa fa-globe"></i> {team.uploaded.private ? TL`Account` : TL`Account (public)`}
 						</button>
 						{unsaved && <button class="button button-last notifying" onClick={this.uploadTeam}>
-							<strong>Upload changes</strong>
+							<strong>{TL`Upload changes`}</strong>
 						</button>}
 					</>
 				) : team.teamid ? (
 					<button class="button" data-href={`teamstorage-${team.key}`}>
-						<i class="fa fa-plug"></i> Disconnected (wrong account?)
+						<i class="fa fa-plug"></i> {TL`Disconnected (wrong account?)`}
 					</button>
 				) : (
 					<button class="button" data-href={`teamstorage-${team.key}`}>
-						<i class="fa fa-laptop"></i> Local
+						<i class="fa fa-laptop"></i> {TL`Local`}
 					</button>
 				)}
 				<div style={room.width < 550 ? "margin-top:8px" : "float:right"}><button
@@ -343,7 +343,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 					class="select formatselect" data-href="/formatdropdown" onChange={this.handleChangeFormat}
 				>
 					<i class="fa fa-folder-o"></i> {BattleLog.formatName(team.format)} {}
-					{team.format.length <= 4 && <em>(uncategorized)</em>}
+					{team.format.length <= 4 && <em>{TL`(uncategorized)`}</em>}
 				</button></div>
 				<label class="label teamname">
 					Team name:{}
@@ -359,7 +359,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 				editorRef={(editor: TeamEditorState) => { room.editor = editor; }}
 			>
 				{!!(team.packedTeam && team.format.length > 4) && <p>
-					<button data-cmd="/validate" class="button"><i class="fa fa-check"></i> Validate</button>
+					<button data-cmd="/validate" class="button"><i class="fa fa-check"></i> {TL`Validate`}</button>
 				</p>}
 				{!!(team.packedTeam || team.uploaded) && <p class="infobox" style="padding: 5px 8px">
 					{team.uploadedPackedTeam && !team.uploaded ? <>
@@ -371,13 +371,13 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 						/> {}
 						{unsaved && <div style="padding-top:5px">
 							<button class="button notifying" onClick={this.uploadTeam}>
-								<i class="fa fa-upload"></i> <strong>Upload changes</strong>
+								<i class="fa fa-upload"></i> <strong>{TL`Upload changes`}</strong>
 							</button> {}
 							<button class="button" onClick={this.restore}>
-								Revert to uploaded version
+								{TL`Revert to uploaded version`}
 							</button> {}
 							<button class="button" onClick={this.compare}>
-								Compare
+								{TL`Compare`}
 							</button>
 						</div>}
 					</> : !team.teamid ? <>
@@ -388,8 +388,11 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 							/> Public
 						</label>
 						<button class="button exportbutton" onClick={this.uploadTeam}>
-							<i class="fa fa-upload"></i> Upload for
-							{PS.prefs.uploadprivacy ? ' shareable URL' : ' shareable/searchable URL'}
+							<i class="fa fa-upload"></i> {PS.prefs.uploadprivacy ? (
+								TL`Upload for shareable URL`
+							) : (
+								TL`Upload for shareable/searchable URL`
+							)}
 						</button>
 					</> : <>
 						This is a disconnected team. This could be because you uploaded it
@@ -531,22 +534,22 @@ class TeamStoragePanel extends PSRoomPanel {
 		if (storage === 'disconnected') {
 			return <PSPanelWrapper room={room} width={280}><div class="pad">
 				<div><button class="option cur" data-cmd="/close">
-					<i class="fa fa-plug"></i> <strong>Disconnected</strong><br />
+					<i class="fa fa-plug"></i> <strong>{TL`Disconnected`}</strong><br />
 					Not found in the Teams database. Maybe you uploaded it on a different account?
 				</button></div>
 			</div></PSPanelWrapper>;
 		}
 		return <PSPanelWrapper room={room} width={280}><div class="pad">
 			<div><button class={`option${storage === 'local' ? ' cur' : ''}`} onClick={this.chooseOption} value="local">
-				<i class="fa fa-laptop"></i> <strong>Local</strong><br />
+				<i class="fa fa-laptop"></i> <strong>{TL`Local`}</strong><br />
 				Stored in cookies on your computer. Warning: Your browser might delete these. Make sure to use backups.
 			</button></div>
 			<div><button class={`option${storage === 'account' ? ' cur' : ''}`} onClick={this.chooseOption} value="account">
-				<i class="fa fa-cloud"></i> <strong>Account</strong><br />
+				<i class="fa fa-cloud"></i> <strong>{TL`Account`}</strong><br />
 				Uploaded to the Teams database. You can share with the URL.
 			</button></div>
 			<div><button class={`option${storage === 'public' ? ' cur' : ''}`} onClick={this.chooseOption} value="public">
-				<i class="fa fa-globe"></i> <strong>Account (public)</strong><br />
+				<i class="fa fa-globe"></i> <strong>{TL`Account (public)`}</strong><br />
 				Uploaded to the Teams database publicly. Share with the URL or people can find it by searching.
 			</button></div>
 		</div></PSPanelWrapper>;

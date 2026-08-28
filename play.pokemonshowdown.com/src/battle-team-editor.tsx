@@ -952,7 +952,7 @@ export class TeamEditorState extends PSModel {
 			))}
 			{TeamEditorState.clipboard.otherSets?.map(set => renderSet(set))}
 			<button class="button" onClick={cancelClipboard}>
-				<i class="fa fa-times" aria-hidden></i> Cancel
+				<i class="fa fa-times" aria-hidden></i> {TL`Cancel`}
 			</button>
 		</div>;
 	}
@@ -1127,10 +1127,10 @@ export class TeamEditor extends preact.Component<{
 		return <div class={className}>
 			<ul class="tabbar unpadded-tabbar">
 				<li><button onClick={this.setTab} value="form" class={`button${this.mode === 'form' ? ' cur' : ''}`}>
-					Form
+					{TL`Form`}
 				</button></li>
 				<li><button onClick={this.setTab} value="import" class={`button button-last${this.mode === 'import' ? ' cur' : ''}`}>
-					Import/Export
+					{TL`Import/Export`}
 				</button></li>
 				<li class="teameditor-options" style="float: right; margin-top: 1px; margin-right: 8px;">
 					<details ref={el => { this.optionsMenu = el; }}>
@@ -1813,11 +1813,11 @@ class TeamTextbox extends preact.Component<{
 			</span>
 			{editor.gen === 9 && !editor.isChampions ? (
 				<span class="detailcell">
-					<label>Tera</label><PSIcon type={set.teraType || species.requiredTeraType || species.types[0]} />
+					<label>{TL`Tera`}</label><PSIcon type={set.teraType || species.requiredTeraType || species.types[0]} />
 				</span>
 			) : editor.hpTypeMatters(set) ? (
 				<span class="detailcell">
-					<label>H. Power</label><PSIcon type={editor.getHPType(set)} />
+					<label>{TL`H. Power`}</label><PSIcon type={editor.getHPType(set)} />
 				</span>
 			) : (
 				<span class="detailcell">
@@ -1862,9 +1862,9 @@ class TeamTextbox extends preact.Component<{
 			<p>
 				<button class={`button ${this.state.copyButtonUsed ? 'cur' : ''}`} onClick={this.copyAll}>
 					{this.state.copyButtonUsed ? (
-						<><i class="fa fa-check" aria-hidden></i> Copied!</>
+						<><i class="fa fa-check" aria-hidden></i> {TL`Copied!`}</>
 					) : (
-						<><i class="fa fa-copy" aria-hidden></i> Copy</>
+						<><i class="fa fa-copy" aria-hidden></i> {TL`Copy`}</>
 					)}
 				</button>
 			</p>
@@ -1934,14 +1934,14 @@ class TeamTextbox extends preact.Component<{
 					this.innerFocus.type === 'stats' ? (
 						<div class="searchresults" style={resultsCSS}>
 							<button class="button closesearch" onClick={this.closeMenu}>
-								{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> Close
+								{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> {TL`Close`}
 							</button>
 							<StatForm editor={editor} set={this.editor.sets[this.innerFocus.setIndex]} onChange={this.handleSetChange} />
 						</div>
 					) : this.innerFocus.type === 'details' ? (
 						<div class="searchresults" style={resultsCSS}>
 							<button class="button closesearch" onClick={this.closeMenu}>
-								{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> Close
+								{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> {TL`Close`}
 							</button>
 							<DetailsForm editor={editor} set={this.editor.sets[this.innerFocus.setIndex]} onChange={this.handleSetChange} />
 						</div>
@@ -1949,7 +1949,7 @@ class TeamTextbox extends preact.Component<{
 						<PSSearchResults
 							class="searchresults" style={resultsCSS}
 							prepend={<button class="button closesearch" onClick={this.closeMenu}>
-								{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> Close
+								{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> {TL`Close`}
 							</button>}
 							search={editor.search}
 							onSelect={this.selectResult}
@@ -2283,10 +2283,10 @@ class TeamEditorForm extends preact.Component<{
 			null
 		) : clipboard ? <p>
 			<button class="button notifying" onClick={this.pasteSet} value={i}>
-				<i class="fa fa-clipboard" aria-hidden></i> Paste copy here
+				<i class="fa fa-clipboard" aria-hidden></i> {TL`Paste copy here`}
 			</button> {}
 			{!willNotMove(i) && <button class="button notifying" onClick={this.moveSet} value={i} disabled={clipboard.readonly}>
-				<i class="fa fa-arrow-right" aria-hidden></i> Move here
+				<i class="fa fa-arrow-right" aria-hidden></i> {TL`Move here`}
 			</button>}
 		</p> : editor.deletedSet?.index === i ? <p style="text-align:right">
 			<button class="button" onClick={this.undeleteSet}>
@@ -2927,7 +2927,7 @@ class TeamEditorForm extends preact.Component<{
 						class="option" name="import" onClick={this.clickPanelButton}
 						value={`set-${i}-import`}
 					>
-						<i class="fa fa-upload" aria-hidden></i> Import
+						<i class="fa fa-upload" aria-hidden></i> {TL`Import`}
 					</button>
 				</div>
 				<table class={spriteClass} style={sprite}>
@@ -2959,17 +2959,17 @@ class TeamEditorForm extends preact.Component<{
 			<div style="text-align:right">
 				<button class="option" onClick={this.copySet} value={i}>
 					<i class="fa fa-copy" aria-hidden></i> {
-						isCur ? "Deselect" :
-						TeamEditorState.clipboard ? "Add to clipboard" :
+						isCur ? TL`Deselect` :
+						TeamEditorState.clipboard ? TL`Add to clipboard` :
 						editor.readonly ? TL`Copy` :
-						"Copy/Move"
+						TL`Copy/Move`
 					}
 				</button> {}
 				{!(TeamEditorState.clipboard || editor.readonly) && <button
 					class="option" name="import" onClick={this.clickPanelButton}
 					value={`set-${i}-import`}
 				>
-					<i class="fa fa-upload" aria-hidden></i> Import/Export
+					<i class="fa fa-upload" aria-hidden></i> {TL`Import/Export`}
 				</button>} {}
 				{!(TeamEditorState.clipboard || editor.readonly) && <button
 					class="option" name="delete" onClick={this.deleteSet} value={i}
@@ -3006,11 +3006,11 @@ class TeamEditorForm extends preact.Component<{
 									/> : '\u2014'}
 								</span>}
 								{editor.gen === 9 && !editor.isChampions && <span class="detailcell">
-									<label>Tera</label> {}
+									<label>{TL`Tera`}</label> {}
 									<PSIcon type={set.teraType || species.requiredTeraType || species.types[0]} new={!editor.narrow} tera />
 								</span>}
 								{editor.hpTypeMatters(set) && <span class="detailcell">
-									<label>H.P.</label> {}
+									<label>{TL`H.P.`}</label> {}
 									<PSIcon type={editor.getHPType(set)} new={!editor.narrow} />
 								</span>}
 								{set.gender && set.gender !== 'N' && <span class="detailcell">
@@ -3233,12 +3233,12 @@ class SetImportForm extends preact.Component<{
 				<p>
 					<button class={`button${this.state.copied ? ' cur' : ''}`} onClick={this.copyText}>
 						<i class={`fa fa-${this.state.copied ? 'check' : 'copy'}`} aria-hidden></i> {}
-						{this.state.copied ? 'Copied!' : TL`Copy`}
+						{this.state.copied ? TL`Copied!` : TL`Copy`}
 					</button> {}
 					{this.state.dirty && <button
 						class="button" onClick={this.revertTextToRevertPoint} disabled={editor.readonly}
 					>
-						<i class="fa fa-undo" aria-hidden></i> Revert
+						<i class="fa fa-undo" aria-hidden></i> {TL`Revert`}
 					</button>}
 				</p>
 				{this.state.error && <p class="message-error">{this.state.error}</p>}

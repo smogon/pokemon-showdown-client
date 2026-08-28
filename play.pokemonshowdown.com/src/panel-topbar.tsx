@@ -224,10 +224,10 @@ export class PSHeader extends preact.Component {
 	}
 	renderUser() {
 		if (!PS.connection?.connected) {
-			return <button class="button" disabled><em>Offline</em></button>;
+			return <button class="button" disabled><em>{TL`Offline`}</em></button>;
 		}
 		if (PS.user.initializing) {
-			return <button class="button" disabled><em>Connecting...</em></button>;
+			return <button class="button" disabled><em>{TL`Connecting...`}</em></button>;
 		}
 		if (!PS.user.named) {
 			return <a class="button" href="login">Choose name</a>;
