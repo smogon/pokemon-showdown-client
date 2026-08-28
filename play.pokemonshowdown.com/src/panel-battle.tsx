@@ -19,7 +19,7 @@ import {
 	BattleChoiceBuilder, type BattleRequestActivePokemon, type BattleRequestSideInfo,
 	type BattleRequest, type BattleMoveRequest, type BattleSwitchRequest, type BattleTeamRequest,
 } from "./battle-choices";
-import type { Args } from "./battle-text-parser";
+import { BattleTextParser, type Args } from "./battle-text-parser";
 import { ModifiableValue } from "./battle-tooltips";
 import { Net } from "./client-connection";
 import { BattleLog } from "./battle-log";
@@ -373,6 +373,13 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			});
 			return true;
 		}
+	}
+	renderUIText(id: string, values?: { [placeholder: string]: string | undefined }) {
+		return <span
+			dangerouslySetInnerHTML={{
+				__html: BattleLog.parseLogMessage(BattleTextParser.ui(id, values))[0],
+			}}
+		></span>;
 	}
 	/** last displayed team. will not show the most recent request until the last one is gone. */
 	team: ServerPokemon[] | null = null;
@@ -883,10 +890,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				You <strong>might</strong> be trapped, so you won't be able to cancel a switch!<br />
 			</em>}
 			{trapped && <em class="movewarning">
-				You're <strong>trapped</strong> and cannot switch!<br />
-			</em>}
-			{isReviving && <em class="movewarning">
-				Choose a Pokémon to revive!<br />
+				{this.renderUIText('cantSwitchTrapped')}<br />
 			</em>}
 			{request.side.pokemon.map((serverPokemon, i) => {
 				let cantSwitch = trapped || i < numActive || choices.alreadySwitchingIn.includes(i + 1) || serverPokemon.fainted;
@@ -1074,7 +1078,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					<div class="targetcontrols">
 						<p class="overlay-message">
 							{this.renderOldChoices(request, choices, true)}
-							{pokemon.name} should use <strong>{moveName}</strong> at where?
+							{this.renderUIText('moveTarget', { POKEMON: pokemon.name, MOVE: moveName })}
 						</p>
 						<div class="switchmenu">
 							{this.renderMoveTargetControls(request, choices)}
@@ -1085,7 +1089,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return <div class="inline-controls">
 				<div class="whatdo">
 					{this.renderOldChoices(request, choices)}
-					{pokemon.name} should use <strong>{moveName}</strong> at where? {}
+					{this.renderUIText('moveTarget', { POKEMON: pokemon.name, MOVE: moveName })} {}
 				</div>
 				<div class="switchcontrols">
 					<div class="switchmenu">
@@ -1105,7 +1109,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</div>
 				{!room.overlayActive && <div class="whatdo">
 					{this.renderOldChoices(request, choices, true)}
-					What will <strong>{pokemon.name}</strong> do?
+					{this.renderUIText('whatDo', { POKEMON: pokemon.name })}
 				</div>}
 				{room.overlayActive === 'move' && <div class="movecontrols">
 					{this.renderMoveMenu(choices, true)}
@@ -1121,7 +1125,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		return <div class="inline-controls">
 			<div class="whatdo">
 				{this.renderOldChoices(request, choices)}
-				What will <strong>{pokemon.name}</strong> do?
+				{this.renderUIText('whatDo', { POKEMON: pokemon.name })}
 			</div>
 			<div class="movecontrols">
 				<h3 class="moveselect">{TL`Battle`}</h3>
@@ -1140,8 +1144,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	renderPlayerSwitchControls(request: BattleSwitchRequest, choices: BattleChoiceBuilder, overlayVersion = false) {
 		const pokemon = request.side.pokemon[choices.index()];
 		const prompt = choices.isReviving() ?
-			<>Who will <strong>{pokemon.name}</strong> revive?</> :
-			<>Who will replace <strong>{pokemon.name}</strong>?</>;
+			this.renderUIText('reviveWho', { POKEMON: pokemon.name }) :
+			this.renderUIText('replaceWho', { POKEMON: pokemon.name });
 		if (overlayVersion) {
 			return <>
 				<div class="overlay-controls-list">
@@ -1170,13 +1174,13 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	renderPlayerTeamPreviewControls(request: BattleTeamRequest, choices: BattleChoiceBuilder, overlayVersion = false) {
 		const prompt = choices.alreadySwitchingIn.length > 0 ? (
 			[<button data-cmd="/cancelone" class="button"><i class="fa fa-chevron-left" aria-hidden></i> {TL`Back`}</button>,
-				" What about the rest of your team? "]
+				" ", this.renderUIText('teamRest'), " "]
 		) : (
-			"How will you start the battle? "
+			[this.renderUIText('teamStart'), " "]
 		);
 		const chosenTeamSizeLabel = (request.chosenTeamSize || 0) > 1 ? ` / ${request.chosenTeamSize!}` : '';
-		const chooseLabel = choices.alreadySwitchingIn.length <= 0 ?
-			`lead${chosenTeamSizeLabel}` : `slot ${choices.alreadySwitchingIn.length + 1}${chosenTeamSizeLabel}`;
+		const chooseLabel = (choices.alreadySwitchingIn.length <= 0 ?
+			BattleTextParser.ui('chooseLead') : BattleTextParser.ui('chooseSlot', { NUMBER: `${choices.alreadySwitchingIn.length + 1}` })) + chosenTeamSizeLabel;
 		if (overlayVersion) {
 			return <>
 				<div class="overlay-controls-list">
@@ -1184,13 +1188,13 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</div>
 				<div class="teamcontrols">
 					<p class="overlay-message">{prompt}</p>
-					<h3 class="switchselect">Choose {chooseLabel}</h3>
+					<h3 class="switchselect">{chooseLabel}</h3>
 					<div class="switchmenu">
 						{this.renderTeamPreviewChooser(request, choices)}
 						<div style="clear:left"></div>
 					</div>
 					{choices.alreadySwitchingIn.length > 0 && <>
-						<h3 class="switchselect">Team so far</h3>
+						<h3 class="switchselect">{this.renderUIText('teamSoFar')}</h3>
 						<div class="switchmenu">
 							{this.renderChosenTeam(request, choices)}
 						</div>
@@ -1204,7 +1208,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			</div>
 			<div class="switchcontrols">
 				<h3 class="switchselect">
-					Choose {chooseLabel}
+					{chooseLabel}
 				</h3>
 				<div class="switchmenu">
 					{this.renderTeamPreviewChooser(request, choices)}
@@ -1212,7 +1216,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</div>
 			</div>
 			<div class="switchcontrols">
-				{choices.alreadySwitchingIn.length > 0 && <h3 class="switchselect">Team so far</h3>}
+				{choices.alreadySwitchingIn.length > 0 && <h3 class="switchselect">
+					{this.renderUIText('teamSoFar')}
+				</h3>}
 				<div class="switchmenu">
 					{this.renderChosenTeam(request, choices)}
 				</div>
@@ -1247,7 +1253,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return <div class="inline-controls">
 				<div class="whatdo">
 					{this.renderOldChoices(request, choices)}
-					<em>Waiting for opponent...</em> {choices.noCancel || room.battle.hardcoreMode ?
+					<em>{this.renderUIText('waitingOpponent')}</em> {choices.noCancel || room.battle.hardcoreMode ?
 						null : <button data-cmd="/cancel" class="button">{TL`Cancel`}</button>}
 				</div>
 				{this.renderTeamList()}
