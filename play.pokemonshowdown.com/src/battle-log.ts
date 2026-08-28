@@ -1178,19 +1178,6 @@ export class BattleLog {
 		if (jsEscapeToo) str = str.replace(/\\/g, '\\\\').replace(/'/g, '\\\'');
 		return str;
 	}
-	/**
-	 * Template string tag function for escaping HTML
-	 */
-	static html(strings: TemplateStringsArray | string[], ...args: any) {
-		let buf = strings[0];
-		let i = 0;
-		while (i < args.length) {
-			buf += this.escapeHTML(args[i]);
-			buf += strings[++i];
-		}
-		return buf;
-	}
-
 	static unescapeHTML(str: string) {
 		str = (str ? '' + str : '');
 		return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
@@ -1877,6 +1864,19 @@ export class BattleLog {
 		}
 		return 'data:text/plain;base64,' + encodeURIComponent(btoa(unescape(encodeURIComponent(replayFile))));
 	}
+}
+
+/**
+ * Template string tag function for escaping HTML
+ */
+export function eHTML(strings: TemplateStringsArray | string[], ...args: any) {
+	let buf = strings[0];
+	let i = 0;
+	while (i < args.length) {
+		buf += BattleLog.escapeHTML(args[i]);
+		buf += strings[++i];
+	}
+	return buf;
 }
 
 if (window.Net) {

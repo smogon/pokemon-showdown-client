@@ -10,7 +10,7 @@ import type { PSSubscription } from "./client-core";
 import { PS, PSRoom, type RoomOptions, type RoomID, type Team, Config } from "./client-main";
 import { PSView, PSPanelWrapper, PSRoomPanel, ReconnectTimer } from "./panels";
 import { TeamForm } from "./panel-mainmenu";
-import { BattleLog } from "./battle-log";
+import { BattleLog, eHTML } from "./battle-log";
 import type { Battle } from "./battle";
 import { MiniEdit } from "./miniedit";
 import { Dex, PSUtils, TL, toID, type ID } from "./battle-dex";
@@ -560,7 +560,7 @@ export class ChatRoom extends PSRoom {
 						if (formatTargeting) {
 							const formatsText = Object.keys(gens).concat(Object.keys(formats)).join(', ');
 							buffer += `<tr class="no-matches"><td colspan="8">` +
-								BattleLog.html`<em>This user has not played any ladder games that match ${formatsText}.</em></td></tr>`;
+								eHTML`<em>This user has not played any ladder games that match ${formatsText}.</em></td></tr>`;
 						} else {
 							buffer += `<tr class="no-matches"><td colspan="8"><em>This user has no notable ladder activity.</em></td></tr>`;
 						}

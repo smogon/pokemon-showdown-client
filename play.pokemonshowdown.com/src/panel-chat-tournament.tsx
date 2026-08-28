@@ -1,6 +1,6 @@
 import preact from "../js/lib/preact";
 import { Dex, TL, toRoomid } from "./battle-dex";
-import { BattleLog } from "./battle-log";
+import { BattleLog, eHTML } from "./battle-log";
 import { PSModel, type PSSubscription } from "./client-core";
 import { PS, type RoomID, type Team } from "./client-main";
 import { TeamForm } from "./panel-mainmenu";
@@ -134,8 +134,8 @@ export class ChatTournament extends PSModel {
 					for (const tournament of tournaments) {
 						const formatName = BattleLog.formatName(tournament.format);
 						buf += `<li>`;
-						buf += BattleLog.html`<a class="ilink" href="${toRoomid(tournament.room)}">${tournament.room}</a>`;
-						buf += BattleLog.html`: ${formatName} ${tournament.generator}${tournament.isStarted ? " (Started)" : ""}`;
+						buf += eHTML`<a class="ilink" href="${toRoomid(tournament.room)}">${tournament.room}</a>`;
+						buf += eHTML`: ${formatName} ${tournament.generator}${tournament.isStarted ? " (Started)" : ""}`;
 						buf += `</li>`;
 					}
 					buf += `</ul>`;
@@ -155,9 +155,9 @@ export class ChatTournament extends PSModel {
 				this.info.generator = args[3];
 				const formatName = BattleLog.formatName(args[2]);
 				const type = args[3];
-				const buf = BattleLog.html`<div class="tournament-message-create">${this.tournamentName()} created.</div>`;
+				const buf = eHTML`<div class="tournament-message-create">${this.tournamentName()} created.</div>`;
 				if (!this.tryAdd(`|html|${buf}`)) {
-					const hiddenBuf = BattleLog.html`<div class="tournament-message-create">${this.tournamentName()} created (and hidden).</div>`;
+					const hiddenBuf = eHTML`<div class="tournament-message-create">${this.tournamentName()} created (and hidden).</div>`;
 					this.room.add(`|html|${hiddenBuf}`);
 				}
 				if (notify) {
@@ -193,7 +193,7 @@ export class ChatTournament extends PSModel {
 				break;
 
 			case 'disqualify':
-				this.tryAdd(BattleLog.html`|html|<div class="tournament-message-disqualify">${data[0]} has been disqualified from the tournament.</div>`);
+				this.tryAdd(eHTML`|html|<div class="tournament-message-disqualify">${data[0]} has been disqualified from the tournament.</div>`);
 				break;
 
 			case 'autodq':
@@ -201,7 +201,7 @@ export class ChatTournament extends PSModel {
 					this.tryAdd(`|html|<div class="tournament-message-autodq-off">The tournament's automatic disqualify timer has been turned off.</div>`);
 				} else if (data[0] === 'on') {
 					let minutes = Math.round(parseInt(data[1]) / 1000 / 60);
-					this.tryAdd(BattleLog.html`|html|<div class="tournament-message-autodq-on">The tournament's automatic disqualify timer has been set to ${minutes} minute${minutes === 1 ? "" : "s"}.</div>`);
+					this.tryAdd(eHTML`|html|<div class="tournament-message-autodq-on">The tournament's automatic disqualify timer has been set to ${minutes} minute${minutes === 1 ? "" : "s"}.</div>`);
 				} else {
 					let seconds = Math.floor(parseInt(data[1]) / 1000);
 					PS.alert(`Please respond to the tournament within ${seconds} seconds or you may be automatically disqualified.`);
@@ -220,7 +220,7 @@ export class ChatTournament extends PSModel {
 					this.tryAdd(`|html|<div class="tournament-message-autostart">The tournament's automatic start is now off.</div>`);
 				} else if (data[0] === 'on') {
 					let minutes = (parseInt(data[1]) / 1000 / 60);
-					this.tryAdd(BattleLog.html`|html|<div class="tournament-message-autostart">The tournament will automatically start in ${minutes} minute${minutes === 1 ? "" : "s"}.</div>`);
+					this.tryAdd(eHTML`|html|<div class="tournament-message-autostart">The tournament will automatically start in ${minutes} minute${minutes === 1 ? "" : "s"}.</div>`);
 				}
 				break;
 
@@ -318,9 +318,9 @@ export class ChatTournament extends PSModel {
 					preact.render(<TournamentBracket tour={this} abbreviated />, bracketNode);
 				}
 
-				this.room.add(BattleLog.html`|html|<div class="tournament-message-end-winner">Congratulations to ${ChatTournament.arrayToPhrase(endData.results[0])} for winning the ${this.tournamentName()}!</div>`);
+				this.room.add(eHTML`|html|<div class="tournament-message-end-winner">Congratulations to ${ChatTournament.arrayToPhrase(endData.results[0])} for winning the ${this.tournamentName()}!</div>`);
 				if (endData.results[1]) {
-					this.tryAdd(BattleLog.html`|html|<div class="tournament-message-end-runnerup">Runner${endData.results[1].length > 1 ? "s" : ""}-up: ${ChatTournament.arrayToPhrase(endData.results[1])}</div>`);
+					this.tryAdd(eHTML`|html|<div class="tournament-message-end-runnerup">Runner${endData.results[1].length > 1 ? "s" : ""}-up: ${ChatTournament.arrayToPhrase(endData.results[1])}</div>`);
 				}
 
 				// Fallthrough
