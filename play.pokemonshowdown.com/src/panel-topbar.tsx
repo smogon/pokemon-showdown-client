@@ -190,12 +190,11 @@ export class PSHeader extends preact.Component {
 			PSView.updateScrollSnap();
 		}
 
-		let userbarLeft = this.base.querySelector('div.userbar .icon.button')?.getBoundingClientRect()?.left;
+		let userbarLeft = this.base.querySelector('div.userbar')?.getBoundingClientRect()?.left;
 		if (userbarLeft) userbarLeft -= 5;
-		const plusTabRight = this.base.querySelector('a.roomtab[aria-label="Join chat"]')?.getBoundingClientRect()?.right;
 		const overflow = this.base.querySelector<HTMLElement>('.overflow');
 
-		if (!overflow || !userbarLeft || !plusTabRight) return;
+		if (!overflow || !userbarLeft) return;
 
 		const maintabbar = this.base.querySelector<HTMLElement>('div.maintabbar');
 		if (maintabbar) {
@@ -203,6 +202,9 @@ export class PSHeader extends preact.Component {
 			maintabbar.style.marginRight = `${userbarRight}px`;
 			overflow.style.right = `${userbarRight}px`;
 		}
+
+		const plusTabRight = this.base.querySelector('a.roomtab[aria-label="Join chat"]')?.getBoundingClientRect()?.right;
+		if (!plusTabRight) return;
 
 		if (plusTabRight > userbarLeft - 3) {
 			overflow.style.display = 'block';
