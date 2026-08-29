@@ -159,6 +159,15 @@ function translate(strings: TemplateStringsArray | string | TranslatableEffect, 
 
 const initialText = typeof BattleText === 'undefined' ? undefined : BattleText.en;
 
+function tagField(tags: BattleTextData['Tags'] | undefined, field: 'name' | 'hint' | 'desc') {
+	const table: { [id: string]: string } = {};
+	for (const id in tags) {
+		const value = tags[id][field];
+		if (value) table[id] = value;
+	}
+	return table;
+}
+
 export const TL = Object.assign(translate, {
 	/** `TL.label("Ability", "Intimidate")` === `"Ability: Intimidate"` */
 	label(label: string, value?: unknown) {
@@ -170,7 +179,8 @@ export const TL = Object.assign(translate, {
 	nature: initialText?.NatureNames || {},
 	gender: initialText?.GenderNames || {},
 	egggroup: initialText?.EggGroupNames || {},
-	tag: initialText?.TagNames || {},
+	tag: tagField(initialText?.Tags, 'name'),
+	tagHint: tagField(initialText?.Tags, 'hint'),
 	color: initialText?.ColorNames || {},
 	status: initialText?.StatusNames || {},
 	target: initialText?.TargetNames || {},
@@ -189,7 +199,8 @@ function updateTranslatedNames(lang: string) {
 	TL.nature = text.NatureNames || english.NatureNames;
 	TL.gender = text.GenderNames || english.GenderNames;
 	TL.egggroup = text.EggGroupNames || english.EggGroupNames;
-	TL.tag = text.TagNames || english.TagNames;
+	TL.tag = tagField(text.Tags || english.Tags, 'name');
+	TL.tagHint = tagField(text.Tags || english.Tags, 'hint');
 	TL.color = text.ColorNames || english.ColorNames;
 	TL.status = text.StatusNames || english.StatusNames;
 	TL.target = text.TargetNames || english.TargetNames;
@@ -206,7 +217,7 @@ function assignTextFields(target: BattleTextEntry, source: BattleTextEntry) {
 
 type OtherNameTable =
 	'TermNames' | 'TypeNames' | 'NatureNames' | 'GenderNames' |
-	'EggGroupNames' | 'TagNames' | 'ColorNames' |
+	'EggGroupNames' | 'ColorNames' |
 	'StatNames' | 'StatMediumNames' | 'StatShortNames';
 
 function getOtherName(table: OtherNameTable, name: string, lang: string): string {
@@ -537,7 +548,8 @@ export const Dex = new class implements ModdedDex {
 		termName: (name, lang = getTextLanguage()) => getOtherName('TermNames', name, lang),
 		typeName: (name, lang = getTextLanguage()) => getOtherName('TypeNames', name, lang),
 		natureName: (name, lang = getTextLanguage()) => getOtherName('NatureNames', name, lang),
-		categoryName: (name, lang = getTextLanguage()) => getOtherName('TagNames', name, lang),
+		categoryName: (name, lang = getTextLanguage()) =>
+			BattleText[lang]?.Tags?.[toID(name)]?.name || BattleText.en?.Tags?.[toID(name)]?.name || name,
 		genderName: (name, lang = getTextLanguage()) => getOtherName('GenderNames', name, lang),
 		eggGroupName: (name, lang = getTextLanguage()) => getOtherName('EggGroupNames', name, lang),
 		colorName: (name, lang = getTextLanguage()) => getOtherName('ColorNames', name, lang),
@@ -1220,7 +1232,8 @@ export class ModdedDex {
 		termName: (name, lang = getTextLanguage()) => getOtherName('TermNames', name, lang),
 		typeName: (name, lang = getTextLanguage()) => getOtherName('TypeNames', name, lang),
 		natureName: (name, lang = getTextLanguage()) => getOtherName('NatureNames', name, lang),
-		categoryName: (name, lang = getTextLanguage()) => getOtherName('TagNames', name, lang),
+		categoryName: (name, lang = getTextLanguage()) =>
+			BattleText[lang]?.Tags?.[toID(name)]?.name || BattleText.en?.Tags?.[toID(name)]?.name || name,
 		genderName: (name, lang = getTextLanguage()) => getOtherName('GenderNames', name, lang),
 		eggGroupName: (name, lang = getTextLanguage()) => getOtherName('EggGroupNames', name, lang),
 		colorName: (name, lang = getTextLanguage()) => getOtherName('ColorNames', name, lang),

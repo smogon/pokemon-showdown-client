@@ -83,7 +83,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 			TermNames: {
 				egggroup: 'タマゴグループ', moves: '技', nicknamespecies: '{NICKNAME}（{SPECIES}）',
 			},
-			TagNames: {physical: 'ぶつり'},
+			Tags: {physical: {name: 'ぶつり', hint: 'ぶつりのヒント'}},
 			GenderNames: {female: 'メス'},
 			EggGroupNames: {humanlike: 'ひとがた'},
 			ColorNames: {purple: 'むらさき'},
@@ -180,7 +180,6 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 			nature: 'NatureNames',
 			gender: 'GenderNames',
 			egggroup: 'EggGroupNames',
-			tag: 'TagNames',
 			color: 'ColorNames',
 			status: 'StatusNames',
 			target: 'TargetNames',
@@ -190,6 +189,8 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		})) {
 			assert.equal(global.TL[property], global.BattleText.ja[table]);
 		}
+		assert.deepEqual(global.TL.tag, {physical: 'ぶつり'});
+		assert.deepEqual(global.TL.tagHint, {physical: 'ぶつりのヒント'});
 		assert.equal(global.TL('Moves'), 'UIの技');
 		assert.equal(global.TL`Moves`, 'UIの技');
 		assert.equal(global.TL.term.moves, '技');

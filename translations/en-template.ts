@@ -184,7 +184,6 @@ export const translations: UIText = {
 	"[Stop timer]": null,
 	"[Start timer]": null,
 	// TRANSLATORS: From a tooltip listing the abilities a pokemon might have
-	"Possible abilities": null,
 
 	// TRANSLATORS: for replay controls
 	"[Play]": null,
