@@ -24,6 +24,7 @@ const REGION_BY_FILE: Record<string, string> = {
 	'battle-tooltips.ts': 'Battle',
 	'panel-chat.tsx': 'Chat',
 	'panel-chat-tournament.tsx': 'Chat',
+	'battle-log.ts': 'Chat',
 	'panel-teambuilder.tsx': 'Teambuilder',
 	'panel-teambuilder-team.tsx': 'Teambuilder',
 	'battle-team-editor.tsx': 'Teambuilder',

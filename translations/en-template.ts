@@ -262,6 +262,31 @@ export const translations: UIText = {
 	"Challenging...": null,
 	"Accepting...": null,
 	"[Commands]": null,
+	"[Earlier messages]": null,
+	"Mentioned by {1} in {2}": null,
+	"{1} joined": null,
+	// TRANSLATORS: separates "X joined" from "Y left"
+	"; ": null,
+	"{1} left": null,
+	"{1} renamed from {2}.": null,
+	"(Private to {1})": null,
+	"{1} battle started between {2} and {3}.": null,
+	// TRANSLATORS: for when the format name already includes "battle"
+	"{1} started between {2} and {3}.": null,
+	"Register an account to protect your ladder rating!": null,
+	"Open team sheet for {1}": null,
+	"Warning": null,
+	"Variation": null,
+	"Rated battle": null,
+	"{1} and {2}": null,
+	"and {1} others": null,
+	// TRANSLATORS: list separator
+	", ": null,
+	"and {1}": null,
+	"({1} line from {2} hidden)": null,
+	"({1} lines from {2} hidden)": null,
+	"{1} invited you to join the room \"{2}\"": null,
+	"[Join {1}]": null,
 
 	// #endregion Chat
 

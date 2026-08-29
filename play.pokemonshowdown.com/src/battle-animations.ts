@@ -1087,7 +1087,8 @@ export class BattleScene implements BattleSceneStub {
 			this.$turn.html('');
 			return;
 		}
-		this.$turn.html(`<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">Turn ${this.battle.turn}</div>`);
+		const turnText = BattleLog.escapeHTML(this.log.turnText(`${this.battle.turn}`));
+		this.$turn.html(`<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">${turnText}</div>`);
 	}
 	incrementTurn() {
 		if (!this.animating) return;
@@ -1095,7 +1096,8 @@ export class BattleScene implements BattleSceneStub {
 		const turn = this.battle.turn;
 		if (turn <= 0) return;
 		const $prevTurn = this.$turn.children();
-		const $newTurn = $(`<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">Turn ${turn}</div>`);
+		const turnText = BattleLog.escapeHTML(this.log.turnText(`${turn}`));
+		const $newTurn = $(`<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">${turnText}</div>`);
 		$newTurn.css({
 			opacity: 0,
 			left: 160,
