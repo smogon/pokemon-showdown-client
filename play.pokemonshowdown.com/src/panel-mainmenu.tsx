@@ -846,7 +846,7 @@ export class FormatDropdown extends preact.Component<{
 				name="format" value={this.format} class="select formatselect preselected" disabled
 			>
 				{formatName}
-				{!!customRules && [<br />, <small>{TL`Custom rules:`} {customRules}</small>]}
+				{!!customRules && [<br />, <small>{TL.label(TL`Custom rules`, customRules)}</small>]}
 			</button>;
 		}
 		return <button
@@ -854,7 +854,7 @@ export class FormatDropdown extends preact.Component<{
 			class="select formatselect" data-href="/formatdropdown" onChange={this.change}
 		>
 			{formatName || (!!this.props.placeholder && <em>{this.props.placeholder}</em>) || null}
-			{!!customRules && [<br />, <small>{TL`Custom rules:`} {customRules}</small>]}
+			{!!customRules && [<br />, <small>{TL.label(TL`Custom rules`, customRules)}</small>]}
 		</button>;
 	}
 }
@@ -1057,7 +1057,7 @@ export class TeamForm extends preact.Component<{
 		return <form class={this.props.class} onSubmit={this.submit} onClick={this.handleClick}>
 			{!this.props.hideFormat && <p>
 				<label class="label">
-					{TL`Format:`}<br />
+					{TL.label(TL.term.format)}<br />
 					<FormatDropdown
 						selectType={this.props.selectType} format={this.format}
 						onChange={this.props.format ? undefined : this.changeFormat}
@@ -1066,7 +1066,7 @@ export class TeamForm extends preact.Component<{
 			</p>}
 			<p>
 				<label class="label">
-					{TL`Team:`}<br />
+					{TL.label(TL.term.team)}<br />
 					<TeamDropdown format={this.props.teamFormat || this.format} />
 				</label>
 			</p>

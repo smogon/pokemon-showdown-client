@@ -16,6 +16,8 @@ export interface TLCallsForKey {
 
 const REGION_BY_FILE: Record<string, string> = {
 	'panel-topbar.tsx': 'Navigation',
+	'panels.tsx': 'Generic UI',
+	'panel-page.tsx': 'Generic UI',
 	'panel-mainmenu.tsx': 'Main Menu',
 	'panel-rooms.tsx': 'Rooms',
 	'panel-battle.tsx': 'Battle',

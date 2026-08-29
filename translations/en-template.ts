@@ -33,6 +33,7 @@ export const translations: UIText = {
 	"[Back]": null,
 	// TRANSLATORS: A computer copy command, like Ctrl+C
 	"[Copy]": null,
+	"[Edit]": null,
 	"[Delete]": null,
 	"[Undo delete]": null,
 	// TRANSLATORS: "DM" is used to label DMs and "Chat" is used for the button to start a DM
@@ -54,6 +55,8 @@ export const translations: UIText = {
 	"[Reconnect]": null,
 	"Disconnected": null,
 	"Connecting...": null,
+	"Loading...": null,
+	"Uploading...": null,
 	"[Change]": null,
 	"[Add]": null,
 	"[Look up]": null,
@@ -131,9 +134,7 @@ export const translations: UIText = {
 	// TRANSLATORS: Challenge/Search UI
 	// technically used in more than the Main Menu, but it might as well be here
 	"[Challenge]": null,
-	"Format:": null,
-	"Team:": null,
-	"Custom rules:": null,
+	"Custom rules": null,
 	// TRANSLATORS: Search countdown. {1} = a number of seconds
 	// TRANSLATORS: English doesn't include the unit (seconds) but your language can
 	"Searching in {1}...": null,
@@ -155,7 +156,7 @@ export const translations: UIText = {
 	"users online": null,
 	"active battles": null,
 	"Official chat rooms": null,
-	"Subrooms:": null,
+	"Subrooms": null,
 
 	// #endregion Rooms
 
@@ -183,7 +184,7 @@ export const translations: UIText = {
 	"[Stop timer]": null,
 	"[Start timer]": null,
 	// TRANSLATORS: From a tooltip listing the abilities a pokemon might have
-	"Possible abilities:": null,
+	"Possible abilities": null,
 
 	// TRANSLATORS: for replay controls
 	"[Play]": null,
@@ -200,6 +201,8 @@ export const translations: UIText = {
 	"[Upload and share replay]": null,
 	"[Replay]": null,
 	"(closes this battle)": null,
+
+	"Minimum Elo": null,
 
 	// #endregion Battle
 

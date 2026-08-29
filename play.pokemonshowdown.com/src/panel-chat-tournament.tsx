@@ -707,10 +707,12 @@ export class TournamentTreeBracket extends preact.Component<{
 
 		if (!data.rootNode) {
 			const users = data.users;
+			const userCount = `<b>${users?.length || 0}</b>`;
 			if (users?.length) {
-				div.innerHTML = `<b>${users.length}</b> user${users.length !== 1 ? 's' : ''}:<br />${BattleLog.escapeHTML(users.join(", "))}`;
+				const userCountText = users.length === 1 ? TL`${userCount} user` : TL`${userCount} users`;
+				div.innerHTML = `${TL.label(userCountText)}<br />${BattleLog.escapeHTML(users.join(", "))}`;
 			} else {
-				div.innerHTML = `<b>0</b> users`;
+				div.innerHTML = TL`${userCount} users`;
 			}
 			return div;
 		}

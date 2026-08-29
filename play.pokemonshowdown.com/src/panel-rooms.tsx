@@ -291,7 +291,7 @@ class RoomsPanel extends PSRoomPanel {
 							<small>{roomInfo.desc || ''}</small>
 						</a>
 						{roomInfo.subRooms && <div class="subrooms">
-							<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> {TL`Subrooms:`} {}
+							<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> {TL.label(TL`Subrooms`)}
 							{roomInfo.subRooms.map(roomName => [<a href={`/${toID(roomName)}`} class="blocklink">
 								<i class="fa fa-comment-o" aria-hidden></i> <strong>{roomName}</strong>
 							</a>, ' '])}

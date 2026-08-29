@@ -363,7 +363,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 				</p>}
 				{!!(team.packedTeam || team.uploaded) && <p class="infobox" style="padding: 5px 8px">
 					{team.uploadedPackedTeam && !team.uploaded ? <>
-						Uploading...
+						{TL`Uploading...`}
 					</> : team.uploaded ? <>
 						<small>Share URL:</small> {}
 						<CopyableURLBox
@@ -460,7 +460,7 @@ class ViewTeamPanel extends PSRoomPanel {
 				{team === null ? <p class="error">
 					Team doesn't exist
 				</p> : <p>
-					Loading...
+					{TL`Loading...`}
 				</p>}
 			</PSPanelWrapper>;
 		}
@@ -471,9 +471,9 @@ class ViewTeamPanel extends PSRoomPanel {
 				url={`https://psim.us/t/${team.teamid!}${teamData.private ? '-' + teamData.private : ''}`}
 			/> {}
 			<p>Uploaded by: <strong>{teamData.ownerid}</strong></p>
-			<p>Format: <strong>{teamData.format}</strong></p>
+			<p>{TL.label(TL.term.format)}<strong>{teamData.format}</strong></p>
 			<p>Views: <strong>{teamData.views}</strong></p>
-			{team.key && <p><a class="button" href={`team-${team.key}`}>Edit</a></p>}
+			{team.key && <p><a class="button" href={`team-${team.key}`}>{TL`[Edit]`}</a></p>}
 			<TeamEditor team={team} readOnly></TeamEditor>
 		</div></PSPanelWrapper>;
 	}

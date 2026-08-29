@@ -173,7 +173,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 		const room = this.props.room;
 
 		if (room.loading || !BattleFormats) {
-			return <p><i class="fa fa-refresh fa-spin" aria-hidden></i> <em>Loading...</em></p>;
+			return <p><i class="fa fa-refresh fa-spin" aria-hidden></i> <em>{TL`Loading...`}</em></p>;
 		} else if (room.error !== undefined) {
 			return <p>Error: {room.error}</p>;
 		} else if (!room.ladderHTML) {
@@ -185,7 +185,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 		const room = this.props.room;
 
 		if (room.loading || !BattleFormats) {
-			return <p><i class="fa fa-refresh fa-spin" aria-hidden></i> <em>Loading...</em></p>;
+			return <p><i class="fa fa-refresh fa-spin" aria-hidden></i> <em>{TL`Loading...`}</em></p>;
 		} else if (room.error !== undefined) {
 			return <p>Error: {room.error}</p>;
 		} else if (!room.ladderData) {
@@ -274,7 +274,7 @@ class LadderListPanel extends PSRoomPanel {
 	}
 	renderList() {
 		if (!window.BattleFormats) {
-			return <p>Loading...</p>;
+			return <p>{TL`Loading...`}</p>;
 		}
 		let currentSection = "";
 		const buf: JSX.Element[] = [];

@@ -1293,9 +1293,9 @@ export interface MoveFlags {
 }
 
 export type MoveTarget = 'normal' | 'any' | 'adjacentAlly' | 'adjacentFoe' | 'adjacentAllyOrSelf' | // single-target
-	'self' | 'randomNormal' | // single-target, automatic
-	'allAdjacent' | 'allAdjacentFoes' | // spread
-	'allySide' | 'foeSide' | 'all'; // side and field
+	'self' | 'randomNormal' | 'scripted' | // single-target, automatic
+	'allAdjacent' | 'allAdjacentFoes' | 'allies' | // spread
+	'allySide' | 'foeSide' | 'allyTeam' | 'all'; // side and field
 
 export class Move implements Effect {
 	// effect

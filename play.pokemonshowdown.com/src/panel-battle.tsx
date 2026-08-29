@@ -109,10 +109,11 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 				</p>
 
 				<p>
-					<label class="label">{TL`Format:`}</label><FormatDropdown onChange={this.changeFormat} placeholder="(All formats)" />
+					<label class="label">{TL.label(TL.term.format)}</label>
+					<FormatDropdown onChange={this.changeFormat} placeholder="(All formats)" />
 				</p>
 				<label class="label">
-					Minimum Elo: <select name="elofilter" class="select" onChange={this.applyFilters}>
+					{TL.label(TL`Minimum Elo`)}<select name="elofilter" class="select" onChange={this.applyFilters}>
 						<option value="none">None</option><option value="1100">1100</option><option value="1300">1300</option>
 						<option value="1500">1500</option><option value="1700">1700</option><option value="1900">1900</option>
 					</select>
@@ -125,7 +126,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 					</p>
 				</form>
 				<div class="list">{!room.battles ? (
-					<p>Loading...</p>
+					<p>{TL`Loading...`}</p>
 				) : !room.battles.length ? (
 					<p>No battles are going on</p>
 				) : (<>

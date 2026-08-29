@@ -160,6 +160,11 @@ function translate(strings: TemplateStringsArray | string | TranslatableEffect, 
 const initialText = typeof BattleText === 'undefined' ? undefined : BattleText.en;
 
 export const TL = Object.assign(translate, {
+	/** `TL.label("Ability", "Intimidate")` === `"Ability: Intimidate"` */
+	label(label: string, value?: unknown) {
+		const labelText = (TL.term.label || '{LABEL}: ').replace('{LABEL}', label);
+		return value === undefined ? labelText : labelText + String(value as any);
+	},
 	term: initialText?.TermNames || {},
 	type: initialText?.TypeNames || {},
 	nature: initialText?.NatureNames || {},

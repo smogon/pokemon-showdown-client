@@ -284,7 +284,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 	}
 	override render() {
 		return <PSPanelWrapper room={this.props.room}>
-			<div class="mainmessage"><p>Loading...</p></div>
+			<div class="mainmessage"><p>{TL`Loading...`}</p></div>
 		</PSPanelWrapper>;
 	}
 }

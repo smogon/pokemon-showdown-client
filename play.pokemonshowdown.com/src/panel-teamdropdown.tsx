@@ -456,7 +456,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 		if (!formatsLoaded) {
 			return <PSPanelWrapper room={room}><div class="pad">
 				{searchBar}
-				<p>Loading...</p>
+				<p>{TL`Loading...`}</p>
 			</div></PSPanelWrapper>;
 		}
 

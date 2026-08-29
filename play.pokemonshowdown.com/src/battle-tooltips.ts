@@ -578,6 +578,47 @@ export class BattleTooltips {
 		return this.battle.dex.moves.get(BattleTooltips.maxMoveTable[type]);
 	}
 
+	getDisplayedTarget(move: Dex.Move): string | null {
+		switch (move.target) {
+		case 'self': case 'foeSide': case 'allySide': case 'allyTeam': case 'all': case 'allies':
+			// redundant with move description
+			return null;
+		}
+		switch (this.battle.gameType) {
+		case 'doubles': case 'multi':
+			switch (move.target) {
+			case 'normal': case 'any': return 'normalDoubles';
+			case 'adjacentFoe': return 'normalFFA';
+			case 'adjacentAlly': return 'adjacentAllyDoubles';
+			case 'adjacentAllyOrSelf': return 'adjacentAllyOrSelfDoubles';
+			case 'allAdjacentFoes': return 'allAdjacentFoesDoubles';
+			case 'allAdjacent': return 'allAdjacentDoubles';
+			case 'randomNormal': return 'randomNormalDoubles';
+			default: return move.target;
+			}
+		case 'triples':
+			return move.target;
+		case 'freeforall':
+			switch (move.target) {
+			case 'normal': case 'any': case 'adjacentFoe': case 'adjacentAlly': return 'normalFFA';
+			case 'adjacentAllyOrSelf': return 'self';
+			case 'allAdjacent': case 'allAdjacentFoes': return 'allAdjacentFFA';
+			case 'randomNormal': return 'randomNormalDoubles';
+			default: return move.target;
+			}
+		default: // singles, rotation
+			switch (move.target) {
+			case 'normal': case 'any': case 'adjacentFoe': case 'scripted': case 'randomNormal':
+			case 'allAdjacent': case 'allAdjacentFoes':
+				// hits foe
+				return null;
+			case 'adjacentAllyOrSelf': return 'self';
+			case 'adjacentAlly': return 'adjacentAllySingles';
+			default: return move.target;
+			}
+		}
+	}
+
 	showMoveTooltip(
 		move: Dex.Move, isZOrMax: string, pokemon: Pokemon, serverPokemon: ServerPokemon, gmaxMove?: Dex.Move
 	) {
@@ -686,7 +727,7 @@ export class BattleTooltips {
 				basePower = `${value}`;
 				if (prevBasePower === null) prevBasePower = basePower;
 				if (prevBasePower !== basePower) difference = true;
-				basePowers.push(`${TL.tag.basepower} vs ${active.name}: ${basePower}`);
+				basePowers.push(TL.label(`${TL.tag.basepower} vs ${active.name}`, basePower));
 			}
 			if (difference) {
 				text += '<p>' + basePowers.join('<br />') + '</p>';
@@ -697,82 +738,61 @@ export class BattleTooltips {
 		if (!showingMultipleBasePowers && category !== 'Status') {
 			let activeTarget = foeActive[0] || foeActive[1] || foeActive[2];
 			value = this.getMoveBasePower(move, moveType, value, activeTarget);
-			text += `<p>${TL.tag.basepower}: ${value}</p>`;
+			text += `<p>${TL.label(TL.tag.basepower, value)}</p>`;
 		}
 
 		let accuracy = this.getMoveAccuracy(move, value);
 
 		// Deal with Nature Power special case, indicating which move it calls.
 		if (move.id === 'naturepower') {
-			let calls;
+			let called;
 			if (this.battle.gen > 5) {
 				if (this.battle.hasPseudoWeather('Electric Terrain')) {
-					calls = 'Thunderbolt';
+					called = this.battle.dex.moves.get('Thunderbolt');
 				} else if (this.battle.hasPseudoWeather('Grassy Terrain')) {
-					calls = 'Energy Ball';
+					called = this.battle.dex.moves.get('Energy Ball');
 				} else if (this.battle.hasPseudoWeather('Misty Terrain')) {
-					calls = 'Moonblast';
+					called = this.battle.dex.moves.get('Moonblast');
 				} else if (this.battle.hasPseudoWeather('Psychic Terrain')) {
-					calls = 'Psychic';
+					called = this.battle.dex.moves.get('Psychic');
 				} else {
-					calls = 'Tri Attack';
+					called = this.battle.dex.moves.get('Tri Attack');
 				}
 			} else if (this.battle.gen > 3) {
 				// In gens 4 and 5 it calls Earthquake.
-				calls = 'Earthquake';
+				called = this.battle.dex.moves.get('Earthquake');
 			} else {
 				// In gen 3 it calls Swift, so it retains its normal typing.
-				calls = 'Swift';
+				called = this.battle.dex.moves.get('Swift');
 			}
-			let calledMove = this.battle.dex.moves.get(calls);
-			text += `Calls ${Dex.getTypeIcon(this.getMoveType(calledMove, value)[0])} ${TL(calledMove)}`;
+			text += `Calls ${Dex.getTypeIcon(this.getMoveType(called, value)[0])} ${TL(called)}`;
 		}
 
-		text += `<p>${TL.tag.accuracy}: ${accuracy}</p>`;
-		if (zEffect) text += `<p>Z-Effect: ${zEffect}</p>`;
+		text += `<p>${TL.label(TL.tag.accuracy, accuracy)}</p>`;
+		if (zEffect) text += `<p>${TL.label(TL.term.zeffect, zEffect)}</p>`;
 
 		if (this.battle.hardcoreMode) {
 			text += `<p class="tooltip-section">${this.battle.dex.text.get(move).shortDesc}</p>`;
 		} else {
 			text += '<p class="tooltip-section">';
-			if (move.priority > 1) {
-				text += `Nearly always moves first <em>(priority +${move.priority})</em>.</p><p>`;
-			} else if (move.priority <= -1) {
-				text += `Nearly always moves last <em>(priority &minus;${-move.priority})</em>.</p><p>`;
-			} else if (move.priority === 1) {
-				text += `Usually moves first <em>(priority +${move.priority})</em>.</p><p>`;
-			} else {
-				if (move.id === 'grassyglide' && this.battle.hasPseudoWeather('Grassy Terrain')) {
-					text += 'Usually moves first <em>(priority +1)</em>.</p><p>';
-				}
+			const priority = move.id === 'grassyglide' && this.battle.hasPseudoWeather('Grassy Terrain') ? 1 : move.priority;
+			if (priority > 1) {
+				text += `Nearly always moves first <em>(${TL.tag.priority} +${priority})</em>.</p><p>`;
+			} else if (priority <= -1) {
+				text += `Nearly always moves last <em>(${TL.tag.priority} &minus;${-priority})</em>.</p><p>`;
+			} else if (priority === 1) {
+				text += `Usually moves first <em>(${TL.tag.priority} +${priority})</em>.</p><p>`;
 			}
 
 			text += this.battle.dex.text.get(move).desc + '</p>';
 
-			if (this.battle.gameType === 'doubles' || this.battle.gameType === 'multi') {
-				if (move.target === 'allAdjacent') {
-					text += '<p>&#x25ce; Hits both foes and ally.</p>';
-				} else if (move.target === 'allAdjacentFoes') {
-					text += '<p>&#x25ce; Hits both foes.</p>';
-				}
-			} else if (this.battle.gameType === 'triples') {
-				if (move.target === 'allAdjacent') {
-					text += '<p>&#x25ce; Hits adjacent foes and allies.</p>';
-				} else if (move.target === 'allAdjacentFoes') {
-					text += '<p>&#x25ce; Hits adjacent foes.</p>';
-				} else if (move.target === 'any') {
-					text += '<p>&#x25ce; Can target distant Pok&eacute;mon in Triples.</p>';
-				}
-			} else if (this.battle.gameType === 'freeforall') {
-				if (move.target === 'allAdjacent' || move.target === 'allAdjacentFoes') {
-					text += '<p>&#x25ce; Hits all foes.</p>';
-				} else if (move.target === 'adjacentAlly') {
-					text += '<p>&#x25ce; Can target any foe in Free-For-All.</p>';
-				}
+			const displayedTarget = this.getDisplayedTarget(move);
+			if (displayedTarget) {
+				text += `<p>&#x25ce; ${TL.target[displayedTarget]}</p>`;
 			}
 
 			if (move.flags.defrost) {
-				text += `<p class="movetag">The user thaws out if it is frozen.</p>`;
+				text += `<p class="movetag">&#x2713; ${TL.tag.defrost} <small>(the user thaws out if it is frozen)</small></p>`;
 			}
 			if (!move.flags.protect && !['self', 'allySide'].includes(move.target)) {
 				text += `<p class="movetag">${TL.tag.bypassprotect} <small>(and Detect, King's Shield, Spiky Shield)</small></p>`;
@@ -781,7 +801,7 @@ export class BattleTooltips {
 				text += `<p class="movetag">${TL.tag.bypasssubstitute} <small>(but does not break it)</small></p>`;
 			}
 			if (!move.flags.reflectable && !['self', 'allySide'].includes(move.target) && move.category === 'Status') {
-				text += `<p class="movetag">&#x2713; ${TL.tag.nonreflectable} <small>(can't be bounced by Magic Coat/Bounce)</small></p>`;
+				text += `<p class="movetag">${TL.tag.nonreflectable} <small>(and Magic Coat)</small></p>`;
 			}
 
 			if (move.flags.contact) {
@@ -803,7 +823,7 @@ export class BattleTooltips {
 				text += `<p class="movetag">&#x2713; ${TL.tag.bite} <small>(boosted by Strong Jaw)</small></p>`;
 			}
 			if ((move.recoil || move.hasCrashDamage) && ability === 'reckless') {
-				text += `<p class="movetag">&#x2713; Recoil <small>(boosted by Reckless)</small></p>`;
+				text += `<p class="movetag">&#x2713; ${TL.tag.recoil} <small>(boosted by Reckless)</small></p>`;
 			}
 			if (move.flags.bullet) {
 				text += `<p class="movetag">&#x2713; ${TL.tag.bullet} <small>(doesn't affect Bulletproof pokemon)</small></p>`;
@@ -923,8 +943,8 @@ export class BattleTooltips {
 				text += `&nbsp; &nbsp; <small>(base: <span class="textaligned-typeicons">${this.getPokemonTypes(pokemon, true).map(type => Dex.getTypeIcon(type)).join(' ')}</span>)</small>`;
 			} else if (knownPokemon.teraType) {
 				const teraType = `<span class="textaligned-typeicons">${Dex.getTypeIcon(knownPokemon.teraType)}</span>`;
-				const teraTypeText = TL.term.teratype.includes('[TYPE]') ?
-					TL.term.teratype.replace('[TYPE]', teraType) : `${TL.term.teratype}: ${teraType}`;
+				const teraTypeText = TL.term.teratype.includes('{TYPE}') ?
+					TL.term.teratype.replace('{TYPE}', teraType) : TL.label(TL.term.teratype, teraType);
 				text += `&nbsp; &nbsp; <small>(${teraTypeText})</small>`;
 			}
 			text += `</h2>`;
@@ -940,12 +960,12 @@ export class BattleTooltips {
 		const status = pokemon.status ?
 			` <span class="status ${pokemon.status}">${statusName}</span>` : '';
 		if (pokemon.fainted && pokemon.maxhp === 100) {
-			text += `<p><small>${hpName}:</small> (${faintedName})</p>`;
+			text += `<p><small>${TL.label(hpName)}</small>(${faintedName})</p>`;
 		} else if (pokemon.fainted) {
-			text += `<p><small>${hpName}:</small> <span class="gray">0/${pokemon.maxhp} (${faintedName})</span></p>`;
+			text += `<p><small>${TL.label(hpName)}</small><span class="gray">0/${pokemon.maxhp} (${faintedName})</span></p>`;
 		} else if (this.battle.hardcoreMode) {
 			if (serverPokemon) {
-				text += `<p><small>${hpName}:</small> ${serverPokemon.hp}/${serverPokemon.maxhp}${status}</p>`;
+				text += `<p><small>${TL.label(hpName)}</small>${serverPokemon.hp}/${serverPokemon.maxhp}${status}</p>`;
 			}
 		} else {
 			let exacthp = '';
@@ -954,7 +974,7 @@ export class BattleTooltips {
 			} else if (pokemon.maxhp === 48) {
 				exacthp = ` <small>(${pokemon.hp}/${pokemon.maxhp} pixels)</small>`;
 			}
-			text += `<p><small>${hpName}:</small> ${Pokemon.getHPText(pokemon, this.battle.reportExactHP)}${exacthp}${status}`;
+			text += `<p><small>${TL.label(hpName)}</small>${Pokemon.getHPText(pokemon, this.battle.reportExactHP)}${exacthp}${status}`;
 			if (clientPokemon) {
 				if (pokemon.status === 'tox') {
 					if (pokemon.ability === 'Poison Heal' || pokemon.ability === 'Magic Guard') {
@@ -993,7 +1013,7 @@ export class BattleTooltips {
 			}
 			if (serverPokemon.item) item = TL(this.battle.dex.items.get(serverPokemon.item));
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
-			if (item) itemText = `<small>${TL.term.item}:</small> ` + item + itemEffect;
+			if (item) itemText = `<small>${TL.label(TL.term.item)}</small>` + item + itemEffect;
 		} else if (clientPokemon) {
 			let item = '';
 			let itemEffect = clientPokemon.itemEffect || '';
@@ -1005,7 +1025,7 @@ export class BattleTooltips {
 			}
 			if (pokemon.item) item = TL(this.battle.dex.items.get(pokemon.item));
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
-			if (item) itemText = `<small>${TL.term.item}:</small> ` + item + itemEffect;
+			if (item) itemText = `<small>${TL.label(TL.term.item)}</small>` + item + itemEffect;
 		}
 
 		if (abilityText || itemText) {
@@ -1022,7 +1042,7 @@ export class BattleTooltips {
 		// Only display when you don't also have stats
 		if (clientPokemon?.nature && !serverPokemon) {
 			const nature = TL.nature[toID(clientPokemon.nature)] || clientPokemon.nature;
-			let natureText = `<small>${TL.term.nature}:</small> ` + nature;
+			let natureText = `<small>${TL.label(TL.term.nature)}</small>` + nature;
 			text += `<p>${natureText}</p>`;
 		}
 
@@ -2946,11 +2966,11 @@ export class BattleTooltips {
 		if (!isActive) {
 			// for switch tooltips, only show the original ability
 			const ability = abilityData.baseAbility || abilityData.ability;
-			if (ability) text = `<small>${TL.term.ability}:</small> ` + TL(this.battle.dex.abilities.get(ability));
+			if (ability) text = `<small>${TL.label(TL.term.ability)}</small>` + TL(this.battle.dex.abilities.get(ability));
 		} else {
 			if (abilityData.ability) {
 				const abilityName = TL(this.battle.dex.abilities.get(abilityData.ability));
-				text = `<small>${TL.term.ability}:</small> ` + abilityName;
+				text = `<small>${TL.label(TL.term.ability)}</small>` + abilityName;
 				const baseAbilityName = TL(this.battle.dex.abilities.get(abilityData.baseAbility));
 				if (baseAbilityName && baseAbilityName !== abilityName) text += ' (base: ' + baseAbilityName + ')';
 			}
@@ -2959,7 +2979,7 @@ export class BattleTooltips {
 		if (!text && abilityData.possibilities.length && !hidePossible &&
 			!(tier.includes('Almost Any Ability') || tier.includes('Hackmons') ||
 				tier.includes('Inheritance') || tier.includes('Metronome'))) {
-			text = '<small>' + TL`Possible abilities:` + '</small> ' + abilityData.possibilities
+			text = '<small>' + TL.label(TL`Possible abilities`) + '</small>' + abilityData.possibilities
 				.map(ability => TL(this.battle.dex.abilities.get(ability))).join(', ');
 		}
 		return text;

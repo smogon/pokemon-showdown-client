@@ -3097,7 +3097,7 @@ function SetSourceButtons(props: {
 						</>)}
 					</div>
 				) : (
-					<div>Loading...</div>
+					<div>{TL`Loading...`}</div>
 				)}
 			</div>
 		)}
@@ -3796,7 +3796,7 @@ class StatForm extends preact.Component<{
 					</tr>
 				</table>
 				{editor.gen >= 3 && <p>
-					{TL.term.nature}: <select
+					{TL.label(TL.term.nature)}<select
 						name="nature" class="select" onChange={this.changeNature} value={set.nature || 'Serious'}
 					>
 						{Object.values(BattleNatures).map(curNature => (
@@ -3939,18 +3939,18 @@ class DetailsForm extends preact.Component<{
 		return <div style="font-size:10pt" role="dialog" aria-label="Details">
 			<div class="resultheader"><h3>Details</h3></div>
 			<div class="pad">
-				<p><label class="label">{TL.term.nickname}: <input
+				<p><label class="label">{TL.label(TL.term.nickname)}<input
 					name="nickname" class="textbox default-placeholder" placeholder={TL(baseSpecies)}
 					onInput={this.changeNickname} onChange={this.changeNickname}
 				/></label></p>
-				<p><label class="label">{TL.term.level}: <input
+				<p><label class="label">{TL.label(TL.term.level)}<input
 					name="level" value={set.level ?? ''} placeholder={`${editor.defaultLevel}`}
 					type="number" inputMode="numeric" min="1" max="100" step="1"
 					class="textbox inputform numform default-placeholder" style="width: 50px"
 					onInput={this.changeLevel} onChange={this.changeLevel} disabled={editor.isChampions}
 				/></label><small>(You probably want to change the team's levels by changing the format, not here)</small></p>
 				{editor.gen > 1 && (<>
-					<p><div class="label">{TL.term.shiny}: <div class="labeled">
+					<p><div class="label">{TL.label(TL.term.shiny)}<div class="labeled">
 						<label class="checkbox inline"><input
 							type="radio" name="shiny" value="true" checked={set.shiny}
 							onInput={this.changeShiny} onChange={this.changeShiny}
@@ -3979,14 +3979,14 @@ class DetailsForm extends preact.Component<{
 						</div>
 					)}</div></p>
 					{editor.isLetsGo ? (
-						<p><label class="label">{TL.term.happiness}: <input
+						<p><label class="label">{TL.label(TL.term.happiness)}<input
 							name="happiness" value="" placeholder="70"
 							type="number" inputMode="numeric"
 							class="textbox inputform numform default-placeholder" style="width: 50px"
 							onInput={this.changeHappiness} onChange={this.changeHappiness}
 						/></label></p>
 					) : (editor.gen < 8 || editor.isNatDex) && (
-						<p><label class="label">{TL.term.happiness}: <input
+						<p><label class="label">{TL.label(TL.term.happiness)}<input
 							name="happiness" value={set.happiness ?? ''} placeholder="255"
 							type="number" inputMode="numeric" min="0" max="255" step="1"
 							class="textbox inputform numform default-placeholder" style="width: 50px"
@@ -4015,7 +4015,7 @@ class DetailsForm extends preact.Component<{
 					</p>
 				)}
 				{((!editor.isLetsGo && editor.gen === 7) || editor.isNatDex || species.baseSpecies === 'Unown') && <p>
-					<label class="label">Hidden Power {TL.term.type}: <select
+					<label class="label">{TL.label(`Hidden Power ${TL.term.type}`)}<select
 						name="hptype" class="select" onChange={this.changeHPType} value={editor.getHPType(set)}
 					>
 						{Dex.types.all().map(type => (

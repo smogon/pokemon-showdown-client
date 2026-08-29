@@ -156,7 +156,7 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 			renderPage = PagePanel.clientRooms[room.page];
 		} else {
 			if (room.loading) {
-				renderPage = <p>Loading...</p>;
+				renderPage = <p>{TL`Loading...`}</p>;
 			} else {
 				renderPage = <div class="page-html-container">
 					<SanitizedHTML>{room.htmlData || ''}</SanitizedHTML>
