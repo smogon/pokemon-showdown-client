@@ -84,11 +84,11 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 	};
 	renderBattleLink(battle: BattleDesc) {
 		const format = battle.id.split('-')[1];
-		const minEloMessage = typeof battle.minElo === 'number' ? `rated ${battle.minElo}` : battle.minElo;
+		const minEloMessage = typeof battle.minElo === 'number' ? TL`rated ${battle.minElo}` : battle.minElo;
 		return <div key={battle.id}><a href={`/${battle.id}`} class="blocklink">
 			{minEloMessage && <small style="float:right">({minEloMessage})</small>}
 			<small>[{format}]</small><br />
-			<em class="p1">{battle.p1}</em> <small class="vs">vs.</small> <em class="p2">{battle.p2}</em>
+			<em class="p1">{battle.p1}</em><small class="vs">{TL` vs. `}</small><em class="p2">{battle.p2}</em>
 		</a></div>;
 	}
 	override render() {
@@ -104,34 +104,37 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 					</button> {}
 					<span
 						style={Dex.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle'} class="picon"
-						title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
+						title={TL`Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles.`}
 					></span>
 				</p>
 
 				<p>
 					<label class="label">{TL.label(TL.term.format)}</label>
-					<FormatDropdown onChange={this.changeFormat} placeholder="(All formats)" />
+					<FormatDropdown onChange={this.changeFormat} placeholder={TL`(All formats)`} />
 				</p>
 				<label class="label">
 					{TL.label(TL`Minimum Elo`)}<select name="elofilter" class="select" onChange={this.applyFilters}>
-						<option value="none">None</option><option value="1100">1100</option><option value="1300">1300</option>
+						<option value="none">{TL`None`}</option><option value="1100">1100</option><option value="1300">1300</option>
 						<option value="1500">1500</option><option value="1700">1700</option><option value="1900">1900</option>
 					</select>
 				</label>
 
 				<form class="search" onSubmit={this.applyFilters}>
 					<p>
-						<input type="text" name="prefixsearch" class="textbox" placeholder="Username prefix" autocomplete="off" />
+						<input type="text" name="prefixsearch" class="textbox" placeholder={TL`Username prefix`} autocomplete="off" />
 						<button type="submit" class="button">{TL`[Search]`}</button>
 					</p>
 				</form>
 				<div class="list">{!room.battles ? (
 					<p>{TL`Loading...`}</p>
 				) : !room.battles.length ? (
-					<p>No battles are going on</p>
+					<p>{TL`No battles are going on`}</p>
 				) : (<>
-					<p>{room.battles.length === 100 ?
-						`100+` : room.battles.length} {room.battles.length > 1 ? `battles` : `battle`}</p>
+					<p>{room.battles.length === 1 ? (
+						TL`${1} battle`
+					) : (
+						TL`${room.battles.length === 100 ? '100+' : room.battles.length} battles`
+					)}</p>
 					{room.battles.map(battle => this.renderBattleLink(battle))}
 				</>
 				)}</div>
@@ -163,7 +166,7 @@ export class BattleRoom extends ChatRoom {
 	override interruptClose(explicit?: boolean, elem?: HTMLElement | null) {
 		if (this.isPlaying() || this.requireForfeit) {
 			PS.join('forfeitbattle' as RoomID, { parentElem: elem, parentRoomid: this.id });
-			return `You are still in ${this.title}`;
+			return TL`You are still in ${this.title}`;
 		}
 		return super.interruptClose(explicit, elem);
 	}
@@ -171,22 +174,21 @@ export class BattleRoom extends ChatRoom {
 		return this.battle && !this.battle.ended && this.request && this.connectMode !== 'deleted';
 	}
 	updateChoiceNotification() {
-		let oName = this.battle?.farSide.name;
-		if (oName) oName = " against " + oName;
+		const oName = this.battle?.farSide.name;
 		let title = '';
 		let body = '';
 		switch (this.request?.requestType) {
 		case 'move':
-			title = "Your move!";
-			body = "Move in your battle" + oName;
+			title = BattleTextParser.ui('notifyMoveTitle');
+			body = oName ? BattleTextParser.ui('notifyMoveAgainst', { OPPONENT: oName }) : BattleTextParser.ui('notifyMove');
 			break;
 		case 'switch':
-			title = "Your switch!";
-			body = "Switch in your battle" + oName;
+			title = BattleTextParser.ui('notifySwitchTitle');
+			body = oName ? BattleTextParser.ui('notifySwitchAgainst', { OPPONENT: oName }) : BattleTextParser.ui('notifySwitch');
 			break;
 		case 'team':
-			title = "Team preview!";
-			body = "Choose your team order in your battle" + oName;
+			title = BattleTextParser.ui('notifyTeamTitle');
+			body = oName ? BattleTextParser.ui('notifyTeamAgainst', { OPPONENT: oName }) : BattleTextParser.ui('notifyTeam');
 			break;
 		}
 
@@ -235,12 +237,12 @@ export class BattleRoom extends ChatRoom {
 				this.connectError = null;
 				this.update(null);
 			} catch {
-				this.connectError = `Battle "${replayid}" not found`;
+				this.connectError = TL`Battle "${replayid}" not found`;
 				if (!this.battle.stepQueue.length) {
 					this.battle.scene.message(
 						`<div class="broadcast-red pad"><strong>${BattleLog.escapeHTML(this.connectError)}</strong></div><br />` +
-						`The battle you're looking for has expired. Battles expire after 15 minutes of inactivity unless they're saved.<br /><br />` +
-						`In the future, remember to click "Save replay" to save a replay permanently.`
+						`${TL`The battle you're looking for has expired. Battles expire after 15 minutes of inactivity unless they're saved.`}<br /><br />` +
+						TL`In the future, remember to click "Save replay" to save a replay permanently.`
 					);
 				}
 				this.update(null);
@@ -279,7 +281,7 @@ class TimerButton extends preact.Component<{ room: BattleRoom, top: number }> {
 		return `${minutes}:${(seconds < 10 ? '0' : '')}${seconds}`;
 	}
 	render() {
-		let time = 'Timer';
+		let time = TL`Timer`;
 		const room = this.props.room;
 		if (!this.timerInterval && room.battle.kickingInactive) {
 			this.timerInterval = setInterval(() => {
@@ -338,7 +340,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			file.text().then(html => {
 				const titleStart = html.indexOf('<title>');
 				const titleEnd = html.indexOf('</title>');
-				let title = 'Uploaded Replay';
+				let title = TL`Uploaded Replay`;
 				if (titleStart >= 0 && titleEnd > titleStart) {
 					title = html.slice(titleStart + 7, titleEnd - 1);
 					const colonIndex = title.indexOf(':');
@@ -352,7 +354,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				const index1 = html.indexOf('<script type="text/plain" class="battle-log-data">');
 				const index2 = html.indexOf('<script type="text/plain" class="log">');
 				if (index1 < 0 && index2 < 0) {
-					PS.alert("Unrecognized HTML file: Only replay files are supported.");
+					PS.alert(TL`Unrecognized HTML file: Only replay files are supported.`);
 					return;
 				}
 				if (index1 >= 0) {
@@ -583,7 +585,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return null;
 		}
 		return <div class="pad"><div class="broadcast-red pad">
-			<h3>{room.connectError || "Error"}</h3>
+			<h3>{room.connectError || TL`Error`}</h3>
 			<p class="buttonbar"><button class="button" data-cmd="/close"><strong>{TL`[Close]`}</strong></button></p>
 		</div></div>;
 	}
@@ -714,42 +716,42 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		return <div class="movemenu">
 			{maybeDisabled && <p><em class="movewarning">
-				You <strong>might</strong> have some moves disabled, so you won't be able to cancel an attack!
+				{this.renderUIText('mightBeDisabled')}
 			</em></p>}
 			{maybeLocked && <p><em class="movewarning">
-				You <strong>might</strong> be locked into a move. {}
+				{this.renderUIText('mightBeLocked')} {}
 				<button class="button" data-cmd="/choose testfight">{TL`[Try Fight button]`}</button> {}
-				(prevents switching if you're locked)
+				{this.renderUIText('lockedExplanation')}
 			</em></p>}
 			{!overlayVersion && this.renderMoveControls(moveRequest, choices)}
 			<div class="megaevo-box">
 				{canDynamax && <label class={`megaevo${choices.current.max ? ' cur' : ''}`}>
 					<input type="checkbox" name="max" checked={choices.current.max} onChange={this.toggleBoostedMove} /> {}
-					{moveRequest.gigantamax ? 'Gigantamax' : 'Dynamax'}
+					{moveRequest.gigantamax ? TL.tag.gigantamax : TL.term.dynamax}
 				</label>}
 				{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
 					<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
-					Mega Evolution
+					{TL.term.megaevolution}
 				</label>}
 				{canMegaEvoX && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
 					<input type="checkbox" name="megax" checked={choices.current.megax} onChange={this.toggleBoostedMove} /> {}
-					Mega Evolution X
+					{TL.term.megaevolution} X
 				</label>}
 				{canMegaEvoY && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
 					<input type="checkbox" name="megay" checked={choices.current.megay} onChange={this.toggleBoostedMove} /> {}
-					Mega Evolution Y
+					{TL.term.megaevolution} Y
 				</label>}
 				{canUltraBurst && <label class={`megaevo${choices.current.ultra ? ' cur' : ''}`}>
 					<input type="checkbox" name="ultra" checked={choices.current.ultra} onChange={this.toggleBoostedMove} /> {}
-					Ultra Burst
+					{TL.term.ultraburst}
 				</label>}
 				{canZMove && <label class={`megaevo${choices.current.z ? ' cur' : ''}`}>
 					<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> {}
-					Z-Power
+					{TL.term.zpower}
 				</label>}
 				{canTerastallize && <label class={`megaevo${choices.current.tera ? ' cur' : ''}`}>
 					<input type="checkbox" name="tera" checked={choices.current.tera} onChange={this.toggleBoostedMove} /> {}
-					Tera {PSIcon({ type: canTerastallize, new: true, tera: true })}
+					{TL.term.tera} {PSIcon({ type: canTerastallize, new: true, tera: true })}
 				</label>}
 			</div>
 			{overlayVersion && this.renderMoveControls(moveRequest, choices)}
@@ -888,7 +890,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		return <div class="switchmenu">
 			{maybeTrapped && <em class="movewarning">
-				You <strong>might</strong> be trapped, so you won't be able to cancel a switch!<br />
+				{this.renderUIText('mightBeTrapped')}<br />
 			</em>}
 			{trapped && <em class="movewarning">
 				{this.renderUIText('cantSwitchTrapped')}<br />
@@ -972,17 +974,17 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		if (choices.serializedChoice) {
 			if (choices.serializedChoice === 'default') {
-				return [`Automatic choice`, <br />];
+				return [BattleTextParser.ui('autoChoice'), <br />];
 			}
-			return [`Unrecognized choice from server: `, <code>{choices.serializedChoice}</code>, <br />];
+			return [BattleTextParser.ui('unrecognizedChoice') + ' ', <code>{choices.serializedChoice}</code>, <br />];
 		}
 
 		const battle = this.props.room.battle;
-		let teamList = false;
+		const pickedNames: string[] = [];
 		for (let i = 0; i < choices.choices.length; i++) {
 			const choiceString = choices.choices[i];
 			if (choiceString === "testfight") {
-				buf.push(`${request.side.pokemon[i].name} is locked into a move.`);
+				buf.push(this.renderUIText('lockedIntoMove', { POKEMON: request.side.pokemon[i].name }));
 				return buf;
 			}
 			let choice;
@@ -995,49 +997,52 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const pokemon = request.side.pokemon[i];
 			const active = request.requestType === 'move' ? request.active[i] : null;
 			if (choice.choiceType === 'move') {
-				buf.push(`${pokemon.name} will `);
-				if (choice.mega) buf.push(<strong>Mega</strong>, ` Evolve and `);
-				if (choice.megax) buf.push(<strong>Mega</strong>, ` Evolve (X) and `);
-				if (choice.megay) buf.push(<strong>Mega</strong>, ` Evolve (Y) and `);
-				if (choice.ultra) buf.push(<strong>Ultra</strong>, ` Burst and `);
-				if (choice.tera) buf.push(`Terastallize (`, <strong>{active?.canTerastallize || '???'}</strong>, `) and `);
-				if (choice.max && active?.canDynamax) buf.push(active?.gigantamax ? `Gigantamax and ` : `Dynamax and `);
-				buf.push(`use `, <strong>{choices.currentMove(choice, i)?.name}</strong>);
+				let actions = '';
+				if (choice.mega) actions += BattleTextParser.ui('actionMegaEvolve');
+				if (choice.megax) actions += BattleTextParser.ui('actionMegaEvolveX');
+				if (choice.megay) actions += BattleTextParser.ui('actionMegaEvolveY');
+				if (choice.ultra) actions += BattleTextParser.ui('actionUltraBurst');
+				if (choice.tera) actions += BattleTextParser.ui('actionTerastallize', { TYPE: active?.canTerastallize || '???' });
+				if (choice.max && active?.canDynamax) {
+					actions += BattleTextParser.ui(active?.gigantamax ? 'actionGigantamax' : 'actionDynamax');
+				}
+				let target = '';
 				if (choice.targetLoc > 0) {
-					const target = battle.farSide.active[choice.targetLoc - 1];
-					if (!target) {
-						buf.push(` at slot ${choice.targetLoc}`);
-					} else {
-						buf.push(` at ${target.name}`);
-					}
+					const targetPokemon = battle.farSide.active[choice.targetLoc - 1];
+					target = targetPokemon ?
+						BattleTextParser.ui('atTarget', { TARGET: targetPokemon.name }) :
+						BattleTextParser.ui('atSlot', { NUMBER: `${choice.targetLoc}` });
 				} else if (choice.targetLoc < 0) {
-					const target = battle.nearSide.active[-choice.targetLoc - 1];
-					const ally = battle.gameType !== 'freeforall' ? 'ally' : '';
-					if (!target) {
-						buf.push(` at ${ally} slot ${choice.targetLoc}`);
+					const targetPokemon = battle.nearSide.active[-choice.targetLoc - 1];
+					const isAlly = battle.gameType !== 'freeforall';
+					if (targetPokemon) {
+						target = BattleTextParser.ui(isAlly ? 'atAllyTarget' : 'atTarget', { TARGET: targetPokemon.name });
 					} else {
-						buf.push(` at ${ally} ${target.name}`);
+						target = BattleTextParser.ui(isAlly ? 'atAllySlot' : 'atSlot', { NUMBER: `${choice.targetLoc}` });
 					}
 				}
-				buf.push(`.`);
+				buf.push(this.renderUIText('willUseMove', {
+					POKEMON: pokemon.name,
+					ACTIONS: actions,
+					MOVE: choices.currentMove(choice, i)?.name || '???',
+					AT: target,
+				}));
 			} else if (choice.choiceType === 'switch') {
 				const target = request.side.pokemon[choice.targetPokemon - 1];
-				if (choices.isReviving(i)) {
-					buf.push(`${pokemon.name} will revive `, <strong>{target.name}</strong>, `.`);
-				} else {
-					buf.push(`${pokemon.name} will switch to `, <strong>{target.name}</strong>, `.`);
-				}
+				buf.push(this.renderUIText(choices.isReviving(i) ? 'willRevive' : 'willSwitch', {
+					POKEMON: pokemon.name, TARGET: target.name,
+				}));
 			} else if (choice.choiceType === 'shift') {
-				buf.push(`${pokemon.name} will `, <strong>shift</strong>, ` to the center.`);
+				buf.push(this.renderUIText('willShift', { POKEMON: pokemon.name }));
 			} else if (choice.choiceType === 'team') {
 				const target = request.side.pokemon[choice.targetPokemon - 1];
-				buf.push(teamList ? `, ` : `You picked `, <strong>{target.name}</strong>);
-				teamList = true;
+				pickedNames.push(target.name);
 			}
-			if (!teamList) buf.push(<br />);
+			if (!pickedNames.length) buf.push(<br />);
 		}
-		if (teamList) {
-			buf.push('.', <br />);
+		if (pickedNames.length) {
+			const pickedList = pickedNames.map(name => `**${name}**`).join(BattleTextParser.ui('listComma'));
+			buf.push(this.renderUIText('youPicked', { POKEMON: pickedList }), <br />);
 		}
 		return buf;
 	}

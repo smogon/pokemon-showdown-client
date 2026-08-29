@@ -157,6 +157,8 @@ export const translations: UIText = {
 	"active battles": null,
 	"Official chat rooms": null,
 	"Subrooms": null,
+	"Meloetta is PS's mascot! The Aria forme is about using its voice, and represents our chatrooms.": null,
+	"Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles.": null,
 
 	// #endregion Rooms
 
@@ -202,6 +204,23 @@ export const translations: UIText = {
 	"(closes this battle)": null,
 
 	"Minimum Elo": null,
+	"rated {1}": null,
+	// TRANSLATORS: goes between two usernames; the key includes its surrounding spacing so some languages can drop it
+	" vs. ": null,
+	"(All formats)": null,
+	"Username prefix": null,
+	"No battles are going on": null,
+	"{1} battle": null,
+	"{1} battles": null,
+	"None": null,
+	"Timer": null,
+	"Uploaded Replay": null,
+	"Error": null,
+	"The battle you're looking for has expired. Battles expire after 15 minutes of inactivity unless they're saved.": null,
+	"In the future, remember to click \"Save replay\" to save a replay permanently.": null,
+	"Unrecognized HTML file: Only replay files are supported.": null,
+	"You are still in {1}": null,
+	"Battle \"{1}\" not found": null,
 
 	// #endregion Battle
 
