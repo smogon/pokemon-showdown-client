@@ -1318,16 +1318,17 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			{room.side ? (
 				<p>
 					<button class="button" data-cmd="/close">
-						<strong>Main menu</strong><br /><small>(closes this battle)</small>
+						<strong>Main menu</strong>
 					</button> {}
 					{room.search && <>
 						<button class="button" onClick={this.handleNewGame}>
-							<strong>New Game</strong><br /><small>(closes this battle)</small>
+							<strong>New Game</strong>
 						</button> {}
 					</>}
 					<button class="button" data-cmd={`/closeand /challenge ${room.battle.farSide.id},${room.battle.tier}`}>
-						<strong>Rematch</strong><br /><small>(closes this battle)</small>
+						<strong>Rematch</strong>
 					</button>
+					<br /><small>(closes this battle)</small>
 				</p>
 			) : (
 				<p>
