@@ -1,0 +1,20 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["es2020"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "checkJs": true,
+    "rewriteRelativeImportExtensions": true,
+    "erasableSyntaxOnly": true,
+    "allowUnreachableCode": false,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+  },
+  "types": ["node"],
+  "include": [
+    "./src/**/*",
+    "./config/config*.cjs",
+  ],
+  "exclude": ["./scripts/**/*"],
+}

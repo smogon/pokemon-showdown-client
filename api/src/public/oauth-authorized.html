@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/js/lib/jquery-2.2.4.min.js"></script>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
+
+		<title>Authorized applications - Pokémon Showdown!</title>
+
+		<link rel="stylesheet" href="//pokemonshowdown.com/style/global.css">
+	</head>
+	<body>
+		<div class="body">
+		<header>
+			<div class="nav-wrapper"><ul class="nav">
+				<li><a class="button nav-first" href="/"><img src="/pokemonshowdownbeta.png"
+							srcset="/pokemonshowdownbeta.png 1x, /pokemonshowdownbeta@2x.png 2x" alt="Pokémon Showdown" width="146"
+							height="44"> Home</a></li>
+				<li><a class="button" href="/dex/">Pokédex</a></li>
+				<li><a class="button" href="//replay.pokemonshowdown.com/">Replays</a></li>
+				<li><a class="button" href="/ladder/">Ladder</a></li>
+				<li><a class="button nav-last" href="/forums/">Forum</a></li>
+				<li><a class="button greenbutton nav-first nav-last" href="//play.pokemonshowdown.com/">Play</a></li>
+			</ul></div>
+		</header>
+
+		<div class="main"><section class="section">
+			<h2>Authorized OAuth2 Applications</h2><hr />
+			<div id="applications" class="infobox">
+				OAuth2 applications you have authorized to use your Pokemon Showdown account <span id="username"></span>
+				will appear here.
+			</div>
+		</section></div>
+	</div>
+
+	<footer>
+		<p>
+			<small><a href="/rules">Rules</a> | <a href="/privacy">Privacy policy</a> | <a href="/credits">Credits</a> | <a href="/contact">Contact</a></small>
+		</p>
+	</footer>
+
+	<script>
+		var safeJSON = function (callback) {
+			return function (data) {
+				if (data.length < 1) return;
+				if (data[0] == ']') data = data.substr(1);
+				try {
+					data = (JSON.parse(data));
+				} catch {
+					return callback({data: data});
+				}
+				return callback(data);
+			};
+		};
+		function loadApplications() {
+			$.get('/api/oauth/api/authorized', safeJSON(function (data) {
+				if (data.actionerror) {
+					return alert(data.actionerror);
+				}
+				let buffer = `<strong>Applications authorized for account ${data.username}</strong>`;
+				if (!data.applications.length) {
+					buffer += ` None.`;
+					return $('#applications').html(buffer);
+				}
+				buffer += `<ul>`;
+				for (var [i, application] of data.applications.entries()) {
+					buffer += `<li>`;
+					buffer += `${application.title} (<a href="${application.url}">${application.url}</a>) `;
+					buffer += ` <button class="button greenbutton" id="revoke-${i}">Revoke access</button>`;
+					buffer += `</li>`;
+				}
+				$('#applications').html(buffer);
+				$('button').on('click', ev => {
+					var button = ev.currentTarget;
+					var application = data.applications[Number(button.id.slice('revoke-'.length))];
+					if (!application) return // ???
+					$.post('/api/oauth/api/revoke', {uri: application.url}, safeJSON(function (data) {
+						if (data.actionerror) return alert(data.actionerror);
+						$('button').off('click');
+						loadApplications();
+					}));
+				});
+			}));
+		}
+		setTimeout(loadApplications, 10);
+	</script>
+
+</body></html>

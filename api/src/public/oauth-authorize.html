@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width">
+
+		<title>Authorize application - Pokémon Showdown!</title>
+
+		<link rel="stylesheet" href="//pokemonshowdown.com/style/global.css">
+	</head>
+	<body>
+		<div class="body">
+		<header>
+			<div class="nav-wrapper"><ul class="nav">
+				<li><a class="button nav-first" href="/"><img src="/pokemonshowdownbeta.png"
+							srcset="/pokemonshowdownbeta.png 1x, /pokemonshowdownbeta@2x.png 2x" alt="Pokémon Showdown" width="146"
+							height="44"> Home</a></li>
+				<li><a class="button" href="/dex/">Pokédex</a></li>
+				<li><a class="button" href="//replay.pokemonshowdown.com/">Replays</a></li>
+				<li><a class="button" href="/ladder/">Ladder</a></li>
+				<li><a class="button nav-last" href="/forums/">Forum</a></li>
+				<li><a class="button greenbutton nav-first nav-last" href="//play.pokemonshowdown.com/">Play</a></li>
+			</ul></div>
+		</header>
+
+		<div class="main"><section class="section">
+			<h2>Authorize {{client}}</h2><hr />
+			<div class="infobox" id="authpanel">
+				{{client}} by {{client_name}} wants to access your Pokemon Showdown account<span id="username"></span>.<br />
+				This does not expose any private information, and will allow you to log in on their site using your Pokemon Showdown account for two weeks.<br /><br /><hr />
+				<a id="auth" class="button greenbutton nav-first nav-last">Authorize</a><br /><br />
+				<small>Authorizing will redirect you to <span id="uri"></span></small>
+			</div>
+		</section></div>
+	</div>
+
+	<footer>
+		<p>
+			<small><a href="/rules">Rules</a> | <a href="/privacy">Privacy policy</a> | <a href="/credits">Credits</a> | <a href="/contact">Contact</a></small>
+		</p>
+	</footer>
+
+	<script>
+		var safeJSON = function (callback) {
+			return function (data) {
+				if (data.length < 1) return;
+				if (data[0] == ']') data = data.substr(1);
+				try {
+					return callback(JSON.parse(data));
+				} catch {
+					return callback({data: data});
+				}
+			};
+		};
+		var params = new URLSearchParams(location.search);
+		var tokenName = 'ps-' + params.get('client_id') + "-token";
+		var token = localStorage.getItem(tokenName);
+		var authorizedUser = '';
+		var username = document.cookie
+			.split('; ')
+			.filter(x => x.startsWith('showdown_username'))
+			.map(x => x.split('=').slice(1).join('='))[0];
+		if (!username) {
+			alert("Please log in on Pokemon Showdown before using this page.");
+			throw '';
+		} else {
+			document.getElementById('username').innerText = ` (logged in as "${decodeURI(username)}")`;
+		}
+		if (token) {
+			params.set('token', token);
+		}
+		var acting = false;
+
+		function getAssertion() {
+			$.get('/api/oauth/api/getassertion', {
+				token: params.get('token'),
+				client_id: params.get('client_id'),
+				challenge: params.get('challenge') || params.get('challstr'),
+			}, safeJSON(function (data) {
+				if (data.actionerror) {
+					acting = false;
+					return alert(`Error: ${data.actionerror}`);
+				}
+				if (data.success === false) {
+					params.delete('token');
+					localStorage.removeItem(tokenName);
+					$('#authpanel').css({display: ''});
+					acting = false;
+					return $('#auth').off('click').on('click', () => {
+						if (acting) return;
+						acting = true;
+						authorize();
+					});
+				}
+				if (typeof data.data !== 'string' || data.data.startsWith(';')) {
+					acting = false;
+					return alert(`Error: ${data.data || "The loginserver returned an invalid assertion."}`);
+				}
+				var assertionData = data.data.split(';')[0].split(',');
+				authorizedUser = authorizedUser || assertionData[1] || '';
+				var redirect = new URL(params.get('redirect_uri'));
+				redirect.searchParams.set('assertion', data.data);
+				redirect.searchParams.set('token', params.get('token'));
+				redirect.searchParams.set('user', authorizedUser);
+				location.replace(redirect);
+			}));
+		}
+
+		function authorize() {
+			$.post('/api/oauth/api/authorize', {
+				client_id: params.get('client_id'),
+			}, safeJSON(function (data) {
+				if (data.actionerror) {
+					acting = false;
+					return alert(`Error: ${data.actionerror}`);
+				}
+				if (!data.success) {
+					acting = false;
+					return alert("The loginserver could not create an OAuth token. Please try again.");
+				}
+				params.set('token', data.success);
+				localStorage.setItem(tokenName, data.success);
+				authorizedUser = data.user || '';
+				getAssertion();
+			}));
+		}
+
+		var jqueryEl = document.createElement('script');
+		jqueryEl.src = '/js/lib/jquery-2.2.4.min.js';
+		jqueryEl.onload = function() {
+			if (!params.get('token')) {
+				$('#auth').on('click', () => {
+					if (acting) return;
+					acting = true;
+					authorize();
+				});
+			} else {
+				$('#authpanel').css({display: 'none'});
+				getAssertion();
+			}
+		}
+		document.body.appendChild(jqueryEl);
+
+		var redirectUri = document.createTextNode(params.get('redirect_uri') || "");
+		document.getElementById('uri').appendChild(redirectUri);
+	</script>
+
+</body></html>
