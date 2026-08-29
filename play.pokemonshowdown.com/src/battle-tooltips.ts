@@ -2887,10 +2887,11 @@ export class BattleTooltips {
 		return ally.effectiveAbility(serverPokemon);
 	}
 	getPokemonAbilityData(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon | null | undefined) {
-		const abilityData: { ability: string, baseAbility: string, possibilities: string[] } = {
-			ability: '', baseAbility: '', possibilities: [],
+		const abilityData: { ability: string, baseAbility: string, effect: string, possibilities: string[] } = {
+			ability: '', baseAbility: '', effect: '', possibilities: [],
 		};
 		if (clientPokemon) {
+			abilityData.effect = clientPokemon.abilityEffect;
 			if (clientPokemon.ability) {
 				abilityData.ability = clientPokemon.ability || clientPokemon.baseAbility;
 				if (clientPokemon.baseAbility) {
@@ -2939,10 +2940,12 @@ export class BattleTooltips {
 				text = '<small>Ability:</small> ' + abilityName;
 				const baseAbilityName = this.battle.dex.abilities.get(abilityData.baseAbility).name;
 				if (baseAbilityName && baseAbilityName !== abilityName) text += ' (base: ' + baseAbilityName + ')';
+			} else if (abilityData.effect) {
+				text = '<small>Ability:</small> Unknown (' + BattleLog.escapeHTML(abilityData.effect) + ')';
 			}
 		}
 		const tier = this.battle.tier;
-		if (!text && abilityData.possibilities.length && !hidePossible &&
+		if (!text && !abilityData.effect && abilityData.possibilities.length && !hidePossible &&
 			!(tier.includes('Almost Any Ability') || tier.includes('Hackmons') ||
 				tier.includes('Inheritance') || tier.includes('Metronome'))) {
 			text = '<small>Possible abilities:</small> ' + abilityData.possibilities.join(', ');
