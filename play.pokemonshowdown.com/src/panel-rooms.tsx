@@ -118,8 +118,8 @@ class RoomsPanel extends PSRoomPanel {
 	}
 	getRoomList(forceNoAutocomplete?: boolean): RoomsSection[] {
 		if (this.search.startsWith('/')) {
-			return [["Command", [{
-				title: "Console", id: 'dm-' as RoomID, desc: `Enter = run command ${this.search}`,
+			return [[TL`Command`, [{
+				title: TL`Console`, id: 'dm-' as RoomID, desc: TL`Enter = run command ${this.search}`,
 			}]]];
 		}
 		const searchid = toID(this.search);
@@ -145,7 +145,7 @@ class RoomsPanel extends PSRoomPanel {
 				[TL`Official chat rooms`, officialRooms],
 				[spotLightLabel, spotLightRooms],
 				[TL`Chat rooms`, chatRooms],
-				["Hidden rooms", hiddenRooms],
+				[TL`Hidden rooms`, hiddenRooms],
 			];
 		}
 
@@ -158,7 +158,7 @@ class RoomsPanel extends PSRoomPanel {
 			for (const title of room.subRooms) {
 				roomList.push({
 					title,
-					desc: `(Subroom of ${room.title})`,
+					desc: TL`(Subroom of ${room.title})`,
 				});
 			}
 		}
@@ -177,7 +177,7 @@ class RoomsPanel extends PSRoomPanel {
 		));
 
 		const hidden: RoomsSection[] = !exactMatch ?
-			[["Possible secret room", [{ title: this.search, desc: "(Private room?)" }]]] : [];
+			[[TL`Possible secret room`, [{ title: this.search, desc: TL`(Private room?)` }]]] : [];
 
 		const autoFill = this.lastKeyCode !== 127 && this.lastKeyCode >= 32;
 		if (autoFill && !forceNoAutocomplete) {
@@ -202,10 +202,10 @@ class RoomsPanel extends PSRoomPanel {
 				this.search += '-';
 			}
 
-			return [["Search results", results], ...hidden];
+			return [[TL`Search results`, results], ...hidden];
 		}
 
-		return [...hidden, ["Search results", results]];
+		return [...hidden, [TL`Search results`, results]];
 	}
 	override render() {
 		if (this.hidden && PS.isVisiblePanel(this.props.room)) this.hidden = false;
@@ -220,14 +220,14 @@ class RoomsPanel extends PSRoomPanel {
 				<i class="fa fa-caret-right" aria-hidden></i> {TL`[Hide]`}
 			</button>
 			<div class="roomcounters">
-				<a class="button" href="users" title="Find an online user">
+				<a class="button" href="users" title={TL`Find an online user`}>
 					<span
 						class={`pixelated usercount${Dex.afdMode === true ? ' afd' : ''}`}
 						title={TL`Meloetta is PS's mascot! The Aria forme is about using its voice, and represents our chatrooms.`}
 					></span>
 					<strong>{rooms.userCount || '-'}</strong> {TL`users online`}
 				</a> {}
-				<a class="button" href="battles" title="Watch an active battle">
+				<a class="button" href="battles" title={TL`Watch an active battle`}>
 					<span
 						class={`pixelated battlecount${Dex.afdMode ? ' afd' : ''}`}
 						title={TL`Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles.`}
@@ -240,14 +240,14 @@ class RoomsPanel extends PSRoomPanel {
 			)}
 			<div>
 				<select name="sections" class="select" onChange={this.changeSection}>
-					<option value="">(All rooms)</option>
+					<option value="">{TL`(All rooms)`}</option>
 					{rooms.sectionTitles?.map(title => {
 						return <option value={title}> {title} </option>;
 					})}
 				</select>
 				<p><input
 					type="search" name="roomsearch" class="textbox autofocus" style="width: 100%; max-width: 480px"
-					placeholder="Join or search for rooms" autocomplete="off"
+					placeholder={TL`Join or search for rooms`} autocomplete="off"
 					onInput={this.changeSearch} onKeyDown={this.keyDownSearch} onBlur={this.handleOnBlur}
 				/></p>
 			</div>

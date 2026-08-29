@@ -196,13 +196,13 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 		return <table class="table readable-bg">
 			<tr class="table-header">
 				<th></th>
-				<th>Name</th>
-				<th style={{ textAlign: 'center' }}><abbr title="Elo rating">Elo</abbr></th>
+				<th>{TL`Name`}</th>
+				<th style={{ textAlign: 'center' }}><abbr title={TL`Elo rating`}>Elo</abbr></th>
 				<th style={{ textAlign: 'center' }}>
-					<abbr title="user's percentage chance of winning a random battle (Glicko X-Act Estimate)">GXE</abbr>
+					<abbr title={TL`user's percentage chance of winning a random battle (Glicko X-Act Estimate)`}>GXE</abbr>
 				</th>
 				<th style={{ textAlign: 'center' }}>
-					<abbr title="Glicko-1 rating system: rating&plusmn;deviation (provisional if deviation>100)">Glicko-1</abbr>
+					<abbr title={TL`Glicko-1 rating system: rating±deviation (provisional if deviation>100)`}>Glicko-1</abbr>
 				</th>
 				{showCOIL && <th style={{ textAlign: 'center' }}>COIL</th>}
 			</tr>
@@ -223,7 +223,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 				{showCOIL && <td style={{ textAlign: 'center' }}>{row.coil?.toFixed(0)}</td>}
 			</tr>)}
 			{!room.ladderData.toplist.length && <tr><td colSpan={5}>
-				<em>No one has played any ranked games yet.</em>
+				<em>{TL`No one has played any ranked games yet.`}</em>
 			</td></tr>}
 		</table>;
 	}
@@ -252,7 +252,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 					<button class="button" data-href="ladder" data-target="replace">
 						<i class="fa fa-refresh" aria-hidden></i> {TL`[Refresh]`}
 					</button> <a class="button" href="/view-seasonladder-gen9randombattle">
-						<i class="fa fa-trophy" aria-hidden></i> Seasonal rankings
+						<i class="fa fa-trophy" aria-hidden></i> {TL`[Seasonal rankings]`}
 					</a>
 					{this.renderSearch()}
 				</p>
@@ -268,6 +268,9 @@ class LadderListPanel extends PSRoomPanel {
 	static readonly routes = ['ladder'];
 	static readonly icon = <i class="fa fa-list-ol" aria-hidden></i>;
 	static readonly title = 'Ladder';
+	static getTitle() {
+		return TL`Ladder`;
+	}
 
 	override componentDidMount() {
 		this.subscribeTo(PS.teams);
@@ -298,7 +301,7 @@ class LadderListPanel extends PSRoomPanel {
 			<div class="ladder pad">
 				<p>
 					<a class="button" href={`//${Config.routes.users}/`} target="_blank">
-						Look up a specific user's rating
+						{TL`[Look up a specific user's rating]`}
 					</a>
 				</p>
 				<p>

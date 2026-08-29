@@ -921,7 +921,8 @@ export class BattleTooltips {
 		const speciesName = TL(this.battle.dex.species.get(pokemon.speciesForme));
 		if (speciesName !== nickname) {
 			// the (SPECIES) part of the nicknamespecies template, so languages control the parens
-			const speciesSuffix = TL.term.nicknamespecies.replace('{NICKNAME}', '').replace('{SPECIES}', speciesName);
+			const speciesSuffix = (TL.term.nicknamespecies || '{NICKNAME} ({SPECIES})')
+				.replace('{NICKNAME}', '').replace('{SPECIES}', speciesName);
 			name += `<small>${speciesSuffix}</small>`;
 		}
 
@@ -952,8 +953,7 @@ export class BattleTooltips {
 				text += `&nbsp; &nbsp; <small>${BattleTextParser.ui('base', { VALUE: baseTypes })}</small>`;
 			} else if (knownPokemon.teraType) {
 				const teraType = `<span class="textaligned-typeicons">${Dex.getTypeIcon(knownPokemon.teraType)}</span>`;
-				const teraTypeText = TL.term.teratype.includes('{TYPE}') ?
-					TL.term.teratype.replace('{TYPE}', teraType) : TL.label(TL.term.teratype, teraType);
+				const teraTypeText = (TL.term.teratype || 'Tera {TYPE}').replace('{TYPE}', teraType);
 				text += `&nbsp; &nbsp; <small>(${teraTypeText})</small>`;
 			}
 			text += `</h2>`;

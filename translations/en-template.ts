@@ -64,6 +64,7 @@ export const translations: UIText = {
 	"[Create]": null,
 	"[Rename]": null,
 	"[Remove]": null,
+	"Gen {1}": null,
 
 	// #endregion Generic UI
 
@@ -115,7 +116,6 @@ export const translations: UIText = {
 	"(uncategorized)": null,
 	"(all)": null,
 	"[Other gens]": null,
-	"Gen 9": null,
 
 	// #endregion Popups
 
@@ -145,6 +145,7 @@ export const translations: UIText = {
 	"Rules": null,
 	"Credits": null,
 	"Privacy": null,
+	"background by {1}": null,
 
 	// #endregion Main Menu
 
@@ -155,15 +156,32 @@ export const translations: UIText = {
 	// TRANSLATORS: but they don't have to work that way in your language
 	"users online": null,
 	"active battles": null,
-	"Official chat rooms": null,
-	"Subrooms": null,
+	"Find an online user": null,
+	"Watch an active battle": null,
 	"Meloetta is PS's mascot! The Aria forme is about using its voice, and represents our chatrooms.": null,
 	"Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles.": null,
+
+	"Official chat rooms": null,
+	"Hidden rooms": null,
+
+	"Subrooms": null,
+	"(All rooms)": null,
+	"Join or search for rooms": null,
+	"Command": null,
+	"Console": null,
+	"Enter = run command {1}": null,
+	"(Subroom of {1})": null,
+	"Possible secret room": null,
+	"(Private room?)": null,
+	"Search results": null,
 
 	// #endregion Rooms
 
 	// #region Battle
 	// ==================================================================
+
+	// TRANSLATORS: Note that most translations of battle UI are in the server repository
+	// TRANSLATORS: In data/text/[lang]/default.ts and data/text/[lang]/names.ts
 
 	// TRANSLATORS: For the Team Preview menu in battle controls
 	// TRANSLATORS: Also replaces "Switch" in phases where switching isn't possible
@@ -203,6 +221,7 @@ export const translations: UIText = {
 	"[Replay]": null,
 	"(closes this battle)": null,
 
+	// TRANSLATORS: for the battle list
 	"Minimum Elo": null,
 	"rated {1}": null,
 	// TRANSLATORS: goes between two usernames; the key includes its surrounding spacing so some languages can drop it
@@ -214,13 +233,15 @@ export const translations: UIText = {
 	"{1} battles": null,
 	"None": null,
 	"Timer": null,
-	"Uploaded Replay": null,
 	"Error": null,
 	"The battle you're looking for has expired. Battles expire after 15 minutes of inactivity unless they're saved.": null,
 	"In the future, remember to click \"Save replay\" to save a replay permanently.": null,
 	"Unrecognized HTML file: Only replay files are supported.": null,
 	"You are still in {1}": null,
 	"Battle \"{1}\" not found": null,
+	"Uploaded replay": null,
+	"Team {1}": null,
+	"{1} and friends": null,
 
 	// #endregion Battle
 
@@ -258,8 +279,15 @@ export const translations: UIText = {
 	"[New box]": null,
 	// TRANSLATORS: When deleting a folder, button to add folder name to all teams in it
 	"[Convert to prefix]": null,
-	"(add folder)": null,
-	"(add format folder)": null,
+	"[(add folder)]": null,
+	"[(add format folder)]": null,
+	"Names can't contain slashes, since they're used as a folder separator.": null,
+	"Names can't contain the character |, since they're used for storing teams.": null,
+	"New name required": null,
+	"Not in a folder": null,
+	"Teams not in any folders": null,
+	"All teams": null,
+	"Folders": null,
 
 	// TRANSLATORS: for Clipboard actions
 	"Copied!": null,
@@ -283,12 +311,20 @@ export const translations: UIText = {
 	"Account": null,
 	"Account (public)": null,
 	"Local": null,
+	"Uploaded": null,
 	"[Upload for shareable URL]": null,
 	"[Upload for shareable/searchable URL]": null,
 	"Disconnected (wrong account?)": null,
 	"[Revert to uploaded version]": null,
 	"[Compare]": null,
 	"[Upload changes]": null,
+	"Team was deleted": null,
+	"Team doesn't exist": null,
+	"Untitled team": null,
+	"Uploaded by": null,
+	"Views": null,
+	"Team deleted": null,
+	"Not found": null,
 
 	// TRANSLATORS: for the team editor
 	"[Add Pokémon]": null,
@@ -300,6 +336,21 @@ export const translations: UIText = {
 	// TRANSLATORS: They're both designed to take up very little width, so keep that in mind
 	"H.P.": null,
 	"H. Power": null,
+	"Defensive coverage": null,
+	"Teambuilding resources for {1}": null,
+	"[See all]": null,
+	"Search species or filter by type, learnable moves, ability, tier, or egg group": null,
+	"Search abilities": null,
+	"Search items": null,
+	"Search moves or filter by type or category": null,
+	"Sample sets": null,
+	"Box sets": null,
+	"Guessed spread": null,
+	"(Please choose 4 moves to get a guessed spread)": null,
+	"Protip:": null,
+	"Use a different nature to save {1} EVs:": null,
+	"Use a different nature to get higher stats:": null,
+	"Natures cannot raise or lower HP.": null,
 
 	// #endregion Teambuilder
 
@@ -308,6 +359,14 @@ export const translations: UIText = {
 
 	"[All formats]": null,
 	"[How the ladder works]": null,
+	"[Seasonal rankings]": null,
+	"[Look up a specific user's rating]": null,
+	"No data returned from server.": null, // NOT USED
+	"Name": null,
+	"Elo rating": null,
+	"user's percentage chance of winning a random battle (Glicko X-Act Estimate)": null,
+	"Glicko-1 rating system: rating±deviation (provisional if deviation>100)": null,
+	"No one has played any ranked games yet.": null,
 
 	// #endregion Ladder
 };

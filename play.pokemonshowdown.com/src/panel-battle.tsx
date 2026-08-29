@@ -330,6 +330,24 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	static readonly id = 'battle';
 	static readonly routes = ['battle-*', 'game-*'];
 	static readonly Model = BattleRoom;
+	static getTitle(room: PSRoom) {
+		const { battle, title } = room as BattleRoom;
+		if (title === 'Uploaded replay') return TL`Uploaded replay`;
+
+		const p1 = battle?.sides[0]?.name;
+		const p2 = battle?.sides[1]?.name;
+		if (!p1 || !p2) return title;
+
+		const [, prefix = '', mainTitle] = /^(\[[^\]]*\] )?([^]*)$/.exec(title)!;
+		if (battle.gameType === 'multi' && mainTitle === `Team ${p1} vs. Team ${p2}`) {
+			return prefix + TL`Team ${p1}` + TL` vs. ` + TL`Team ${p2}`;
+		} else if (battle.gameType === 'freeforall' && mainTitle === `${p1} and friends`) {
+			return prefix + TL`${p1} and friends`;
+		} else if (mainTitle === `${p1} vs. ${p2}`) {
+			return prefix + p1 + TL` vs. ` + p2;
+		}
+		return title;
+	}
 	static handleDrop(ev: DragEvent) {
 		const file = ev.dataTransfer?.files?.[0];
 		if (file?.type === 'text/html') {
@@ -340,7 +358,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			file.text().then(html => {
 				const titleStart = html.indexOf('<title>');
 				const titleEnd = html.indexOf('</title>');
-				let title = TL`Uploaded Replay`;
+				let title = 'Uploaded replay';
 				if (titleStart >= 0 && titleEnd > titleStart) {
 					title = html.slice(titleStart + 7, titleEnd - 1);
 					const colonIndex = title.indexOf(':');

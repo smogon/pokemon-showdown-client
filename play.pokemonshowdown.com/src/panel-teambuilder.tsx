@@ -110,11 +110,11 @@ class TeambuilderRoom extends PSRoom {
 			}
 
 			if (name.includes('/') || name.includes('\\')) {
-				this.errorReply("Names can't contain slashes, since they're used as a folder separator.");
+				this.errorReply(TL`Names can't contain slashes, since they're used as a folder separator.`);
 				name = name.replace(/[\\/]/g, '');
 			}
 			if (name.includes('|')) {
-				this.errorReply("Names can't contain the character |, since they're used for storing teams.");
+				this.errorReply(TL`Names can't contain the character |, since they're used for storing teams.`);
 				name = name.replace(/\|/g, '');
 			}
 
@@ -124,15 +124,15 @@ class TeambuilderRoom extends PSRoom {
 			this.update(null);
 		},
 		'renamefolder'(name) {
-			if (!name) return this.errorReply('New name required');
-			if (!this.curFolder.endsWith('/')) return this.errorReply('Not in a folder');
+			if (!name) return this.errorReply(TL`New name required`);
+			if (!this.curFolder.endsWith('/')) return this.errorReply(TL`Not in a folder`);
 
 			if (name.includes('/') || name.includes('\\')) {
-				PS.alert("Names can't contain slashes, since they're used as a folder separator.");
+				PS.alert(TL`Names can't contain slashes, since they're used as a folder separator.`);
 				name = name.replace(/[\\/]/g, '');
 			}
 			if (name.includes('|')) {
-				PS.alert("Names can't contain the character |, since they're used for storing teams.");
+				PS.alert(TL`Names can't contain the character |, since they're used for storing teams.`);
 				name = name.replace(/\|/g, '');
 			}
 
@@ -148,7 +148,7 @@ class TeambuilderRoom extends PSRoom {
 			this.update(null);
 		},
 		'deletefolder'() {
-			if (!this.curFolder.endsWith('/')) return this.errorReply('Not in a folder');
+			if (!this.curFolder.endsWith('/')) return this.errorReply(TL`Not in a folder`);
 
 			const oldFolder = this.curFolder.slice(0, -1);
 			for (const team of PS.teams.list) {
@@ -162,7 +162,7 @@ class TeambuilderRoom extends PSRoom {
 			this.update(null);
 		},
 		'convertfoldertoprefix'() {
-			if (!this.curFolder.endsWith('/')) return this.errorReply('Not in a folder');
+			if (!this.curFolder.endsWith('/')) return this.errorReply(TL`Not in a folder`);
 
 			const oldFolder = this.curFolder.slice(0, -1);
 			for (const team of PS.teams.list) {
@@ -556,7 +556,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		} else if (value === '++') {
 			children = [
 				<i class="fa fa-plus" aria-hidden></i>,
-				<em>{TL`(add folder)`}</em>,
+				<em>{TL`[(add folder)]`}</em>,
 			];
 		} else {
 			children = [
@@ -705,7 +705,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 				name="format" value="" data-selecttype="teambuilder"
 				class="selectFolder" data-href="/formatdropdown" onChange={this.addFormatFolder}
 			>
-				<i class="fa fa-plus" aria-hidden></i><em>{TL`(add format folder)`}</em>
+				<i class="fa fa-plus" aria-hidden></i><em>{TL`[(add format folder)]`}</em>
 			</button></div>,
 		];
 
@@ -721,9 +721,9 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					renderedFolders.push(...renderedFormatFolders);
 					renderedFormatFolders = [];
 					renderedFolders.push(<div class="foldersep"></div>);
-					renderedFolders.push(<div class="folder"><h3>Folders</h3></div>);
+					renderedFolders.push(<div class="folder"><h3>{TL`Folders`}</h3></div>);
 				} else {
-					renderedFolders.push(<div class="folder"><h3>Gen {gen}</h3></div>);
+					renderedFolders.push(<div class="folder"><h3>{TL`Gen ${gen}`}</h3></div>);
 				}
 			}
 			renderedFolders.push(this.renderFolder(format));
@@ -750,7 +750,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		for (const folder of this.getFolderList()) {
 			if (folder.endsWith('/')) {
 				renderedFolders.push(
-					<option value={folder}>{folder.slice(0, -1) || 'Teams not in any folders'}</option>
+					<option value={folder}>{folder.slice(0, -1) || TL`Teams not in any folders`}</option>
 				);
 			} else {
 				const gen = parseInt(folder.charAt(3), 10);
@@ -766,15 +766,15 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 
 		return <>
 			<select class="select teambuilder-folder-select" value={room.curFolder} onChange={this.changeMobileFolder}>
-				<option value="">All teams</option>
+				<option value="">{TL`All teams`}</option>
 				{gens.map(gen => (
-					<optgroup label={`Gen ${gen}`}>
+					<optgroup label={TL`Gen ${gen}`}>
 						{formatGroups[gen]}
 					</optgroup>
 				))}
-				<option value={ADD_FORMAT_FOLDER_VALUE}>(add format folder)</option>
-				{renderedFolders.length ? <optgroup label="Folders">{renderedFolders}</optgroup> : null}
-				<option value={ADD_FOLDER_VALUE}>(add folder)</option>
+				<option value={ADD_FORMAT_FOLDER_VALUE}>{TL`[(add format folder)]`}</option>
+				{renderedFolders.length ? <optgroup label={TL`Folders`}>{renderedFolders}</optgroup> : null}
+				<option value={ADD_FOLDER_VALUE}>{TL`[(add folder)]`}</option>
 			</select>
 			<button
 				name="format" value="" data-selecttype="teambuilder"
@@ -901,7 +901,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 						this.renderMobileFolderSelect()
 					) : (
 						<span class="teambuilder-folder-title">
-							<i class="fa fa-folder-open-o" aria-hidden></i> Teams not in any folders
+							<i class="fa fa-folder-open-o" aria-hidden></i> {TL`Teams not in any folders`}
 						</span>
 					)}
 				</h2>
@@ -920,7 +920,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					{narrow ? (
 						this.renderMobileFolderSelect()
 					) : (
-						<span class="teambuilder-folder-title">All Teams <small>({teams.length})</small></span>
+						<span class="teambuilder-folder-title">{TL`All teams`} <small>({teams.length})</small></span>
 					)}
 				</h2>
 			)}

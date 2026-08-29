@@ -1079,10 +1079,10 @@ export class TeamEditor extends preact.Component<{
 		}
 		return <details class="details">
 			<summary>
-				<strong>Defensive coverage</strong>
+				<strong>{TL`Defensive coverage`}</strong>
 				<table class="details-preview table">
 					{bad}
-					<tr><td colSpan={3}><span class="details-preview ilink"><small>See all</small></span></td></tr>
+					<tr><td colSpan={3}><span class="details-preview ilink"><small>{TL`[See all]`}</small></span></td></tr>
 				</table>
 			</summary>
 			<table class="table">{bad}{medium}{good}</table>
@@ -2207,10 +2207,10 @@ class TeamEditorForm extends preact.Component<{
 		const cur = (i: number) => setIndex === i ? ' cur' : '';
 		const isSearchMode = type !== 'stats' && type !== 'details' && type !== 'import';
 		const SEARCH_PLACEHOLDERS = {
-			'pokemon': 'Search species or filter by type, learnable moves, ability, tier, or egg group',
-			'ability': 'Search abilities',
-			'item': 'Search items',
-			'move': 'Search moves or filter by type or category',
+			'pokemon': TL`Search species or filter by type, learnable moves, ability, tier, or egg group`,
+			'ability': TL`Search abilities`,
+			'item': TL`Search items`,
+			'move': TL`Search moves or filter by type or category`,
 		};
 		return <div class="team-focus-editor" onKeyDown={editor.handleParentKeyDown}>
 			<div class={isSearchMode && (set?.moves.length || 0) > 5 ? 'team-focus-top' : ''}>
@@ -3087,7 +3087,7 @@ function SetSourceButtons(props: {
 	return <>
 		{sampleSets?.length !== 0 && (
 			<div class="sample-sets">
-				<h3>Sample sets</h3>
+				<h3>{TL`Sample sets`}</h3>
 				{sampleSets ? (
 					<div>
 						{sampleSets.map(setName => <>
@@ -3103,7 +3103,7 @@ function SetSourceButtons(props: {
 		)}
 		{userSets !== null && (
 			<div class="sample-sets">
-				<h3>Box sets</h3>
+				<h3>{TL`Box sets`}</h3>
 				{Object.keys(userSets).length > 0 ? (
 					<div>
 						{Object.keys(userSets).map(setName => <>
@@ -3458,9 +3458,9 @@ class StatForm extends preact.Component<{
 		const guessedPlus = guess.plusStat || null;
 		const guessedMinus = guess.minusStat || null;
 		return <p class="suggested">
-			<small>Guessed spread: </small>
+			<small>{TL.label(TL`Guessed spread`)}</small>
 			{role === '?' ? (
-				"(Please choose 4 moves to get a guessed spread)"
+				TL`(Please choose 4 moves to get a guessed spread)`
 			) : (
 				<button name="setStatFormGuesses" class="button" onClick={this.handleGuess}>{role}: {}
 					{
@@ -3485,11 +3485,11 @@ class StatForm extends preact.Component<{
 		if (!optimized) return null;
 
 		return <p>
-			<small><em>Protip:</em> Use a different nature to {
+			<small><em>{TL`Protip:`}</em> {
 				optimized.savedEVs ?
-					`save ${optimized.savedEVs} EVs` :
-					'get higher stats'
-			}: </small>
+					TL`Use a different nature to save ${optimized.savedEVs} EVs:` :
+					TL`Use a different nature to get higher stats:`
+			} </small>
 			<button name="setStatFormOptimization" class="button" onClick={this.handleOptimize}>
 				{
 					Dex.statNames.map(statID => optimized.evs[statID] ? `${optimized.evs[statID]} ${TL.statShort[statID]}` : null)
@@ -3582,7 +3582,7 @@ class StatForm extends preact.Component<{
 		} else {
 			if (target.value.includes('+')) {
 				if (statID === 'hp') {
-					alert("Natures cannot raise or lower HP.");
+					alert(TL`Natures cannot raise or lower HP.`);
 					return;
 				}
 				this.plus = statID;
@@ -3591,7 +3591,7 @@ class StatForm extends preact.Component<{
 			}
 			if (target.value.includes('-')) {
 				if (statID === 'hp') {
-					alert("Natures cannot raise or lower HP.");
+					alert(TL`Natures cannot raise or lower HP.`);
 					return;
 				}
 				this.minus = statID;

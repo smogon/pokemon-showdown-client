@@ -42,7 +42,7 @@ class TeamRoom extends PSRoom {
 		return this.editor?.handleParentKeyDown?.(e as KeyboardEvent);
 	};
 	override getTitle() {
-		return `[${TL.term.team}] ${this.team?.name || (this.teamDeleted ? 'Team deleted' : 'Not found')}`;
+		return `[${TL.term.team}] ${this.team?.name || (this.teamDeleted ? TL`Team deleted` : TL`Not found`)}`;
 	}
 	getTeam() {
 		const team = PS.teams.byKey[this.id.slice(5)] || null;
@@ -191,8 +191,8 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		const uploadedSets = trimmedUploadedTeam ? trimmedUploadedTeam.split(/\n\n+/) : [];
 		const setCount = Math.max(localSets.length, uploadedSets.length);
 		let buf = `|html|<table class="table" style="width:100%;font-size:14px">` +
-			`<tr><th>Local</th>` +
-			`<th>Uploaded</th></tr>`;
+			`<tr><th>${TL`Local`}</th>` +
+			`<th>${TL`Uploaded`}</th></tr>`;
 		for (let i = 0; i < setCount; i++) {
 			if (i) {
 				buf += `<tr><td style="border-top:0;border-bottom:0;padding:0 5px">&nbsp;</td>` +
@@ -279,7 +279,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		const formatName = BattleLog.formatName(team.format);
 		return (info && (info.resources.length || info.url)) ? (
 			<details class="details" open>
-				<summary><strong>Teambuilding resources for {formatName}</strong></summary>
+				<summary><strong>{TL`Teambuilding resources for ${formatName}`}</strong></summary>
 				<div style="margin-left:5px"><ul>
 					{info.resources.map(resource => (
 						<li><p><a href={resource.url} target="_blank">{resource.resource_name}</a></p></li>
@@ -306,10 +306,10 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 			}
 			return <PSPanelWrapper room={room}>
 				<a class="button" href="teambuilder" data-target="replace">
-					<i class="fa fa-chevron-left" aria-hidden></i> List
+					<i class="fa fa-chevron-left" aria-hidden></i> {TL`Teams`}
 				</a>
 				<p class="error">
-					{room.teamDeleted ? 'Team was deleted' : 'Team doesn\'t exist'}
+					{room.teamDeleted ? TL`Team was deleted` : TL`Team doesn't exist`}
 				</p>
 			</PSPanelWrapper>;
 		}
@@ -458,7 +458,7 @@ class ViewTeamPanel extends PSRoomPanel {
 		if (!team) {
 			return <PSPanelWrapper room={room}>
 				{team === null ? <p class="error">
-					Team doesn't exist
+					{TL`Team doesn't exist`}
 				</p> : <p>
 					{TL`Loading...`}
 				</p>}
@@ -466,13 +466,13 @@ class ViewTeamPanel extends PSRoomPanel {
 		}
 
 		return <PSPanelWrapper room={room}><div class="pad">
-			<h1>{team.name || "Untitled team"}</h1>
+			<h1>{team.name || TL`Untitled team`}</h1>
 			<CopyableURLBox
 				url={`https://psim.us/t/${team.teamid!}${teamData.private ? '-' + teamData.private : ''}`}
 			/> {}
-			<p>Uploaded by: <strong>{teamData.ownerid}</strong></p>
+			<p>{TL.label(TL`Uploaded by`)}<strong>{teamData.ownerid}</strong></p>
 			<p>{TL.label(TL.term.format)}<strong>{teamData.format}</strong></p>
-			<p>Views: <strong>{teamData.views}</strong></p>
+			<p>{TL.label(TL`Views`)}<strong>{teamData.views}</strong></p>
 			{team.key && <p><a class="button" href={`team-${team.key}`}>{TL`[Edit]`}</a></p>}
 			<TeamEditor team={team} readOnly></TeamEditor>
 		</div></PSPanelWrapper>;

@@ -736,7 +736,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		if (!attrib) return null;
 		return (
 			<small>
-				<a href={attrib.url} target="_blank" class="subtle">"{attrib.title}" <small>background by {attrib.artist}</small></a>
+				<a href={attrib.url} target="_blank" class="subtle">
+					"{attrib.title}" <small>{TL`background by ${attrib.artist}`}</small>
+				</a>
 			</small>
 		);
 	}
