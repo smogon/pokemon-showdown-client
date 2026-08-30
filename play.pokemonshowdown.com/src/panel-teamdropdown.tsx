@@ -174,7 +174,7 @@ export function TeamBox(props: {
 		];
 	} else {
 		contents = [
-			<em>Select a team</em>,
+			<em>{TL`Select a team`}</em>,
 		];
 	}
 	const className = `team${team?.isBox ? ' pc-box' : ''}`;
@@ -242,7 +242,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 		if (!room.parentElem) {
 			return <PSPanelWrapper room={room}>
 				<div class="pad">
-					<p>This team selector is no longer available (the challenge was cancelled or something).</p>
+					<p>{TL`This team selector is no longer available (the challenge was cancelled or something).`}</p>
 					<p class="buttonbar">
 						<button type="button" data-cmd="/close" class="button">
 							{TL`[Close]`}
@@ -314,7 +314,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 		</p>);
 
 		if (hasOtherGens && this.gen) {
-			teamList.push(<h2>Other gens</h2>);
+			teamList.push(<h2>{TL`[Other gens]`}</h2>);
 			teamList.push(<p>{genList.sort().map(gen => [
 				<button class={'button' + (gen === this.gen ? ' disabled' : '')} onClick={this.setFormat} name="gen" value={gen}>
 					<i class="fa fa-folder-o" aria-hidden></i> [{gen}] <em>{TL`(all)`}</em>
@@ -353,7 +353,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 
 		return <PSPanelWrapper room={room} width={width}><div class="pad">
 			{teamList}
-			{isEmpty && <p><em>No teams found</em></p>}
+			{isEmpty && <p><em>{TL`No teams found`}</em></p>}
 		</div></PSPanelWrapper>;
 	}
 }
@@ -418,7 +418,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 		if (!room.parentElem) {
 			return <PSPanelWrapper room={room}>
 				<div class="pad">
-					<p>This format selector is no longer available.</p>
+					<p>{TL`This format selector is no longer available.`}</p>
 					<p class="buttonbar">
 						<button type="button" data-cmd="/close" class="button">
 							{TL`[Close]`}
@@ -440,7 +440,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 		const curGen = (gen: string) => this.gen === gen ? ' cur' : '';
 		const searchBar = <div style="margin-bottom: 0.5em">
 			<input
-				type="search" name="search" placeholder="Search formats" class="textbox autofocus" autocomplete="off"
+				type="search" name="search" placeholder={TL`Search formats`} class="textbox autofocus" autocomplete="off"
 				onInput={this.updateSearch} onChange={this.updateSearch}
 			/> {}
 			<button onClick={this.toggleGen} value="gen9" class={`button button-first${curGen('gen9')}`}>{TL`Gen ${9}`}</button>

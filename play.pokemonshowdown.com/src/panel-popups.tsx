@@ -708,6 +708,8 @@ class OptionsPanel extends PSRoomPanel {
 		const currentLanguageLabel = TL`Language`;
 		const altLanguageLabel = altLanguage ? TL.inLanguage('Language', altLanguage) : '';
 		const languageLabel = altLanguageLabel ? `${currentLanguageLabel} (${altLanguageLabel})` : currentLanguageLabel;
+		const singlePanel = TL`Single panel`;
+		const verticalTabs = TL`Vertical tabs`;
 		return <PSPanelWrapper room={room} width={340}><div class="pad">
 			<p style="padding-left:50px">
 				<img
@@ -765,12 +767,12 @@ class OptionsPanel extends PSRoomPanel {
 					value={PS.prefs.onepanel === true ? 'onepanel' : PS.prefs.onepanel || ''}
 				>
 					<option value="">
-						{window.innerWidth < 700 || window.innerHeight < 430 ? TL`Automatic (Vertical tabs)` :
-						window.innerWidth < 900 ? TL`Automatic (Single panel)` :
+						{window.innerWidth < 700 || window.innerHeight < 430 ? TL`Automatic (${verticalTabs})` :
+						window.innerWidth < 900 ? TL`Automatic (${singlePanel})` :
 						TL`Two panels (if wide enough)`}
 					</option>
-					<option value="onepanel">{TL`Single panel`}</option>
-					<option value="vertical">{TL`Vertical tabs`}</option>
+					<option value="onepanel">{singlePanel}</option>
+					<option value="vertical">{verticalTabs}</option>
 				</select></label>
 			</p>
 			<p>

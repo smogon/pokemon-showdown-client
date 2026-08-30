@@ -541,7 +541,7 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 		const info = tour.info;
 		return <div class={`tournament-wrapper ${info.isActive ? 'active' : ''}`} style={{ left: this.props.left || 0 }}>
 			<button class="tournament-title" onClick={this.toggleBoxVisibility}>
-				<span class="tournament-status">{info.isStarted ? TL`In Progress` : TL`Signups`}</span>
+				<span class="tournament-status">{info.isStarted ? TL`In progress` : TL`Signups`}</span>
 				{tour.tournamentName()}
 				{tour.boxVisible ? <i class="fa fa-caret-up" aria-hidden></i> : <i class="fa fa-caret-down" aria-hidden></i>}
 			</button>
@@ -601,7 +601,7 @@ export class TournamentBracket extends preact.Component<{
 						) : cell.state === 'challenging' ? (
 							TL`Challenging`
 						) : cell.state === 'inprogress' ? (
-							<a href={toRoomid(cell.room)} class="ilink">{TL`In-progress`}</a>
+							<a href={toRoomid(cell.room)} class="ilink">{TL`In progress`}</a>
 						) : cell.state === 'finished' ? (
 							cell.score.join(" - ")
 						) : null}
@@ -930,7 +930,7 @@ export class TournamentTreeBracket extends preact.Component<{
 				} else if (node.state === 'challenging') {
 					elem.append('title').text(TL`Challenging`);
 				} else if (node.state === 'inprogress') {
-					elem.append('title').text(TL`In-progress`);
+					elem.append('title').text(TL`In progress`);
 				} else if (node.state === 'finished') {
 					if (node.result === 'win') {
 						rect1.classed('tournament-bracket-tree-win', true);

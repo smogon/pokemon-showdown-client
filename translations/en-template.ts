@@ -40,8 +40,9 @@ export const translations: UIText = {
 	"[Edit]": null,
 	"[Delete]": null,
 	"[Undo delete]": null,
-	// TRANSLATORS: "DM" is used to label DMs and "Chat" is used for the button to start a DM
-	// TRANSLATORS: Feel free to use the same word for both
+	// TRANSLATORS: "DM" is used to label DMs and "Chat" to navigate between battle view and chat view
+	// TRANSLATORS: "[Chat]" is the button to send a DM
+	// TRANSLATORS: Feel free to use the same word for some or all of these
 	"DM": null,
 	"Chat": null,
 	"[Chat]": null,
@@ -69,6 +70,7 @@ export const translations: UIText = {
 	"[Create]": null,
 	"[Rename]": null,
 	"[Remove]": null,
+	// TRANSLATORS: intentionally chosen to be very short. do not go longer than three letters for this one
 	"Gen {1}": null,
 	"[Maximize]": null,
 	"[Expand/collapse]": null,
@@ -98,7 +100,7 @@ export const translations: UIText = {
 	// #region Popups
 	// ==================================================================
 
-	// TRANSLATORS: user popup.
+	// TRANSLATORS: user popup
 	// TRANSLATORS: "Global {1}" is a rank, like "Global Moderator"
 	"Global {1}": null,
 	"Chatrooms": null,
@@ -173,8 +175,6 @@ export const translations: UIText = {
 	"Light": null,
 	"Dark": null,
 	"Match system theme": null,
-	"Automatic (Vertical tabs)": null,
-	"Automatic (Single panel)": null,
 	"Two panels (if wide enough)": null,
 	"Single panel": null,
 	"Vertical tabs": null,
@@ -204,6 +204,11 @@ export const translations: UIText = {
 	"(uncategorized)": null,
 	"(all)": null,
 	"[Other gens]": null,
+	"Select a team": null,
+	"This team selector is no longer available (the challenge was cancelled or something).": null,
+	"No teams found": null,
+	"This format selector is no longer available.": null,
+	"Search formats": null,
 
 	// TRANSLATORS: login
 	"[Choose name]": null,
@@ -316,6 +321,9 @@ export const translations: UIText = {
 	"[Try Fight button]": null,
 	// TRANSLATORS: For the "where to target this move" menu
 	"(empty slot)": null,
+	"Maxed with no max moves": null,
+	"No Z moves": null,
+	"Shift": null,
 
 	"[Rematch]": null,
 	"[Offer tie]": null,
@@ -367,6 +375,14 @@ export const translations: UIText = {
 	"Team {1}": null,
 	"{1} and friends": null,
 
+	// TRANSLATORS: battle log messages
+	"[Earlier messages]": null,
+	"Register an account to protect your ladder rating!": null,
+	"Open team sheet for {1}": null,
+	"Warning": null,
+	"Variation": null,
+	"Rated battle": null,
+
 	// TRANSLATORS: screen reader labels
 	"Active Pokémon": null,
 	"Your team": null,
@@ -387,7 +403,7 @@ export const translations: UIText = {
 	"[Join]": null,
 	"[Leave]": null,
 	"[Ready!]": null,
-	"In Progress": null,
+	"In progress": null,
 	"Signups": null,
 	"[Pop-out]": null,
 	"[Go]": null,
@@ -396,7 +412,6 @@ export const translations: UIText = {
 	"Challenging...": null,
 	"Accepting...": null,
 	"[Commands]": null,
-	"[Earlier messages]": null,
 	"Mentioned by {1} in {2}": null,
 	"{1} joined": null,
 	// TRANSLATORS: separates "X joined" from "Y left"
@@ -407,11 +422,6 @@ export const translations: UIText = {
 	"{1} battle started between {2} and {3}.": null,
 	// TRANSLATORS: for when the format name already includes "battle"
 	"{1} started between {2} and {3}.": null,
-	"Register an account to protect your ladder rating!": null,
-	"Open team sheet for {1}": null,
-	"Warning": null,
-	"Variation": null,
-	"Rated battle": null,
 	"({1} line from {2} hidden)": null,
 	"({1} lines from {2} hidden)": null,
 	"{1} invited you to join the room \"{2}\"": null,
@@ -426,6 +436,7 @@ export const translations: UIText = {
 	"Double Round Robin": null,
 	"{1} joined the tournament": null,
 	"{1} left the tournament": null,
+	// TRANSLATORS: sentence terminator for messages like the above
 	".": null,
 	"{1} {2} tournament": null,
 	"No tournaments are currently running.": null,
@@ -433,6 +444,7 @@ export const translations: UIText = {
 	"{1} created.": null,
 	"{1} created (and hidden).": null,
 	"Tournament created": null,
+	// TRANSLATORS: label, as in "Room: lobby"
 	"Room": null,
 	"Type": null,
 	"{1} has joined the tournament, replacing {2}.": null,
@@ -443,6 +455,8 @@ export const translations: UIText = {
 	"The tournament's automatic disqualify timer has been set to {1} minute.": null,
 	"The tournament's automatic disqualify timer has been set to {1} minutes.": null,
 	"Tournament automatic disqualification warning": null,
+	"Time": null,
+	"{1} sec": null,
 	"The tournament's automatic start is now off.": null,
 	"The tournament will automatically start in {1} minute.": null,
 	"The tournament will automatically start in {1} minutes.": null,
@@ -482,9 +496,6 @@ export const translations: UIText = {
 	"Unavailable": null,
 	"Waiting": null,
 	"Challenging": null,
-	"In-progress": null,
-	"Time": null,
-	"{1} sec": null,
 
 	// TRANSLATORS: command errors
 	"This player does not exist or is not online.": null,
@@ -587,6 +598,24 @@ export const translations: UIText = {
 	"Natures cannot raise or lower HP.": null,
 	// TRANSLATORS: {1} is +stat/-stat
 	"{1} nature": null,
+	// TRANSLATORS: {1} and {2} are the + and - keyboard keys
+	"You can also set natures by typing {1} and {2} in the EV box.": null,
+	"Pasted team": null,
+	"Zoom out forms": null,
+	"Compact": null,
+	"Comfortable": null,
+	"Zoom out search results": null,
+	"Fetching Paste...": null,
+	"Import/Export set": null,
+	"IV spreads": null,
+	"min Atk": null,
+	"min Atk, min Spe": null,
+	"max all": null,
+	"min Spe": null,
+	"Hidden Power {1} IVs": null,
+	"EVs, IVs, and nature": null,
+	"Base": null,
+	"Remaining": null,
 
 	// TRANSLATORS: errors
 	"You must select a format first.": null,
@@ -605,7 +634,6 @@ export const translations: UIText = {
 	"[How the ladder works]": null,
 	"[Seasonal rankings]": null,
 	"[Look up a specific user's rating]": null,
-	"No data returned from server.": null, // NOT USED
 	"Name": null,
 	"Elo rating": null,
 	"user's percentage chance of winning a random battle (Glicko X-Act Estimate)": null,

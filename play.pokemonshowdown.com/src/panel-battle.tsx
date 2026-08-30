@@ -786,7 +786,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		if (choices.current.max || (active.maxMoves && !active.canDynamax)) {
 			if (!active.maxMoves) {
-				return <div class="message-error">Maxed with no max moves</div>;
+				return <div class="message-error">{TL`Maxed with no max moves`}</div>;
 			}
 			const gmax = active.gigantamax && dex.moves.get(active.gigantamax);
 			return active.moves.map((moveData, i) => {
@@ -811,7 +811,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		if (choices.current.z) {
 			if (!active.zMoves) {
-				return <div class="message-error">No Z moves</div>;
+				return <div class="message-error">{TL`No Z moves`}</div>;
 			}
 			return active.moves.map((moveData, i) => {
 				const zMoveData = active.zMoves![i];
@@ -1157,7 +1157,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			</div>
 			<div class="switchcontrols">
 				{canShift && [
-					<h3 class="shiftselect">Shift</h3>,
+					<h3 class="shiftselect">{TL`Shift`}</h3>,
 					<button data-cmd="/shift">{TL`[Move to center]`}</button>,
 				]}
 				<h3 class="switchselect">{TL`Switch`}</h3>

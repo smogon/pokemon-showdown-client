@@ -447,7 +447,7 @@ export class TeamEditorState extends PSModel {
 		sets.push(...TeamEditorState.clipboard.otherSets || []);
 		if (sets.length) {
 			const team: Team = {
-				name: `Pasted Team`,
+				name: TL`Pasted team`,
 				format: Dex.modid,
 				folder,
 				packedTeam: Teams.pack(sets),
@@ -1139,18 +1139,18 @@ export class TeamEditor extends preact.Component<{
 							{mobileOptions ? <label class="checkbox"><input
 								name="zoomoutforms" type="checkbox"
 								checked={zoomOutForms} onChange={this.setZoomOutForms}
-							/> Zoom out forms</label> : <label>Layout: <select
+							/> {TL`Zoom out forms`}</label> : <label>{TL.label(TL`Layout`)}<select
 								name="layout" class="select" onChange={this.setLayout}
 								value={layout === null ? 'automatic' : layout ? 'comfortable' : 'compact'}
 							>
-								<option value="automatic">Automatic ({automaticLayout})</option>
-								<option value="compact">Compact</option>
-								<option value="comfortable">Comfortable</option>
+								<option value="automatic">{TL`Automatic (${automaticLayout})`}</option>
+								<option value="compact">{TL`Compact`}</option>
+								<option value="comfortable">{TL`Comfortable`}</option>
 							</select></label>}
 							{mobileOptions && <label class="checkbox"><input
 								name="zoomoutsearch" type="checkbox"
 								checked={zoomOutSearch} onChange={this.setZoomOutSearch}
-							/> Zoom out search results</label>}
+							/> {TL`Zoom out search results`}</label>}
 						</div>
 					</details>
 				</li>
@@ -2270,7 +2270,7 @@ class TeamEditorForm extends preact.Component<{
 		const { editor } = this.props;
 		if (editor.innerFocus) return this.renderInnerFocus();
 		if (editor.fetching) {
-			return <div class="teameditor">Fetching Paste...</div>;
+			return <div class="teameditor">{TL`Fetching Paste...`}</div>;
 		}
 
 		const clipboard = TeamEditorState.clipboard;
@@ -3228,7 +3228,7 @@ class SetImportForm extends preact.Component<{
 	override render() {
 		const { editor } = this.props;
 		return <div role="dialog" aria-label={TL`Import/Export`} class="set-import-form">
-			<div class="resultheader"><h3>Import/Export Set</h3></div>
+			<div class="resultheader"><h3>{TL`Import/Export set`}</h3></div>
 			<div class="pad">
 				<p>
 					<button class={`button${this.state.copied ? ' cur' : ''}`} onClick={this.copyText}>
@@ -3302,18 +3302,18 @@ class StatForm extends preact.Component<{
 		if (editor.isChampions) return null;
 		if (!hpIVdata) {
 			return <select name="ivspread" class="select" onChange={this.changeIVSpread}>
-				<option value="" selected>IV spreads</option>
-				{autoSpreadValue && <option value="auto">Auto ({autoSpreadValue})</option>}
-				<optgroup label="min Atk">
+				<option value="" selected>{TL`IV spreads`}</option>
+				{autoSpreadValue && <option value="auto">{TL`Automatic (${autoSpreadValue})`}</option>}
+				<optgroup label={TL`min Atk`}>
 					<option value="31/0/31/31/31/31">31/0/31/31/31/31</option>
 				</optgroup>
-				<optgroup label="min Atk, min Spe">
+				<optgroup label={TL`min Atk, min Spe`}>
 					<option value="31/0/31/31/31/0">31/0/31/31/31/0</option>
 				</optgroup>
-				<optgroup label="max all">
+				<optgroup label={TL`max all`}>
 					<option value="31/31/31/31/31/31">31/31/31/31/31/31</option>
 				</optgroup>
-				<optgroup label="min Spe">
+				<optgroup label={TL`min Spe`}>
 					<option value="31/31/31/31/31/0">31/31/31/31/31/0</option>
 				</optgroup>
 			</select>;
@@ -3322,27 +3322,27 @@ class StatForm extends preact.Component<{
 		const hpIVs = hpIVdata.map(ivs => ivs.split('').map(iv => parseInt(iv)));
 
 		return <select name="ivspread" class="select" onChange={this.changeIVSpread}>
-			<option value="" selected>Hidden Power {hpType} IVs</option>
-			{autoSpreadValue && <option value="auto">Auto ({autoSpreadValue})</option>}
-			<optgroup label="min Atk">
+			<option value="" selected>{TL`Hidden Power ${hpType} IVs`}</option>
+			{autoSpreadValue && <option value="auto">{TL`Automatic (${autoSpreadValue})`}</option>}
+			<optgroup label={TL`min Atk`}>
 				{hpIVs.map(ivs => {
 					const spread = ivs.map((iv, i) => (i === 1 ? minStat : 30) + iv).join('/');
 					return <option value={spread}>{spread}</option>;
 				})}
 			</optgroup>
-			<optgroup label="min Atk, min Spe">
+			<optgroup label={TL`min Atk, min Spe`}>
 				{hpIVs.map(ivs => {
 					const spread = ivs.map((iv, i) => (i === 5 || i === 1 ? minStat : 30) + iv).join('/');
 					return <option value={spread}>{spread}</option>;
 				})}
 			</optgroup>
-			<optgroup label="max all">
+			<optgroup label={TL`max all`}>
 				{hpIVs.map(ivs => {
 					const spread = ivs.map(iv => 30 + iv).join('/');
 					return <option value={spread}>{spread}</option>;
 				})}
 			</optgroup>
-			<optgroup label="min Spe">
+			<optgroup label={TL`min Spe`}>
 				{hpIVs.map(ivs => {
 					const spread = ivs.map((iv, i) => (i === 5 ? minStat : 30) + iv).join('/');
 					return <option value={spread}>{spread}</option>;
@@ -3754,13 +3754,13 @@ class StatForm extends preact.Component<{
 		const defaultIVs = editor.defaultIVs(set);
 
 		return <div class={`set-stats-form${narrow ? ' tiny-layout' : ''}`} role="dialog" aria-label={TL.term.stats || 'Stats'}>
-			<div class="resultheader"><h3>EVs, IVs, and Nature</h3></div>
+			<div class="resultheader"><h3>{TL`EVs, IVs, and nature`}</h3></div>
 			<div class="pad">
 				{this.renderSpreadGuesser()}
 				<table>
 					<tr>
 						<th>{/* Stat name */}</th>
-						<th>Base</th>
+						<th>{TL`Base`}</th>
 						<th class="setstatbar">{/* Stat bar */}</th>
 						<th>{editor.isLetsGo ? TL.term.avs : editor.isChampions ? TL.term.points : TL.term.evs}</th>
 						<th>{/* EV slider */}</th>
@@ -3791,7 +3791,7 @@ class StatForm extends preact.Component<{
 					</tr>)}
 					<tr>
 						<td colSpan={2}></td>
-						<td class="setstatbar" style="text-align:right">{remaining !== null ? 'Remaining:' : <>&nbsp;</>}</td>
+						<td class="setstatbar" style="text-align:right">{remaining !== null ? TL.label(TL`Remaining`) : <>&nbsp;</>}</td>
 						<td style="text-align:center">{remaining && remaining < 0 ? <b class="message-error">{remaining}</b> : remaining}</td>
 						<td colSpan={3} style="text-align:right">{this.renderIVMenu()}</td>
 					</tr>
@@ -3809,7 +3809,10 @@ class StatForm extends preact.Component<{
 					</select>
 				</p>}
 				{editor.gen >= 3 && !narrow && <p>
-					<small><em>Protip:</em> You can also set natures by typing <kbd>+</kbd> and <kbd>-</kbd> in the EV box.</small>
+					<small><em>{TL.label(TL`Protip`)}</em>{TL('You can also set natures by typing {1} and {2} in the EV box.')
+						.split(/(\{\d\})/).map(part =>
+							part === '{1}' ? <kbd>+</kbd> : part === '{2}' ? <kbd>-</kbd> : part
+						)}</small>
 				</p>}
 				{editor.gen >= 3 && this.renderStatOptimizer()}
 			</div>
@@ -3889,7 +3892,7 @@ class DetailsForm extends preact.Component<{
 	changeShiny = (ev: Event) => {
 		const target = ev.currentTarget as HTMLInputElement;
 		const { set } = this.props;
-		if (target.value) {
+		if (target.checked) {
 			set.shiny = true;
 		} else {
 			delete set.shiny;
@@ -3938,7 +3941,7 @@ class DetailsForm extends preact.Component<{
 		const species = editor.dex.species.get(set.species);
 		const baseSpecies = editor.dex.species.get(species.baseSpecies);
 		return <div class="set-details-form" role="dialog" aria-label={TL`Details`}>
-			<div class="resultheader"><h3>Details</h3></div>
+			<div class="resultheader"><h3>{TL`Details`}</h3></div>
 			<div class="pad">
 				<p><label class="label">{TL.label(TL.term.nickname)}<input
 					name="nickname" class="textbox default-placeholder" placeholder={TL(baseSpecies)}
@@ -3953,13 +3956,9 @@ class DetailsForm extends preact.Component<{
 				{editor.gen > 1 && (<>
 					<p><div class="label">{TL.label(TL.term.shiny)}<div class="labeled">
 						<label class="checkbox inline"><input
-							type="radio" name="shiny" value="true" checked={set.shiny}
+							type="checkbox" name="shiny" checked={set.shiny}
 							onInput={this.changeShiny} onChange={this.changeShiny}
-						/> <img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt={TL.term.shiny} /> Yes</label>
-						<label class="checkbox inline"><input
-							type="radio" name="shiny" value="" checked={!set.shiny}
-							onInput={this.changeShiny} onChange={this.changeShiny}
-						/> No</label>
+						/> <img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="" /> {TL.term.shiny}</label>
 					</div></div></p>
 					<p><div class="label">{TL.term.gender}: {species.gender ? (
 						<strong>{this.renderGender(species.gender)}</strong>
@@ -3998,7 +3997,7 @@ class DetailsForm extends preact.Component<{
 				)}
 				{editor.gen === 8 && !editor.isBDSP && !species.cannotDynamax && (
 					<p>
-						<label class="label" style="display:inline">Dynamax Level: <input
+						<label class="label" style="display:inline">{TL.label(TL.term.dynamaxlevel || 'Dynamax level')}<input
 							name="dynamaxlevel" value={set.dynamaxLevel ?? ''} placeholder="10"
 							type="number" inputMode="numeric" min="0" max="10" step="1" class="textbox inputform numform default-placeholder"
 							onInput={this.changeDynamaxLevel} onChange={this.changeDynamaxLevel}
@@ -4047,7 +4046,7 @@ class DetailsForm extends preact.Component<{
 					</label>
 				</p>}
 				{species.cosmeticFormes && <div>
-					<p><strong>Form:</strong></p>
+					<p><strong>{TL.label(TL.term.form || 'Form')}</strong></p>
 					<div style="display:flex;flex-wrap:wrap;gap:6px;max-width:400px;">
 						{(() => {
 							const baseId = toID(species.baseSpecies);
