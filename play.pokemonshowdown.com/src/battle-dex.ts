@@ -177,6 +177,36 @@ export const TL = Object.assign(translate, {
 		const labelText = (TL.term.label || '{LABEL}: ').replace('{LABEL}', label);
 		return value === undefined ? labelText : labelText + String(value as any);
 	},
+	orList(items: readonly string[]) {
+		if (items.length <= 1) return items.join();
+		if (items.length === 2) {
+			return TL`${items[0]} or ${items[1]}`;
+		}
+		let list = items[0];
+		for (const item of items.slice(1, -1)) list += TL(', ') + item;
+		const last = items[items.length - 1];
+		return list + TL`, or ${last}`;
+	},
+	andList(items: readonly string[]) {
+		if (items.length <= 1) return items.join();
+		if (items.length === 2) {
+			return TL`${items[0]} and ${items[1]}`;
+		}
+		let list = items[0];
+		for (const item of items.slice(1, -1)) list += TL(', ') + item;
+		const last = items[items.length - 1];
+		return list + TL`, and ${last}`;
+	},
+	/** Asian translations use "person" counters, so don't use this for non-people */
+	cappedUserList(items: readonly string[], cap: number) {
+		if (items.length > cap + 1) {
+			let list = items[0];
+			for (const item of items.slice(1, cap)) list += TL(', ') + item;
+			const others = items.length - cap;
+			return list + TL`, and ${others} others`;
+		}
+		return TL.andList(items);
+	},
 	term: initialText?.TermNames || {},
 	type: initialText?.TypeNames || {},
 	nature: initialText?.NatureNames || {},

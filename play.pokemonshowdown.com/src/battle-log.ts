@@ -951,24 +951,11 @@ export class BattleLog {
 		return turnMessage.slice(2, -2).trim();
 	}
 	textList(list: string[]) {
-		let message = '';
 		const listNoDuplicates: string[] = [];
 		for (const user of list) {
 			if (!listNoDuplicates.includes(user)) listNoDuplicates.push(user);
 		}
-		list = listNoDuplicates;
-
-		if (list.length === 1) return list[0];
-		if (list.length === 2) return TL`${list[0]} and ${list[1]}`;
-		for (let i = 0; i < list.length - 1; i++) {
-			if (i >= 5) {
-				const others = list.length - 5;
-				return message + TL`and ${others} others`;
-			}
-			message += list[i] + TL`, `;
-		}
-		const last = list[list.length - 1];
-		return message + TL`and ${last}`;
+		return TL.cappedUserList(listNoDuplicates, 5);
 	}
 	/**
 	 * To avoid trolling with nicknames, we can't just run this through

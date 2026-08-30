@@ -162,6 +162,12 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 			Untranslated: null,
 		}, ja: {
 			'Add Pokémon': 'ポケモンを追加',
+			', ': '、',
+			'{1} and {2}': '{1}と{2}',
+			', and {1}': '、{1}',
+			'{1} or {2}': '{1}か{2}',
+			', or {1}': '、{1}',
+			', and {1} others': '、ほか{1}名',
 			Language: '言語',
 			Moves: 'UIの技',
 		}};
@@ -174,6 +180,16 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		assert.equal(global.TL('[Missing button]'), 'Missing button');
 		assert.equal(global.TL.inLanguage('Language', 'ja'), '言語');
 		assert.equal(global.TL.inLanguage('Language', 'de'), 'Language');
+		assert.equal(global.TL.inLanguage('Open', 'en', 'verb'), '打开');
+		assert.equal(global.TL.andList([]), '');
+		assert.equal(global.TL.andList(['A']), 'A');
+		assert.equal(global.TL.andList(['A', 'B']), 'A and B');
+		assert.equal(global.TL.andList(['A', 'B', 'C']), 'A, B, and C');
+		assert.equal(global.TL.orList(['A', 'B']), 'A or B');
+		assert.equal(global.TL.orList(['A', 'B', 'C']), 'A, B, or C');
+		assert.equal(global.TL.cappedUserList(['A', 'B', 'C', 'D', 'E', 'F', 'G'], 5), 'A, B, C, D, E, and 2 others');
+		// not truncated when only 1 item would be hidden
+		assert.equal(global.TL.cappedUserList(['A', 'B', 'C', 'D', 'E', 'F'], 5), 'A, B, C, D, E, and F');
 		const prefs = global.Dex.prefs;
 		global.Dex.prefs = () => 'japanese';
 		void global.Dex.loadTextData();
@@ -200,6 +216,11 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		assert.equal(global.TL('Add Pokémon'), 'ポケモンを追加');
 		assert.equal(global.TL`Add Pokémon`, 'ポケモンを追加');
 		assert.equal(global.TL('Unknown term'), 'Unknown term');
+		assert.equal(global.TL.andList(['A', 'B']), 'AとB');
+		assert.equal(global.TL.andList(['A', 'B', 'C']), 'A、B、C');
+		assert.equal(global.TL.orList(['A', 'B']), 'AかB');
+		assert.equal(global.TL.orList(['A', 'B', 'C']), 'A、B、C');
+		assert.equal(global.TL.cappedUserList(['A', 'B', 'C', 'D', 'E', 'F', 'G'], 5), 'A、B、C、D、E、ほか2名');
 		global.Dex.prefs = prefs;
 		void global.Dex.loadTextData();
 

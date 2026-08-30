@@ -82,19 +82,6 @@ export class ChatTournament extends PSModel {
 		this.room.add(line);
 		return true;
 	}
-	static arrayToPhrase(array: string[], or?: boolean) {
-		if (array.length <= 1)
-			return array.join();
-		if (array.length === 2) {
-			return or ? TL`${array[0]} or ${array[1]}` : TL`${array[0]} and ${array[1]}`;
-		}
-		let message = '';
-		for (const name of array.slice(0, -1)) {
-			message += name + TL`, `;
-		}
-		const last = array.slice(-1)[0];
-		return message + (or ? TL`or ${last}` : TL`and ${last}`);
-	}
 	static generatorName(generator: string) {
 		switch (generator) {
 		case 'Single Elimination': return TL`Single Elimination`;
@@ -118,8 +105,8 @@ export class ChatTournament extends PSModel {
 			this.joinLeave[action].push(name);
 		}
 		if (!this.joinLeave[action].includes(name)) this.joinLeave[action].push(name);
-		const joins = ChatTournament.arrayToPhrase(this.joinLeave['join']);
-		const leaves = ChatTournament.arrayToPhrase(this.joinLeave['leave']);
+		const joins = TL.andList(this.joinLeave['join']);
+		const leaves = TL.andList(this.joinLeave['leave']);
 		let message = this.joinLeave['join'].length ? TL`${joins} joined the tournament` : '';
 		if (this.joinLeave['join'].length && this.joinLeave['leave'].length) message += TL`; `;
 		message += this.joinLeave['leave'].length ? TL`${leaves} left the tournament` : '';
@@ -348,11 +335,11 @@ export class ChatTournament extends PSModel {
 					preact.render(<TournamentBracket tour={this} abbreviated />, bracketNode);
 				}
 
-				const winners = ChatTournament.arrayToPhrase(endData.results[0]);
+				const winners = TL.andList(endData.results[0]);
 				const tourName = this.tournamentName();
 				this.room.add(eHTML`|html|<div class="tournament-message-end-winner">${TL`Congratulations to ${winners} for winning the ${tourName}!`}</div>`);
 				if (endData.results[1]) {
-					const runnersUp = ChatTournament.arrayToPhrase(endData.results[1]);
+					const runnersUp = TL.andList(endData.results[1]);
 					const runnerUpMessage = endData.results[1].length > 1 ?
 						TL.label(TL`Runners-up`, runnersUp) : TL.label(TL`Runner-up`, runnersUp);
 					this.tryAdd(eHTML`|html|<div class="tournament-message-end-runnerup">${runnerUpMessage}</div>`);
@@ -507,7 +494,7 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 
 		// joined
 		const noMatches = !info.challenges?.length && !info.challengeBys?.length && !info.challenging && !info.challenged;
-		const challengeBys = info.challengeBys?.length ? ChatTournament.arrayToPhrase(info.challengeBys, true) : '';
+		const challengeBys = info.challengeBys?.length ? TL.orList(info.challengeBys) : '';
 		return <div class="tournament-tools">
 			<TeamForm
 				format={info.format} teamFormat={info.teambuilderFormat} hideFormat

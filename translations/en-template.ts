@@ -83,6 +83,16 @@ export const translations: UIText = {
 	"Error logging in.": null,
 	"Something is interfering with our connection to the login server. Most likely, your internet provider needs you to re-log-in, or your internet provider is blocking Pokémon Showdown.": null,
 
+	// TRANSLATORS: for constructing lists
+	"{1} or {2}": null,
+	"{1} and {2}": null,
+	", ": null,
+	", or {1}": null,
+	", and {1}": null,
+	// TRANSLATORS: this is for lists of users specifically
+	// TRANSLATORS: (languages with counters should use the "person" counter)
+	", and {1} others": null,
+
 	// #endregion Generic UI
 
 	// #region Popups
@@ -402,11 +412,6 @@ export const translations: UIText = {
 	"Warning": null,
 	"Variation": null,
 	"Rated battle": null,
-	"{1} and {2}": null,
-	"and {1} others": null,
-	// TRANSLATORS: list separator
-	", ": null,
-	"and {1}": null,
 	"({1} line from {2} hidden)": null,
 	"({1} lines from {2} hidden)": null,
 	"{1} invited you to join the room \"{2}\"": null,
@@ -415,8 +420,6 @@ export const translations: UIText = {
 
 	// TRANSLATORS: tournaments
 	"Please respond to the tournament within {1} seconds or you may be automatically disqualified.": null,
-	"{1} or {2}": null,
-	"or {1}": null,
 	"Single Elimination": null,
 	"Double Elimination": null,
 	"Round Robin": null,
