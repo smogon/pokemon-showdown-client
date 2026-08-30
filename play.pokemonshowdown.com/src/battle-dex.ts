@@ -116,6 +116,7 @@ interface ClientEffectTextEntry extends BattleTextEntry {
 
 interface ClientDexText {
 	getLanguage(): string;
+	getBrowserLanguage(): string;
 	getLegacyLanguageID(): string;
 	get(effect: TranslatableEffect, lang?: string): ClientEffectTextEntry;
 	termName(name: string, lang?: string): string;
@@ -147,10 +148,7 @@ function translate(strings: TemplateStringsArray | string | TranslatableEffect, 
 		}
 	}
 
-	const translation = typeof BattleUIText === 'undefined' ? undefined :
-		BattleUIText[Dex.text.getLanguage()]?.[source];
-	const fallback = source.startsWith('[') && source.endsWith(']') ? source.slice(1, -1) : source;
-	const translated = (typeof translation === 'string' ? translation : translation?.[context]) ?? fallback;
+	const translated = TL.inLanguage(source, Dex.text.getLanguage(), context);
 	return translated.replace(/\{(\d+)\}/g, (placeholder, indexText) => {
 		const index = Number(indexText) - 1;
 		return index >= 0 && index < values.length ? String(values[index]) : placeholder;
@@ -169,6 +167,11 @@ function tagField(tags: BattleTextData['Tags'] | undefined, field: 'name' | 'hin
 }
 
 export const TL = Object.assign(translate, {
+	inLanguage(source: string, language: string, context = 'default') {
+		const translation = typeof BattleUIText === 'undefined' ? undefined : BattleUIText[language]?.[source];
+		const fallback = source.startsWith('[') && source.endsWith(']') ? source.slice(1, -1) : source;
+		return (typeof translation === 'string' ? translation : translation?.[context]) ?? fallback;
+	},
 	/** `TL.label("Ability", "Intimidate")` === `"Ability: Intimidate"` */
 	label(label: string, value?: unknown) {
 		const labelText = (TL.term.label || '{LABEL}: ').replace('{LABEL}', label);
@@ -545,24 +548,25 @@ export const Dex = new class implements ModdedDex {
 			const language = TEXT_LANGUAGES[this.getLegacyLanguageID()] || 'en';
 			return language === 'en' && Dex.afdMode === true ? 'en-afd' : language;
 		},
+		getBrowserLanguage() {
+			if (typeof navigator === 'undefined') return 'en';
+			const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
+			for (let language of languages) {
+				language = language.toLowerCase().replace(/_/g, '-');
+				if (language === 'zh' || language.startsWith('zh-')) {
+					return /(?:^|-)(?:hant|tw|hk|mo)(?:-|$)/.test(language) ? 'zh-tw' : 'zh-cn';
+				}
+				const baseLanguage = language.split('-')[0];
+				if (TEXT_LANGUAGE_IDS[baseLanguage]) return baseLanguage;
+			}
+			return 'en';
+		},
 		getLegacyLanguageID() {
 			const preference = Dex.prefs('language') || Dex.prefs('serversettings')?.language;
 			if (preference) return TEXT_LANGUAGE_IDS[preference] || preference;
 			// oldclient doesn't autodetect language
 			if (typeof window === 'undefined' || !window.PS) return 'english';
-
-			const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
-			for (let language of languages) {
-				language = language.toLowerCase().replace(/_/g, '-');
-				if (language === 'zh' || language.startsWith('zh-')) {
-					return TEXT_LANGUAGE_IDS[
-						/(?:^|-)(?:hant|tw|hk|mo)(?:-|$)/.test(language) ? 'zh-tw' : 'zh-cn'
-					];
-				}
-				const baseLanguage = language.split('-')[0];
-				if (TEXT_LANGUAGE_IDS[baseLanguage]) return TEXT_LANGUAGE_IDS[baseLanguage];
-			}
-			return 'english';
+			return TEXT_LANGUAGE_IDS[this.getBrowserLanguage()] || 'english';
 		},
 		get: (effect: TranslatableEffect, lang = Dex.text.getLanguage()) => {
 			return getTextEntry(effect, 9, lang);
@@ -1248,6 +1252,7 @@ export class ModdedDex {
 	}
 	text: ClientDexText = {
 		getLanguage: () => Dex.text.getLanguage(),
+		getBrowserLanguage: () => Dex.text.getBrowserLanguage(),
 		getLegacyLanguageID: () => Dex.text.getLegacyLanguageID(),
 		get: (effect: TranslatableEffect, lang = Dex.text.getLanguage()) => {
 			return getTextEntry(effect, this.gen, lang);

@@ -82,10 +82,27 @@ export class ChatTournament extends PSModel {
 		this.room.add(line);
 		return true;
 	}
-	static arrayToPhrase(array: string[], finalSeparator = 'and') {
+	static arrayToPhrase(array: string[], or?: boolean) {
 		if (array.length <= 1)
 			return array.join();
-		return `${array.slice(0, -1).join(", ")} ${finalSeparator} ${array.slice(-1)[0]}`;
+		if (array.length === 2) {
+			return or ? TL`${array[0]} or ${array[1]}` : TL`${array[0]} and ${array[1]}`;
+		}
+		let message = '';
+		for (const name of array.slice(0, -1)) {
+			message += name + TL`, `;
+		}
+		const last = array.slice(-1)[0];
+		return message + (or ? TL`or ${last}` : TL`and ${last}`);
+	}
+	static generatorName(generator: string) {
+		switch (generator) {
+		case 'Single Elimination': return TL`Single Elimination`;
+		case 'Double Elimination': return TL`Double Elimination`;
+		case 'Round Robin': return TL`Round Robin`;
+		case 'Double Round Robin': return TL`Double Round Robin`;
+		}
+		return generator;
 	}
 	handleJoinLeave(action: 'join' | 'leave', name: string) {
 		this.joinLeave ||= {
@@ -101,21 +118,20 @@ export class ChatTournament extends PSModel {
 			this.joinLeave[action].push(name);
 		}
 		if (!this.joinLeave[action].includes(name)) this.joinLeave[action].push(name);
-		let message = this.joinLeave['join'].length ?
-			ChatTournament.arrayToPhrase(this.joinLeave['join']) + ' joined the tournament' :
-			'';
-		if (this.joinLeave['join'].length && this.joinLeave['leave'].length) message += '; ';
-		message += this.joinLeave['leave'].length ?
-			ChatTournament.arrayToPhrase(this.joinLeave['leave']) + ' left the tournament' :
-			'';
+		const joins = ChatTournament.arrayToPhrase(this.joinLeave['join']);
+		const leaves = ChatTournament.arrayToPhrase(this.joinLeave['leave']);
+		let message = this.joinLeave['join'].length ? TL`${joins} joined the tournament` : '';
+		if (this.joinLeave['join'].length && this.joinLeave['leave'].length) message += TL`; `;
+		message += this.joinLeave['leave'].length ? TL`${leaves} left the tournament` : '';
+		message += TL`.`;
 
-		this.tryAdd(`|uhtml|${this.joinLeave.messageId}|<div class="tournament-message-joinleave">${message}.</div>`);
+		this.tryAdd(`|uhtml|${this.joinLeave.messageId}|<div class="tournament-message-joinleave">${message}</div>`);
 	}
 	tournamentName() {
 		if (!this.info.format || !this.info.generator) return "";
 		const formatName = BattleLog.formatName(this.info.format);
-		const type = this.info.generator;
-		return `${formatName} ${type} Tournament`;
+		const type = ChatTournament.generatorName(this.info.generator);
+		return TL`${formatName} ${type} tournament`;
 	}
 	receiveLine(args: Args) {
 		const data = args.slice(2);
@@ -128,14 +144,16 @@ export class ChatTournament extends PSModel {
 				const tournaments = JSON.parse(data.join('|'));
 				let buf = `<div class="infobox tournaments-info">`;
 				if (tournaments.length <= 0) {
-					buf += `No tournaments are currently running.`;
+					buf += TL`No tournaments are currently running.`;
 				} else {
 					buf += `<ul>`;
 					for (const tournament of tournaments) {
 						const formatName = BattleLog.formatName(tournament.format);
+						const generatorName = ChatTournament.generatorName(tournament.generator);
+						const started = tournament.isStarted ? ' ' + TL`(started)` : '';
 						buf += `<li>`;
 						buf += eHTML`<a class="ilink" href="${toRoomid(tournament.room)}">${tournament.room}</a>`;
-						buf += eHTML`: ${formatName} ${tournament.generator}${tournament.isStarted ? " (Started)" : ""}`;
+						buf += eHTML`: ${formatName} ${generatorName}${started}`;
 						buf += `</li>`;
 					}
 					buf += `</ul>`;
@@ -154,16 +172,17 @@ export class ChatTournament extends PSModel {
 				this.info.teambuilderFormat = args[2];
 				this.info.generator = args[3];
 				const formatName = BattleLog.formatName(args[2]);
-				const type = args[3];
-				const buf = eHTML`<div class="tournament-message-create">${this.tournamentName()} created.</div>`;
+				const type = ChatTournament.generatorName(args[3]);
+				const tourName = this.tournamentName();
+				const buf = eHTML`<div class="tournament-message-create">${TL`${tourName} created.`}</div>`;
 				if (!this.tryAdd(`|html|${buf}`)) {
-					const hiddenBuf = eHTML`<div class="tournament-message-create">${this.tournamentName()} created (and hidden).</div>`;
+					const hiddenBuf = eHTML`<div class="tournament-message-create">${TL`${tourName} created (and hidden).`}</div>`;
 					this.room.add(`|html|${hiddenBuf}`);
 				}
 				if (notify) {
 					this.room.notify({
-						title: "Tournament created",
-						body: `Room: ${this.room.title}\nFormat: ${formatName}\nType: ${type}`,
+						title: TL`Tournament created`,
+						body: `${TL.label(TL`Room`, this.room.title)}\n${TL.label(TL.term.format || 'Format', formatName)}\n${TL.label(TL`Type`, type)}`,
 						id: 'tournament-create',
 					});
 				}
@@ -177,7 +196,7 @@ export class ChatTournament extends PSModel {
 			}
 
 			case 'replace': {
-				this.tryAdd(`||${args[3]} has joined the tournament, replacing ${args[4]}.`);
+				this.tryAdd('||' + TL`${args[3]} has joined the tournament, replacing ${args[4]}.`);
 				break;
 			}
 
@@ -188,27 +207,31 @@ export class ChatTournament extends PSModel {
 				} else if (this.info.teambuilderFormat?.startsWith('gen5') && !Dex.loadedSpriteData['bw']) {
 					Dex.loadSpriteData('bw');
 				}
-				let participants = data[0] ? ` (${data[0]} players)` : "";
-				this.room.add(`|html|<div class="tournament-message-start">The tournament has started!${participants}</div>`);
+				let participants = data[0] ? ' ' + TL`(${data[0]} players)` : "";
+				this.room.add(`|html|<div class="tournament-message-start">${TL`The tournament has started!`}${participants}</div>`);
 				break;
 
 			case 'disqualify':
-				this.tryAdd(eHTML`|html|<div class="tournament-message-disqualify">${data[0]} has been disqualified from the tournament.</div>`);
+				const dqName = BattleLog.escapeHTML(data[0]);
+				this.tryAdd(`|html|<div class="tournament-message-disqualify">${TL`${dqName} has been disqualified from the tournament.`}</div>`);
 				break;
 
 			case 'autodq':
 				if (data[0] === 'off') {
-					this.tryAdd(`|html|<div class="tournament-message-autodq-off">The tournament's automatic disqualify timer has been turned off.</div>`);
+					this.tryAdd(`|html|<div class="tournament-message-autodq-off">${TL`The tournament's automatic disqualify timer has been turned off.`}</div>`);
 				} else if (data[0] === 'on') {
 					let minutes = Math.round(parseInt(data[1]) / 1000 / 60);
-					this.tryAdd(eHTML`|html|<div class="tournament-message-autodq-on">The tournament's automatic disqualify timer has been set to ${minutes} minute${minutes === 1 ? "" : "s"}.</div>`);
+					const autodqMessage = minutes === 1 ?
+						TL`The tournament's automatic disqualify timer has been set to ${minutes} minute.` :
+						TL`The tournament's automatic disqualify timer has been set to ${minutes} minutes.`;
+					this.tryAdd(`|html|<div class="tournament-message-autodq-on">${autodqMessage}</div>`);
 				} else {
 					let seconds = Math.floor(parseInt(data[1]) / 1000);
-					PS.alert(`Please respond to the tournament within ${seconds} seconds or you may be automatically disqualified.`);
+					PS.alert(TL`Please respond to the tournament within ${seconds} seconds or you may be automatically disqualified.`);
 					if (notify) {
 						this.room.notify({
-							title: "Tournament Automatic Disqualification Warning",
-							body: `Room: ${this.room.title}\nSeconds: ${seconds}`,
+							title: TL`Tournament automatic disqualification warning`,
+							body: `${TL.label(TL`Room`, this.room.title)}\n${TL.label(TL`Time`, TL`${seconds} sec`)}`,
 							id: 'tournament-autodq-warning',
 						});
 					}
@@ -217,18 +240,21 @@ export class ChatTournament extends PSModel {
 
 			case 'autostart':
 				if (data[0] === 'off') {
-					this.tryAdd(`|html|<div class="tournament-message-autostart">The tournament's automatic start is now off.</div>`);
+					this.tryAdd(`|html|<div class="tournament-message-autostart">${TL`The tournament's automatic start is now off.`}</div>`);
 				} else if (data[0] === 'on') {
 					let minutes = (parseInt(data[1]) / 1000 / 60);
-					this.tryAdd(eHTML`|html|<div class="tournament-message-autostart">The tournament will automatically start in ${minutes} minute${minutes === 1 ? "" : "s"}.</div>`);
+					const autostartMessage = minutes === 1 ?
+						TL`The tournament will automatically start in ${minutes} minute.` :
+						TL`The tournament will automatically start in ${minutes} minutes.`;
+					this.tryAdd(`|html|<div class="tournament-message-autostart">${autostartMessage}</div>`);
 				}
 				break;
 
 			case 'scouting':
 				if (data[0] === 'allow') {
-					this.tryAdd(`|html|<div class="tournament-message-scouting">Scouting is now allowed (Tournament players can watch other tournament battles)</div>`);
+					this.tryAdd(`|html|<div class="tournament-message-scouting">${TL`Scouting is now allowed (Tournament players can watch other tournament battles)`}</div>`);
 				} else if (data[0] === 'disallow') {
-					this.tryAdd(`|html|<div class="tournament-message-scouting">Scouting is now banned (Tournament players can't watch other tournament battles)</div>`);
+					this.tryAdd(`|html|<div class="tournament-message-scouting">${TL`Scouting is now banned (Tournament players can't watch other tournament battles)`}</div>`);
 				}
 				break;
 
@@ -257,8 +283,8 @@ export class ChatTournament extends PSModel {
 								// app.playNotificationSound();
 								if (notify) {
 									this.room.notify({
-										title: "Tournament challenges available",
-										body: `Room: ${this.room.title}`,
+										title: TL`Tournament challenges available`,
+										body: `${TL.label(TL`Room`, this.room.title)}`,
 										id: 'tournament-challenges',
 									});
 								}
@@ -272,8 +298,8 @@ export class ChatTournament extends PSModel {
 							if (!this.info.challenged) {
 								if (notify) {
 									this.room.notify({
-										title: `Tournament challenge from ${info.challenged}`,
-										body: `Room: ${this.room.title}`,
+										title: TL`Tournament challenge from ${info.challenged}`,
+										body: `${TL.label(TL`Room`, this.room.title)}`,
 										id: 'tournament-challenged',
 									});
 								}
@@ -289,17 +315,21 @@ export class ChatTournament extends PSModel {
 
 			case 'battlestart': {
 				const roomid = toRoomid(data[2]);
-				this.tryAdd(`|uhtml|tournament-${roomid}|<div class="tournament-message-battlestart"><a href="${roomid}" class="ilink">Tournament battle between ${BattleLog.escapeHTML(data[0])} and ${BattleLog.escapeHTML(data[1])} started.</a></div>`);
+				const bsP1 = BattleLog.escapeHTML(data[0]);
+				const bsP2 = BattleLog.escapeHTML(data[1]);
+				this.tryAdd(`|uhtml|tournament-${roomid}|<div class="tournament-message-battlestart"><a href="${roomid}" class="ilink">${TL`Tournament battle between ${bsP1} and ${bsP2} started.`}</a></div>`);
 				break;
 			}
 
 			case 'battleend': {
-				let result = "drawn";
-				if (data[2] === 'win')
-					result = "won";
-				else if (data[2] === 'loss')
-					result = "lost";
-				const message = `${BattleLog.escapeHTML(data[0])} has ${result} the match ${BattleLog.escapeHTML(data[3].split(',').join(' - '))} against ${BattleLog.escapeHTML(data[1])}${data[4] === 'fail' ? " but the tournament does not support drawing, so it did not count" : ""}.`;
+				const beP1 = BattleLog.escapeHTML(data[0]);
+				const beP2 = BattleLog.escapeHTML(data[1]);
+				const score = BattleLog.escapeHTML(data[3].split(',').join(' - '));
+				let message = data[2] === 'win' ? TL`${beP1} has won the match ${score} against ${beP2}` :
+					data[2] === 'loss' ? TL`${beP1} has lost the match ${score} against ${beP2}` :
+					TL`${beP1} has drawn the match ${score} against ${beP2}`;
+				if (data[4] === 'fail') message += TL` but the tournament does not support drawing, so it did not count`;
+				message += TL`.`;
 				const roomid = toRoomid(data[5]);
 				this.tryAdd(`|uhtml|tournament-${roomid}|<div class="tournament-message-battleend"><a href="${roomid}" class="ilink">${message}</a></div>`);
 				break;
@@ -318,9 +348,14 @@ export class ChatTournament extends PSModel {
 					preact.render(<TournamentBracket tour={this} abbreviated />, bracketNode);
 				}
 
-				this.room.add(eHTML`|html|<div class="tournament-message-end-winner">Congratulations to ${ChatTournament.arrayToPhrase(endData.results[0])} for winning the ${this.tournamentName()}!</div>`);
+				const winners = ChatTournament.arrayToPhrase(endData.results[0]);
+				const tourName = this.tournamentName();
+				this.room.add(eHTML`|html|<div class="tournament-message-end-winner">${TL`Congratulations to ${winners} for winning the ${tourName}!`}</div>`);
 				if (endData.results[1]) {
-					this.tryAdd(eHTML`|html|<div class="tournament-message-end-runnerup">Runner${endData.results[1].length > 1 ? "s" : ""}-up: ${ChatTournament.arrayToPhrase(endData.results[1])}</div>`);
+					const runnersUp = ChatTournament.arrayToPhrase(endData.results[1]);
+					const runnerUpMessage = endData.results[1].length > 1 ?
+						TL.label(TL`Runners-up`, runnersUp) : TL.label(TL`Runner-up`, runnersUp);
+					this.tryAdd(eHTML`|html|<div class="tournament-message-end-runnerup">${runnerUpMessage}</div>`);
 				}
 
 				// Fallthrough
@@ -334,7 +369,7 @@ export class ChatTournament extends PSModel {
 
 				if (cmd === 'forceend') {
 					this.info = {}; // not needed; nothing to pop out
-					this.room.add(`|html|<div class="tournament-message-forceend">The tournament was forcibly ended.</div>`);
+					this.room.add(`|html|<div class="tournament-message-forceend">${TL`The tournament was forcibly ended.`}</div>`);
 				}
 				// clear room's tour, so next tour gets a different tour object
 				//  (and the bracket for this one's pop-out is unaffected)
@@ -350,57 +385,59 @@ export class ChatTournament extends PSModel {
 				switch (data[0]) {
 				case 'BracketFrozen':
 				case 'AlreadyStarted':
-					appendError("The tournament has already started.");
+					appendError(TL`The tournament has already started.`);
 					break;
 
 				case 'BracketNotFrozen':
 				case 'NotStarted':
-					appendError("The tournament hasn't started yet.");
+					appendError(TL`The tournament hasn't started yet.`);
 					break;
 
 				case 'UserAlreadyAdded':
-					appendError("You are already in the tournament.");
+					appendError(TL`You are already in the tournament.`);
 					break;
 
 				case 'AltUserAlreadyAdded':
-					appendError("One of your alts is already in the tournament.");
+					appendError(TL`One of your alts is already in the tournament.`);
 					break;
 
 				case 'UserNotAdded':
-					appendError(`${data[1] && data[1] === PS.user.userid ? "You aren't" : "This user isn't"} in the tournament.`);
+					appendError(data[1] && data[1] === PS.user.userid ?
+						TL`You aren't in the tournament.` : TL`This user isn't in the tournament.`);
 					break;
 
 				case 'NotEnoughUsers':
-					appendError("There aren't enough users.");
+					appendError(TL`There aren't enough users.`);
 					break;
 
 				case 'InvalidAutoDisqualifyTimeout':
 				case 'InvalidAutoStartTimeout':
-					appendError("That isn't a valid timeout value.");
+					appendError(TL`That isn't a valid timeout value.`);
 					break;
 
 				case 'InvalidMatch':
-					appendError("That isn't a valid tournament matchup.");
+					appendError(TL`That isn't a valid tournament matchup.`);
 					break;
 
 				case 'UserNotNamed':
-					appendError("You must have a name in order to join the tournament.");
+					appendError(TL`You must have a name in order to join the tournament.`);
 					break;
 
 				case 'Full':
-					appendError("The tournament is already at maximum capacity for users.");
+					appendError(TL`The tournament is already at maximum capacity for users.`);
 					break;
 
 				case 'AlreadyDisqualified':
-					appendError(`${data[1] && data[1] === PS.user.userid ? "You have" : "This user has"} already been disqualified.`);
+					appendError(data[1] && data[1] === PS.user.userid ?
+						TL`You have already been disqualified.` : TL`This user has already been disqualified.`);
 					break;
 
 				case 'Banned':
-					appendError("You are banned from entering tournaments.");
+					appendError(TL`You are banned from entering tournaments.`);
 					break;
 
 				default:
-					appendError("Unknown error: " + data[0]);
+					appendError(TL`Unknown error: ${data[0]}`);
 					break;
 				}
 				break;
@@ -470,6 +507,7 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 
 		// joined
 		const noMatches = !info.challenges?.length && !info.challengeBys?.length && !info.challenging && !info.challenged;
+		const challengeBys = info.challengeBys?.length ? ChatTournament.arrayToPhrase(info.challengeBys, true) : '';
 		return <div class="tournament-tools">
 			<TeamForm
 				format={info.format} teamFormat={info.teambuilderFormat} hideFormat
@@ -482,10 +520,10 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 					<button data-cmd="/tournament leave" class="button">{TL`[Leave]`}</button>
 				)}
 				{(info.isStarted && noMatches) && (
-					<div class="tournament-nomatches">Waiting for battles to become available...</div>
+					<div class="tournament-nomatches">{TL`Waiting for battles to become available...`}</div>
 				)}
 				{!!info.challenges?.length && <div class="tournament-challenge">
-					<div class="tournament-challenge-user">vs. {info.challenges[tour.selectedChallenge]}</div>
+					<div class="tournament-challenge-user">{TL`vs. ${info.challenges[tour.selectedChallenge]}`}</div>
 					<button type="submit" class="button"><strong>{TL`[Ready!]`}</strong></button>
 					{info.challenges.length > 1 && <span class="tournament-challenge-user-menu">
 						<select onChange={this.selectChallengeUser} value={tour.selectedChallenge} class="select">
@@ -496,15 +534,16 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 					</span>}
 				</div>}
 				{!!info.challengeBys?.length && <div class="tournament-challengeby">
-					{info.challenges?.length ? "Or wait" : "Waiting"} for {ChatTournament.arrayToPhrase(info.challengeBys, "or")} {}
-					to challenge you.
+					{info.challenges?.length ?
+						TL`Or wait for ${challengeBys} to challenge you.` :
+						TL`Waiting for ${challengeBys} to challenge you.`}
 				</div>}
 				{!!info.challenging && <div class="tournament-challenging">
-					<div class="tournament-challenging-message">Waiting for {info.challenging}...</div>
+					<div class="tournament-challenging-message">{TL`Waiting for ${info.challenging}...`}</div>
 					<button data-cmd="/tournament cancelchallenge" class="button">{TL`[Cancel]`}</button>
 				</div>}
 				{!!info.challenged && <div class="tournament-challenged">
-					<div class="tournament-challenged-message">vs. {info.challenged}</div>
+					<div class="tournament-challenged-message">{TL`vs. ${info.challenged}`}</div>
 					<button type="submit" class="button"><strong>{TL`[Ready!]`}</strong></button>
 				</div>}
 			</TeamForm>
@@ -569,13 +608,13 @@ export class TournamentBracket extends preact.Component<{
 						) : ''}`}
 					>
 						{cell.state === 'unavailable' ? (
-							"Unavailable"
+							TL`Unavailable`
 						) : cell.state === 'available' ? (
-							"Waiting"
+							TL`Waiting`
 						) : cell.state === 'challenging' ? (
-							"Challenging"
+							TL`Challenging`
 						) : cell.state === 'inprogress' ? (
-							<a href={toRoomid(cell.room)} class="ilink">In-progress</a>
+							<a href={toRoomid(cell.room)} class="ilink">{TL`In-progress`}</a>
 						) : cell.state === 'finished' ? (
 							cell.score.join(" - ")
 						) : null}
@@ -900,11 +939,11 @@ export class TournamentTreeBracket extends preact.Component<{
 					.text(node.team2 || '');
 
 				if (node.state === 'available') {
-					elem.append('title').text("Waiting");
+					elem.append('title').text(TL`Waiting`);
 				} else if (node.state === 'challenging') {
-					elem.append('title').text("Challenging");
+					elem.append('title').text(TL`Challenging`);
 				} else if (node.state === 'inprogress') {
-					elem.append('title').text("In-progress");
+					elem.append('title').text(TL`In-progress`);
 				} else if (node.state === 'finished') {
 					if (node.result === 'win') {
 						rect1.classed('tournament-bracket-tree-win', true);

@@ -59,7 +59,7 @@ class TeambuilderRoom extends PSRoom {
 		},
 		'deleteteam'(target) {
 			const team = PS.teams.byKey[target];
-			if (!team) return this.errorReply(`Team not found: ${target}`);
+			if (!team) return this.errorReply(TL`Team not found: ${target}`);
 
 			PS.teams.delete(team);
 			PS.teams.save();
@@ -67,7 +67,7 @@ class TeambuilderRoom extends PSRoom {
 		},
 		'copyteam'(target, cmd, elem) {
 			const team = PS.teams.byKey[target];
-			if (!team) return this.errorReply(`Team not found: ${target}`);
+			if (!team) return this.errorReply(TL`Team not found: ${target}`);
 
 			const teamElem = elem?.closest('li')?.querySelector<HTMLElement>('a.team');
 			this.preserveTeamScroll(team, teamElem);
@@ -78,7 +78,7 @@ class TeambuilderRoom extends PSRoom {
 		},
 		'pasteteamabove,moveteamabove'(target, cmd, elem) {
 			const team = PS.teams.byKey[target];
-			if (target !== '-' && !team) return this.errorReply(`Team not found: ${target}`);
+			if (target !== '-' && !team) return this.errorReply(TL`Team not found: ${target}`);
 
 			const index = team ? PS.teams.list.indexOf(team) : PS.teams.list.length;
 			const folder = this.curFolder?.endsWith('/') ? this.curFolder.slice(0, -1) : '';
@@ -178,7 +178,7 @@ class TeambuilderRoom extends PSRoom {
 		},
 	});
 	override sendDirect(msg: string): void {
-		PS.alert(`Unrecognized command: ${msg}`);
+		PS.alert(TL`Unrecognized command: ${msg}`);
 	}
 
 	setExportMode(exportMode: boolean) {
@@ -422,7 +422,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			try {
 				sets = Teams.import(result);
 			} catch {
-				PS.alert(`Your file "${file.name}" is not a valid team.`);
+				PS.alert(TL`Your file "${file.name}" is not a valid team.`);
 				return null;
 			}
 			let format = '';
@@ -968,7 +968,9 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 							{clipboardTeams?.[team.key] && <button data-cmd={`/copyteam ${team.key}`} class="option">
 								<i class="fa fa-times" aria-hidden></i> {TL`[Deselect]`}
 							</button>}
-							{!clipboardTeams && <button data-cmd={`/copyteam ${team.key}`} class="option" aria-label="Copy/move" title="Copy/move">
+							{!clipboardTeams && <button
+								data-cmd={`/copyteam ${team.key}`} class="option" aria-label={TL`[Copy/Move]`} title={TL`[Copy/Move]`}
+							>
 								<i class="fa fa-copy" aria-hidden></i>
 							</button>} {}
 							{team.uploaded?.private ? (

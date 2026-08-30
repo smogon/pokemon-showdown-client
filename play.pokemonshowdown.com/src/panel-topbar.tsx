@@ -153,7 +153,7 @@ export class PSHeader extends preact.Component {
 		const aria: Record<string, string> = noAria ? {} : {
 			"role": "tab", "id": `roomtab-${id}`, "aria-selected": cur ? "true" : "false",
 		};
-		if (id === 'rooms') aria['aria-label'] = "Join chat";
+		if (id === 'rooms') aria['aria-label'] = TL`[Join chat]`;
 		return <li class={id === '' ? 'home-li' : ''} key={id}>
 			<a
 				class={className} href={`/${id}`} draggable={true} title={hoverTitle || undefined}
@@ -192,7 +192,7 @@ export class PSHeader extends preact.Component {
 
 		let userbarLeft = this.base.querySelector('div.userbar .icon.button')?.getBoundingClientRect()?.left;
 		if (userbarLeft) userbarLeft -= 5;
-		const plusTabRight = this.base.querySelector('a.roomtab[aria-label="Join chat"]')?.getBoundingClientRect()?.right;
+		const plusTabRight = this.base.querySelector('a.roomtab[href="/rooms"]')?.getBoundingClientRect()?.right;
 		const overflow = this.base.querySelector<HTMLElement>('.overflow');
 
 		if (!overflow || !userbarLeft || !plusTabRight) return;
@@ -319,7 +319,7 @@ export class PSHeader extends preact.Component {
 				</ul>
 			</div></div></div>
 			<div class="overflow">
-				<button name="tablist" class="button" data-href="roomtablist" aria-label="All tabs" type="button">
+				<button name="tablist" class="button" data-href="roomtablist" aria-label={TL`[All tabs]`} type="button">
 					<i class="fa fa-caret-down" aria-hidden></i>
 				</button>
 			</div>
@@ -355,12 +355,12 @@ export class PSMiniHeader extends preact.Component {
 		const menuButton = !showMenuButton ? (
 			null
 		) : !this.menuOpen ? (
-			<button onClick={PSView.scrollToHeader} class={`mini-header-left ${notifying}`} aria-label="Menu">
+			<button onClick={PSView.scrollToHeader} class={`mini-header-left ${notifying}`} aria-label={TL`[Menu]`}>
 				{!!notificationsCount && <div class="notification-badge">{notificationsCount}</div>}
 				<i class="fa fa-bars" aria-hidden></i>
 			</button>
 		) : (
-			<button onClick={PSView.scrollToRoom} class="mini-header-left" aria-label="Menu">
+			<button onClick={PSView.scrollToRoom} class="mini-header-left" aria-label={TL`[Menu]`}>
 				<i class="fa fa-arrow-right" aria-hidden></i>
 			</button>
 		);

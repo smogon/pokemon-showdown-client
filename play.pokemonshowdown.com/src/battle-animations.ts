@@ -14,9 +14,9 @@
 import type { Battle, HPColor, Pokemon, Side, WeatherState } from './battle';
 import type { BattleSceneStub } from './battle-scene-stub';
 import { BattleMoveAnims } from './battle-animations-moves';
-import { BattleLog } from './battle-log';
+import { BattleLog, eHTML } from './battle-log';
 import { type BattleBGM, BattleSound } from './battle-sound';
-import { Dex, toID, type ID, type SpriteData } from './battle-dex';
+import { Dex, TL, toID, type ID, type SpriteData } from './battle-dex';
 import { BattleNatures } from './battle-dex-data';
 import { BattleTooltips } from './battle-tooltips';
 import { BattleTextParser, type Args, type KWArgs } from './battle-text-parser';
@@ -167,10 +167,10 @@ export class BattleScene implements BattleSceneStub {
 		this.$sprite.append(this.$spritesFront[0]);
 		this.$sprite.append(this.$sprites[0]);
 
-		this.$stat = $('<div role="complementary" aria-label="Active Pokemon"></div>');
+		this.$stat = $(eHTML`<div role="complementary" aria-label="${TL`Active Pokémon`}"></div>`);
 		this.$fx = $('<div></div>');
-		this.$leftbar = $('<div class="leftbar" role="complementary" aria-label="Your Team"></div>');
-		this.$rightbar = $('<div class="rightbar" role="complementary" aria-label="Opponent\'s Team"></div>');
+		this.$leftbar = $(eHTML`<div class="leftbar" role="complementary" aria-label="${TL`Your team`}"></div>`);
+		this.$rightbar = $(eHTML`<div class="rightbar" role="complementary" aria-label="${TL`Opponent's team`}"></div>`);
 		this.$turn = $('<div></div>');
 		this.$messagebar = $('<div class="messagebar message"></div>');
 		this.$delay = $('<div></div>');
@@ -693,16 +693,18 @@ export class BattleScene implements BattleSceneStub {
 				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('pokeball-none')}"></span>`;
 			} else if (noShow) {
 				if (poke?.fainted) {
-					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball-fainted')}" aria-label="Fainted"></span>`;
+					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball-fainted')}" aria-label="${BattleLog.escapeHTML(TL.status.fnt || 'Fainted')}"></span>`;
 				} else if (poke?.status) {
-					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball-statused')}" aria-label="Statused"></span>`;
+					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball-statused')}" aria-label="${BattleLog.escapeHTML(TL`Statused`)}"></span>`;
 				} else {
-					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball')}" aria-label="Non-statused"></span>`;
+					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball')}" aria-label="${BattleLog.escapeHTML(TL`Non-statused`)}"></span>`;
 				}
 			} else if (iconType === 'pseudo-zoroark') {
-				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('zoroark')}" title="Unrevealed Illusion user" aria-label="Unrevealed Illusion user"></span>`;
+				const unrevealedIllusion = BattleLog.escapeHTML(TL`Unrevealed Illusion user`);
+				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('zoroark')}" title="${unrevealedIllusion}" aria-label="${unrevealedIllusion}"></span>`;
 			} else if (!poke) {
-				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('pokeball')}" title="Not revealed" aria-label="Not revealed"></span>`;
+				const notRevealed = BattleLog.escapeHTML(TL`Not revealed`);
+				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('pokeball')}" title="${notRevealed}" aria-label="${notRevealed}"></span>`;
 			} else if (!poke.ident && this.battle.teamPreviewCount && this.battle.teamPreviewCount < side.pokemon.length) {
 				// in VGC (bring 6 pick 4) and other pick-less-than-you-bring formats, this is
 				// a pokemon that's been brought but not necessarily picked

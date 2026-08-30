@@ -467,7 +467,8 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		this.list.splice(index, 0, ...teams);
 	}
 	unpackOldBuffer(buffer: string) {
-		PS.alert(`Your team storage format is too old for PS. You'll need to upgrade it at https://${Config.routes.client}/recoverteams.html`);
+		const upgradeUrl = `https://${Config.routes.client}/recoverteams.html`;
+		PS.alert(TL`Your team storage format is too old for PS. You'll need to upgrade it at ${upgradeUrl}`);
 		this.list = [];
 	}
 	packAll(teams: Team[]) {
@@ -515,7 +516,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		PSLoginServer.query('getteams').then(data => {
 			if (!data) return;
 			if (data.actionerror) {
-				return PS.alert('Error loading uploaded teams: ' + data.actionerror);
+				return PS.alert(TL`Error loading uploaded teams: ${data.actionerror}`);
 			}
 			const teams: { [key: string]: UploadedTeam } = {};
 			for (const team of data.teams) {
@@ -598,7 +599,8 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		}).then(data => {
 			if (!team.uploaded) return;
 			if (!data?.team) {
-				PS.alert(`Failed to load team: ${data?.actionerror || "Error unknown. Try again later."}`);
+				const actionError = data?.actionerror as string || TL`Error unknown. Try again later.`;
+				PS.alert(TL`Failed to load team: ${actionError}`);
 				return;
 			}
 			team.uploaded.notLoaded = false;
@@ -757,7 +759,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 	}
 	handleAssertion(name: string, assertion?: string | null) {
 		if (!assertion) {
-			PS.alert("Error logging in.");
+			PS.alert(TL`Error logging in.`);
 			return;
 		}
 		this.loggingIn = null;
@@ -769,7 +771,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		if (assertion.startsWith('\r')) assertion = assertion.slice(1);
 		if (assertion.startsWith('\n')) assertion = assertion.slice(1);
 		if (assertion.includes('<')) {
-			PS.alert("Something is interfering with our connection to the login server. Most likely, your internet provider needs you to re-log-in, or your internet provider is blocking Pokémon Showdown.");
+			PS.alert(TL`Something is interfering with our connection to the login server. Most likely, your internet provider needs you to re-log-in, or your internet provider is blocking Pokémon Showdown.`);
 			return;
 		}
 		if (assertion === ';') {

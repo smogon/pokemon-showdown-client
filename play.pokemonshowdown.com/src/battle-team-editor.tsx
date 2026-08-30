@@ -2229,7 +2229,7 @@ class TeamEditorForm extends preact.Component<{
 						class={`button picontab${cur(editor.sets.length)}`} name="addpokemon"
 						onClick={this.setFocus}
 						value={`set-${editor.sets.length}-pokemon`}
-						aria-label="Add Pokemon"
+						aria-label={TL`[Add Pokémon]`}
 					>
 						<i class="fa fa-plus"></i>
 					</button></li>}
@@ -2386,9 +2386,9 @@ class TeamEditorForm extends preact.Component<{
 			const input = this.base!.querySelector<HTMLInputElement | HTMLButtonElement>(
 				(focus.type === 'details' || focus.type === 'stats' || focus.type === 'import') && this.pendingFocusButton ?
 					`button[name="${focus.type}"][value="${focusValue}"]` :
-					focus.type === 'details' ? `div[aria-label=Details] input:not([name=nickname]), div[aria-label=Details] select` :
-					focus.type === 'stats' ? `div[aria-label=Stats] input` :
-					focus.type === 'import' ? `div[aria-label="Import/Export"] textarea` :
+					focus.type === 'details' ? `div.set-details-form input:not([name=nickname]), div.set-details-form select` :
+					focus.type === 'stats' ? `div.set-stats-form input` :
+					focus.type === 'import' ? `div.set-import-form textarea` :
 					focus.type === 'move' && focus.typeIndex === -1 ? `input[name=value]` :
 					`input.set-field[data-focus="${focusValue}"]`
 			);
@@ -3227,7 +3227,7 @@ class SetImportForm extends preact.Component<{
 	};
 	override render() {
 		const { editor } = this.props;
-		return <div role="dialog" aria-label="Import/Export" class="set-import-form">
+		return <div role="dialog" aria-label={TL`Import/Export`} class="set-import-form">
 			<div class="resultheader"><h3>Import/Export Set</h3></div>
 			<div class="pad">
 				<p>
@@ -3485,7 +3485,7 @@ class StatForm extends preact.Component<{
 		if (!optimized) return null;
 
 		return <p>
-			<small><em>{TL`Protip:`}</em> {
+			<small><em>{TL.label(TL`Protip`)}</em>{
 				optimized.savedEVs ?
 					TL`Use a different nature to save ${optimized.savedEVs} EVs:` :
 					TL`Use a different nature to get higher stats:`
@@ -3642,16 +3642,17 @@ class StatForm extends preact.Component<{
 	};
 	renderNatureButtons(statID: Dex.StatName) {
 		if (statID === 'hp' || this.props.editor.gen < 3) return null;
+		const minus = '\u2212';
 		return <span class="stat-nature-buttons">
 			<button
 				class={`button button-first${this.minus === statID ? ' cur' : ''}`}
 				value={`${statID}-`} onClick={this.changeNatureModifier}
-				tabIndex={-1} aria-label={`Minus ${TL.statShort[statID]} Nature`}
+				tabIndex={-1} aria-label={TL`${minus + TL.statShort[statID]} nature`}
 			>&ndash;</button>
 			<button
 				class={`button button-last${this.plus === statID ? ' cur' : ''}`}
 				value={`${statID}+`} onClick={this.changeNatureModifier}
-				tabIndex={-1} aria-label={`Plus ${TL.statShort[statID]} Nature`}
+				tabIndex={-1} aria-label={TL`${'+' + TL.statShort[statID]} nature`}
 			>+</button>
 		</span>;
 	}
@@ -3752,7 +3753,7 @@ class StatForm extends preact.Component<{
 		}
 		const defaultIVs = editor.defaultIVs(set);
 
-		return <div class={narrow ? 'tiny-layout' : ''} style="font-size:10pt" role="dialog" aria-label="Stats">
+		return <div class={`set-stats-form${narrow ? ' tiny-layout' : ''}`} role="dialog" aria-label={TL.term.stats || 'Stats'}>
 			<div class="resultheader"><h3>EVs, IVs, and Nature</h3></div>
 			<div class="pad">
 				{this.renderSpreadGuesser()}
@@ -3936,7 +3937,7 @@ class DetailsForm extends preact.Component<{
 		const { editor, set } = this.props;
 		const species = editor.dex.species.get(set.species);
 		const baseSpecies = editor.dex.species.get(species.baseSpecies);
-		return <div style="font-size:10pt" role="dialog" aria-label="Details">
+		return <div class="set-details-form" role="dialog" aria-label={TL`Details`}>
 			<div class="resultheader"><h3>Details</h3></div>
 			<div class="pad">
 				<p><label class="label">{TL.label(TL.term.nickname)}<input

@@ -162,6 +162,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 			Untranslated: null,
 		}, ja: {
 			'Add Pokémon': 'ポケモンを追加',
+			Language: '言語',
 			Moves: 'UIの技',
 		}};
 		assert.equal(global.TL`Hello ${'Mew'}!`, '你好，Mew！');
@@ -171,6 +172,8 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		assert.equal(global.TL`[Keep translated brackets]`, '[Keep these]');
 		assert.equal(global.TL`[Untranslated button]`, 'Untranslated button');
 		assert.equal(global.TL('[Missing button]'), 'Missing button');
+		assert.equal(global.TL.inLanguage('Language', 'ja'), '言語');
+		assert.equal(global.TL.inLanguage('Language', 'de'), 'Language');
 		const prefs = global.Dex.prefs;
 		global.Dex.prefs = () => 'japanese';
 		void global.Dex.loadTextData();
@@ -206,6 +209,27 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 
 		const untranslated = new global.Dex.Ability('untranslated', 'Fallback Name', {desc: 'Fallback description'});
 		assert.equal(global.TL(untranslated), 'Fallback Name');
+	});
+
+	it('detects the first supported browser language independently of preferences', () => {
+		const navigatorDescriptor = Object.getOwnPropertyDescriptor(global, 'navigator');
+		const prefs = global.Dex.prefs;
+		try {
+			Object.defineProperty(global, 'navigator', {
+				configurable: true,
+				value: {languages: ['xx-YY', 'zh-Hant-HK', 'ja-JP'], language: 'xx-YY'},
+			});
+			global.Dex.prefs = () => 'french';
+			assert.equal(global.Dex.text.getBrowserLanguage(), 'zh-tw');
+			assert.equal(global.Dex.text.getLanguage(), 'fr');
+		} finally {
+			global.Dex.prefs = prefs;
+			if (navigatorDescriptor) {
+				Object.defineProperty(global, 'navigator', navigatorDescriptor);
+			} else {
+				delete global.navigator;
+			}
+		}
 	});
 
 	it('rejects empty UI translations', () => {

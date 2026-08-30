@@ -289,7 +289,7 @@ export class PSStorage {
 		// Cross-origin
 		if (!('postMessage' in window)) {
 			// browser does not support cross-document messaging
-			PS.alert("Sorry, psim connections are unsupported by your browser.");
+			PS.alert(TL`Sorry, psim connections are unsupported by your browser.`);
 			return;
 		}
 
@@ -397,7 +397,7 @@ export class PSStorage {
 			break;
 		case 'a':
 			if (data === 'a0') {
-				PS.alert("Your browser doesn't support third-party cookies. Some things might not work correctly.");
+				PS.alert(TL`Your browser doesn't support third-party cookies. Some things might not work correctly.`);
 			}
 			if (!window.nodewebkit) {
 				// for whatever reason, Node-Webkit doesn't let us make remote

@@ -1397,7 +1397,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					</div>}
 					<div
 						class={`battle-controls inline-battle${room.width > 660 ? ' wide-controls' : ''}`}
-						role="complementary" aria-label="Battle Controls"
+						role="complementary" aria-label={TL`Battle controls`}
 					>
 						{this.renderControls(false, overlayVersion)}
 						{this.renderConnectError()}
@@ -1427,7 +1427,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				>
 					<div
 						class={`battle-controls${room.width > 660 ? ' wide-controls' : ''}`}
-						role="complementary" aria-label="Battle Controls"
+						role="complementary" aria-label={TL`Battle controls`}
 					>
 						{this.renderControls(false, overlayVersion)}
 						{this.renderConnectError()}
@@ -1457,7 +1457,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					<div class="battle-controls-container">
 						<div
 							class={`battle-controls${battleWidth >= 639 ? ' wide-controls' : ''}`}
-							role="complementary" aria-label="Battle Controls"
+							role="complementary" aria-label={TL`Battle controls`}
 							style={`top:${battleHeight + 10}px;width:${battleWidth}px;`}
 						>
 							{(room.battle && !room.battle.ended && room.request &&
@@ -1498,7 +1498,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				<div class="battle-controls-container">
 					<div
 						class={`battle-controls${battleWidth >= 639 ? ' wide-controls' : ''}`}
-						role="complementary" aria-label="Battle Controls"
+						role="complementary" aria-label={TL`Battle controls`}
 						style={`top:${battleHeight + 10}px;width:${battleWidth}px;`}
 					>
 						{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&

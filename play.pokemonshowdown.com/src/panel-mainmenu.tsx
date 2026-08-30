@@ -74,10 +74,10 @@ export class MainMenuRoom extends PSRoom {
 	startSearch = (format: string, team?: Team, parentElem?: HTMLElement | null) => {
 		PS.requestNotifications();
 		if (this.searchCountdown) {
-			PS.alert("Wait for this countdown to finish first...", { parentElem });
+			PS.alert(TL`Wait for this countdown to finish first...`, { parentElem });
 			return;
 		} else if (this.search.searching.includes(format)) {
-			PS.alert(`You're already searching for a ${BattleLog.formatName(format)} battle...`, { parentElem });
+			PS.alert(TL`You're already searching for a ${BattleLog.formatName(format)} battle...`, { parentElem });
 			return;
 		}
 		this.searchCountdown = {
@@ -640,13 +640,13 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 				<h3
 					class={`mini-window-header${notifying}`} draggable onDragStart={this.handleDragStart} onClick={this.handleClickMinimize}
 				>
-					<button class="closebutton" data-cmd="/close" aria-label="Close" tabIndex={-1}>
+					<button class="closebutton" data-cmd="/close" aria-label={TL`[Close]`} tabIndex={-1}>
 						<i class="fa fa-times-circle" aria-hidden></i>
 					</button>
-					<button class="maximizebutton" data-cmd="/maximize" tabIndex={-1} aria-label="Maximize">
+					<button class="maximizebutton" data-cmd="/maximize" tabIndex={-1} aria-label={TL`[Maximize]`}>
 						<i class="fa fa-stop-circle" aria-hidden></i>
 					</button>
-					<button class="minimizebutton" tabIndex={-1} aria-label="Expand/Collapse">
+					<button class="minimizebutton" tabIndex={-1} aria-label={TL`[Expand/collapse]`}>
 						<i class="fa fa-minus-circle" aria-hidden></i>
 					</button>
 					{room.getTitle()}
@@ -980,7 +980,7 @@ export class TeamForm extends preact.Component<{
 		const teamKey = teamElement!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
 		if (!window.BattleFormats[teambuilderFormat]?.team && !team) {
-			PS.alert('You need to go into the Teambuilder and build a team for this format.', {
+			PS.alert(TL`You need to go into the Teambuilder and build a team for this format.`, {
 				parentElem: teamElement!,
 			});
 			return;

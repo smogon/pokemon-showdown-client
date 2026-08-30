@@ -377,7 +377,7 @@ export class ChatRoom extends PSRoom {
 				}
 				format = BattleLog.formatId(format || '');
 				PS.mainmenu.makeQuery('userdetails', targetUser).then(data => {
-					if (data.rooms === false) return this.errorReply('This player does not exist or is not online.');
+					if (data.rooms === false) return this.errorReply(TL`This player does not exist or is not online.`);
 					PS.join(`challenge-${toID(targetUser)}` as RoomID, { args: { format } });
 				});
 				return;
@@ -426,7 +426,7 @@ export class ChatRoom extends PSRoom {
 		},
 		'togglemessages'(target) {
 			if (this.pmTarget ||
-				this.type !== 'chat') return this.errorReply('This command can only be used in proper chat rooms.');
+				this.type !== 'chat') return this.errorReply(TL`This command can only be used in proper chat rooms.`);
 			if (this.log) {
 				const userid = toID(target);
 				const classStart = 'revealed chat chatmessage-' + userid;
@@ -486,7 +486,7 @@ export class ChatRoom extends PSRoom {
 			PSLoginServer.query("ladderget", {
 				user: targets[0],
 			}).then(data => {
-				if (!data || !Array.isArray(data)) return this.errorReply(`Error: corrupted ranking data`);
+				if (!data || !Array.isArray(data)) return this.errorReply(TL`Error: corrupted ranking data`);
 				let buffer = `<div class="ladder"><table><tr><td colspan="9">User: <strong>${toID(targets[0])}</strong></td></tr>`;
 				if (!data.length) {
 					buffer += '<tr><td colspan="9"><em>This user has not played any ladder games yet.</em></td></tr>';
@@ -502,7 +502,7 @@ export class ChatRoom extends PSRoom {
 				buffer += '</tr>';
 				const hiddenFormats = [];
 				for (const row of data) {
-					if (!row) return this.errorReply(`Error: corrupted ranking data`);
+					if (!row) return this.errorReply(TL`Error: corrupted ranking data`);
 					const formatId = toID(row.formatid);
 					const matchesTarget = (
 						formats[formatId] ||
@@ -519,7 +519,7 @@ export class ChatRoom extends PSRoom {
 					// Validate all the numerical data
 					for (const value of [row.elo, row.rpr, row.rprd, row.gxe, row.w, row.l, row.t]) {
 						if (typeof value !== 'number' && typeof value !== 'string') {
-							return this.errorReply(`Error: corrupted ranking data`);
+							return this.errorReply(TL`Error: corrupted ranking data`);
 						}
 					}
 
@@ -581,7 +581,7 @@ export class ChatRoom extends PSRoom {
 		// battle-specific commands
 		// ------------------------
 		'play'() {
-			if (!this.battle) return this.errorReply('You are not in a battle');
+			if (!this.battle) return this.errorReply(TL`You are not in a battle`);
 			if (this.battle.atQueueEnd) {
 				if (this.battle.ended) this.battle.isReplay = true;
 				this.battle.reset();
@@ -590,12 +590,12 @@ export class ChatRoom extends PSRoom {
 			this.update(null);
 		},
 		'pause'() {
-			if (!this.battle) return this.errorReply('You are not in a battle');
+			if (!this.battle) return this.errorReply(TL`You are not in a battle`);
 			this.battle.pause();
 			this.update(null);
 		},
 		'ffto,fastfowardto'(target, cmd, parentElem) {
-			if (!this.battle) return this.errorReply('You are not in a battle');
+			if (!this.battle) return this.errorReply(TL`You are not in a battle`);
 			if (!target) {
 				PS.prompt("Turn number?", {
 					defaultValue: `${this.battle.turn}`,
@@ -616,18 +616,18 @@ export class ChatRoom extends PSRoom {
 				turnNum = Infinity;
 			}
 			if (isNaN(turnNum)) {
-				this.errorReply(`Invalid turn number: ${target}`);
+				this.errorReply(TL`Invalid turn number: ${target}`);
 				return;
 			}
 			if (this.battle.hardcoreMode) {
-				this.errorReply(`Turn navigation is disabled in hardcore mode.`);
+				this.errorReply(TL`Turn navigation is disabled in hardcore mode.`);
 				return;
 			}
 			this.battle.seekTurn(turnNum);
 			this.update(null);
 		},
 		'switchsides'() {
-			if (!this.battle) return this.errorReply('You are not in a battle');
+			if (!this.battle) return this.errorReply(TL`You are not in a battle`);
 			this.battle.switchViewpoint();
 		},
 		'cancel,undo,cancelone'(_target, cmd) {
@@ -635,7 +635,7 @@ export class ChatRoom extends PSRoom {
 
 			const room = this as any as BattleRoom;
 			if (!room.choices || !room.request) {
-				this.errorReply(`/choose - You are not a player in this battle`);
+				this.errorReply('/choose - ' + TL`You are not a player in this battle`);
 				return;
 			}
 			if (room.choices.isDone() || room.choices.isEmpty()) {
@@ -651,10 +651,10 @@ export class ChatRoom extends PSRoom {
 			this.update(null);
 		},
 		'move,switch,team,pass,shift,choose'(target, cmd) {
-			if (!this.battle) return this.errorReply('You are not in a battle');
+			if (!this.battle) return this.errorReply(TL`You are not in a battle`);
 			const room = this as any as BattleRoom;
 			if (!room.choices || !room.request) {
-				this.errorReply(`/choose - You are not a player in this battle`);
+				this.errorReply('/choose - ' + TL`You are not a player in this battle`);
 				return;
 			}
 
@@ -675,7 +675,7 @@ export class ChatRoom extends PSRoom {
 			this.update(null);
 		},
 		'movemenu,switchmenu'(target, cmd) {
-			if (!this.battle) return this.errorReply('You are not in a battle');
+			if (!this.battle) return this.errorReply(TL`You are not in a battle`);
 			const room = this as any as BattleRoom;
 			if (!target && cmd === 'movemenu') {
 				room.overlayActive = (room.overlayActive === 'move' ? null : 'move');
@@ -692,7 +692,7 @@ export class ChatRoom extends PSRoom {
 	});
 	openChallenge() {
 		if (!this.pmTarget) {
-			this.errorReply(`Can only be used in a PM.`);
+			this.errorReply(TL`Can only be used in a DM.`);
 			return;
 		}
 		this.challengeMenuOpen = true;
@@ -700,7 +700,7 @@ export class ChatRoom extends PSRoom {
 	}
 	cancelChallenge() {
 		if (!this.pmTarget) {
-			this.errorReply(`Can only be used in a PM.`);
+			this.errorReply(TL`Can only be used in a DM.`);
 			return;
 		}
 		if ((this.teamSent && this.challengeMenuOpen) || this.challenging) {
@@ -1361,7 +1361,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		const now = Date.now();
 		const lastChallenged = PS.mainmenu.lastChallenged || 0;
 		if (now - lastChallenged < 5_000) {
-			PS.alert(`Please wait 5 seconds before challenging again.`, {
+			PS.alert(TL`Please wait 5 seconds before challenging again.`, {
 				parentElem: elem,
 			});
 			return;
@@ -1609,7 +1609,7 @@ export class ChatLog extends preact.Component<{
 	}
 	override render() {
 		return <div
-			class={this.props.class} role="log" aria-label="Chat log"
+			class={this.props.class} role="log" aria-label={TL`Chat log`}
 			style={{ left: this.props.left || 0, top: this.props.top || 0, bottom: this.props.bottom ?? 40 }}
 		>
 			<ChatLogInner class="inner message-log" />

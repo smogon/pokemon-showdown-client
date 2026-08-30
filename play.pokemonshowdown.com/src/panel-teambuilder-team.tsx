@@ -24,7 +24,7 @@ class TeamRoom extends PSRoom {
 	override clientCommands = this.parseClientCommands({
 		'validate'(target) {
 			if (this.team.format.length <= 4) {
-				return this.errorReply(`You must select a format first.`);
+				return this.errorReply(TL`You must select a format first.`);
 			}
 			this.send(`/utm ${this.team.packedTeam}`);
 			this.send(`/vtm ${this.team.format}`);
@@ -68,11 +68,11 @@ class TeamRoom extends PSRoom {
 		if (team.uploaded) {
 			buf.push(team.uploaded.teamid);
 		} else if (team.teamid) {
-			return PS.alert(`This team is for a different account. Please log into the correct account to update it.`);
+			return PS.alert(TL`This team is for a different account. Please log into the correct account to update it.`);
 		}
 		buf.push(team.name, team.format, isPrivate ? 1 : 0);
 		const exported = team.packedTeam;
-		if (!exported) return PS.alert(`Add a Pokemon to your team before uploading it.`);
+		if (!exported) return PS.alert(TL`Add a Pokémon to your team before uploading it.`);
 		buf.push(exported);
 		PS.teams.uploading = team;
 		PS.send(`/teams ${cmd} ${buf.join(', ')}`);
@@ -230,7 +230,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		const team = room.team;
 		if (!team.uploadedPackedTeam) {
 			// should never happen
-			PS.alert(`Must use on an uploaded team.`);
+			PS.alert(TL`Must use on an uploaded team.`);
 			return;
 		}
 		team.packedTeam = team.uploadedPackedTeam;
@@ -242,7 +242,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		const team = this.props.room.team;
 		if (!team.uploadedPackedTeam) {
 			// should never happen
-			PS.alert(`Must use on an uploaded team.`);
+			PS.alert(TL`Must use on an uploaded team.`);
 			return;
 		}
 		const uploadedTeam = Teams.export(Teams.unpack(team.uploadedPackedTeam), undefined);
