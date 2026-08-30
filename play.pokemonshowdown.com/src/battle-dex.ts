@@ -92,6 +92,11 @@ const TEXT_LANGUAGES: { [language: string]: string } = {
 	dutch: 'nl', portuguese: 'pt', turkish: 'tr', hindi: 'hi',
 	japanese: 'ja', simplifiedchinese: 'zh-cn', traditionalchinese: 'zh-tw', korean: 'ko',
 };
+const TEXT_LANGUAGE_IDS: { [language: string]: string } = {
+	en: 'english', de: 'german', es: 'spanish', fr: 'french', it: 'italian',
+	nl: 'dutch', pt: 'portuguese', tr: 'turkish', hi: 'hindi',
+	ja: 'japanese', 'zh-cn': 'simplifiedchinese', 'zh-tw': 'traditionalchinese', ko: 'korean',
+};
 
 type TranslatableEffect = Species | Item | Ability | Move | NatureEffect | Type;
 
@@ -111,6 +116,7 @@ interface ClientEffectTextEntry extends BattleTextEntry {
 
 interface ClientDexText {
 	getLanguage(): string;
+	getLegacyLanguageID(): string;
 	get(effect: TranslatableEffect, lang?: string): ClientEffectTextEntry;
 	termName(name: string, lang?: string): string;
 	typeName(name: string, lang?: string): string;
@@ -119,12 +125,6 @@ interface ClientDexText {
 	genderName(name: string, lang?: string): string;
 	eggGroupName(name: string, lang?: string): string;
 	colorName(name: string, lang?: string): string;
-}
-
-function getTextLanguage() {
-	const preference = Dex.prefs('language') || Dex.prefs('serversettings')?.language || 'english';
-	const language = TEXT_LANGUAGES[preference] || 'en';
-	return language === 'en' && Dex.afdMode === true ? 'en-afd' : language;
 }
 
 function translate(strings: TemplateStringsArray, ...values: unknown[]): string;
@@ -190,7 +190,7 @@ export const TL = Object.assign(translate, {
 });
 
 function updateTranslatedNames(lang: string) {
-	if (lang !== getTextLanguage()) return;
+	if (lang !== Dex.text.getLanguage()) return;
 	const text = BattleText[lang];
 	if (!text) return;
 	const english = BattleText.en;
@@ -541,18 +541,40 @@ export const Dex = new class implements ModdedDex {
 	}
 
 	text: ClientDexText = {
-		getLanguage: getTextLanguage,
-		get: (effect: TranslatableEffect, lang = getTextLanguage()) => {
+		getLanguage() {
+			const language = TEXT_LANGUAGES[this.getLegacyLanguageID()] || 'en';
+			return language === 'en' && Dex.afdMode === true ? 'en-afd' : language;
+		},
+		getLegacyLanguageID() {
+			const preference = Dex.prefs('language') || Dex.prefs('serversettings')?.language;
+			if (preference) return TEXT_LANGUAGE_IDS[preference] || preference;
+			// oldclient doesn't autodetect language
+			if (typeof window === 'undefined' || !window.PS) return 'english';
+
+			const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
+			for (let language of languages) {
+				language = language.toLowerCase().replace(/_/g, '-');
+				if (language === 'zh' || language.startsWith('zh-')) {
+					return TEXT_LANGUAGE_IDS[
+						/(?:^|-)(?:hant|tw|hk|mo)(?:-|$)/.test(language) ? 'zh-tw' : 'zh-cn'
+					];
+				}
+				const baseLanguage = language.split('-')[0];
+				if (TEXT_LANGUAGE_IDS[baseLanguage]) return TEXT_LANGUAGE_IDS[baseLanguage];
+			}
+			return 'english';
+		},
+		get: (effect: TranslatableEffect, lang = Dex.text.getLanguage()) => {
 			return getTextEntry(effect, 9, lang);
 		},
-		termName: (name, lang = getTextLanguage()) => getOtherName('TermNames', name, lang),
-		typeName: (name, lang = getTextLanguage()) => getOtherName('TypeNames', name, lang),
-		natureName: (name, lang = getTextLanguage()) => getOtherName('NatureNames', name, lang),
-		categoryName: (name, lang = getTextLanguage()) =>
+		termName: (name, lang = Dex.text.getLanguage()) => getOtherName('TermNames', name, lang),
+		typeName: (name, lang = Dex.text.getLanguage()) => getOtherName('TypeNames', name, lang),
+		natureName: (name, lang = Dex.text.getLanguage()) => getOtherName('NatureNames', name, lang),
+		categoryName: (name, lang = Dex.text.getLanguage()) =>
 			BattleText[lang]?.Tags?.[toID(name)]?.name || BattleText.en?.Tags?.[toID(name)]?.name || name,
-		genderName: (name, lang = getTextLanguage()) => getOtherName('GenderNames', name, lang),
-		eggGroupName: (name, lang = getTextLanguage()) => getOtherName('EggGroupNames', name, lang),
-		colorName: (name, lang = getTextLanguage()) => getOtherName('ColorNames', name, lang),
+		genderName: (name, lang = Dex.text.getLanguage()) => getOtherName('GenderNames', name, lang),
+		eggGroupName: (name, lang = Dex.text.getLanguage()) => getOtherName('EggGroupNames', name, lang),
+		colorName: (name, lang = Dex.text.getLanguage()) => getOtherName('ColorNames', name, lang),
 	};
 
 	getShortName(name: string) {
@@ -1225,18 +1247,19 @@ export class ModdedDex {
 		this.gen = gen;
 	}
 	text: ClientDexText = {
-		getLanguage: getTextLanguage,
-		get: (effect: TranslatableEffect, lang = getTextLanguage()) => {
+		getLanguage: () => Dex.text.getLanguage(),
+		getLegacyLanguageID: () => Dex.text.getLegacyLanguageID(),
+		get: (effect: TranslatableEffect, lang = Dex.text.getLanguage()) => {
 			return getTextEntry(effect, this.gen, lang);
 		},
-		termName: (name, lang = getTextLanguage()) => getOtherName('TermNames', name, lang),
-		typeName: (name, lang = getTextLanguage()) => getOtherName('TypeNames', name, lang),
-		natureName: (name, lang = getTextLanguage()) => getOtherName('NatureNames', name, lang),
-		categoryName: (name, lang = getTextLanguage()) =>
+		termName: (name, lang = Dex.text.getLanguage()) => getOtherName('TermNames', name, lang),
+		typeName: (name, lang = Dex.text.getLanguage()) => getOtherName('TypeNames', name, lang),
+		natureName: (name, lang = Dex.text.getLanguage()) => getOtherName('NatureNames', name, lang),
+		categoryName: (name, lang = Dex.text.getLanguage()) =>
 			BattleText[lang]?.Tags?.[toID(name)]?.name || BattleText.en?.Tags?.[toID(name)]?.name || name,
-		genderName: (name, lang = getTextLanguage()) => getOtherName('GenderNames', name, lang),
-		eggGroupName: (name, lang = getTextLanguage()) => getOtherName('EggGroupNames', name, lang),
-		colorName: (name, lang = getTextLanguage()) => getOtherName('ColorNames', name, lang),
+		genderName: (name, lang = Dex.text.getLanguage()) => getOtherName('GenderNames', name, lang),
+		eggGroupName: (name, lang = Dex.text.getLanguage()) => getOtherName('EggGroupNames', name, lang),
+		colorName: (name, lang = Dex.text.getLanguage()) => getOtherName('ColorNames', name, lang),
 	};
 	moves = {
 		get: (name: string): Move => {

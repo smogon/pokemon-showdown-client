@@ -701,7 +701,7 @@ class OptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="optlabel">
 					<i class="fa fa-globe" aria-hidden></i> Language: {}
-					<select name="language" onChange={this.handleOnChange} class="select" value={serverSettings.language || 'english'}>
+					<select name="language" onChange={this.handleOnChange} class="select" value={Dex.text.getLegacyLanguageID()}>
 						<option value="english">English</option>
 						<option value="german">Deutsch</option>
 						<option value="spanish">Español</option>
