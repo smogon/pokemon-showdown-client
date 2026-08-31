@@ -681,9 +681,9 @@ class OptionsPanel extends PSRoomPanel {
 			break;
 		}
 		case 'language': {
-			PS.prefs.set('serversettings', { ...PS.prefs.serversettings, language: elem.value });
+			PS.prefs.set('serversettings', { ...PS.prefs.serversettings, language: elem.value || undefined });
 			void Dex.loadTextData().then(() => PS.updateTranslatedText());
-			PS.send(`/language ${elem.value}`);
+			PS.send(`/language ${Dex.text.findLanguage(Dex.text.getLanguage())?.legacyId || 'english'}`);
 			break;
 		}
 		case 'tournaments': {
@@ -710,6 +710,7 @@ class OptionsPanel extends PSRoomPanel {
 		const languageLabel = altLanguageLabel ? `${currentLanguageLabel} (${altLanguageLabel})` : currentLanguageLabel;
 		const singlePanel = TL`Single panel`;
 		const verticalTabs = TL`Vertical tabs`;
+		const automaticLanguage = Dex.text.findLanguage(Dex.text.getBrowserLanguage())?.name;
 		return <PSPanelWrapper room={room} width={340}><div class="pad">
 			<p style="padding-left:50px">
 				<img
@@ -733,20 +734,12 @@ class OptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="optlabel">
 					<i class="fa fa-globe" aria-hidden></i> {TL.label(languageLabel)}
-					<select name="language" onChange={this.handleOnChange} class="select" value={Dex.text.getLegacyLanguageID()}>
-						<option value="english">English</option>
-						<option value="german">Deutsch (German)</option>
-						<option value="spanish">Español (Spanish)</option>
-						<option value="french">Français (French)</option>
-						<option value="italian">Italiano (Italian)</option>
-						<option value="dutch">Nederlands (Dutch)</option>
-						<option value="portuguese">Português (Portuguese)</option>
-						<option value="turkish">Türkçe (Turkish)</option>
-						<option value="hindi">हिंदी (Hindi)</option>
-						<option value="japanese">日本語 (Japanese)</option>
-						<option value="simplifiedchinese">简体中文 (Simplified Chinese)</option>
-						<option value="traditionalchinese">繁體中文 (Traditional Chinese)</option>
-						<option value="korean">한국어 (Korean)</option>
+					<select
+						name="language" onChange={this.handleOnChange} class="select"
+						value={PS.prefs.serversettings.language || ''}
+					>
+						<option value="">{TL`Automatic (${automaticLanguage})`}</option>
+						{Dex.text.languages().map(lang => <option value={lang.legacyId}>{lang.fullName}</option>)}
 					</select>
 				</label>
 			</p>

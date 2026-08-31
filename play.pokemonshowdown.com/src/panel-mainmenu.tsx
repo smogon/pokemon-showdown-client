@@ -150,7 +150,10 @@ export class MainMenuRoom extends PSRoom {
 			const named = namedCode === '1';
 			if (named) PS.user.initializing = false;
 			if (settingsJSON) {
-				PS.prefs.set('serversettings', { ...PS.prefs.serversettings, ...JSON.parse(settingsJSON) });
+				const serverSettings = JSON.parse(settingsJSON);
+				// don't trust server setting for language
+				delete serverSettings.language;
+				PS.prefs.set('serversettings', { ...PS.prefs.serversettings, ...serverSettings });
 			}
 			void Dex.loadTextData().then(() => PS.updateTranslatedText());
 			PS.user.setName(fullName, named, avatar);

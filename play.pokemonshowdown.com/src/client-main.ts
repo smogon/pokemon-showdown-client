@@ -1249,6 +1249,19 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		return parsedCommands;
 	}
 	globalClientCommands = this.parseClientCommands({
+		'language'(target) {
+			if (!target) return true;
+			if (['auto', 'automatic'].includes(toID(target))) {
+				PS.prefs.set('serversettings', { ...PS.prefs.serversettings, language: undefined });
+			} else {
+				const language = Dex.text.findLanguage(target)?.legacyId;
+				// on the off chance the server supports this language
+				if (!language) return true;
+				PS.prefs.set('serversettings', { ...PS.prefs.serversettings, language });
+			}
+			void Dex.loadTextData().then(() => PS.updateTranslatedText());
+			return `/language ${Dex.text.findLanguage(Dex.text.getLanguage())?.legacyId || 'english'}`;
+		},
 		'j,join'(target, cmd, elem) {
 			target = PS.router.extractRoomID(target) || target;
 			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;

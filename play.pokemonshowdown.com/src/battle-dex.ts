@@ -87,15 +87,32 @@ export function toUserid(text: any) {
 	return toID(text);
 }
 
-const TEXT_LANGUAGES: { [language: string]: string } = {
-	english: 'en', german: 'de', spanish: 'es', french: 'fr', italian: 'it',
-	dutch: 'nl', portuguese: 'pt', turkish: 'tr', hindi: 'hi',
-	japanese: 'ja', simplifiedchinese: 'zh-cn', traditionalchinese: 'zh-tw', korean: 'ko',
-};
-const TEXT_LANGUAGE_IDS: { [language: string]: string } = {
-	en: 'english', de: 'german', es: 'spanish', fr: 'french', it: 'italian',
-	nl: 'dutch', pt: 'portuguese', tr: 'turkish', hi: 'hindi',
-	ja: 'japanese', 'zh-cn': 'simplifiedchinese', 'zh-tw': 'traditionalchinese', ko: 'korean',
+const TEXT_LANGUAGES = [
+	{ code: "en", legacyId: "english", name: "English", fullName: "English" },
+	{ code: "de", legacyId: "german", name: "Deutsch", fullName: "Deutsch (German)" },
+	{ code: "es", legacyId: "spanish", name: "Español", fullName: "Español (Spanish)" },
+	{ code: "fr", legacyId: "french", name: "Français", fullName: "Français (French)" },
+	{ code: "it", legacyId: "italian", name: "Italiano", fullName: "Italiano (Italian)" },
+	{ code: "nl", legacyId: "dutch", name: "Nederlands", fullName: "Nederlands (Dutch)" },
+	{ code: "pt", legacyId: "portuguese", name: "Português", fullName: "Português (Portuguese)" },
+	{ code: "tr", legacyId: "turkish", name: "Türkçe", fullName: "Türkçe (Turkish)" },
+	{ code: "hi", legacyId: "hindi", name: "हिंदी", fullName: "हिंदी (Hindi)" },
+	{ code: "ja", legacyId: "japanese", name: "日本語", fullName: "日本語 (Japanese)" },
+	{ code: "zh-cn", legacyId: "simplifiedchinese", name: "简体中文", fullName: "简体中文 (Simplified Chinese)" },
+	{ code: "zh-tw", legacyId: "traditionalchinese", name: "繁體中文", fullName: "繁體中文 (Traditional Chinese)" },
+	{ code: "ko", legacyId: "korean", name: "한국어", fullName: "한국어 (Korean)" },
+];
+type Language = typeof TEXT_LANGUAGES[number];
+const TEXT_LANGUAGE_TABLE: Record<string, Language> = {};
+for (const lang of TEXT_LANGUAGES) {
+	TEXT_LANGUAGE_TABLE[toID(lang.code)] = lang;
+	TEXT_LANGUAGE_TABLE[lang.code] = lang;
+	TEXT_LANGUAGE_TABLE[lang.legacyId] = lang;
+	TEXT_LANGUAGE_TABLE[lang.name] = lang;
+	TEXT_LANGUAGE_TABLE[lang.name.toLowerCase()] = lang;
+}
+TEXT_LANGUAGE_TABLE['en-afd'] = {
+	code: "en-afd", legacyId: "english", name: "English (AFD)", fullName: "English (AFD)",
 };
 
 type TranslatableEffect = Species | Item | Ability | Move | NatureEffect | Type;
@@ -117,7 +134,8 @@ interface ClientEffectTextEntry extends BattleTextEntry {
 interface ClientDexText {
 	getLanguage(): string;
 	getBrowserLanguage(): string;
-	getLegacyLanguageID(): string;
+	languages(): Language[];
+	findLanguage(lang: string): Language | null;
 	get(effect: TranslatableEffect, lang?: string): ClientEffectTextEntry;
 	termName(name: string, lang?: string): string;
 	typeName(name: string, lang?: string): string;
@@ -574,9 +592,14 @@ export const Dex = new class implements ModdedDex {
 	}
 
 	text: ClientDexText = {
-		getLanguage() {
-			const language = TEXT_LANGUAGES[this.getLegacyLanguageID()] || 'en';
-			return language === 'en' && Dex.afdMode === true ? 'en-afd' : language;
+		getLanguage(text?: string) {
+			let lang = Dex.prefs('language') || Dex.prefs('serversettings')?.language;
+			if (lang) lang = TEXT_LANGUAGE_TABLE[lang]?.code;
+
+			// oldclient doesn't autodetect language
+			lang ||= window.PS ? this.getBrowserLanguage() : 'en';
+			if (Dex.afdMode === true && lang === 'en') return 'en-afd';
+			return lang;
 		},
 		getBrowserLanguage() {
 			if (typeof navigator === 'undefined') return 'en';
@@ -587,16 +610,15 @@ export const Dex = new class implements ModdedDex {
 					return /(?:^|-)(?:hant|tw|hk|mo)(?:-|$)/.test(language) ? 'zh-tw' : 'zh-cn';
 				}
 				const baseLanguage = language.split('-')[0];
-				if (TEXT_LANGUAGE_IDS[baseLanguage]) return baseLanguage;
+				if (baseLanguage in TEXT_LANGUAGE_TABLE) return baseLanguage;
 			}
 			return 'en';
 		},
-		getLegacyLanguageID() {
-			const preference = Dex.prefs('language') || Dex.prefs('serversettings')?.language;
-			if (preference) return TEXT_LANGUAGE_IDS[preference] || preference;
-			// oldclient doesn't autodetect language
-			if (typeof window === 'undefined' || !window.PS) return 'english';
-			return TEXT_LANGUAGE_IDS[this.getBrowserLanguage()] || 'english';
+		languages() {
+			return TEXT_LANGUAGES;
+		},
+		findLanguage(lang: string) {
+			return TEXT_LANGUAGE_TABLE[lang.toLowerCase()] || TEXT_LANGUAGE_TABLE[toID(lang)] || null;
 		},
 		get: (effect: TranslatableEffect, lang = Dex.text.getLanguage()) => {
 			return getTextEntry(effect, 9, lang);
@@ -852,7 +874,6 @@ export const Dex = new class implements ModdedDex {
 		document.getElementsByTagName('body')[0].appendChild(el);
 	}
 	loadTextData(lang = this.text.getLanguage()): Promise<void> {
-		lang = TEXT_LANGUAGES[lang] || lang;
 		const text = typeof BattleText === 'undefined' ? undefined : BattleText;
 		if (text?.[lang]) {
 			updateTranslatedNames(lang);
@@ -1283,7 +1304,8 @@ export class ModdedDex {
 	text: ClientDexText = {
 		getLanguage: () => Dex.text.getLanguage(),
 		getBrowserLanguage: () => Dex.text.getBrowserLanguage(),
-		getLegacyLanguageID: () => Dex.text.getLegacyLanguageID(),
+		languages: () => Dex.text.languages(),
+		findLanguage: lang => Dex.text.findLanguage(lang),
 		get: (effect: TranslatableEffect, lang = Dex.text.getLanguage()) => {
 			return getTextEntry(effect, this.gen, lang);
 		},
