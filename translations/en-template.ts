@@ -40,11 +40,9 @@ export const translations: UIText = {
 	"[Edit]": null,
 	"[Delete]": null,
 	"[Undo delete]": null,
-	// TRANSLATORS: "DM" is used to label DMs and "Chat" to navigate between battle view and chat view
-	// TRANSLATORS: "[Chat]" is the button to send a DM
-	// TRANSLATORS: Feel free to use the same word for some or all of these
+	// TRANSLATORS: "DM" is used to label DMs; "[Chat]" is the button to send a DM
+	// TRANSLATORS: Feel free to use the same word for both (and for "Chat" in the Battle section)
 	"DM": null,
-	"Chat": null,
 	"[Chat]": null,
 	"[OK]": null,
 	"[Cancel]": null,
@@ -71,29 +69,29 @@ export const translations: UIText = {
 	"[Rename]": null,
 	"[Remove]": null,
 	// TRANSLATORS: intentionally chosen to be very short. do not go longer than three letters for this one
-	"Gen {1}": null,
+	"Gen {NUMBER}": null,
 	"[Maximize]": null,
 	"[Expand/collapse]": null,
 
 	// TRANSLATORS: connection/team-storage errors
 	"Sorry, psim connections are unsupported by your browser.": null,
 	"Your browser doesn't support third-party cookies. Some things might not work correctly.": null,
-	"Your team storage format is too old for PS. You'll need to upgrade it at {1}": null,
-	"Error loading uploaded teams: {1}": null,
+	"Your team storage format is too old for PS. You'll need to upgrade it at {URL}": null,
+	"Error loading uploaded teams: {ERROR}": null,
 	"Error unknown. Try again later.": null,
-	"Failed to load team: {1}": null,
+	"Failed to load team: {ERROR}": null,
 	"Error logging in.": null,
 	"Something is interfering with our connection to the login server. Most likely, your internet provider needs you to re-log-in, or your internet provider is blocking Pokémon Showdown.": null,
 
 	// TRANSLATORS: for constructing lists
-	"{1} or {2}": null,
-	"{1} and {2}": null,
-	", ": null,
-	", or {1}": null,
-	", and {1}": null,
+	"{FIRST} or {SECOND}": null,
+	"{FIRST} and {SECOND}": null,
+	", {NEXT}": null,
+	", or {LAST}": null,
+	", and {LAST}": null,
 	// TRANSLATORS: this is for lists of users specifically
 	// TRANSLATORS: (languages with counters should use the "person" counter)
-	", and {1} others": null,
+	", and {NUMBER} others": null,
 
 	// #endregion Generic UI
 
@@ -101,8 +99,8 @@ export const translations: UIText = {
 	// ==================================================================
 
 	// TRANSLATORS: user popup
-	// TRANSLATORS: "Global {1}" is a rank, like "Global Moderator"
-	"Global {1}": null,
+	// TRANSLATORS: "Global {RANK}" is a rank, like "Global Moderator"
+	"Global {RANK}": null,
 	"Chatrooms": null,
 	"Private rooms": null,
 	"OFFLINE": null,
@@ -133,7 +131,7 @@ export const translations: UIText = {
 	"[Avatar...]": null,
 	"[Close room]": null,
 	"[Report a user]": null,
-	"({1} sec)": null,
+	"({NUMBER} sec)": null,
 	"Room not found": null,
 
 	// TRANSLATORS: battle options
@@ -154,7 +152,7 @@ export const translations: UIText = {
 	"Ignore nicknames": null,
 	"All battles": null,
 	"Layout": null,
-	"Automatic ({1})": null,
+	"Automatic ({SETTING})": null,
 	"Automatic": null,
 	"(DESKTOP)": null,
 	"(MOBILE VERTICAL)": null,
@@ -258,9 +256,9 @@ export const translations: UIText = {
 	// technically used in more than the Main Menu, but it might as well be here
 	"[Challenge]": null,
 	"Custom rules": null,
-	// TRANSLATORS: Search countdown. {1} = a number of seconds
+	// TRANSLATORS: Search countdown. {NUMBER} = a number of seconds
 	// TRANSLATORS: English doesn't include the unit (seconds) but your language can
-	"Searching in {1}...": null,
+	"Searching in {NUMBER}...": null,
 	"Searching...": null,
 	"Pokédex": null,
 	"Replays": null,
@@ -268,11 +266,11 @@ export const translations: UIText = {
 	"Rules": null,
 	"Credits": null,
 	"Privacy": null,
-	"background by {1}": null,
+	"background by {ARTIST}": null,
 
 	// TRANSLATORS: errors
 	"Wait for this countdown to finish first...": null,
-	"You're already searching for a {1} battle...": null,
+	"You're already searching for a {FORMAT} battle...": null,
 	"You need to go into the Teambuilder and build a team for this format.": null,
 
 	// #endregion Main Menu
@@ -297,8 +295,8 @@ export const translations: UIText = {
 	"Join or search for rooms": null,
 	"Command": null,
 	"Console": null,
-	"Enter = run command {1}": null,
-	"(Subroom of {1})": null,
+	"Enter = run command {INPUT}": null,
+	"(Subroom of {ROOM})": null,
 	"Possible secret room": null,
 	"(Private room?)": null,
 	"Search results": null,
@@ -311,19 +309,31 @@ export const translations: UIText = {
 	// TRANSLATORS: Note that most translations of battle UI are in the server repository
 	// TRANSLATORS: In data/text/[lang]/default.ts and data/text/[lang]/names.ts
 
-	// TRANSLATORS: For the Team Preview menu in battle controls
-	// TRANSLATORS: Also replaces "Switch" in phases where switching isn't possible
-	"Team": null,
+	// TRANSLATORS: [Team]/[Battle]/[Switch]/[Shift] are buttons in overlay controls
+	// TRANSLATORS: But they're section headers in normal battle controls
 	// TRANSLATORS: For the "Use move" menu in battle controls
-	"Battle": null,
+	// TRANSLATORS: This was "Attack" in older Showdown, "FIGHT" on older cart, and "Battle" on modern cart
+	"[Battle]": null,
 	// TRANSLATORS: For the "Switch" menu in battle controls
-	"Switch": null,
+	// TRANSLATORS: This is "PKMN" on older cart, and "Pokémon" on modern cart
+	"[Switch]": null,
+	// TRANSLATORS: For the Team Preview menu in battle controls
+	// TRANSLATORS: Also replaces "[Switch]" in phases where switching isn't possible
+	// TRANSLATORS: This is "PKMN" on older cart, and "Pokémon" on modern cart
+	"[Team]": null,
+	// TRANSLATORS: The Triples "move to center" button
+	// TRANSLATORS: This is "SHIFT" on older cart; Triples doesn't exist on modern cart
+	"[Shift]": null,
+
+	// TRANSLATORS: Mobile-layout buttons for switching between the battle view and the chat view
+	// TRANSLATORS: ("Chat" is also used as a section header in the options popup)
+	"Battle": null,
+	"Chat": null,
 	"[Try Fight button]": null,
 	// TRANSLATORS: For the "where to target this move" menu
 	"(empty slot)": null,
 	"Maxed with no max moves": null,
 	"No Z moves": null,
-	"Shift": null,
 
 	"[Rematch]": null,
 	"[Offer tie]": null,
@@ -355,30 +365,30 @@ export const translations: UIText = {
 
 	// TRANSLATORS: for the battle list
 	"Minimum Elo": null,
-	"rated {1}": null,
+	"rated {ELO}": null,
 	// TRANSLATORS: goes between two usernames; the key includes its surrounding spacing so some languages can drop it
-	" vs. ": null,
+	"{PLAYER1} vs. {PLAYER2}": null,
 	"(All formats)": null,
 	"Username prefix": null,
 	"No battles are going on": null,
-	"{1} battle": null,
-	"{1} battles": null,
+	"{NUMBER} battle": null,
+	"{NUMBER} battles": null,
 	"None": null,
 	"Timer": null,
 	"Error": null,
 	"The battle you're looking for has expired. Battles expire after 15 minutes of inactivity unless they're saved.": null,
 	"In the future, remember to click \"Save replay\" to save a replay permanently.": null,
 	"Unrecognized HTML file: Only replay files are supported.": null,
-	"You are still in {1}": null,
-	"Battle \"{1}\" not found": null,
+	"You are still in {ROOM}": null,
+	"Battle \"{INPUT}\" not found": null,
 	"Uploaded replay": null,
-	"Team {1}": null,
-	"{1} and friends": null,
+	"Team {PLAYER}": null,
+	"{PLAYER} and friends": null,
 
 	// TRANSLATORS: battle log messages
 	"[Earlier messages]": null,
 	"Register an account to protect your ladder rating!": null,
-	"Open team sheet for {1}": null,
+	"Open team sheet for {PLAYER}": null,
 	"Warning": null,
 	"Variation": null,
 	"Rated battle": null,
@@ -398,8 +408,8 @@ export const translations: UIText = {
 	// #region Chat
 	// ==================================================================
 
-	"{1} user": null,
-	"{1} users": null,
+	"{NUMBER} user": null,
+	"{NUMBER} users": null,
 	"[Join]": null,
 	"[Leave]": null,
 	"[Ready!]": null,
@@ -412,64 +422,66 @@ export const translations: UIText = {
 	"Challenging...": null,
 	"Accepting...": null,
 	"[Commands]": null,
-	"Mentioned by {1} in {2}": null,
-	"{1} joined": null,
+	"Mentioned by {USER} in {ROOM}": null,
+	"{USERS} joined": null,
 	// TRANSLATORS: separates "X joined" from "Y left"
-	"; ": null,
-	"{1} left": null,
-	"{1} renamed from {2}.": null,
-	"(Private to {1})": null,
-	"{1} battle started between {2} and {3}.": null,
+	"{JOINEDMESSAGE}; {LEFTMESSAGE}": null,
+	"{USERS} left": null,
+	"{USER} renamed from {OLDUSER}.": null,
+	"(Private to {USER})": null,
+	"{FORMAT} battle started between {PLAYER1} and {PLAYER2}.": null,
 	// TRANSLATORS: for when the format name already includes "battle"
-	"{1} started between {2} and {3}.": null,
-	"({1} line from {2} hidden)": null,
-	"({1} lines from {2} hidden)": null,
-	"{1} invited you to join the room \"{2}\"": null,
-	"[Join {1}]": null,
+	"{FORMAT} started between {PLAYER1} and {PLAYER2}.": null,
+	// TRANSLATORS: for when the format is unknown
+	"Battle started between {PLAYER1} and {PLAYER2}.": null,
+	"({NUMBER} line from {USER} hidden)": null,
+	"({NUMBER} lines from {USER} hidden)": null,
+	"{USER} invited you to join the room \"{ROOM}\"": null,
+	"[Join {ROOM}]": null,
 	"Chat log": null,
 
 	// TRANSLATORS: tournaments
-	"Please respond to the tournament within {1} seconds or you may be automatically disqualified.": null,
+	"Please respond to the tournament within {SECONDS} seconds or you may be automatically disqualified.": null,
 	"Single Elimination": null,
 	"Double Elimination": null,
 	"Round Robin": null,
 	"Double Round Robin": null,
-	"{1} joined the tournament": null,
-	"{1} left the tournament": null,
+	"{JOINS} joined the tournament": null,
+	"{LEAVES} left the tournament": null,
 	// TRANSLATORS: sentence terminator for messages like the above
-	".": null,
-	"{1} {2} tournament": null,
+	"{SENTENCE}.": null,
+	"{FORMAT} {TYPE} tournament": null,
 	"No tournaments are currently running.": null,
 	"(started)": null,
-	"{1} created.": null,
-	"{1} created (and hidden).": null,
+	"{TOURNAMENT} created.": null,
+	"{TOURNAMENT} created (and hidden).": null,
 	"Tournament created": null,
 	// TRANSLATORS: label, as in "Room: lobby"
 	"Room": null,
 	"Type": null,
-	"{1} has joined the tournament, replacing {2}.": null,
-	"({1} players)": null,
+	"{USER} has joined the tournament, replacing {OLDUSER}.": null,
+	"({NUMBER} players)": null,
 	"The tournament has started!": null,
-	"{1} has been disqualified from the tournament.": null,
+	"{USER} has been disqualified from the tournament.": null,
 	"The tournament's automatic disqualify timer has been turned off.": null,
-	"The tournament's automatic disqualify timer has been set to {1} minute.": null,
-	"The tournament's automatic disqualify timer has been set to {1} minutes.": null,
+	"The tournament's automatic disqualify timer has been set to {NUMBER} minute.": null,
+	"The tournament's automatic disqualify timer has been set to {NUMBER} minutes.": null,
 	"Tournament automatic disqualification warning": null,
 	"Time": null,
-	"{1} sec": null,
+	"{NUMBER} sec": null,
 	"The tournament's automatic start is now off.": null,
-	"The tournament will automatically start in {1} minute.": null,
-	"The tournament will automatically start in {1} minutes.": null,
+	"The tournament will automatically start in {NUMBER} minute.": null,
+	"The tournament will automatically start in {NUMBER} minutes.": null,
 	"Scouting is now allowed (Tournament players can watch other tournament battles)": null,
 	"Scouting is now banned (Tournament players can't watch other tournament battles)": null,
 	"Tournament challenges available": null,
-	"Tournament challenge from {1}": null,
-	"Tournament battle between {1} and {2} started.": null,
-	"{1} has won the match {2} against {3}": null,
-	"{1} has lost the match {2} against {3}": null,
-	"{1} has drawn the match {2} against {3}": null,
+	"Tournament challenge from {PLAYER}": null,
+	"Tournament battle between {PLAYER1} and {PLAYER2} started.": null,
+	"{PLAYER1} has won the match {SCORE} against {PLAYER2}": null,
+	"{PLAYER1} has lost the match {SCORE} against {PLAYER2}": null,
+	"{PLAYER1} has drawn the match {SCORE} against {PLAYER2}": null,
 	" but the tournament does not support drawing, so it did not count": null,
-	"Congratulations to {1} for winning the {2}!": null,
+	"Congratulations to {WINNERS} for winning the {TOURNAMENT}!": null,
 	"Runners-up": null,
 	"Runner-up": null,
 	"The tournament was forcibly ended.": null,
@@ -487,12 +499,12 @@ export const translations: UIText = {
 	"You have already been disqualified.": null,
 	"This user has already been disqualified.": null,
 	"You are banned from entering tournaments.": null,
-	"Unknown error: {1}": null,
+	"Unknown error: {ERROR}": null,
 	"Waiting for battles to become available...": null,
-	"vs. {1}": null,
-	"Or wait for {1} to challenge you.": null,
-	"Waiting for {1} to challenge you.": null,
-	"Waiting for {1}...": null,
+	"vs. {PLAYER}": null,
+	"Or wait for {PLAYERS} to challenge you.": null,
+	"Waiting for {PLAYERS} to challenge you.": null,
+	"Waiting for {PLAYER}...": null,
 	"Unavailable": null,
 	"Waiting": null,
 	"Challenging": null,
@@ -502,7 +514,7 @@ export const translations: UIText = {
 	"This command can only be used in proper chat rooms.": null,
 	"Error: corrupted ranking data": null,
 	"You are not in a battle": null,
-	"Invalid turn number: {1}": null,
+	"Invalid turn number: {NUMBER}": null,
 	"Turn navigation is disabled in hardcore mode.": null,
 	"You are not a player in this battle": null,
 	"Can only be used in a DM.": null,
@@ -519,8 +531,7 @@ export const translations: UIText = {
 	"Teams": null,
 	"[New team]": null,
 	"[New team in folder]": null,
-	// TRANSLATORS: {1} = format
-	"[New {1} team]": null,
+	"[New {FORMAT} team]": null,
 	"[New box]": null,
 	// TRANSLATORS: When deleting a folder, button to add folder name to all teams in it
 	"[Convert to prefix]": null,
@@ -582,7 +593,7 @@ export const translations: UIText = {
 	"H.P.": null,
 	"H. Power": null,
 	"Defensive coverage": null,
-	"Teambuilding resources for {1}": null,
+	"Teambuilding resources for {FORMAT}": null,
 	"[See all]": null,
 	"Search species or filter by type, learnable moves, ability, tier, or egg group": null,
 	"Search abilities": null,
@@ -593,11 +604,11 @@ export const translations: UIText = {
 	"Guessed spread": null,
 	"(Please choose 4 moves to get a guessed spread)": null,
 	"Protip": null,
-	"Use a different nature to save {1} EVs:": null,
+	"Use a different nature to save {NUMBER} EVs:": null,
 	"Use a different nature to get higher stats:": null,
 	"Natures cannot raise or lower HP.": null,
-	// TRANSLATORS: {1} is +stat/-stat
-	"{1} nature": null,
+	// TRANSLATORS: {STATCHANGES} is +stat/-stat
+	"{STATCHANGES} nature": null,
 	// TRANSLATORS: {1} and {2} are the + and - keyboard keys
 	"You can also set natures by typing {1} and {2} in the EV box.": null,
 	"Pasted team": null,
@@ -612,7 +623,7 @@ export const translations: UIText = {
 	"min Atk, min Spe": null,
 	"max all": null,
 	"min Spe": null,
-	"Hidden Power {1} IVs": null,
+	"Hidden Power {TYPE} IVs": null,
 	"EVs, IVs, and nature": null,
 	"Base": null,
 	"Remaining": null,
@@ -622,8 +633,8 @@ export const translations: UIText = {
 	"This team is for a different account. Please log into the correct account to update it.": null,
 	"Add a Pokémon to your team before uploading it.": null,
 	"Must use on an uploaded team.": null,
-	"Team not found: {1}": null,
-	"Your file \"{1}\" is not a valid team.": null,
+	"Team not found: {INPUT}": null,
+	"Your file \"{FILENAME}\" is not a valid team.": null,
 
 	// #endregion Teambuilder
 
@@ -646,7 +657,7 @@ export const translations: UIText = {
 	// ==================================================================
 
 	"[Join the Help room for live help]": null,
-	"Unrecognized command: {1}": null,
+	"Unrecognized command: {INPUT}": null,
 
 	// #endregion Misc rooms
 };

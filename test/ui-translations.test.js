@@ -2,7 +2,7 @@ const assert = require('assert').strict;
 const {describe, it} = require('node:test');
 
 const {
-	ParsedUIText, updateUIText,
+	compileBattleUIText, ParsedUIText, updateUIText,
 } = require('../build-tools/translations.mts');
 const { TLCalls } = require('../build-tools/tl-calls.mts');
 
@@ -14,13 +14,21 @@ describe('UI translation catalogs', () => {
 			const term = TL.term.moves;
 			const directUI = TL("Add Pokémon");
 			const button = TL\`[OK]\`;
+			const property = TL\`Value: \${foo.bar}\`;
+			const complex = TL\`Result: \${foo.makeResult()}\`;
 			const moveName = TL(move);
 		`, 'panel-battle.tsx');
-		assert.deepEqual([...calls.keys()], ['Hello {1}!', '[OK]', 'Open', 'Add Pokémon']);
+		assert.deepEqual(
+			[...calls.keys()],
+			['Hello {0}!', '[OK]', 'Value: {0}', 'Result: {0}', 'Open', 'Add Pokémon']
+		);
 		assert.deepEqual([...calls.get('[OK]').contexts], ['default']);
-		assert.deepEqual([...calls.get('Hello {1}!').contexts], ['default']);
+		assert.deepEqual([...calls.get('Hello {0}!').contexts], ['default']);
 		assert.deepEqual([...calls.get('Open').contexts], ['verb']);
 		assert.deepEqual([...calls.get('Add Pokémon').contexts], ['default']);
+		assert.deepEqual(calls.get('Hello {0}!').placeholders, ['name']);
+		assert.deepEqual(calls.get('Value: {0}').placeholders, ['bar']);
+		assert.deepEqual(calls.get('Result: {0}').placeholders, ['makeResult()']);
 	});
 
 	it('adds new strings to their mapped region without rewriting existing text', () => {
@@ -39,6 +47,36 @@ describe('UI translation catalogs', () => {
 		assert.deepEqual(updated.added, ['Forfeit']);
 		assert.match(updated.source, /\/\/ An existing comment\n\t"Battle": null, \/\/ NOT USED/);
 		assert.match(updated.source, /\t"Forfeit": null,\n\n\t\/\/ #endregion Battle/);
+	});
+
+	it('uses template placeholder names and preserves translations when they are renamed', () => {
+		const template = `export const translations = {
+	"Hello {POKEMON}": null,
+};
+`;
+		const locale = `export const translations = {
+	// Keep this local note about {name}.
+	"Hello {name}": "你好，{name}！",
+};
+`;
+		const calls = TLCalls.fromSource('const greeting = TL`Hello \${user.name}`;');
+		const templateCatalog = new ParsedUIText(template);
+		assert.deepEqual(templateCatalog.resolveCalls(calls), []);
+		assert.ok(calls.has('Hello {0}'));
+		assert.equal(calls.has('Hello {name}'), false);
+		const call = calls.get('Hello {0}');
+		assert.deepEqual(call.placeholders, ['POKEMON']);
+		assert.equal(templateCatalog.update(calls).source, template);
+
+		const synced = templateCatalog.sync(new ParsedUIText(locale), calls);
+		assert.match(synced.source, /Keep this local note about \{POKEMON\}/);
+		assert.match(synced.source, /"Hello \{POKEMON\}": "你好，\{POKEMON\}！"/);
+		assert.deepEqual(compileBattleUIText(ParsedUIText.evaluate(synced.source), calls), {
+			'Hello {0}': '你好，{0}！',
+		});
+		assert.deepEqual(synced.comparison, {
+			missing: [], extra: [], incompatible: [], commentMismatches: [], orderMismatch: false,
+		});
 	});
 
 	it('marks unused template values and removes the marker when calls return', () => {

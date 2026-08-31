@@ -10,7 +10,8 @@ const hasBuiltText = fs.existsSync(englishTextPath) && fs.existsSync(afdTextPath
 let BattleTextParser;
 if (hasBuiltText) {
 	global.window = global;
-	global.BattleText = require(englishTextPath).BattleText;
+	const englishText = require(englishTextPath);
+	global.BattleText = englishText.BattleText;
 	global.BattleText['en-afd'] = require(afdTextPath).BattleText['en-afd'];
 	global.BattleText.en.Default.default.hitCount =
 		"  The Pok\u00E9mon was hit {NUMBER} {INFLECT:NUMBER:s=time:p=times}!";
@@ -154,7 +155,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 
 	it('TL translates UI strings and effect text', () => {
 		global.BattleUIText = {en: {
-			'Hello {1}!': '你好，{1}！',
+			'Hello {0}!': '你好，{0}！',
 			'[OK]': 'Translated OK',
 			'[Keep translated brackets]': '[Keep these]',
 			'[Untranslated button]': null,
@@ -162,12 +163,15 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 			Untranslated: null,
 		}, ja: {
 			'Add Pokémon': 'ポケモンを追加',
-			', ': '、',
-			'{1} and {2}': '{1}と{2}',
-			', and {1}': '、{1}',
-			'{1} or {2}': '{1}か{2}',
-			', or {1}': '、{1}',
-			', and {1} others': '、ほか{1}名',
+			', {0}': '、{0}',
+			'{0} and {1}': '{0}と{1}',
+			', and {0}': '、{0}',
+			'{0} or {1}': '{0}か{1}',
+			', or {0}': '、{0}',
+			', and {0} others': '、ほか{0}名',
+			'{0} vs. {1}': '{0} 対 {1}',
+			'{0}; {1}': '{0}、{1}',
+			'{0}.': '{0}。',
 			Language: '言語',
 			Moves: 'UIの技',
 		}};
@@ -221,6 +225,9 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		assert.equal(global.TL.orList(['A', 'B']), 'AかB');
 		assert.equal(global.TL.orList(['A', 'B', 'C']), 'A、B、C');
 		assert.equal(global.TL.cappedUserList(['A', 'B', 'C', 'D', 'E', 'F', 'G'], 5), 'A、B、C、D、E、ほか2名');
+		assert.equal(global.TL`${'A'} vs. ${'B'}`, 'A 対 B');
+		assert.equal(global.TL`${'A joined'}; ${'B left'}`, 'A joined、B left');
+		assert.equal(global.TL`${'A won'}.`, 'A won。');
 		global.Dex.prefs = prefs;
 		void global.Dex.loadTextData();
 

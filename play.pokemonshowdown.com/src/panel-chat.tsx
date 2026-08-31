@@ -849,9 +849,9 @@ export class ChatRoom extends PSRoom {
 			this.joinLeave[action].push(formattedName);
 		}
 
-		let message = this.formatJoinLeave(this.joinLeave['join'], 'joined');
-		if (this.joinLeave['join'].length && this.joinLeave['leave'].length) message += '; ';
-		message += this.formatJoinLeave(this.joinLeave['leave'], 'left');
+		const joinedMessage = this.formatJoinLeave(this.joinLeave['join'], 'joined');
+		const leftMessage = this.formatJoinLeave(this.joinLeave['leave'], 'left');
+		const message = joinedMessage && leftMessage ? TL`${joinedMessage}; ${leftMessage}` : joinedMessage || leftMessage;
 
 		this.add(`|uhtml|${this.joinLeave.messageId}|<small class="gray">${message}</small>`);
 	}

@@ -1122,7 +1122,7 @@ export class TeamEditor extends preact.Component<{
 			`${useZoomedOutForms ? ' teameditor-zoom-out-forms' : ''}` +
 			`${zoomOutSearch && mobileOptions ? ' teameditor-full-size-search' : ''}`;
 		const layout = window.PS ? window.PS.prefs.teameditorspacious : this.spacious;
-		const automaticLayout = document.documentElement.clientHeight >= 950 ? 'Comfortable' : 'Compact';
+		const automaticLayout = document.documentElement.clientHeight >= 950 ? TL`Comfortable` : TL`Compact`;
 
 		return <div class={className}>
 			<ul class="tabbar unpadded-tabbar">

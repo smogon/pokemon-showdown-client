@@ -144,13 +144,13 @@ function translate(strings: TemplateStringsArray | string | TranslatableEffect, 
 	} else {
 		source = strings[0];
 		for (let i = 1; i < strings.length; i++) {
-			source += `{${i}}${strings[i]}`;
+			source += `{${i - 1}}${strings[i]}`;
 		}
 	}
 
 	const translated = TL.inLanguage(source, Dex.text.getLanguage(), context);
 	return translated.replace(/\{(\d+)\}/g, (placeholder, indexText) => {
-		const index = Number(indexText) - 1;
+		const index = Number(indexText);
 		return index >= 0 && index < values.length ? String(values[index]) : placeholder;
 	});
 }
@@ -183,7 +183,7 @@ export const TL = Object.assign(translate, {
 			return TL`${items[0]} or ${items[1]}`;
 		}
 		let list = items[0];
-		for (const item of items.slice(1, -1)) list += TL(', ') + item;
+		for (const item of items.slice(1, -1)) list += TL`, ${item}`;
 		const last = items[items.length - 1];
 		return list + TL`, or ${last}`;
 	},
@@ -193,7 +193,7 @@ export const TL = Object.assign(translate, {
 			return TL`${items[0]} and ${items[1]}`;
 		}
 		let list = items[0];
-		for (const item of items.slice(1, -1)) list += TL(', ') + item;
+		for (const item of items.slice(1, -1)) list += TL`, ${item}`;
 		const last = items[items.length - 1];
 		return list + TL`, and ${last}`;
 	},
@@ -201,7 +201,7 @@ export const TL = Object.assign(translate, {
 	cappedUserList(items: readonly string[], cap: number) {
 		if (items.length > cap + 1) {
 			let list = items[0];
-			for (const item of items.slice(1, cap)) list += TL(', ') + item;
+			for (const item of items.slice(1, cap)) list += TL`, ${item}`;
 			const others = items.length - cap;
 			return list + TL`, and ${others} others`;
 		}

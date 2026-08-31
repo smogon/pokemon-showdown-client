@@ -202,7 +202,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 					const ownBattle = (PS.user.userid === toUserid(p1) || PS.user.userid === toUserid(p2));
 					const roomLink = <a
 						href={`/${roomid}`} class={'ilink' + (ownBattle || roomid in PS.rooms ? ' yours' : '')}
-						title={(p1 || '?') + TL` vs. ` + (p2 || '?')}
+						title={TL`${p1 || '?'} vs. ${p2 || '?'}`}
 					>{roomrank}{roomid.substr(7)}</a>;
 					if (curRoom.isPrivate) {
 						if (privatebuf.length) privatebuf.push(', ');

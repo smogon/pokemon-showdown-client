@@ -3,7 +3,9 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { loadBattleUIText, updateUIText } = require('./translations.mts');
+const {
+	compileBattleUIText, loadBattleUIText, updateUIText,
+} = require('./translations.mts');
 
 const ROOT_PATH = path.resolve(__dirname, '..');
 const TEXT_DATA_PATH = path.resolve(ROOT_PATH, 'caches/pokemon-showdown/data/text');
@@ -31,12 +33,12 @@ function getLanguages() {
 }
 
 function buildTextFiles(Dex, selectedLanguages = null, options = {}) {
-	updateUIText(options);
+	const uiCalls = updateUIText(options);
 	const languages = selectedLanguages || getLanguages();
 	fs.mkdirSync(OUTPUT_PATH, { recursive: true });
 	for (const lang of languages) {
 		const battleTranslations = Dex.loadTextData(lang);
-		const uiText = loadBattleUIText(lang);
+		const uiText = compileBattleUIText(loadBattleUIText(lang), uiCalls);
 		let output = 'exports.BattleText = exports.BattleText || {};\n' +
 			`exports.BattleText[${JSON.stringify(lang)}] = ${es3stringify(battleTranslations)};`;
 		if (Object.keys(uiText).length) {

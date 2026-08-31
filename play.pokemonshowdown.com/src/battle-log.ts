@@ -216,16 +216,9 @@ export class BattleLog {
 				this.joinLeave[isJoin ? "joins" : "leaves"].push(formattedUser);
 			}
 
-			let buf = '';
-			if (this.joinLeave.joins.length) {
-				const joins = this.textList(this.joinLeave.joins);
-				buf += TL`${joins} joined`;
-			}
-			if (this.joinLeave.leaves.length) {
-				if (this.joinLeave.joins.length) buf += TL`; `;
-				const leaves = this.textList(this.joinLeave.leaves);
-				buf += TL`${leaves} left`;
-			}
+			const joins = this.joinLeave.joins.length ? TL`${this.textList(this.joinLeave.joins)} joined` : '';
+			const leaves = this.joinLeave.leaves.length ? TL`${this.textList(this.joinLeave.leaves)} left` : '';
+			const buf = joins && leaves ? TL`${joins}; ${leaves}` : joins || leaves;
 			this.joinLeave.element.innerHTML = `<small class="gray">${BattleLog.escapeHTML(buf)}</small>`;
 			(preempt ? this.preemptElem : this.innerElem).appendChild(this.joinLeave.element);
 			return;
@@ -294,9 +287,10 @@ export class BattleLog {
 			let started;
 			if (format && format !== 'Random Battle') {
 				started = TL`${format} battle started between ${battleP1} and ${battleP2}.`;
+			} else if (format) {
+				started = TL`${format} started between ${battleP1} and ${battleP2}.`;
 			} else {
-				const battletype = format || TL`Battle`;
-				started = TL`${battletype} started between ${battleP1} and ${battleP2}.`;
+				started = TL`Battle started between ${battleP1} and ${battleP2}.`;
 			}
 			divClass = 'notice';
 			divHTML = `<a href="/${BattleLog.escapeHTML(id)}" class="ilink">${started}</a>`;

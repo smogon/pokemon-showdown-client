@@ -85,10 +85,11 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 	renderBattleLink(battle: BattleDesc) {
 		const format = battle.id.split('-')[1];
 		const minEloMessage = typeof battle.minElo === 'number' ? TL`rated ${battle.minElo}` : battle.minElo;
+		const players = TL`${battle.p1} vs. ${battle.p2}`;
 		return <div key={battle.id}><a href={`/${battle.id}`} class="blocklink">
 			{minEloMessage && <small style="float:right">({minEloMessage})</small>}
 			<small>[{format}]</small><br />
-			<em class="p1">{battle.p1}</em><small class="vs">{TL` vs. `}</small><em class="p2">{battle.p2}</em>
+			<em>{players}</em>
 		</a></div>;
 	}
 	override render() {
@@ -228,7 +229,9 @@ export class BattleRoom extends ChatRoom {
 		Net(`https://replay.pokemonshowdown.com/${replayid}.json`).get().catch(() => '').then(data => {
 			try {
 				const replay = JSON.parse(data);
-				this.title = `[${replay.format}] ${replay.players.join(' vs. ')}`;
+				const [player1, player2] = replay.players;
+				const players = replay.players.length === 2 ? TL`${player1} vs. ${player2}` : replay.players.join(' vs. ');
+				this.title = `[${replay.format}] ${players}`;
 				this.battle.stepQueue = replay.log.split('\n');
 				this.battle.atQueueEnd = false;
 				this.battle.pause();
@@ -340,11 +343,13 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		const [, prefix = '', mainTitle] = /^(\[[^\]]*\] )?([^]*)$/.exec(title)!;
 		if (battle.gameType === 'multi' && mainTitle === `Team ${p1} vs. Team ${p2}`) {
-			return prefix + TL`Team ${p1}` + TL` vs. ` + TL`Team ${p2}`;
+			const player1 = TL`Team ${p1}`;
+			const player2 = TL`Team ${p2}`;
+			return prefix + TL`${player1} vs. ${player2}`;
 		} else if (battle.gameType === 'freeforall' && mainTitle === `${p1} and friends`) {
 			return prefix + TL`${p1} and friends`;
 		} else if (mainTitle === `${p1} vs. ${p2}`) {
-			return prefix + p1 + TL` vs. ` + p2;
+			return prefix + TL`${p1} vs. ${p2}`;
 		}
 		return title;
 	}
@@ -948,7 +953,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const team = this.team;
 		if (!team) return;
 		return <div class="switchcontrols">
-			{!overlayVersion && <h3 class="switchselect">{TL`Team`}</h3>}
+			{!overlayVersion && <h3 class="switchselect">{TL`[Team]`}</h3>}
 			<div class="switchmenu">
 				{team.map((serverPokemon, i) => {
 					return this.renderPokemonButton({
@@ -1096,8 +1101,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			if (overlayVersion) {
 				return <>
 					<div class="overlay-controls-list">
-						<button class="button move-button cur"><strong>{TL`Battle`}</strong></button> {}
-						<button class="button switch-button disabled"><strong>{TL`Switch`}</strong></button>
+						<button class="button move-button cur"><strong>{TL`[Battle]`}</strong></button> {}
+						<button class="button switch-button disabled"><strong>{TL`[Switch]`}</strong></button>
 					</div>
 					<div class="targetcontrols">
 						<p class="overlay-message">
@@ -1128,8 +1133,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (overlayVersion) {
 			return <>
 				<div class="overlay-controls-list">
-					<button class={this.overlayControlClass('move')} data-cmd="/movemenu"><strong>{TL`Battle`}</strong></button> {}
-					<button class={this.overlayControlClass('switch')} data-cmd="/switchmenu"><strong>{TL`Switch`}</strong></button>
+					<button class={this.overlayControlClass('move')} data-cmd="/movemenu"><strong>{TL`[Battle]`}</strong></button> {}
+					<button class={this.overlayControlClass('switch')} data-cmd="/switchmenu"><strong>{TL`[Switch]`}</strong></button>
 				</div>
 				{!room.overlayActive && <div class="whatdo">
 					{this.renderOldChoices(request, choices, true)}
@@ -1152,15 +1157,15 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				{this.renderUIText('whatDo', { POKEMON: pokemon.name })}
 			</div>
 			<div class="movecontrols">
-				<h3 class="moveselect">{TL`Battle`}</h3>
+				<h3 class="moveselect">{TL`[Battle]`}</h3>
 				{this.renderMoveMenu(choices)}
 			</div>
 			<div class="switchcontrols">
 				{canShift && [
-					<h3 class="shiftselect">{TL`Shift`}</h3>,
+					<h3 class="shiftselect">{TL`[Shift]`}</h3>,
 					<button data-cmd="/shift">{TL`[Move to center]`}</button>,
 				]}
-				<h3 class="switchselect">{TL`Switch`}</h3>
+				<h3 class="switchselect">{TL`[Switch]`}</h3>
 				{this.renderSwitchMenu(request, choices)}
 			</div>
 		</div>;
@@ -1173,7 +1178,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (overlayVersion) {
 			return <>
 				<div class="overlay-controls-list">
-					<button class="button switch-button cur"><strong>{TL`Switch`}</strong></button>
+					<button class="button switch-button cur"><strong>{TL`[Switch]`}</strong></button>
 				</div>
 				<div class="switchcontrols">
 					<p class="overlay-message">
@@ -1190,7 +1195,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				{prompt}
 			</div>
 			<div class="switchcontrols">
-				<h3 class="switchselect">{TL`Switch`}</h3>
+				<h3 class="switchselect">{TL`[Switch]`}</h3>
 				{this.renderSwitchMenu(request, choices, true)}
 			</div>
 		</div>;
@@ -1208,7 +1213,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (overlayVersion) {
 			return <>
 				<div class="overlay-controls-list">
-					<button class="button switch-button cur"><strong>{TL`Team`}</strong></button>
+					<button class="button switch-button cur"><strong>{TL`[Team]`}</strong></button>
 				</div>
 				<div class="teamcontrols">
 					<p class="overlay-message">{prompt}</p>
@@ -1266,7 +1271,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			if (overlayVersion) {
 				return <>
 					<div class="overlay-controls-list">
-						<button class={this.overlayControlClass('switch')} data-cmd="/switchmenu"><strong>{TL`Team`}</strong></button>
+						<button class={this.overlayControlClass('switch')} data-cmd="/switchmenu"><strong>{TL`[Team]`}</strong></button>
 					</div>
 					{!room.overlayActive && <div class="whatdo">
 						{this.renderOldChoices(request, choices, true)}

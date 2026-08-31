@@ -9,9 +9,9 @@ const ROOT_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..
 const SOURCE_PATH = path.resolve(ROOT_PATH, 'play.pokemonshowdown.com/src');
 
 export interface TLCallsForKey {
+	placeholders: string[];
 	contexts: Set<string>;
-	regions: Set<string>;
-	locations: { filename: string, offset: number }[];
+	region: string;
 }
 
 const REGION_BY_FILE: Record<string, string> = {
@@ -76,7 +76,8 @@ export class TLCalls extends Map<string, TLCallsForKey> {
 	scan(source: string, filename = '<source>'): this {
 		for (const match of source.matchAll(TAGGED_TL_REGEX)) {
 			try {
-				this.addCall(TLCalls.taggedTemplateKey(match[1]), 'default', filename, match.index);
+				const template = TLCalls.taggedTemplate(match[1]);
+				this.addCall(template.key, template.placeholders, 'default', filename);
 			} catch (error) {
 				const line = source.slice(0, match.index).split('\n').length;
 				throw new Error(`${filename}:${line}: ${error instanceof Error ? error.message : String(error)}`);
@@ -90,41 +91,64 @@ export class TLCalls extends Map<string, TLCallsForKey> {
 				const contextQuote = match[3] === undefined ? "'" : '"';
 				context = TLCalls.decodeLiteral(match[3] ?? match[4], contextQuote);
 			}
-			this.addCall(key, context, filename, match.index);
+			this.addCall(key, [], context, filename);
 		}
 		return this;
 	}
 
-	private addCall(key: string, context: string, filename: string, offset: number): void {
+	private addCall(key: string, placeholders: string[], context: string, filename: string): void {
+		const region = TLCalls.regionForFile(filename);
 		let call = this.get(key);
 		if (!call) {
-			call = { contexts: new Set(), regions: new Set(), locations: [] };
+			call = { placeholders, contexts: new Set(), region };
 			this.set(key, call);
+		} else if (!call.placeholders.length && placeholders.length) {
+			call.placeholders = placeholders;
 		}
+		if (call.region !== region) call.region = 'Generic UI';
 		call.contexts.add(context);
-		call.regions.add(TLCalls.regionForFile(filename));
-		call.locations.push({ filename, offset });
 	}
 
 	private static decodeLiteral(raw: string, quote: string): string {
 		return Function(`"use strict"; return ${quote}${raw}${quote};`)() as string;
 	}
 
-	private static taggedTemplateKey(raw: string): string {
+	private static taggedTemplate(raw: string): {
+		key: string, placeholders: string[],
+	} {
 		const expressionRegex = /(?<!\\)\$\{([^{}]*)\}/g;
-		let key = '';
+		const strings: string[] = [];
+		const expressions: string[] = [];
 		let lastIndex = 0;
-		let index = 0;
 		for (const match of raw.matchAll(expressionRegex)) {
-			key += this.decodeLiteral(raw.slice(lastIndex, match.index), '`');
-			key += `{${++index}}`;
+			strings.push(this.decodeLiteral(raw.slice(lastIndex, match.index), '`'));
+			expressions.push(match[1].trim());
 			lastIndex = match.index + match[0].length;
 		}
 		const remainder = raw.slice(lastIndex);
 		if (/(?<!\\)\$\{/.test(remainder)) {
 			throw new Error(`TL template expressions may not contain braces`);
 		}
-		return key + this.decodeLiteral(remainder, '`');
+		strings.push(this.decodeLiteral(remainder, '`'));
+
+		const placeholderBases = expressions.map(expression => expression.slice(expression.lastIndexOf('.') + 1));
+		const counts = new Map<string, number>();
+		for (const placeholder of placeholderBases) {
+			counts.set(placeholder, (counts.get(placeholder) || 0) + 1);
+		}
+		const seen = new Map<string, number>();
+		const placeholders = placeholderBases.map(placeholder => {
+			if (counts.get(placeholder) === 1) return placeholder;
+			const index = (seen.get(placeholder) || 0) + 1;
+			seen.set(placeholder, index);
+			return `${placeholder}${index}`;
+		});
+
+		let key = strings[0];
+		for (let i = 0; i < placeholders.length; i++) {
+			key += `{${i}}${strings[i + 1]}`;
+		}
+		return { key, placeholders };
 	}
 
 	private static regionForFile(filename: string): string {

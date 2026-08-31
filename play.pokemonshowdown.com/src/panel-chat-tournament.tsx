@@ -107,10 +107,11 @@ export class ChatTournament extends PSModel {
 		if (!this.joinLeave[action].includes(name)) this.joinLeave[action].push(name);
 		const joins = TL.andList(this.joinLeave['join']);
 		const leaves = TL.andList(this.joinLeave['leave']);
-		let message = this.joinLeave['join'].length ? TL`${joins} joined the tournament` : '';
-		if (this.joinLeave['join'].length && this.joinLeave['leave'].length) message += TL`; `;
-		message += this.joinLeave['leave'].length ? TL`${leaves} left the tournament` : '';
-		message += TL`.`;
+		const joinedMessage = this.joinLeave['join'].length ? TL`${joins} joined the tournament` : '';
+		const leftMessage = this.joinLeave['leave'].length ? TL`${leaves} left the tournament` : '';
+		const sentence = joinedMessage && leftMessage ?
+			TL`${joinedMessage}; ${leftMessage}` : joinedMessage || leftMessage;
+		const message = TL`${sentence}.`;
 
 		this.tryAdd(`|uhtml|${this.joinLeave.messageId}|<div class="tournament-message-joinleave">${message}</div>`);
 	}
@@ -312,11 +313,11 @@ export class ChatTournament extends PSModel {
 				const beP1 = BattleLog.escapeHTML(data[0]);
 				const beP2 = BattleLog.escapeHTML(data[1]);
 				const score = BattleLog.escapeHTML(data[3].split(',').join(' - '));
-				let message = data[2] === 'win' ? TL`${beP1} has won the match ${score} against ${beP2}` :
+				let sentence = data[2] === 'win' ? TL`${beP1} has won the match ${score} against ${beP2}` :
 					data[2] === 'loss' ? TL`${beP1} has lost the match ${score} against ${beP2}` :
 					TL`${beP1} has drawn the match ${score} against ${beP2}`;
-				if (data[4] === 'fail') message += TL` but the tournament does not support drawing, so it did not count`;
-				message += TL`.`;
+				if (data[4] === 'fail') sentence += TL` but the tournament does not support drawing, so it did not count`;
+				const message = TL`${sentence}.`;
 				const roomid = toRoomid(data[5]);
 				this.tryAdd(`|uhtml|tournament-${roomid}|<div class="tournament-message-battleend"><a href="${roomid}" class="ilink">${message}</a></div>`);
 				break;
