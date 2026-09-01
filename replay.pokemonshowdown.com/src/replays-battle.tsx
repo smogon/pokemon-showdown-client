@@ -349,6 +349,12 @@ export class BattlePanel extends preact.Component<{ id: string, user: PSReplays[
 		this.battle?.setMute(!BattleSound.muted);
 		this.forceUpdate();
 	}
+	toggleIgnoreNicks = () => {
+		if (!this.battle) return;
+		this.battle.ignoreNicks = !this.battle.ignoreNicks;
+		this.battle.resetToCurrentTurn();
+		this.forceUpdate();
+	};
 	changeSound = (e: Event) => {
 		const muted = (e.target as HTMLSelectElement).value;
 		this.battle?.setMute(muted === 'off');
@@ -600,6 +606,12 @@ export class BattlePanel extends preact.Component<{ id: string, user: PSReplays[
 					<button onClick={this.switchViewpoint} name="viewpoint" class={this.battle ? 'button' : 'button disabled'}>
 						{(this.battle?.viewpointSwitched ? this.result?.players[1] : this.result?.players[0] || "Player")} {}
 						<i class="fa fa-random" aria-hidden aria-label="Switch viewpoint"></i>
+					</button>
+				</label> {}
+				<label class="optgroup">
+					Nicknames:<br />
+					<button onClick={this.toggleIgnoreNicks} name="ignorenicks" class={this.battle ? 'button' : 'button disabled'}>
+						{this.battle?.ignoreNicks ? 'Hidden' : 'Shown'}
 					</button>
 				</label> {}
 				<label class="optgroup">
