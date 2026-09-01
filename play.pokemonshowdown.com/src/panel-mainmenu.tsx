@@ -523,9 +523,9 @@ class NewsPanel extends PSRoomPanel {
 	};
 	setClient(setting: '0' | '1' | 'leave') {
 		if (setting === '1') {
-			document.cookie = "preactalpha=1; expires=Thu, 1 Sep 2026 12:00:00 UTC; path=/";
+			document.cookie = "preactalpha=1; expires=Thu, 1 Nov 2026 12:00:00 UTC; path=/";
 		} else if (setting === '0') {
-			document.cookie = "preactalpha=0; expires=Thu, 1 Sep 2026 12:00:00 UTC; path=/";
+			document.cookie = "preactalpha=0; expires=Thu, 1 Nov 2026 12:00:00 UTC; path=/";
 		} else {
 			document.cookie = "preactalpha=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 		}
