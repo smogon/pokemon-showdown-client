@@ -321,6 +321,9 @@ export const defaultRulesES3 = {
 		{ selector: "TaggedTemplateExpression", message: "Not supported by ES3" },
 		{ selector: "CallExpression[callee.name='Symbol']", message: "Annoying to serialize, just use a string" },
 	],
+	"no-restricted-properties": ["error",
+		{ object: "Object", property: "defineProperty", message: "Not in ES3" },
+	],
 
 	// with no block scoping, coming up with original variable names is too hard
 	"no-redeclare": "off",
@@ -353,6 +356,10 @@ export const defaultRulesES3TSChecked = {
 		"YieldExpression", "AwaitExpression", "BigIntLiteral",
 		{ selector: "MethodDefinition[kind='get']", message: "Getters cannot be compiled to ES3" },
 		{ selector: "Property[kind='get']", message: "Getters cannot be compiled to ES3" },
+		{ selector: "CallExpression[callee.name='Symbol']", message: "Annoying to serialize, just use a string" },
+	],
+	"no-restricted-properties": ["error",
+		{ object: "Object", property: "defineProperty", message: "Not in ES3" },
 	],
 };
 

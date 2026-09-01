@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
-if (!require('assert').strict) {
-	console.error("We require Node.js version 10 or later; you're using " + process.version);
+if (!Set.prototype.union) {
+	// we actually are looking for TS support, but that's too hard to test for
+	console.error("We require Node.js version 22.18 or later; you're using " + process.version);
 	process.exit(1);
 }
 
 var execSync = require('child_process').execSync;
+var execFileSync = require('child_process').execFileSync;
 var fs = require('fs');
 
 process.chdir(__dirname);
@@ -51,6 +53,14 @@ case 'sprites':
 	break;
 case 'commands':
 	execSync(`node ./build-tools/build-commands`, options);
+	break;
+case 'translations':
+	try {
+		execFileSync(process.execPath, ['./build-tools/build-translations'].concat(process.argv.slice(3)), options);
+	} catch (error) {
+		if (typeof error.status === 'number') process.exit(error.status);
+		throw error;
+	}
 	break;
 case 'test-only':
 

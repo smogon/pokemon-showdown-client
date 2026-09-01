@@ -14,12 +14,12 @@ import { ChatLog, ChatRoom, ChatTextEntry, ChatUserList } from "./panel-chat";
 import { FormatDropdown } from "./panel-mainmenu";
 import { Battle, type Pokemon, type ServerPokemon } from "./battle";
 import { BattleScene } from "./battle-animations";
-import { Dex, toID, type ID } from "./battle-dex";
+import { Dex, TL, toID, type ID } from "./battle-dex";
 import {
 	BattleChoiceBuilder, type BattleRequestActivePokemon, type BattleRequestSideInfo,
 	type BattleRequest, type BattleMoveRequest, type BattleSwitchRequest, type BattleTeamRequest,
 } from "./battle-choices";
-import type { Args } from "./battle-text-parser";
+import { BattleTextParser, type Args } from "./battle-text-parser";
 import { ModifiableValue } from "./battle-tooltips";
 import { Net } from "./client-connection";
 import { BattleLog } from "./battle-log";
@@ -65,6 +65,9 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 	static readonly location = 'right';
 	static readonly icon = <i class="fa fa-caret-square-o-right" aria-hidden></i>;
 	static readonly title = 'Battles';
+	static getTitle() {
+		return TL`Battles`;
+	}
 	refresh = () => {
 		this.props.room.refresh();
 	};
@@ -81,53 +84,58 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 	};
 	renderBattleLink(battle: BattleDesc) {
 		const format = battle.id.split('-')[1];
-		const minEloMessage = typeof battle.minElo === 'number' ? `rated ${battle.minElo}` : battle.minElo;
+		const minEloMessage = typeof battle.minElo === 'number' ? TL`rated ${battle.minElo}` : battle.minElo;
+		const players = TL`${battle.p1} vs. ${battle.p2}`;
 		return <div key={battle.id}><a href={`/${battle.id}`} class="blocklink">
 			{minEloMessage && <small style="float:right">({minEloMessage})</small>}
 			<small>[{format}]</small><br />
-			<em class="p1">{battle.p1}</em> <small class="vs">vs.</small> <em class="p2">{battle.p2}</em>
+			<em>{players}</em>
 		</a></div>;
 	}
 	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}><div class="pad">
 			<button class="button" style="float:right;font-size:10pt;margin-top:3px" name="closeRoom">
-				<i class="fa fa-times" aria-hidden></i> Close
+				<i class="fa fa-times" aria-hidden></i> {TL`[Close]`}
 			</button>
 			<div class="roomlist">
 				<p>
 					<button class="button" name="refresh" onClick={this.refresh}>
-						<i class="fa fa-refresh" aria-hidden></i> Refresh
+						<i class="fa fa-refresh" aria-hidden></i> {TL`[Refresh]`}
 					</button> {}
 					<span
 						style={Dex.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle'} class="picon"
-						title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
+						title={TL`Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles.`}
 					></span>
 				</p>
 
 				<p>
-					<label class="label">Format:</label><FormatDropdown onChange={this.changeFormat} placeholder="(All formats)" />
+					<label class="label">{TL.label(TL.term.format)}</label>
+					<FormatDropdown onChange={this.changeFormat} placeholder={TL`(All formats)`} />
 				</p>
 				<label class="label">
-					Minimum Elo: <select name="elofilter" class="select" onChange={this.applyFilters}>
-						<option value="none">None</option><option value="1100">1100</option><option value="1300">1300</option>
+					{TL.label(TL`Minimum Elo`)}<select name="elofilter" class="select" onChange={this.applyFilters}>
+						<option value="none">{TL`None`}</option><option value="1100">1100</option><option value="1300">1300</option>
 						<option value="1500">1500</option><option value="1700">1700</option><option value="1900">1900</option>
 					</select>
 				</label>
 
 				<form class="search" onSubmit={this.applyFilters}>
 					<p>
-						<input type="text" name="prefixsearch" class="textbox" placeholder="Username prefix" autocomplete="off" />
-						<button type="submit" class="button">Search</button>
+						<input type="text" name="prefixsearch" class="textbox" placeholder={TL`Username prefix`} autocomplete="off" />
+						<button type="submit" class="button">{TL`[Search]`}</button>
 					</p>
 				</form>
 				<div class="list">{!room.battles ? (
-					<p>Loading...</p>
+					<p>{TL`Loading...`}</p>
 				) : !room.battles.length ? (
-					<p>No battles are going on</p>
+					<p>{TL`No battles are going on`}</p>
 				) : (<>
-					<p>{room.battles.length === 100 ?
-						`100+` : room.battles.length} {room.battles.length > 1 ? `battles` : `battle`}</p>
+					<p>{room.battles.length === 1 ? (
+						TL`${1} battle`
+					) : (
+						TL`${room.battles.length === 100 ? '100+' : room.battles.length} battles`
+					)}</p>
 					{room.battles.map(battle => this.renderBattleLink(battle))}
 				</>
 				)}</div>
@@ -159,7 +167,7 @@ export class BattleRoom extends ChatRoom {
 	override interruptClose(explicit?: boolean, elem?: HTMLElement | null) {
 		if (this.isPlaying() || this.requireForfeit) {
 			PS.join('forfeitbattle' as RoomID, { parentElem: elem, parentRoomid: this.id });
-			return `You are still in ${this.title}`;
+			return TL`You are still in ${this.title}`;
 		}
 		return super.interruptClose(explicit, elem);
 	}
@@ -167,22 +175,21 @@ export class BattleRoom extends ChatRoom {
 		return this.battle && !this.battle.ended && this.request && this.connectMode !== 'deleted';
 	}
 	updateChoiceNotification() {
-		let oName = this.battle?.farSide.name;
-		if (oName) oName = " against " + oName;
+		const oName = this.battle?.farSide.name;
 		let title = '';
 		let body = '';
 		switch (this.request?.requestType) {
 		case 'move':
-			title = "Your move!";
-			body = "Move in your battle" + oName;
+			title = BattleTextParser.ui('notifyMoveTitle');
+			body = oName ? BattleTextParser.ui('notifyMoveAgainst', { OPPONENT: oName }) : BattleTextParser.ui('notifyMove');
 			break;
 		case 'switch':
-			title = "Your switch!";
-			body = "Switch in your battle" + oName;
+			title = BattleTextParser.ui('notifySwitchTitle');
+			body = oName ? BattleTextParser.ui('notifySwitchAgainst', { OPPONENT: oName }) : BattleTextParser.ui('notifySwitch');
 			break;
 		case 'team':
-			title = "Team preview!";
-			body = "Choose your team order in your battle" + oName;
+			title = BattleTextParser.ui('notifyTeamTitle');
+			body = oName ? BattleTextParser.ui('notifyTeamAgainst', { OPPONENT: oName }) : BattleTextParser.ui('notifyTeam');
 			break;
 		}
 
@@ -222,7 +229,9 @@ export class BattleRoom extends ChatRoom {
 		Net(`https://replay.pokemonshowdown.com/${replayid}.json`).get().catch(() => '').then(data => {
 			try {
 				const replay = JSON.parse(data);
-				this.title = `[${replay.format}] ${replay.players.join(' vs. ')}`;
+				const [player1, player2] = replay.players;
+				const players = replay.players.length === 2 ? TL`${player1} vs. ${player2}` : replay.players.join(' vs. ');
+				this.title = `[${replay.format}] ${players}`;
 				this.battle.stepQueue = replay.log.split('\n');
 				this.battle.atQueueEnd = false;
 				this.battle.pause();
@@ -231,12 +240,12 @@ export class BattleRoom extends ChatRoom {
 				this.connectError = null;
 				this.update(null);
 			} catch {
-				this.connectError = `Battle "${replayid}" not found`;
+				this.connectError = TL`Battle "${replayid}" not found`;
 				if (!this.battle.stepQueue.length) {
 					this.battle.scene.message(
 						`<div class="broadcast-red pad"><strong>${BattleLog.escapeHTML(this.connectError)}</strong></div><br />` +
-						`The battle you're looking for has expired. Battles expire after 15 minutes of inactivity unless they're saved.<br /><br />` +
-						`In the future, remember to click "Save replay" to save a replay permanently.`
+						`${TL`The battle you're looking for has expired. Battles expire after 15 minutes of inactivity unless they're saved.`}<br /><br />` +
+						TL`In the future, remember to click "Save replay" to save a replay permanently.`
 					);
 				}
 				this.update(null);
@@ -261,7 +270,7 @@ class BattleDiv extends preact.Component<{ room: BattleRoom }> {
 }
 
 class TimerButton extends preact.Component<{ room: BattleRoom, top: number }> {
-	timerInterval: number | null = null;
+	timerInterval: ReturnType<typeof setInterval> | null = null;
 	override componentWillUnmount() {
 		if (this.timerInterval) {
 			clearInterval(this.timerInterval);
@@ -275,7 +284,7 @@ class TimerButton extends preact.Component<{ room: BattleRoom, top: number }> {
 		return `${minutes}:${(seconds < 10 ? '0' : '')}${seconds}`;
 	}
 	render() {
-		let time = 'Timer';
+		let time = TL`Timer`;
 		const room = this.props.room;
 		if (!this.timerInterval && room.battle.kickingInactive) {
 			this.timerInterval = setInterval(() => {
@@ -324,6 +333,26 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	static readonly id = 'battle';
 	static readonly routes = ['battle-*', 'game-*'];
 	static readonly Model = BattleRoom;
+	static getTitle(room: PSRoom) {
+		const { battle, title } = room as BattleRoom;
+		if (title === 'Uploaded replay') return TL`Uploaded replay`;
+
+		const p1 = battle?.sides[0]?.name;
+		const p2 = battle?.sides[1]?.name;
+		if (!p1 || !p2) return title;
+
+		const [, prefix = '', mainTitle] = /^(\[[^\]]*\] )?([^]*)$/.exec(title)!;
+		if (battle.gameType === 'multi' && mainTitle === `Team ${p1} vs. Team ${p2}`) {
+			const player1 = TL`Team ${p1}`;
+			const player2 = TL`Team ${p2}`;
+			return prefix + TL`${player1} vs. ${player2}`;
+		} else if (battle.gameType === 'freeforall' && mainTitle === `${p1} and friends`) {
+			return prefix + TL`${p1} and friends`;
+		} else if (mainTitle === `${p1} vs. ${p2}`) {
+			return prefix + TL`${p1} vs. ${p2}`;
+		}
+		return title;
+	}
 	static handleDrop(ev: DragEvent) {
 		const file = ev.dataTransfer?.files?.[0];
 		if (file?.type === 'text/html') {
@@ -334,7 +363,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			file.text().then(html => {
 				const titleStart = html.indexOf('<title>');
 				const titleEnd = html.indexOf('</title>');
-				let title = 'Uploaded Replay';
+				let title = 'Uploaded replay';
 				if (titleStart >= 0 && titleEnd > titleStart) {
 					title = html.slice(titleStart + 7, titleEnd - 1);
 					const colonIndex = title.indexOf(':');
@@ -348,7 +377,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				const index1 = html.indexOf('<script type="text/plain" class="battle-log-data">');
 				const index2 = html.indexOf('<script type="text/plain" class="log">');
 				if (index1 < 0 && index2 < 0) {
-					PS.alert("Unrecognized HTML file: Only replay files are supported.");
+					PS.alert(TL`Unrecognized HTML file: Only replay files are supported.`);
 					return;
 				}
 				if (index1 >= 0) {
@@ -370,6 +399,13 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			});
 			return true;
 		}
+	}
+	renderUIText(id: string, values?: { [placeholder: string]: string | undefined }) {
+		return <span
+			dangerouslySetInnerHTML={{
+				__html: BattleLog.parseLogMessage(BattleTextParser.ui(id, values))[0],
+			}}
+		></span>;
 	}
 	/** last displayed team. will not show the most recent request until the last one is gone. */
 	team: ServerPokemon[] | null = null;
@@ -572,8 +608,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return null;
 		}
 		return <div class="pad"><div class="broadcast-red pad">
-			<h3>{room.connectError || "Error"}</h3>
-			<p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p>
+			<h3>{room.connectError || TL`Error`}</h3>
+			<p class="buttonbar"><button class="button" data-cmd="/close"><strong>{TL`[Close]`}</strong></button></p>
 		</div></div>;
 	}
 	renderControls(overlayVersion = false, hidePlayerControls = false) {
@@ -596,38 +632,38 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<p>
 				{atEnd ? (
 					<button class="button disabled" aria-disabled data-cmd="/play" style="min-width:4.5em">
-						<i class="fa fa-play" aria-hidden></i><br />Play
+						<i class="fa fa-play" aria-hidden></i><br />{TL`[Play]`}
 					</button>
 				) : room.battle.paused ? (
 					<button class="button" data-cmd="/play" style="min-width:4.5em">
-						<i class="fa fa-play" aria-hidden></i><br />Play
+						<i class="fa fa-play" aria-hidden></i><br />{TL`[Play]`}
 					</button>
 				) : (
 					<button class="button" data-cmd="/pause" style="min-width:4.5em">
-						<i class="fa fa-pause" aria-hidden></i><br />Pause
+						<i class="fa fa-pause" aria-hidden></i><br />{TL`[Pause]`}
 					</button>
 				)} {}
 				{!room.battle.hardcoreMode && <>
 					<button class={"button button-first" + (atStart ? " disabled" : "")} data-cmd="/ffto 0" style="margin-right:2px">
-						<i class="fa fa-undo" aria-hidden></i><br />First turn
+						<i class="fa fa-undo" aria-hidden></i><br />{TL`[First turn]`}
 					</button>
 					<button class={"button button-first" + (atStart ? " disabled" : "")} data-cmd="/ffto -1">
-						<i class="fa fa-step-backward" aria-hidden></i><br />Prev turn
+						<i class="fa fa-step-backward" aria-hidden></i><br />{TL`[Prev turn]`}
 					</button>
 					<button class={"button button-last" + (atEnd ? " disabled" : "")} data-cmd="/ffto +1" style="margin-right:2px">
-						<i class="fa fa-step-forward" aria-hidden></i><br />Skip turn
+						<i class="fa fa-step-forward" aria-hidden></i><br />{TL`[Skip turn]`}
 					</button>
 					<button class={"button button-last" + (atEnd ? " disabled" : "")} data-cmd="/ffto end">
-						<i class="fa fa-fast-forward" aria-hidden></i><br />Skip to end
+						<i class="fa fa-fast-forward" aria-hidden></i><br />{TL`[Skip to end]`}
 					</button>
 				</>}
 			</p>
 			<p>
 				<button class="button" data-cmd="/switchsides">
-					<i class="fa fa-random" aria-hidden></i> Switch viewpoint
+					<i class="fa fa-random" aria-hidden></i> {TL`[Switch viewpoint]`}
 				</button> {}
 				{!room.battle.hardcoreMode && <button class="button" data-cmd="/ffto">
-					<i class="fa fa-random" aria-hidden></i> Go to turn
+					<i class="fa fa-random" aria-hidden></i> {TL`[Go to turn]`}
 				</button>}
 			</p>
 		</div>;
@@ -660,7 +696,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				aria-disabled={props.disabled}
 				style={props.disabled === 'fade' ? 'opacity: 0.5' : ''} data-tooltip={props.tooltip}
 			>
-				(empty slot)
+				{TL`(empty slot)`}
 			</button>;
 		}
 
@@ -703,42 +739,42 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		return <div class="movemenu">
 			{maybeDisabled && <p><em class="movewarning">
-				You <strong>might</strong> have some moves disabled, so you won't be able to cancel an attack!
+				{this.renderUIText('mightBeDisabled')}
 			</em></p>}
 			{maybeLocked && <p><em class="movewarning">
-				You <strong>might</strong> be locked into a move. {}
-				<button class="button" data-cmd="/choose testfight">Try Fight button</button> {}
-				(prevents switching if you're locked)
+				{this.renderUIText('mightBeLocked')} {}
+				<button class="button" data-cmd="/choose testfight">{TL`[Try Fight button]`}</button> {}
+				{this.renderUIText('lockedExplanation')}
 			</em></p>}
 			{!overlayVersion && this.renderMoveControls(moveRequest, choices)}
 			<div class="megaevo-box">
 				{canDynamax && <label class={`megaevo${choices.current.max ? ' cur' : ''}`}>
 					<input type="checkbox" name="max" checked={choices.current.max} onChange={this.toggleBoostedMove} /> {}
-					{moveRequest.gigantamax ? 'Gigantamax' : 'Dynamax'}
+					{moveRequest.gigantamax ? TL.tag.gigantamax : TL.term.dynamax}
 				</label>}
 				{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
 					<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
-					Mega Evolution
+					{TL.term.megaevolution}
 				</label>}
 				{canMegaEvoX && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
 					<input type="checkbox" name="megax" checked={choices.current.megax} onChange={this.toggleBoostedMove} /> {}
-					Mega Evolution X
+					{TL.term.megaevolution} X
 				</label>}
 				{canMegaEvoY && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
 					<input type="checkbox" name="megay" checked={choices.current.megay} onChange={this.toggleBoostedMove} /> {}
-					Mega Evolution Y
+					{TL.term.megaevolution} Y
 				</label>}
 				{canUltraBurst && <label class={`megaevo${choices.current.ultra ? ' cur' : ''}`}>
 					<input type="checkbox" name="ultra" checked={choices.current.ultra} onChange={this.toggleBoostedMove} /> {}
-					Ultra Burst
+					{TL.term.ultraburst}
 				</label>}
 				{canZMove && <label class={`megaevo${choices.current.z ? ' cur' : ''}`}>
 					<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> {}
-					Z-Power
+					{TL.term.zpower}
 				</label>}
 				{canTerastallize && <label class={`megaevo${choices.current.tera ? ' cur' : ''}`}>
 					<input type="checkbox" name="tera" checked={choices.current.tera} onChange={this.toggleBoostedMove} /> {}
-					Tera {PSIcon({ type: canTerastallize, new: true, tera: true })}
+					{TL.term.tera} {PSIcon({ type: canTerastallize, new: true, tera: true })}
 				</label>}
 			</div>
 			{overlayVersion && this.renderMoveControls(moveRequest, choices)}
@@ -755,7 +791,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		if (choices.current.max || (active.maxMoves && !active.canDynamax)) {
 			if (!active.maxMoves) {
-				return <div class="message-error">Maxed with no max moves</div>;
+				return <div class="message-error">{TL`Maxed with no max moves`}</div>;
 			}
 			const gmax = active.gigantamax && dex.moves.get(active.gigantamax);
 			return active.moves.map((moveData, i) => {
@@ -768,7 +804,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				const gmaxTooltip = maxMoveData.id.startsWith('gmax') ? `|${maxMoveData.id}` : ``;
 				const tooltip = `maxmove|${moveData.name}|${pokemonIndex}${gmaxTooltip}`;
 				return this.renderMoveButton({
-					name: maxMoveData.name,
+					name: TL(dex.moves.get(maxMoveData.name)),
 					cmd: `/move ${i + 1} max`,
 					type: moveType,
 					tags,
@@ -780,7 +816,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		if (choices.current.z) {
 			if (!active.zMoves) {
-				return <div class="message-error">No Z moves</div>;
+				return <div class="message-error">{TL`No Z moves`}</div>;
 			}
 			return active.moves.map((moveData, i) => {
 				const zMoveData = active.zMoves![i];
@@ -789,10 +825,12 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				}
 				const specialMove = dex.moves.get(zMoveData.name);
 				const move = specialMove.exists ? specialMove : dex.moves.get(moveData.name);
+				let moveName = TL(move);
+				if (zMoveData.name.startsWith('Z-') && !moveName.startsWith('Z-')) moveName = `Z-${moveName}`;
 				const [moveType, tags] = tooltips.getMoveTypeText(move, valueTracker);
 				const tooltip = `zmove|${moveData.name}|${pokemonIndex}`;
 				return this.renderMoveButton({
-					name: zMoveData.name,
+					name: moveName,
 					cmd: `/move ${i + 1} zmove`,
 					type: moveType,
 					tags,
@@ -808,7 +846,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const [moveType, tags] = tooltips.getMoveTypeText(move, valueTracker);
 			const tooltip = `move|${moveData.name}|${pokemonIndex}`;
 			return this.renderMoveButton({
-				name: move.name,
+				name: TL(move),
 				cmd: `/move ${i + 1}${special}`,
 				type: moveType,
 				tags,
@@ -875,13 +913,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		return <div class="switchmenu">
 			{maybeTrapped && <em class="movewarning">
-				You <strong>might</strong> be trapped, so you won't be able to cancel a switch!<br />
+				{this.renderUIText('mightBeTrapped')}<br />
 			</em>}
 			{trapped && <em class="movewarning">
-				You're <strong>trapped</strong> and cannot switch!<br />
-			</em>}
-			{isReviving && <em class="movewarning">
-				Choose a Pokémon to revive!<br />
+				{this.renderUIText('cantSwitchTrapped')}<br />
 			</em>}
 			{request.side.pokemon.map((serverPokemon, i) => {
 				let cantSwitch = trapped || i < numActive || choices.alreadySwitchingIn.includes(i + 1) || serverPokemon.fainted;
@@ -918,7 +953,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const team = this.team;
 		if (!team) return;
 		return <div class="switchcontrols">
-			{!overlayVersion && <h3 class="switchselect">Team</h3>}
+			{!overlayVersion && <h3 class="switchselect">{TL`[Team]`}</h3>}
 			<div class="switchmenu">
 				{team.map((serverPokemon, i) => {
 					return this.renderPokemonButton({
@@ -951,7 +986,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		}
 
 		let buf: preact.ComponentChild[] = [
-			<button data-cmd="/cancelone" class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>, ' ',
+			<button data-cmd="/cancelone" class="button"><i class="fa fa-chevron-left" aria-hidden></i> {TL`[Back]`}</button>, ' ',
 		];
 		if (choices.isDone() && (
 			choices.noCancel || this.props.room.battle.hardcoreMode ||
@@ -962,17 +997,17 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		if (choices.serializedChoice) {
 			if (choices.serializedChoice === 'default') {
-				return [`Automatic choice`, <br />];
+				return [BattleTextParser.ui('autoChoice'), <br />];
 			}
-			return [`Unrecognized choice from server: `, <code>{choices.serializedChoice}</code>, <br />];
+			return [BattleTextParser.ui('unrecognizedChoice') + ' ', <code>{choices.serializedChoice}</code>, <br />];
 		}
 
 		const battle = this.props.room.battle;
-		let teamList = false;
+		const pickedNames: string[] = [];
 		for (let i = 0; i < choices.choices.length; i++) {
 			const choiceString = choices.choices[i];
 			if (choiceString === "testfight") {
-				buf.push(`${request.side.pokemon[i].name} is locked into a move.`);
+				buf.push(this.renderUIText('lockedIntoMove', { POKEMON: request.side.pokemon[i].name }));
 				return buf;
 			}
 			let choice;
@@ -985,49 +1020,52 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const pokemon = request.side.pokemon[i];
 			const active = request.requestType === 'move' ? request.active[i] : null;
 			if (choice.choiceType === 'move') {
-				buf.push(`${pokemon.name} will `);
-				if (choice.mega) buf.push(<strong>Mega</strong>, ` Evolve and `);
-				if (choice.megax) buf.push(<strong>Mega</strong>, ` Evolve (X) and `);
-				if (choice.megay) buf.push(<strong>Mega</strong>, ` Evolve (Y) and `);
-				if (choice.ultra) buf.push(<strong>Ultra</strong>, ` Burst and `);
-				if (choice.tera) buf.push(`Terastallize (`, <strong>{active?.canTerastallize || '???'}</strong>, `) and `);
-				if (choice.max && active?.canDynamax) buf.push(active?.gigantamax ? `Gigantamax and ` : `Dynamax and `);
-				buf.push(`use `, <strong>{choices.currentMove(choice, i)?.name}</strong>);
+				let actions = '';
+				if (choice.mega) actions += BattleTextParser.ui('actionMegaEvolve');
+				if (choice.megax) actions += BattleTextParser.ui('actionMegaEvolveX');
+				if (choice.megay) actions += BattleTextParser.ui('actionMegaEvolveY');
+				if (choice.ultra) actions += BattleTextParser.ui('actionUltraBurst');
+				if (choice.tera) actions += BattleTextParser.ui('actionTerastallize', { TYPE: active?.canTerastallize || '???' });
+				if (choice.max && active?.canDynamax) {
+					actions += BattleTextParser.ui(active?.gigantamax ? 'actionGigantamax' : 'actionDynamax');
+				}
+				let target = '';
 				if (choice.targetLoc > 0) {
-					const target = battle.farSide.active[choice.targetLoc - 1];
-					if (!target) {
-						buf.push(` at slot ${choice.targetLoc}`);
-					} else {
-						buf.push(` at ${target.name}`);
-					}
+					const targetPokemon = battle.farSide.active[choice.targetLoc - 1];
+					target = targetPokemon ?
+						BattleTextParser.ui('atTarget', { TARGET: targetPokemon.name }) :
+						BattleTextParser.ui('atSlot', { NUMBER: `${choice.targetLoc}` });
 				} else if (choice.targetLoc < 0) {
-					const target = battle.nearSide.active[-choice.targetLoc - 1];
-					const ally = battle.gameType !== 'freeforall' ? 'ally' : '';
-					if (!target) {
-						buf.push(` at ${ally} slot ${choice.targetLoc}`);
+					const targetPokemon = battle.nearSide.active[-choice.targetLoc - 1];
+					const isAlly = battle.gameType !== 'freeforall';
+					if (targetPokemon) {
+						target = BattleTextParser.ui(isAlly ? 'atAllyTarget' : 'atTarget', { TARGET: targetPokemon.name });
 					} else {
-						buf.push(` at ${ally} ${target.name}`);
+						target = BattleTextParser.ui(isAlly ? 'atAllySlot' : 'atSlot', { NUMBER: `${choice.targetLoc}` });
 					}
 				}
-				buf.push(`.`);
+				buf.push(this.renderUIText('willUseMove', {
+					POKEMON: pokemon.name,
+					ACTIONS: actions,
+					MOVE: choices.currentMove(choice, i)?.name || '???',
+					AT: target,
+				}));
 			} else if (choice.choiceType === 'switch') {
 				const target = request.side.pokemon[choice.targetPokemon - 1];
-				if (choices.isReviving(i)) {
-					buf.push(`${pokemon.name} will revive `, <strong>{target.name}</strong>, `.`);
-				} else {
-					buf.push(`${pokemon.name} will switch to `, <strong>{target.name}</strong>, `.`);
-				}
+				buf.push(this.renderUIText(choices.isReviving(i) ? 'willRevive' : 'willSwitch', {
+					POKEMON: pokemon.name, TARGET: target.name,
+				}));
 			} else if (choice.choiceType === 'shift') {
-				buf.push(`${pokemon.name} will `, <strong>shift</strong>, ` to the center.`);
+				buf.push(this.renderUIText('willShift', { POKEMON: pokemon.name }));
 			} else if (choice.choiceType === 'team') {
 				const target = request.side.pokemon[choice.targetPokemon - 1];
-				buf.push(teamList ? `, ` : `You picked `, <strong>{target.name}</strong>);
-				teamList = true;
+				pickedNames.push(target.name);
 			}
-			if (!teamList) buf.push(<br />);
+			if (!pickedNames.length) buf.push(<br />);
 		}
-		if (teamList) {
-			buf.push('.', <br />);
+		if (pickedNames.length) {
+			const pickedList = pickedNames.map(name => `**${name}**`).join(BattleTextParser.ui('listComma'));
+			buf.push(this.renderUIText('youPicked', { POKEMON: pickedList }), <br />);
 		}
 		return buf;
 	}
@@ -1040,13 +1078,15 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const canSkip = !room.battle.hardcoreMode;
 			return <>
 				{canSkip && <div class="overlay-controls-skip">
-					<button class="button" data-cmd="/ffto end"><i class="fa fa-fast-forward" aria-hidden></i><br />Skip</button>
+					<button class="button" data-cmd="/ffto end"><i class="fa fa-fast-forward" aria-hidden></i><br />{TL`[Skip]`}</button>
 				</div>}
 			</>;
 		}
 		return <div class="inline-controls">
 			{!room.battle.hardcoreMode && <div class="whatdo" style="padding-bottom:0">
-				<button class="button" data-cmd="/ffto end"><i class="fa fa-fast-forward" aria-hidden></i><br />Skip animation</button>
+				<button class="button" data-cmd="/ffto end">
+					<i class="fa fa-fast-forward" aria-hidden></i><br />{TL`[Skip animation]`}
+				</button>
 			</div>}
 			{this.renderTeamList()}
 		</div>;
@@ -1061,13 +1101,13 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			if (overlayVersion) {
 				return <>
 					<div class="overlay-controls-list">
-						<button class="button move-button cur"><strong>Battle</strong></button> {}
-						<button class="button switch-button disabled"><strong>Switch</strong></button>
+						<button class="button move-button cur"><strong>{TL`[Battle]`}</strong></button> {}
+						<button class="button switch-button disabled"><strong>{TL`[Switch]`}</strong></button>
 					</div>
 					<div class="targetcontrols">
 						<p class="overlay-message">
 							{this.renderOldChoices(request, choices, true)}
-							{pokemon.name} should use <strong>{moveName}</strong> at where?
+							{this.renderUIText('moveTarget', { POKEMON: pokemon.name, MOVE: moveName })}
 						</p>
 						<div class="switchmenu">
 							{this.renderMoveTargetControls(request, choices)}
@@ -1078,7 +1118,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return <div class="inline-controls">
 				<div class="whatdo">
 					{this.renderOldChoices(request, choices)}
-					{pokemon.name} should use <strong>{moveName}</strong> at where? {}
+					{this.renderUIText('moveTarget', { POKEMON: pokemon.name, MOVE: moveName })} {}
 				</div>
 				<div class="switchcontrols">
 					<div class="switchmenu">
@@ -1093,19 +1133,19 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (overlayVersion) {
 			return <>
 				<div class="overlay-controls-list">
-					<button class={this.overlayControlClass('move')} data-cmd="/movemenu"><strong>Battle</strong></button> {}
-					<button class={this.overlayControlClass('switch')} data-cmd="/switchmenu"><strong>Switch</strong></button>
+					<button class={this.overlayControlClass('move')} data-cmd="/movemenu"><strong>{TL`[Battle]`}</strong></button> {}
+					<button class={this.overlayControlClass('switch')} data-cmd="/switchmenu"><strong>{TL`[Switch]`}</strong></button>
 				</div>
 				{!room.overlayActive && <div class="whatdo">
 					{this.renderOldChoices(request, choices, true)}
-					What will <strong>{pokemon.name}</strong> do?
+					{this.renderUIText('whatDo', { POKEMON: pokemon.name })}
 				</div>}
 				{room.overlayActive === 'move' && <div class="movecontrols">
 					{this.renderMoveMenu(choices, true)}
 				</div>}
 				{room.overlayActive === 'switch' && <div class="switchcontrols">
 					{canShift && (
-						<button data-cmd="/shift">Move to center</button>
+						<button data-cmd="/shift">{TL`[Move to center]`}</button>
 					)}
 					{this.renderSwitchMenu(request, choices)}
 				</div>}
@@ -1114,18 +1154,18 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		return <div class="inline-controls">
 			<div class="whatdo">
 				{this.renderOldChoices(request, choices)}
-				What will <strong>{pokemon.name}</strong> do?
+				{this.renderUIText('whatDo', { POKEMON: pokemon.name })}
 			</div>
 			<div class="movecontrols">
-				<h3 class="moveselect">Battle</h3>
+				<h3 class="moveselect">{TL`[Battle]`}</h3>
 				{this.renderMoveMenu(choices)}
 			</div>
 			<div class="switchcontrols">
 				{canShift && [
-					<h3 class="shiftselect">Shift</h3>,
-					<button data-cmd="/shift">Move to center</button>,
+					<h3 class="shiftselect">{TL`[Shift]`}</h3>,
+					<button data-cmd="/shift">{TL`[Move to center]`}</button>,
 				]}
-				<h3 class="switchselect">Switch</h3>
+				<h3 class="switchselect">{TL`[Switch]`}</h3>
 				{this.renderSwitchMenu(request, choices)}
 			</div>
 		</div>;
@@ -1133,12 +1173,12 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	renderPlayerSwitchControls(request: BattleSwitchRequest, choices: BattleChoiceBuilder, overlayVersion = false) {
 		const pokemon = request.side.pokemon[choices.index()];
 		const prompt = choices.isReviving() ?
-			<>Who will <strong>{pokemon.name}</strong> revive?</> :
-			<>Who will replace <strong>{pokemon.name}</strong>?</>;
+			this.renderUIText('reviveWho', { POKEMON: pokemon.name }) :
+			this.renderUIText('replaceWho', { POKEMON: pokemon.name });
 		if (overlayVersion) {
 			return <>
 				<div class="overlay-controls-list">
-					<button class="button switch-button cur"><strong>Switch</strong></button>
+					<button class="button switch-button cur"><strong>{TL`[Switch]`}</strong></button>
 				</div>
 				<div class="switchcontrols">
 					<p class="overlay-message">
@@ -1155,35 +1195,35 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				{prompt}
 			</div>
 			<div class="switchcontrols">
-				<h3 class="switchselect">Switch</h3>
+				<h3 class="switchselect">{TL`[Switch]`}</h3>
 				{this.renderSwitchMenu(request, choices, true)}
 			</div>
 		</div>;
 	}
 	renderPlayerTeamPreviewControls(request: BattleTeamRequest, choices: BattleChoiceBuilder, overlayVersion = false) {
 		const prompt = choices.alreadySwitchingIn.length > 0 ? (
-			[<button data-cmd="/cancelone" class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>,
-				" What about the rest of your team? "]
+			[<button data-cmd="/cancelone" class="button"><i class="fa fa-chevron-left" aria-hidden></i> {TL`[Back]`}</button>,
+				" ", this.renderUIText('teamRest'), " "]
 		) : (
-			"How will you start the battle? "
+			[this.renderUIText('teamStart'), " "]
 		);
 		const chosenTeamSizeLabel = (request.chosenTeamSize || 0) > 1 ? ` / ${request.chosenTeamSize!}` : '';
-		const chooseLabel = choices.alreadySwitchingIn.length <= 0 ?
-			`lead${chosenTeamSizeLabel}` : `slot ${choices.alreadySwitchingIn.length + 1}${chosenTeamSizeLabel}`;
+		const chooseLabel = (choices.alreadySwitchingIn.length <= 0 ?
+			BattleTextParser.ui('chooseLead') : BattleTextParser.ui('chooseSlot', { NUMBER: `${choices.alreadySwitchingIn.length + 1}` })) + chosenTeamSizeLabel;
 		if (overlayVersion) {
 			return <>
 				<div class="overlay-controls-list">
-					<button class="button switch-button cur"><strong>Team</strong></button>
+					<button class="button switch-button cur"><strong>{TL`[Team]`}</strong></button>
 				</div>
 				<div class="teamcontrols">
 					<p class="overlay-message">{prompt}</p>
-					<h3 class="switchselect">Choose {chooseLabel}</h3>
+					<h3 class="switchselect">{chooseLabel}</h3>
 					<div class="switchmenu">
 						{this.renderTeamPreviewChooser(request, choices)}
 						<div style="clear:left"></div>
 					</div>
 					{choices.alreadySwitchingIn.length > 0 && <>
-						<h3 class="switchselect">Team so far</h3>
+						<h3 class="switchselect">{this.renderUIText('teamSoFar')}</h3>
 						<div class="switchmenu">
 							{this.renderChosenTeam(request, choices)}
 						</div>
@@ -1197,7 +1237,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			</div>
 			<div class="switchcontrols">
 				<h3 class="switchselect">
-					Choose {chooseLabel}
+					{chooseLabel}
 				</h3>
 				<div class="switchmenu">
 					{this.renderTeamPreviewChooser(request, choices)}
@@ -1205,7 +1245,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</div>
 			</div>
 			<div class="switchcontrols">
-				{choices.alreadySwitchingIn.length > 0 && <h3 class="switchselect">Team so far</h3>}
+				{choices.alreadySwitchingIn.length > 0 && <h3 class="switchselect">
+					{this.renderUIText('teamSoFar')}
+				</h3>}
 				<div class="switchmenu">
 					{this.renderChosenTeam(request, choices)}
 				</div>
@@ -1229,7 +1271,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			if (overlayVersion) {
 				return <>
 					<div class="overlay-controls-list">
-						<button class={this.overlayControlClass('switch')} data-cmd="/switchmenu"><strong>Team</strong></button>
+						<button class={this.overlayControlClass('switch')} data-cmd="/switchmenu"><strong>{TL`[Team]`}</strong></button>
 					</div>
 					{!room.overlayActive && <div class="whatdo">
 						{this.renderOldChoices(request, choices, true)}
@@ -1240,8 +1282,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return <div class="inline-controls">
 				<div class="whatdo">
 					{this.renderOldChoices(request, choices)}
-					<em>Waiting for opponent...</em> {choices.noCancel || room.battle.hardcoreMode ?
-						null : <button data-cmd="/cancel" class="button">Cancel</button>}
+					<em>{this.renderUIText('waitingOpponent')}</em> {choices.noCancel || room.battle.hardcoreMode ?
+						null : <button data-cmd="/cancel" class="button">{TL`[Cancel]`}</button>}
 				</div>
 				{this.renderTeamList()}
 			</div>;
@@ -1276,36 +1318,38 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					<br />
 					<br />
 					<button class="button" data-cmd="/savereplay">
-						<i class="fa fa-upload" aria-hidden></i> Upload and share replay
+						<i class="fa fa-upload" aria-hidden></i> {TL`[Upload and share replay]`}
 					</button>
 				</span>
 
 				<button class="button" data-cmd="/play" style="min-width:4.5em">
-					<i class="fa fa-undo" aria-hidden></i><br />Replay
+					<i class="fa fa-undo" aria-hidden></i><br />{TL`[Replay]`}
 				</button> {}
 				{isNotTiny && !room.battle.hardcoreMode && <>
 					<button class="button button-first" data-cmd="/ffto 0" style="margin-right:2px">
-						<i class="fa fa-undo" aria-hidden></i><br />First turn
+						<i class="fa fa-undo" aria-hidden></i><br />{TL`[First turn]`}
 					</button>
 					<button class="button button-first" data-cmd="/ffto -1">
-						<i class="fa fa-step-backward" aria-hidden></i><br />Prev turn
+						<i class="fa fa-step-backward" aria-hidden></i><br />{TL`[Prev turn]`}
 					</button>
 				</>}
 			</p>
 			{room.side ? (
 				<p>
 					<button class="button" data-cmd="/close">
-						<strong>Main menu</strong><br /><small>(closes this battle)</small>
+						<strong>{TL`[Main menu]`}</strong><br /><small>{TL`(closes this battle)`}</small>
 					</button> {}
 					<button class="button" data-cmd={`/closeand /challenge ${room.battle.farSide.id},${room.battle.tier}`}>
-						<strong>Rematch</strong><br /><small>(closes this battle)</small>
+						<strong>{TL`[Rematch]`}</strong><br /><small>{TL`(closes this battle)`}</small>
 					</button>
 				</p>
 			) : (
 				<p>
-					<button class="button" data-cmd="/switchsides"><i class="fa fa-random" aria-hidden></i> Switch viewpoint</button> {}
+					<button class="button" data-cmd="/switchsides">
+						<i class="fa fa-random" aria-hidden></i> {TL`[Switch viewpoint]`}
+					</button> {}
 					{!room.battle.hardcoreMode && <button class="button" data-cmd="/ffto">
-						<i class="fa fa-random" aria-hidden></i> Go to turn
+						<i class="fa fa-random" aria-hidden></i> {TL`[Go to turn]`}
 					</button>}
 				</p>
 			)}
@@ -1358,7 +1402,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					</div>}
 					<div
 						class={`battle-controls inline-battle${room.width > 660 ? ' wide-controls' : ''}`}
-						role="complementary" aria-label="Battle Controls"
+						role="complementary" aria-label={TL`Battle controls`}
 					>
 						{this.renderControls(false, overlayVersion)}
 						{this.renderConnectError()}
@@ -1388,7 +1432,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				>
 					<div
 						class={`battle-controls${room.width > 660 ? ' wide-controls' : ''}`}
-						role="complementary" aria-label="Battle Controls"
+						role="complementary" aria-label={TL`Battle controls`}
 					>
 						{this.renderControls(false, overlayVersion)}
 						{this.renderConnectError()}
@@ -1418,7 +1462,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					<div class="battle-controls-container">
 						<div
 							class={`battle-controls${battleWidth >= 639 ? ' wide-controls' : ''}`}
-							role="complementary" aria-label="Battle Controls"
+							role="complementary" aria-label={TL`Battle controls`}
 							style={`top:${battleHeight + 10}px;width:${battleWidth}px;`}
 						>
 							{(room.battle && !room.battle.ended && room.request &&
@@ -1435,11 +1479,11 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</div>
 				{showingChat ? (
 					<button class="battle-chat-toggle button" name="hideChat" onClick={this.showMobileBattle}>
-						Battle <i class="fa fa-caret-right" aria-hidden></i>
+						{TL`Battle`} <i class="fa fa-caret-right" aria-hidden></i>
 					</button>
 				) : (
 					<button class="battle-chat-toggle button" name="showChat" onClick={this.showMobileChat}>
-						<i class="fa fa-caret-left" aria-hidden></i> Chat
+						<i class="fa fa-caret-left" aria-hidden></i> {TL`Chat`}
 					</button>
 				)}
 			</PSPanelWrapper>;
@@ -1459,7 +1503,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				<div class="battle-controls-container">
 					<div
 						class={`battle-controls${battleWidth >= 639 ? ' wide-controls' : ''}`}
-						role="complementary" aria-label="Battle Controls"
+						role="complementary" aria-label={TL`Battle controls`}
 						style={`top:${battleHeight + 10}px;width:${battleWidth}px;`}
 					>
 						{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&

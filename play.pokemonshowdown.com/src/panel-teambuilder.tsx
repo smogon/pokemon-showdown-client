@@ -8,7 +8,7 @@
 import { PS, PSRoom, type RoomID, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { PSTeambuilder, TeamBox } from "./panel-teamdropdown";
-import { Dex, PSUtils, toID, type ID } from "./battle-dex";
+import { Dex, PSUtils, TL, toID, type ID } from "./battle-dex";
 import { Teams } from "./battle-teams";
 import { BattleLog } from "./battle-log";
 import { TeamEditorState } from "./battle-team-editor";
@@ -59,7 +59,7 @@ class TeambuilderRoom extends PSRoom {
 		},
 		'deleteteam'(target) {
 			const team = PS.teams.byKey[target];
-			if (!team) return this.errorReply(`Team not found: ${target}`);
+			if (!team) return this.errorReply(TL`Team not found: ${target}`);
 
 			PS.teams.delete(team);
 			PS.teams.save();
@@ -67,7 +67,7 @@ class TeambuilderRoom extends PSRoom {
 		},
 		'copyteam'(target, cmd, elem) {
 			const team = PS.teams.byKey[target];
-			if (!team) return this.errorReply(`Team not found: ${target}`);
+			if (!team) return this.errorReply(TL`Team not found: ${target}`);
 
 			const teamElem = elem?.closest('li')?.querySelector<HTMLElement>('a.team');
 			this.preserveTeamScroll(team, teamElem);
@@ -78,7 +78,7 @@ class TeambuilderRoom extends PSRoom {
 		},
 		'pasteteamabove,moveteamabove'(target, cmd, elem) {
 			const team = PS.teams.byKey[target];
-			if (target !== '-' && !team) return this.errorReply(`Team not found: ${target}`);
+			if (target !== '-' && !team) return this.errorReply(TL`Team not found: ${target}`);
 
 			const index = team ? PS.teams.list.indexOf(team) : PS.teams.list.length;
 			const folder = this.curFolder?.endsWith('/') ? this.curFolder.slice(0, -1) : '';
@@ -100,7 +100,7 @@ class TeambuilderRoom extends PSRoom {
 		},
 		'createfolder'(name, cmd, elem) {
 			if (!name) {
-				PS.prompt("Folder name?", { parentElem: elem, okButton: "Create" }).then(newName => {
+				PS.prompt("Folder name?", { parentElem: elem, okButton: TL`[Create]` }).then(newName => {
 					newName = (newName || '').trim();
 					if (!newName) return;
 
@@ -110,11 +110,11 @@ class TeambuilderRoom extends PSRoom {
 			}
 
 			if (name.includes('/') || name.includes('\\')) {
-				this.errorReply("Names can't contain slashes, since they're used as a folder separator.");
+				this.errorReply(TL`Names can't contain slashes, since they're used as a folder separator.`);
 				name = name.replace(/[\\/]/g, '');
 			}
 			if (name.includes('|')) {
-				this.errorReply("Names can't contain the character |, since they're used for storing teams.");
+				this.errorReply(TL`Names can't contain the character |, since they're used for storing teams.`);
 				name = name.replace(/\|/g, '');
 			}
 
@@ -124,15 +124,15 @@ class TeambuilderRoom extends PSRoom {
 			this.update(null);
 		},
 		'renamefolder'(name) {
-			if (!name) return this.errorReply('New name required');
-			if (!this.curFolder.endsWith('/')) return this.errorReply('Not in a folder');
+			if (!name) return this.errorReply(TL`New name required`);
+			if (!this.curFolder.endsWith('/')) return this.errorReply(TL`Not in a folder`);
 
 			if (name.includes('/') || name.includes('\\')) {
-				PS.alert("Names can't contain slashes, since they're used as a folder separator.");
+				PS.alert(TL`Names can't contain slashes, since they're used as a folder separator.`);
 				name = name.replace(/[\\/]/g, '');
 			}
 			if (name.includes('|')) {
-				PS.alert("Names can't contain the character |, since they're used for storing teams.");
+				PS.alert(TL`Names can't contain the character |, since they're used for storing teams.`);
 				name = name.replace(/\|/g, '');
 			}
 
@@ -148,7 +148,7 @@ class TeambuilderRoom extends PSRoom {
 			this.update(null);
 		},
 		'deletefolder'() {
-			if (!this.curFolder.endsWith('/')) return this.errorReply('Not in a folder');
+			if (!this.curFolder.endsWith('/')) return this.errorReply(TL`Not in a folder`);
 
 			const oldFolder = this.curFolder.slice(0, -1);
 			for (const team of PS.teams.list) {
@@ -162,7 +162,7 @@ class TeambuilderRoom extends PSRoom {
 			this.update(null);
 		},
 		'convertfoldertoprefix'() {
-			if (!this.curFolder.endsWith('/')) return this.errorReply('Not in a folder');
+			if (!this.curFolder.endsWith('/')) return this.errorReply(TL`Not in a folder`);
 
 			const oldFolder = this.curFolder.slice(0, -1);
 			for (const team of PS.teams.list) {
@@ -178,7 +178,7 @@ class TeambuilderRoom extends PSRoom {
 		},
 	});
 	override sendDirect(msg: string): void {
-		PS.alert(`Unrecognized command: ${msg}`);
+		PS.alert(TL`Unrecognized command: ${msg}`);
 	}
 
 	setExportMode(exportMode: boolean) {
@@ -245,6 +245,9 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 	static readonly Model = TeambuilderRoom;
 	static readonly icon = <i class="fa fa-pencil-square-o" aria-hidden></i>;
 	static readonly title = 'Teambuilder';
+	static getTitle() {
+		return TL`Teams`;
+	}
 	mobileFormatFolderButton: HTMLButtonElement | null = null;
 	backupCopiedTimeout: ReturnType<typeof setTimeout> | null = null;
 	override componentDidUpdate() {
@@ -419,7 +422,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			try {
 				sets = Teams.import(result);
 			} catch {
-				PS.alert(`Your file "${file.name}" is not a valid team.`);
+				PS.alert(TL`Your file "${file.name}" is not a valid team.`);
 				return null;
 			}
 			let format = '';
@@ -544,21 +547,21 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			// folder
 			children = [
 				<i class={`fa ${folderOpenIcon}${value === '/' ? '-o' : ''}`}></i>,
-				value.slice(0, -1) || '(uncategorized)',
+				value.slice(0, -1) || TL`(uncategorized)`,
 			];
 		} else if (value === '') {
 			children = [
-				<em>(all)</em>,
+				<em>{TL`(all)`}</em>,
 			];
 		} else if (value === '++') {
 			children = [
 				<i class="fa fa-plus" aria-hidden></i>,
-				<em>(add folder)</em>,
+				<em>{TL`[(add folder)]`}</em>,
 			];
 		} else {
 			children = [
 				<i class={`fa ${folderOpenIcon}-o`}></i>,
-				value.slice(4) || '(uncategorized)',
+				value.slice(4) || TL`(uncategorized)`,
 			];
 		}
 
@@ -624,7 +627,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		const elem = ev.currentTarget as HTMLElement;
 		ev.stopImmediatePropagation();
 		ev.preventDefault();
-		PS.prompt(`Rename \`\`${oldFolder}\`\` to?`, { defaultValue: oldFolder, okButton: "Rename", parentElem: elem }).then(name => {
+		PS.prompt(`Rename \`\`${oldFolder}\`\` to?`, { defaultValue: oldFolder, okButton: TL`[Rename]`, parentElem: elem }).then(name => {
 			name = (name || '').trim();
 			if (!name) return;
 			if (name === oldFolder) return;
@@ -639,7 +642,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		ev.stopImmediatePropagation();
 		ev.preventDefault();
 		PS.confirm(`Delete \`\`${oldFolder}\`\`? (doesn't delete teams)`, {
-			okButton: "Delete", otherButtons: <button class="button" data-cmd="/closeand /inopener /convertfoldertoprefix">Convert to prefix</button>,
+			okButton: TL`[Delete]`, otherButtons: <button class="button" data-cmd="/closeand /inopener /convertfoldertoprefix">{TL`[Convert to prefix]`}</button>,
 			parentElem: elem,
 		}).then(result => {
 			if (result) room.send(`/deletefolder`, elem);
@@ -702,7 +705,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 				name="format" value="" data-selecttype="teambuilder"
 				class="selectFolder" data-href="/formatdropdown" onChange={this.addFormatFolder}
 			>
-				<i class="fa fa-plus" aria-hidden></i><em>(add format folder)</em>
+				<i class="fa fa-plus" aria-hidden></i><em>{TL`[(add format folder)]`}</em>
 			</button></div>,
 		];
 
@@ -718,9 +721,9 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					renderedFolders.push(...renderedFormatFolders);
 					renderedFormatFolders = [];
 					renderedFolders.push(<div class="foldersep"></div>);
-					renderedFolders.push(<div class="folder"><h3>Folders</h3></div>);
+					renderedFolders.push(<div class="folder"><h3>{TL`Folders`}</h3></div>);
 				} else {
-					renderedFolders.push(<div class="folder"><h3>Gen {gen}</h3></div>);
+					renderedFolders.push(<div class="folder"><h3>{TL`Gen ${gen}`}</h3></div>);
 				}
 			}
 			renderedFolders.push(this.renderFolder(format));
@@ -747,7 +750,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		for (const folder of this.getFolderList()) {
 			if (folder.endsWith('/')) {
 				renderedFolders.push(
-					<option value={folder}>{folder.slice(0, -1) || 'Teams not in any folders'}</option>
+					<option value={folder}>{folder.slice(0, -1) || TL`Teams not in any folders`}</option>
 				);
 			} else {
 				const gen = parseInt(folder.charAt(3), 10);
@@ -755,7 +758,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 				if (!group.length) gens.push(gen);
 				group.push(
 					<option value={folder}>
-						{BattleLog.formatName(folder)}{folder.length <= 4 ? ' (uncategorized)' : ''}
+						{BattleLog.formatName(folder)}{folder.length <= 4 ? ` ${TL`(uncategorized)`}` : ''}
 					</option>
 				);
 			}
@@ -763,15 +766,15 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 
 		return <>
 			<select class="select teambuilder-folder-select" value={room.curFolder} onChange={this.changeMobileFolder}>
-				<option value="">All teams</option>
+				<option value="">{TL`All teams`}</option>
 				{gens.map(gen => (
-					<optgroup label={`Gen ${gen}`}>
+					<optgroup label={TL`Gen ${gen}`}>
 						{formatGroups[gen]}
 					</optgroup>
 				))}
-				<option value={ADD_FORMAT_FOLDER_VALUE}>(add format folder)</option>
-				{renderedFolders.length ? <optgroup label="Folders">{renderedFolders}</optgroup> : null}
-				<option value={ADD_FOLDER_VALUE}>(add folder)</option>
+				<option value={ADD_FORMAT_FOLDER_VALUE}>{TL`[(add format folder)]`}</option>
+				{renderedFolders.length ? <optgroup label={TL`Folders`}>{renderedFolders}</optgroup> : null}
+				<option value={ADD_FOLDER_VALUE}>{TL`[(add folder)]`}</option>
 			</select>
 			<button
 				name="format" value="" data-selecttype="teambuilder"
@@ -822,14 +825,14 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 
 		let filterFolder: string | null = null;
 		let filterFormat: string | null = null;
-		let teamTerm = 'team';
+		let newTeamLabel = TL`[New team]`;
 		if (room.curFolder) {
 			if (room.curFolder.endsWith('/')) {
 				filterFolder = room.curFolder.slice(0, -1);
-				teamTerm = 'team in folder';
+				newTeamLabel = TL`[New team in folder]`;
 			} else {
 				filterFormat = room.curFolder;
-				if (filterFormat !== Dex.modid) teamTerm = BattleLog.formatName(filterFormat) + ' team';
+				if (filterFormat !== Dex.modid) newTeamLabel = TL`[New ${BattleLog.formatName(filterFormat)} team]`;
 			}
 		}
 
@@ -841,19 +844,19 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			return <div class="teampane">
 				<p>
 					<button data-cmd="/backup" class="button">
-						<i class="fa fa-caret-left" aria-hidden></i> Back
+						<i class="fa fa-caret-left" aria-hidden></i> {TL`[Back]`}
 					</button> {}
 					<button class={`button${this.backupCopiedTimeout ? ' cur' : ''}`} onClick={this.copyBackup}>
 						<i class={`fa fa-${this.backupCopiedTimeout ? 'check' : 'copy'}`} aria-hidden></i> {}
-						{this.backupCopiedTimeout ? 'Copied!' : 'Copy'}
+						{this.backupCopiedTimeout ? TL`Copied!` : TL`[Copy]`}
 					</button> {}
 					{room.exportMode !== true && <button class="button" disabled>
-						<i class="fa fa-save" aria-hidden></i> (can't save partial exports)
+						<i class="fa fa-save" aria-hidden></i> {TL`(can't save partial exports)`}
 					</button>}
 					{room.exportMode === true && <button
 						onClick={this.saveExport} class={`button${room.exportDirty ? ' notifying' : ''}`}
 					>
-						<i class="fa fa-save" aria-hidden></i> Save changes
+						<i class="fa fa-save" aria-hidden></i> {TL`[Save changes]`}
 					</button>}
 					{} <label class="checkbox inline">
 						<input
@@ -886,10 +889,10 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 						</span>
 					)}
 					<button class="button small" style="margin-left:5px" onClick={this.renameFolder}>
-						<i class="fa fa-pencil" aria-hidden></i> Rename
+						<i class="fa fa-pencil" aria-hidden></i> {TL`[Rename]`}
 					</button> {}
 					<button class="button small" style="margin-left:5px" onClick={this.promptDeleteFolder}>
-						<i class="fa fa-times" aria-hidden></i> Remove
+						<i class="fa fa-times" aria-hidden></i> {TL`[Remove]`}
 					</button>
 				</h2>
 			) : filterFolder === '' ? (
@@ -898,7 +901,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 						this.renderMobileFolderSelect()
 					) : (
 						<span class="teambuilder-folder-title">
-							<i class="fa fa-folder-open-o" aria-hidden></i> Teams not in any folders
+							<i class="fa fa-folder-open-o" aria-hidden></i> {TL`Teams not in any folders`}
 						</span>
 					)}
 				</h2>
@@ -917,16 +920,17 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					{narrow ? (
 						this.renderMobileFolderSelect()
 					) : (
-						<span class="teambuilder-folder-title">All Teams <small>({teams.length})</small></span>
+						<span class="teambuilder-folder-title">{TL`All teams`} <small>({teams.length})</small></span>
 					)}
 				</h2>
 			)}
 			<p>
 				<button data-cmd="/newteam" class="button big">
-					<i class="fa fa-plus-circle" aria-hidden></i> New {teamTerm}
+					<i class="fa fa-plus-circle" aria-hidden></i> {}
+					{newTeamLabel}
 				</button> {}
 				<button data-cmd="/newteam box" class="button">
-					<i class="fa fa-archive" aria-hidden></i> New box
+					<i class="fa fa-archive" aria-hidden></i> {TL`[New box]`}
 				</button>
 				<input
 					type="search" class="textbox" placeholder="Search teams"
@@ -950,21 +954,23 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					>
 						{clipboardTeams && <div>
 							<button class="button notifying" data-cmd={`/pasteteamabove ${team.key}`}>
-								<i class="fa fa-clipboard" aria-hidden></i> Paste copy here
+								<i class="fa fa-clipboard" aria-hidden></i> {TL`[Paste copy here]`}
 							</button> {}
 							<button class="button notifying" data-cmd={`/moveteamabove ${team.key}`} disabled={clipboard.readonly}>
-								<i class="fa fa-arrow-right" aria-hidden></i> Move here
+								<i class="fa fa-arrow-right" aria-hidden></i> {TL`[Move here]`}
 							</button>
 						</div>}
 						<TeamBox team={team} onClick={this.clearSearch} /> {}
 						<span class="team-controls">
 							{clipboardTeams && !clipboardTeams[team.key] && <button data-cmd={`/copyteam ${team.key}`} class="option">
-								<i class="fa fa-copy" aria-hidden></i> + Clipboard
+								<i class="fa fa-copy" aria-hidden></i> {TL`[+ Clipboard]`}
 							</button>}
 							{clipboardTeams?.[team.key] && <button data-cmd={`/copyteam ${team.key}`} class="option">
-								<i class="fa fa-times" aria-hidden></i> Deselect
+								<i class="fa fa-times" aria-hidden></i> {TL`[Deselect]`}
 							</button>}
-							{!clipboardTeams && <button data-cmd={`/copyteam ${team.key}`} class="option" aria-label="Copy/move" title="Copy/move">
+							{!clipboardTeams && <button
+								data-cmd={`/copyteam ${team.key}`} class="option" aria-label={TL`[Copy/Move]`} title={TL`[Copy/Move]`}
+							>
 								<i class="fa fa-copy" aria-hidden></i>
 							</button>} {}
 							{team.uploaded?.private ? (
@@ -977,9 +983,10 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 								null
 							)} {}
 							{!clipboardTeams && !team.uploaded && <button
-								data-cmd={`/deleteteam ${team.key}`} class="option" aria-label="Delete" title={team.teamid ? "Delete" : ""}
+								data-cmd={`/deleteteam ${team.key}`} class="option"
+								aria-label={TL`[Delete]`} title={team.teamid ? TL`[Delete]` : ""}
 							>
-								<i class="fa fa-trash" aria-hidden></i> {!team.teamid && "Delete"}
+								<i class="fa fa-trash" aria-hidden></i> {!team.teamid && TL`[Delete]`}
 							</button>} {}
 						</span>
 					</li>
@@ -990,31 +997,32 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 				) : (
 					<li key="undelete">
 						<button data-cmd="/undeleteteam" class="option">
-							<i class="fa fa-undo" aria-hidden></i> Undo delete
+							<i class="fa fa-undo" aria-hidden></i> {TL`[Undo delete]`}
 						</button>
 					</li>
 				))}
 				{clipboardTeams && <div>
 					<button class="button notifying" data-cmd="/pasteteamabove -">
-						<i class="fa fa-clipboard" aria-hidden></i> Paste copy here
+						<i class="fa fa-clipboard" aria-hidden></i> {TL`[Paste copy here]`}
 					</button> {}
 					<button class="button notifying" data-cmd="/moveteamabove -" disabled={clipboard.readonly}>
-						<i class="fa fa-arrow-right" aria-hidden></i> Move here
+						<i class="fa fa-arrow-right" aria-hidden></i> {TL`[Move here]`}
 					</button>
 				</div>}
 			</ul>
 			<p>
 				<button data-cmd="/newteam bottom" class="button">
-					<i class="fa fa-plus-circle" aria-hidden></i> New {teamTerm}
+					<i class="fa fa-plus-circle" aria-hidden></i> {}
+					{newTeamLabel}
 				</button> {}
 				<button data-cmd="/newteam box bottom" class="button">
-					<i class="fa fa-archive" aria-hidden></i> New box
+					<i class="fa fa-archive" aria-hidden></i> {TL`[New box]`}
 				</button>
 			</p>
 			<p>
 				<button data-cmd="/backup" class="button">
-					<i class="fa fa-file-code-o" aria-hidden></i> Backup
-					{room.searchTerms.length ? ' search results' : room.curFolder ? ' folder' : ''}
+					<i class="fa fa-file-code-o" aria-hidden></i> {}
+					{room.searchTerms.length ? TL`[Backup search results]` : room.curFolder ? TL`[Backup folder]` : TL`[Backup]`}
 				</button>
 			</p>
 		</div>;

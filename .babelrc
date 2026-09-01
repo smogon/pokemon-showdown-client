@@ -25,6 +25,7 @@
 		"@babel/plugin-transform-parameters",
 		"@babel/plugin-transform-shorthand-properties",
 		["@babel/plugin-transform-spread", {"loose": true}],
+		"./build-tools/babel-plugin-inline-tl",
 		["@babel/plugin-transform-template-literals", {"loose": true}],
 
 		// ES3

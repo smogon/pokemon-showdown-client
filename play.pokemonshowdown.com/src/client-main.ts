@@ -14,7 +14,7 @@ import { PSModel, PSStreamModel } from './client-core';
 import type { PSRoomPanel, PSRouter } from './panels';
 import { ChatRoom } from './panel-chat';
 import type { MainMenuRoom } from './panel-mainmenu';
-import { Dex, toID, type ID } from './battle-dex';
+import { Dex, TL, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
 import type { BattleRoom } from './panel-battle';
 import { Teams } from './battle-teams';
@@ -467,7 +467,8 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		this.list.splice(index, 0, ...teams);
 	}
 	unpackOldBuffer(buffer: string) {
-		PS.alert(`Your team storage format is too old for PS. You'll need to upgrade it at https://${Config.routes.client}/recoverteams.html`);
+		const upgradeUrl = `https://${Config.routes.client}/recoverteams.html`;
+		PS.alert(TL`Your team storage format is too old for PS. You'll need to upgrade it at ${upgradeUrl}`);
 		this.list = [];
 	}
 	packAll(teams: Team[]) {
@@ -515,7 +516,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		PSLoginServer.query('getteams').then(data => {
 			if (!data) return;
 			if (data.actionerror) {
-				return PS.alert('Error loading uploaded teams: ' + data.actionerror);
+				return PS.alert(TL`Error loading uploaded teams: ${data.actionerror}`);
 			}
 			const teams: { [key: string]: UploadedTeam } = {};
 			for (const team of data.teams) {
@@ -598,7 +599,8 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		}).then(data => {
 			if (!team.uploaded) return;
 			if (!data?.team) {
-				PS.alert(`Failed to load team: ${data?.actionerror || "Error unknown. Try again later."}`);
+				const actionError = data?.actionerror as string || TL`Error unknown. Try again later.`;
+				PS.alert(TL`Failed to load team: ${actionError}`);
 				return;
 			}
 			team.uploaded.notLoaded = false;
@@ -757,7 +759,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 	}
 	handleAssertion(name: string, assertion?: string | null) {
 		if (!assertion) {
-			PS.alert("Error logging in.");
+			PS.alert(TL`Error logging in.`);
 			return;
 		}
 		this.loggingIn = null;
@@ -769,7 +771,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		if (assertion.startsWith('\r')) assertion = assertion.slice(1);
 		if (assertion.startsWith('\n')) assertion = assertion.slice(1);
 		if (assertion.includes('<')) {
-			PS.alert("Something is interfering with our connection to the login server. Most likely, your internet provider needs you to re-log-in, or your internet provider is blocking Pokémon Showdown.");
+			PS.alert(TL`Something is interfering with our connection to the login server. Most likely, your internet provider needs you to re-log-in, or your internet provider is blocking Pokémon Showdown.`);
 			return;
 		}
 		if (assertion === ';') {
@@ -1097,6 +1099,9 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		this.noURL = options.noURL || false;
 		this.args = options.args || null;
 	}
+	getTitle() {
+		return PS.roomTypes[this.type]?.getTitle?.(this) ?? this.title;
+	}
 	getParent() {
 		if (this.parentRoomid) return PS.rooms[this.parentRoomid] || null;
 		return null;
@@ -1244,6 +1249,19 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		return parsedCommands;
 	}
 	globalClientCommands = this.parseClientCommands({
+		'language'(target) {
+			if (!target) return true;
+			if (['auto', 'automatic'].includes(toID(target))) {
+				PS.prefs.set('serversettings', { ...PS.prefs.serversettings, language: undefined });
+			} else {
+				const language = Dex.text.findLanguage(target)?.legacyId;
+				// on the off chance the server supports this language
+				if (!language) return true;
+				PS.prefs.set('serversettings', { ...PS.prefs.serversettings, language });
+			}
+			void Dex.loadTextData().then(() => PS.updateTranslatedText());
+			return `/language ${Dex.text.findLanguage(Dex.text.getLanguage())?.legacyId || 'english'}`;
+		},
 		'j,join'(target, cmd, elem) {
 			target = PS.router.extractRoomID(target) || target;
 			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
@@ -1309,7 +1327,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			const uptime = Date.now() - PS.startTime;
 			if (uptime > 24 * 60 * 60 * 1000) {
 				PS.confirm(`It's been over a day since you first connected. Please refresh.`, {
-					okButton: 'Refresh',
+					okButton: TL`[Refresh]`,
 				}).then(confirmed => {
 					if (confirmed) this.send(`/refresh`);
 				});
@@ -1530,12 +1548,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				this.add('||AFD is currently set to ' + curMode);
 				this.send('/help afd');
 			}
-			void Dex.loadTextData().then(() => {
-				for (const roomid in PS.rooms) {
-					const battle = (PS.rooms[roomid] as BattleRoom)?.battle;
-					if (battle) battle.resetToCurrentTurn();
-				}
-			});
+			void Dex.loadTextData().then(() => PS.updateTranslatedText());
 		},
 		'clearpms'() {
 			let rooms = PS.miniRoomList.filter(roomid => roomid.startsWith('dm-'));
@@ -1836,6 +1849,7 @@ type PSRoomPanelSubclass<T extends PSRoom = PSRoom> = (new () => PSRoomPanel<T>)
 	noURL?: boolean,
 	icon?: preact.ComponentChildren,
 	title?: string,
+	getTitle?: (room: T) => string,
 	handleDrop?: (ev: DragEvent) => boolean | void,
 };
 
@@ -2239,6 +2253,13 @@ export const PS = new class extends PSModel {
 	override update() {
 		this.updateLayout();
 		super.update();
+	}
+	updateTranslatedText() {
+		for (const room of Object.values(this.rooms)) {
+			const battle = (room as BattleRoom | undefined)?.battle;
+			if (battle) battle.resetToCurrentTurn();
+		}
+		this.update();
 	}
 	receive(msg: string) {
 		msg = msg.endsWith('\n') ? msg.slice(0, -1) : msg;
@@ -2644,7 +2665,7 @@ export const PS = new class extends PSModel {
 		okButton?: string, cancelButton?: string,
 		otherButtons?: preact.ComponentChildren, parentElem?: HTMLElement,
 	} = {}) {
-		opts.cancelButton ??= 'Cancel';
+		opts.cancelButton ??= TL`[Cancel]`;
 		return new Promise<boolean>(resolve => {
 			this.join(`popup-${this.popups.length}` as RoomID, {
 				args: { message, okValue: true, cancelValue: false, callback: resolve, ...opts, parentElem: null },
@@ -2656,7 +2677,7 @@ export const PS = new class extends PSModel {
 		defaultValue?: string, okButton?: string, cancelButton?: string, type?: 'text' | 'password' | 'number' | 'numeric',
 		label?: string, otherButtons?: preact.ComponentChildren, parentElem?: HTMLElement | null,
 	} = {}): Promise<string | null> {
-		opts.cancelButton ??= 'Cancel';
+		opts.cancelButton ??= TL`[Cancel]`;
 		return new Promise(resolve => {
 			this.join(`popup-${this.popups.length}` as RoomID, {
 				args: {
