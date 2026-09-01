@@ -148,6 +148,15 @@
 .dexlist .bstcol {
 	padding-left: 2px;
 }
+.dexlist .numcol.usagenumcol {
+	padding-top: 1px;
+	height: 28px;
+}
+.dexlist .numcol.usagenumcol em {
+	color: #999999;
+	font-size: 7pt;
+	font-style: normal;
+}
 .dexlist .labelcol em,
 .dexlist .widelabelcol em,
 .dexlist .pplabelcol em,
@@ -317,12 +326,7 @@
 .dexlist .sortcol:hover {
 	background: #F0F0F0;
 }
-.dexlist .sortcol.numsortcol.cur,
-.dexlist .sortcol.numsortcol.cur:hover {
-	background: #D0D0D0;
-	cursor: default;
-}
-.dexlist .numsortcol {
+.dexlist .tiersortcol {
 	width: 80px;
 }
 .dexlist .pnamesortcol {

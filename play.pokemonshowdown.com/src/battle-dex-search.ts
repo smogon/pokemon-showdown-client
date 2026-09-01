@@ -208,6 +208,10 @@ export class DexSearch {
 		}
 		this.typedSearch = this.getTypedSearch(searchType, format, speciesOrSet);
 		if (this.typedSearch) this.dex = this.typedSearch.dex;
+		if (this.sortCol === 'usage' && !this.typedSearch?.usageStats) {
+			this.sortCol = null;
+			this.reverseSort = false;
+		}
 	}
 
 	capitalizeFirst(str: string) {
@@ -279,7 +283,7 @@ export class DexSearch {
 
 	toggleSort(sortCol: string) {
 		if (this.sortCol === sortCol) {
-			if (!this.reverseSort) {
+			if (!this.reverseSort && sortCol !== 'usage') {
 				this.reverseSort = true;
 			} else {
 				this.sortCol = null;
@@ -304,6 +308,12 @@ export class DexSearch {
 
 	getTier(species: Dex.Species) {
 		return this.typedSearch?.getTier(species) || '';
+	}
+	hasUsageStats() {
+		return !!this.typedSearch?.usageStats;
+	}
+	getUsage(species: Dex.Species) {
+		return this.typedSearch?.getUsage(species) ?? null;
 	}
 
 	textSearch(query: string): SearchRow[] {
@@ -678,11 +688,13 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	baseIllegalResults: SearchRow[] | null = null;
 	illegalReasons: { [id: string]: string } | null = null;
 	results: SearchRow[] | null = null;
+	usageStats: { [id: string]: number } | null = null;
 
 	protected readonly sortRow: SearchRow | null = null;
 
 	constructor(searchType: T, format = '' as ID, speciesOrSet: ID | Dex.PokemonSet = '' as ID) {
 		this.searchType = searchType;
+		this.usageStats = window.BattleUsageStats?.[format] || null;
 
 		this.baseResults = null;
 		this.baseIllegalResults = null;
@@ -1030,6 +1042,22 @@ abstract class BattleTypedSearch<T extends SearchType> {
 
 		return pokemon.tier;
 	}
+	getUsage(pokemon: Dex.Species) {
+		if (!this.usageStats) return null;
+		let species = pokemon;
+		const seen: { [id: string]: true } = {};
+		while (species.exists && !seen[species.id]) {
+			seen[species.id] = true;
+			const usage = this.usageStats[species.id];
+			if (usage !== undefined) return usage;
+
+			const previousForme = species.changesFrom || species.baseSpecies;
+			const previousFormeid = toID(previousForme);
+			if (!previousFormeid || previousFormeid === species.id) break;
+			species = this.dex.species.get(previousFormeid);
+		}
+		return null;
+	}
 	eggMovesOnly(child: ID, father: ID) {
 		if (this.dex.species.get(child).baseSpecies === this.dex.species.get(father).baseSpecies) return false;
 		const baseSpecies = father;
@@ -1375,6 +1403,14 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				const name1 = id1;
 				const name2 = id2;
 				return (name1 < name2 ? -1 : name1 > name2 ? 1 : 0) * sortOrder;
+			});
+		} else if (sortCol === 'usage') {
+			return results.sort(([rowType1, id1], [rowType2, id2]) => {
+				const usage1 = this.getUsage(this.dex.species.get(id1));
+				const usage2 = this.getUsage(this.dex.species.get(id2));
+				if (usage1 === null) return usage2 === null ? 0 : 1;
+				if (usage2 === null) return -1;
+				return (usage2 - usage1) * sortOrder;
 			});
 		}
 		throw new Error("invalid sortcol");

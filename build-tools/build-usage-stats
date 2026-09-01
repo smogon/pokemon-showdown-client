@@ -1,0 +1,169 @@
+#!/usr/bin/env node
+/**
+ * Builds Pokemon usage data from the latest available Smogon chaos stats.
+ */
+
+'use strict';
+
+const fs = require('fs');
+const https = require('https');
+const path = require('path');
+
+const rootDir = path.resolve(__dirname, '..');
+process.chdir(rootDir);
+
+const STATS_INDEX_URL = 'https://www.smogon.com/stats/';
+const OUTPUT_JS_FILE = 'play.pokemonshowdown.com/data/usage-stats.js';
+const STATS_MONTH_REGEX = /href="(\d{4}-\d{2})\/"/g;
+const FORMAT_REGEX = /href="(gen[a-z0-9]+-(?:1630|1695))\.json"/g;
+const MIN_BATTLES = 1000;
+
+function toID(text) {
+	if (text && text.id) text = text.id;
+	if (typeof text !== 'string' && typeof text !== 'number') return '';
+	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+function getStatsUrl(month) {
+	return `${STATS_INDEX_URL}${month}/chaos/`;
+}
+
+function getLatestStatsMonth(indexHtml) {
+	let latestMonth = '';
+	let match;
+	STATS_MONTH_REGEX.lastIndex = 0;
+	while ((match = STATS_MONTH_REGEX.exec(indexHtml))) {
+		latestMonth = match[1];
+	}
+	if (!latestMonth) throw new Error(`No stats months matched ${STATS_MONTH_REGEX} in ${STATS_INDEX_URL}`);
+	return latestMonth;
+}
+
+function getFormats(indexHtml) {
+	const formats = [];
+	let match;
+	FORMAT_REGEX.lastIndex = 0;
+	while ((match = FORMAT_REGEX.exec(indexHtml))) {
+		formats.push(match[1]);
+	}
+	return Array.from(new Set(formats)).sort();
+}
+
+function getNumberOfBattles(stats) {
+	return stats && stats.info && Number(stats.info['number of battles']) || 0;
+}
+
+function getPokemonUsage(stats) {
+	const usage = {};
+	for (const pokemon of Object.keys(stats.data || {}).sort()) {
+		const value = stats.data[pokemon] && stats.data[pokemon].usage;
+		if (typeof value !== 'number') continue;
+		usage[toID(pokemon)] = value;
+	}
+	return usage;
+}
+
+function getFormat(file) {
+	return file.split('-')[0];
+}
+
+function fetchUrl(url, redirects) {
+	if (redirects === undefined) redirects = 5;
+	return new Promise((resolve, reject) => {
+		const request = https.get(url, {
+			headers: {
+				'User-Agent': 'Pokemon-Showdown-Client build-usage-stats',
+			},
+		}, response => {
+			if (
+				response.statusCode >= 300 && response.statusCode < 400 &&
+				response.headers.location && redirects > 0
+			) {
+				response.resume();
+				resolve(fetchUrl(new URL(response.headers.location, url).href, redirects - 1));
+				return;
+			}
+			if (response.statusCode !== 200) {
+				response.resume();
+				reject(new Error(`Failed to fetch ${url}: HTTP ${response.statusCode}`));
+				return;
+			}
+			response.setEncoding('utf8');
+			let buf = '';
+			response.on('data', chunk => {
+				buf += chunk;
+			});
+			response.on('end', () => resolve(buf));
+		});
+		request.setTimeout(30000, () => {
+			request.destroy(new Error(`Timed out fetching ${url}`));
+		});
+		request.on('error', reject);
+	});
+}
+
+async function fetchLatestStatsMonth() {
+	process.stdout.write("Fetching stats directory... ");
+	const indexHtml = await fetchUrl(STATS_INDEX_URL);
+	const month = getLatestStatsMonth(indexHtml);
+	console.log(month);
+	return month;
+}
+
+async function fetchUsageStatsFile(statsUrl, file) {
+	const json = await fetchUrl(statsUrl + file + '.json');
+	const stats = JSON.parse(json);
+	if (getNumberOfBattles(stats) < MIN_BATTLES) return null;
+	return [file, getFormat(file), getPokemonUsage(stats)];
+}
+
+async function fetchUsageStats(month) {
+	const statsUrl = getStatsUrl(month);
+	process.stdout.write("Fetching chaos stats index... ");
+	const indexHtml = await fetchUrl(statsUrl);
+	const formats = getFormats(indexHtml);
+	if (!formats.length) throw new Error(`No usage stats matched ${FORMAT_REGEX} in ${statsUrl}`);
+	console.log(`${formats.length} files`);
+
+	process.stdout.write("Fetching usage stats files... ");
+	process.stdout.write(`0/${formats.length} `);
+	const usageStats = {};
+	for (let i = 0; i < formats.length; i++) {
+		const entry = await fetchUsageStatsFile(statsUrl, formats[i]);
+		if (entry) {
+			const [, format, usage] = entry;
+			usageStats[format] = usage;
+		}
+		if ((i + 1) % 10 === 0 || i + 1 === formats.length) {
+			process.stdout.write(`${i + 1}/${formats.length} `);
+		}
+	}
+	console.log("DONE");
+
+	return usageStats;
+}
+
+async function main() {
+	let usageStats;
+	try {
+		const month = await fetchLatestStatsMonth();
+		console.log(`Building \`data/usage-stats.js\` from Smogon usage stats for ${month}...`);
+		usageStats = await fetchUsageStats(month);
+	} catch (err) {
+		console.warn('\nCould not build usage stats; continuing without updating usage stats.');
+		console.warn(err.stack || err);
+		return;
+	}
+	console.log(`Built ${Object.keys(usageStats).length} formats`);
+
+	process.stdout.write(`Writing \`${OUTPUT_JS_FILE}\`... `);
+	let buf = '// DO NOT EDIT - automatically built with build-tools/build-usage-stats\n\n';
+	buf += 'exports.BattleUsageStats = ' + JSON.stringify(usageStats) + ';\n';
+	fs.writeFileSync(OUTPUT_JS_FILE, buf);
+	console.log('DONE');
+}
+
+main().catch(err => {
+	console.error(err.stack || err);
+	process.exit(1);
+});

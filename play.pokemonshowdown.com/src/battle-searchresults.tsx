@@ -65,10 +65,11 @@ export class PSSearchResults extends preact.Component<{
 	renderPokemonSortRowHTML(index: number) {
 		const search = this.props.search;
 		const sortCol = search.sortCol;
+		const hasUsageStats = search.hasUsageStats();
 		return [
 			`<li class="result" value="${index}"><div class="sortrow">`,
-			`<button class="sortcol numsortcol${!sortCol ? ' cur' : ''}">`,
-			`${!sortCol ? 'Sort: ' : escapeHTML(search.firstPokemonColumn)}</button>`,
+			`<button class="sortcol tiersortcol${sortCol === 'usage' ? ' cur' : ''}"`,
+			`${hasUsageStats ? ` data-sort="usage"` : ``}>${hasUsageStats ? 'Tier/Usage' : 'Tier'}</button>`,
 			`<button class="sortcol pnamesortcol${sortCol === 'name' ? ' cur' : ''}" data-sort="name">Name</button>`,
 			`<button class="sortcol typesortcol${sortCol === 'type' ? ' cur' : ''}" data-sort="type">${escapeHTML(TL.term.types)}</button>`,
 			`<button class="sortcol abilitysortcol${sortCol === 'ability' ? ' cur' : ''}" data-sort="ability">${escapeHTML(TL.term.abilities)}</button>`,
@@ -111,11 +112,16 @@ export class PSSearchResults extends preact.Component<{
 		let bst = 0;
 		for (const stat of Object.values(stats)) bst += stat;
 		if (search.dex.gen < 2) bst -= stats['spd'];
+		const showUsage = search.sortCol === 'usage' && search.hasUsageStats();
+		const usage = showUsage ? search.getUsage(pokemon) : null;
+		const tier = search.getTier(pokemon);
+		const usageText = usage === null ? '' : `${(usage * 100).toFixed(1)}%`;
 
 		let buf = `<li class="result" value="${index}"><a href="${this.URL_ROOT}pokemon/${id}" ` +
 			`class="${id === this.speciesId ? 'cur' : ''}" data-target="push" ` +
 			`data-entry="pokemon|${escapeHTML(pokemon.name)}">` +
-			`<span class="col numcol">${escapeHTML(search.getTier(pokemon))}</span>` +
+			`<span class="col numcol${showUsage ? ' usagenumcol' : ''}">` +
+			`${escapeHTML(tier)}${showUsage ? `<br /><em>${escapeHTML(usageText)}</em>` : ''}</span>` +
 			`<span class="col iconcol"><span class="pixelated" style="${escapeHTML(Dex.getPokemonIcon(pokemon.id))}"></span></span>` +
 			`<span class="col pokemonnamecol">${this.renderNameHTML(
 				displayName, matchStart, matchEnd, baseStart, baseEnd
