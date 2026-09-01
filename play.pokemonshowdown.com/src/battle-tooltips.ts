@@ -1120,7 +1120,7 @@ export class BattleTooltips {
 		buf += `</tr><table>`;
 		if (!atLeastOne) buf = ``;
 
-		let weatherbuf = scene.weatherLeft() || `(no weather)`;
+		let weatherbuf = scene.weatherLeft() || TL.term.noweather || `(no weather)`;
 		if (weatherbuf.startsWith('<br />')) {
 			weatherbuf = weatherbuf.slice(6);
 		}

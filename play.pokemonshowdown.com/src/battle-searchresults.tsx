@@ -163,7 +163,6 @@ export class PSSearchResults extends preact.Component<{
 	}
 
 	renderNameHTML(name: string, matchStart: number, matchEnd: number, tagStart?: number, tagEnd?: number) {
-		if (name === 'No Ability') return `<i>(no ability)</i>`;
 		if (tagStart !== undefined && tagEnd !== undefined) {
 			const renderPart = (start: number, end: number) => {
 				if (!matchEnd || matchEnd <= start || matchStart >= end) return escapeHTML(name.slice(start, end));
@@ -203,11 +202,13 @@ export class PSSearchResults extends preact.Component<{
 		if (!item) return `<li class="result" value="${index}">Unrecognized item</li>`;
 		const itemText = search.dex.text.get(item);
 		[matchStart, matchEnd] = getLocalizedMatch(itemText.name, item.name, matchStart, matchEnd);
+		const itemName = id ? this.renderNameHTML(itemText.name, matchStart, matchEnd) :
+			`<i>${escapeHTML(TL.term.noitem || '(no item)')}</i>`;
 
 		return `<li class="result" value="${index}"><a href="${this.URL_ROOT}items/${id}" ` +
 			`class="${id === this.itemId ? 'cur' : ''}" data-target="push" data-entry="item|${escapeHTML(item.name)}">` +
 			`<span class="col itemiconcol"><span class="pixelated" style="${escapeHTML(Dex.getItemIcon(item))}"></span></span>` +
-			`<span class="col namecol">${id ? this.renderNameHTML(itemText.name, matchStart, matchEnd) : '<i>(no item)</i>'}</span>` +
+			`<span class="col namecol">${itemName}</span>` +
 			(id ? (errorMessage || '') : '') +
 			(!errorMessage ? `<span class="col itemdesccol">${escapeHTML(itemText.shortDesc)}</span>` : '') +
 			`</a></li>`;
@@ -219,10 +220,13 @@ export class PSSearchResults extends preact.Component<{
 		if (!ability) return `<li class="result" value="${index}">Unrecognized ability</li>`;
 		const abilityText = search.dex.text.get(ability);
 		[matchStart, matchEnd] = getLocalizedMatch(abilityText.name, ability.name, matchStart, matchEnd);
+		const abilityName = id && ability.id !== 'noability' ?
+			this.renderNameHTML(abilityText.name, matchStart, matchEnd) :
+			`<i>${escapeHTML(TL.term.noability || '(no ability)')}</i>`;
 
 		return `<li class="result" value="${index}"><a href="${this.URL_ROOT}abilities/${id}" ` +
 			`class="${id === this.abilityId ? 'cur' : ''}" data-target="push" data-entry="ability|${escapeHTML(ability.name)}">` +
-			`<span class="col namecol">${id ? this.renderNameHTML(abilityText.name, matchStart, matchEnd) : '<i>(no ability)</i>'}</span>` +
+			`<span class="col namecol">${abilityName}</span>` +
 			(errorMessage || '') +
 			(!errorMessage ? `<span class="col abilitydesccol">${escapeHTML(abilityText.shortDesc)}</span>` : '') +
 			`</a></li>`;

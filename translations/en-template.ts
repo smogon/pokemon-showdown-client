@@ -584,6 +584,7 @@ export const translations: UIText = {
 
 	// TRANSLATORS: for the team editor
 	"[Add Pokémon]": null,
+	"(choose ability)": null,
 	"Details": null,
 	// TRANSLATORS: Teambuilder "form" with text boxes inside, not form/forme "form" of a pokemon
 	"Form": null,

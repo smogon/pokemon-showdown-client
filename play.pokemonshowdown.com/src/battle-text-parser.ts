@@ -270,6 +270,11 @@ export class BattleTextParser {
 		parser.language = Dex.text.getLanguage();
 		return parser.uiText(field, values);
 	}
+	static weatherName(weather: string, language = Dex.text.getLanguage()) {
+		const parser = (BattleTextParser.uiParser ||= new BattleTextParser());
+		parser.language = language;
+		return parser.textField('Default', BattleTextParser.effectId(weather), 'weatherName') || weather;
+	}
 
 	/**
 	 * Render template, resolving placeholders.

@@ -3050,7 +3050,10 @@ class TeamEditorForm extends preact.Component<{
 					<td class="set-ability"><div class="border-collapse">
 						{editor.showAbility(set) && <label class="label">
 							{TL.term.ability} {}
-							{this.renderInput(i, 'ability', set.ability, -1, editor.gen <= 2 ? '(no ability)' : '(choose ability)')}
+							{this.renderInput(
+								i, 'ability', set.ability, -1,
+								editor.gen <= 2 ? TL.term.noability || '(no ability)' : TL`(choose ability)`
+							)}
 						</label>}
 					</div></td>
 					<td class="set-item"><div class="border-collapse">
@@ -3058,7 +3061,7 @@ class TeamEditorForm extends preact.Component<{
 							{set.item && <PSIcon item={set.item} />}
 							<label class="label">
 								{TL.term.item} {}
-								{this.renderInput(i, 'item', set.item, -1, '(no item)')}
+								{this.renderInput(i, 'item', set.item, -1, TL.term.noitem || '(no item)')}
 							</label>
 						</>}
 					</div></td>

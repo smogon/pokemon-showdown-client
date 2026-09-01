@@ -77,7 +77,10 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 
 	it('uses canonical language tables with English field fallback', () => {
 		global.BattleText.ja = {
-			Default: {default: {hitCount: '{NUMBER}回 当たった！'}},
+			Default: {
+				default: {hitCount: '{NUMBER}回 当たった！'},
+				sunnyday: {weatherName: 'はれ'},
+			},
 			Pokedex: {ironleaves: {name: 'テツノイサハ', baseSpecies: 'テツノイサハ'}},
 			TypeNames: {fire: 'ほのお'},
 			NatureNames: {adamant: 'いじっぱり'},
@@ -100,6 +103,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		const parser = new BattleTextParser('p1', 'ja');
 		assert.equal(parser.extractMessage('|-hitcount|p1a: Mew|3'), '3回 当たった！\n');
 		assert.equal(parser.pokemon('p1a: Mew'), 'Mew');
+		assert.equal(BattleTextParser.weatherName('sunnyday', 'ja'), 'はれ');
 	});
 
 	it('translates effect and species names without translating nicknames', () => {

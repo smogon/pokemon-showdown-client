@@ -951,24 +951,33 @@ export class BattleScene implements BattleSceneStub {
 		this.$battle.find('.playbutton1, .playbutton2').remove();
 	}
 
+	turnsLeft(min: number, max = 0) {
+		if (max) {
+			return BattleTextParser.ui('turns', { NUMBER: TL.orList([`${min}`, `${max}`]) });
+		}
+		return BattleTextParser.ui(min === 1 ? 'turn' : 'turns', { NUMBER: `${min}` });
+	}
 	pseudoWeatherLeft(pWeather: WeatherState) {
-		let buf = `<br />${Dex.moves.get(pWeather[0]).name}`;
+		let buf = `<br />${TL(Dex.moves.get(pWeather[0]))}`;
 		if (!pWeather[1] && pWeather[2]) {
 			pWeather[1] = pWeather[2];
 			pWeather[2] = 0;
 		}
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
 		if (pWeather[2]) {
-			return `${buf} <small>(${pWeather[1]} or ${pWeather[2]} turns)</small>`;
+			return `${buf} <small>${this.turnsLeft(pWeather[1], pWeather[2])}</small>`;
 		}
 		if (pWeather[1]) {
-			return `${buf} <small>(${pWeather[1]} turn${pWeather[1] === 1 ? '' : 's'})</small>`;
+			return `${buf} <small>${this.turnsLeft(pWeather[1])}</small>`;
 		}
 		return buf; // weather not found
 	}
 	sideConditionLeft(cond: Side['sideConditions'][string], isFoe: boolean, all?: boolean) {
 		if (!cond[2] && !cond[3] && !all) return '';
-		let buf = `<br />${isFoe && !all ? "Foe's " : ""}${Dex.moves.get(cond[0]).name}`;
+		const condition = TL(Dex.moves.get(cond[0]));
+		const foeCondition = (TL.term.foescondition || "Foe's {CONDITION}")
+			.replace('{CONDITION}', () => condition);
+		let buf = `<br />${isFoe && !all ? foeCondition : condition}`;
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
 
 		if (!cond[2] && !cond[3]) return buf;
@@ -977,9 +986,9 @@ export class BattleScene implements BattleSceneStub {
 			cond[3] = 0;
 		}
 		if (!cond[3]) {
-			return `${buf} <small>(${cond[2]} turn${cond[2] === 1 ? '' : 's'})</small>`;
+			return `${buf} <small>${this.turnsLeft(cond[2])}</small>`;
 		}
-		return `${buf} <small>(${cond[2]} or ${cond[3]} turns)</small>`;
+		return `${buf} <small>${this.turnsLeft(cond[2], cond[3])}</small>`;
 	}
 	weatherLeft() {
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return '';
@@ -987,21 +996,13 @@ export class BattleScene implements BattleSceneStub {
 		let weatherhtml = ``;
 
 		if (this.battle.weather) {
-			const weatherNameTable: { [id: string]: string } = {
-				sunnyday: 'Sun',
-				desolateland: 'Intense Sun',
-				raindance: 'Rain',
-				primordialsea: 'Heavy Rain',
-				sandstorm: 'Sandstorm',
-				hail: 'Hail',
-				snowscape: 'Snow',
-				deltastream: 'Strong Winds',
-			};
-			weatherhtml = `${weatherNameTable[this.battle.weather] || this.battle.weather}`;
+			weatherhtml = BattleTextParser.weatherName(this.battle.weather);
 			if (this.battle.weatherMinTimeLeft !== 0) {
-				weatherhtml += ` <small>(${this.battle.weatherMinTimeLeft} or ${this.battle.weatherTimeLeft} turns)</small>`;
+				weatherhtml += ` <small>${this.turnsLeft(
+					this.battle.weatherMinTimeLeft, this.battle.weatherTimeLeft
+				)}</small>`;
 			} else if (this.battle.weatherTimeLeft !== 0) {
-				weatherhtml += ` <small>(${this.battle.weatherTimeLeft} turn${this.battle.weatherTimeLeft === 1 ? '' : 's'})</small>`;
+				weatherhtml += ` <small>${this.turnsLeft(this.battle.weatherTimeLeft)}</small>`;
 			}
 			const nullifyWeather = this.battle.abilityActive(['Air Lock', 'Cloud Nine']);
 			weatherhtml = `${nullifyWeather ? '<s>' : ''}${weatherhtml}${nullifyWeather ? '</s>' : ''}`;
