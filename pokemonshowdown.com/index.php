@@ -339,7 +339,7 @@ if (BrowserDetect.OS === 'Mac') {
 	</section>
 
 <?php
-include __DIR__ . '/../config/news.inc.php';
+include __DIR__ . '/../lib/news.lib.php';
 function readableDate($time=0) {
 	if (!$time) {
 		$time = time();

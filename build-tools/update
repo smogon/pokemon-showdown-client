@@ -237,8 +237,8 @@ try {
 try {
 	if (stdout) [newsid, news] = JSON.parse(stdout);
 } catch (e) {
-	if (stdout.includes("config/news.inc.php): Failed to open stream: No such file or directory")) {
-		console.log("news.inc.php unavailable");
+	if (stdout.includes("config/news.json): Failed to open stream: No such file or directory")) {
+		console.log("news.json unavailable");
 	} else {
 		console.log("git hook failed to retrieve news (parsing JSON failed):\n\n" + e.message + '\n\n' + stdout);
 	}

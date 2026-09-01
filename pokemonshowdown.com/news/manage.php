@@ -3,7 +3,7 @@
 error_reporting(E_ALL);
 
 include_once '../../lib/ntbb-session.lib.php';
-include_once __DIR__ . '/../../config/news.inc.php';
+include_once __DIR__ . '/../../lib/news.lib.php';
 include_once 'include.php';
 
 if (!$users->isLeader()) die('access denied');
