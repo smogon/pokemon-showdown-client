@@ -1,0 +1,65 @@
+#!/usr/bin/env node
+'use strict';
+
+const fs = require('node:fs');
+const path = require('node:path');
+const {
+	compileBattleUIText, loadBattleUIText, updateUIText,
+} = require('./translations.mts');
+
+const ROOT_PATH = path.resolve(__dirname, '..');
+const TEXT_DATA_PATH = path.resolve(ROOT_PATH, 'caches/pokemon-showdown/data/text');
+const UI_TRANSLATIONS_PATH = path.resolve(ROOT_PATH, 'translations');
+const OUTPUT_PATH = path.resolve(ROOT_PATH, 'play.pokemonshowdown.com/data/text');
+
+function es3stringify(obj) {
+	const buf = JSON.stringify(obj);
+	return buf.replace(/"([A-Za-z][A-Za-z0-9]*)":/g, (fullMatch, key) => (
+		['return', 'new', 'delete'].includes(key) ? fullMatch : `${key}:`
+	));
+}
+
+function getLanguages() {
+	const languages = new Set(['en']);
+	for (const entry of fs.readdirSync(TEXT_DATA_PATH, { withFileTypes: true })) {
+		if (entry.isDirectory()) languages.add(entry.name);
+	}
+	for (const entry of fs.readdirSync(UI_TRANSLATIONS_PATH, { withFileTypes: true })) {
+		if (entry.isFile() && entry.name.endsWith('.ts') && entry.name !== 'en-template.ts') {
+			languages.add(entry.name.slice(0, -3));
+		}
+	}
+	return [...languages];
+}
+
+function buildTextFiles(Dex, selectedLanguages = null, options = {}) {
+	const uiCalls = updateUIText(options);
+	const languages = selectedLanguages || getLanguages();
+	fs.mkdirSync(OUTPUT_PATH, { recursive: true });
+	for (const lang of languages) {
+		const battleTranslations = Dex.loadTextData(lang);
+		const uiText = compileBattleUIText(loadBattleUIText(lang), uiCalls);
+		let output = 'exports.BattleText = exports.BattleText || {};\n' +
+			`exports.BattleText[${JSON.stringify(lang)}] = ${es3stringify(battleTranslations)};`;
+		if (Object.keys(uiText).length) {
+			output += '\nexports.BattleUIText = exports.BattleUIText || {};\n' +
+				`exports.BattleUIText[${JSON.stringify(lang)}] = ${es3stringify(uiText)};`;
+		}
+		fs.writeFileSync(path.resolve(OUTPUT_PATH, `${lang}.js`), output);
+	}
+}
+
+exports.buildTextFiles = buildTextFiles;
+
+if (require.main === module) {
+	const Dex = require('../caches/pokemon-showdown/dist/sim/dex').Dex;
+	const args = process.argv.slice(2);
+	const sync = args.includes('--sync');
+	const selectedLanguages = args.filter(arg => arg !== '--sync');
+	try {
+		buildTextFiles(Dex, selectedLanguages.length ? selectedLanguages : null, { sync });
+	} catch (error) {
+		console.error(error.message);
+		process.exitCode = 1;
+	}
+}

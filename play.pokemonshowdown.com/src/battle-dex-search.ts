@@ -11,7 +11,7 @@
  * @license MIT
  */
 
-import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
+import { Dex, type ModdedDex, TL, toID, type ID } from "./battle-dex";
 import type { PSSearchResults } from "./battle-searchresults";
 
 export type SearchType = (
@@ -74,6 +74,20 @@ export class DexSearch {
 		category: 'Category',
 		article: 'Article',
 	};
+	static getTypeName(type: SearchType) {
+		switch (type) {
+		case 'pokemon': return TL.term.pokemon;
+		case 'type': return TL.term.types;
+		case 'move': return TL.term.moves;
+		case 'item': return TL.term.items;
+		case 'ability': return TL.term.abilities;
+		case 'egggroup': return TL.term.egggroups;
+		case 'category': return TL.term.categories;
+		case 'tier': return TL.term.tiers;
+		case 'article': return TL.term.article;
+		default: return DexSearch.typeName[type];
+		}
+	}
 	static unselectableResultTypes = ['header', 'html', 'sortpokemon', 'sortmove'];
 	firstPokemonColumn: 'Tier' | 'Number' = 'Number';
 
@@ -500,7 +514,7 @@ export class DexSearch {
 				// searchType buckets are always on top (but under bucket 0), so
 				// illegal results will be seamlessly right under legal results.
 				if (!bufs[typeIndex].length && !bufs[0].length) {
-					bufs[0] = [['header', DexSearch.typeName[type]]];
+					bufs[0] = [['header', DexSearch.getTypeName(type)]];
 				}
 				if (!(id in illegal)) typeIndex = 0;
 				// Move illegal pokemon to the bottom of the results
@@ -512,7 +526,7 @@ export class DexSearch {
 				}
 			} else {
 				if (!bufs[typeIndex].length) {
-					bufs[typeIndex] = [['header', DexSearch.typeName[type]]];
+					bufs[typeIndex] = [['header', DexSearch.getTypeName(type)]];
 				}
 			}
 
@@ -1386,7 +1400,7 @@ class BattleAbilitySearch extends BattleTypedSearch<'ability'> {
 		const isAAA = (format === 'almostanyability' || format.includes('aaa'));
 		const dex = this.dex;
 		let species = dex.species.get(this.species);
-		let abilitySet: SearchRow[] = [['header', "Abilities"]];
+		let abilitySet: SearchRow[] = [['header', TL.term.abilities]];
 
 		if (species.isMega) {
 			abilitySet.unshift(['html', `Will be <strong>${species.abilities['0']}</strong> after Mega Evolving.`]);
@@ -1413,7 +1427,7 @@ class BattleAbilitySearch extends BattleTypedSearch<'ability'> {
 				abilities.push(ability.id);
 			}
 
-			let goodAbilities: SearchRow[] = [['header', "Abilities"]];
+			let goodAbilities: SearchRow[] = [['header', TL.term.abilities]];
 			let poorAbilities: SearchRow[] = [['header', "Situational Abilities"]];
 			let badAbilities: SearchRow[] = [['header', "Unviable Abilities"]];
 			for (const ability of abilities.sort().map(abil => dex.abilities.get(abil))) {
@@ -1550,7 +1564,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 	}
 	getDefaultResults(): SearchRow[] {
 		let results: SearchRow[] = [];
-		results.push(['header', "Moves"]);
+		results.push(['header', TL.term.moves]);
 		for (let id in BattleMovedex) {
 			switch (id) {
 			case 'paleowave':
@@ -2003,7 +2017,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		for (const id of moves) {
 			const isUsable = this.moveIsNotUseless(id as ID, species, moves, this.set);
 			if (isUsable) {
-				if (!usableMoves.length) usableMoves.push(['header', "Moves"]);
+				if (!usableMoves.length) usableMoves.push(['header', TL.term.moves]);
 				usableMoves.push(['move', id as ID]);
 			} else {
 				if (!uselessMoves.length) uselessMoves.push(['header', "Usually useless moves"]);

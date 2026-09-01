@@ -512,6 +512,10 @@
 
 /* setstats */
 
+.set-stats-form, .set-details-form {
+	font-size: 10pt;
+}
+
 .setdetails, .setstats {
 	display: block;
 	box-sizing: border-box;
