@@ -242,22 +242,23 @@ export const TL = Object.assign(translate, {
 
 function updateTranslatedNames(lang: string) {
 	if (lang !== Dex.text.getLanguage()) return;
-	const text = BattleText[lang];
-	if (!text) return;
+	if (typeof BattleText === 'undefined') return;
 	const english = BattleText.en;
-	TL.term = text.TermNames || english.TermNames;
-	TL.type = text.TypeNames || english.TypeNames;
-	TL.nature = text.NatureNames || english.NatureNames;
-	TL.gender = text.GenderNames || english.GenderNames;
-	TL.egggroup = text.EggGroupNames || english.EggGroupNames;
-	TL.tag = tagField(text.Tags || english.Tags, 'name');
-	TL.tagHint = tagField(text.Tags || english.Tags, 'hint');
-	TL.color = text.ColorNames || english.ColorNames;
-	TL.status = text.StatusNames || english.StatusNames;
-	TL.target = text.TargetNames || english.TargetNames;
-	TL.stat = text.StatNames || english.StatNames;
-	TL.statShort = text.StatShortNames || english.StatShortNames;
-	TL.statMedium = text.StatMediumNames || english.StatMediumNames;
+	const text = BattleText[lang] || english;
+	if (!text) return;
+	TL.term = text.TermNames || english?.TermNames || {};
+	TL.type = text.TypeNames || english?.TypeNames || {};
+	TL.nature = text.NatureNames || english?.NatureNames || {};
+	TL.gender = text.GenderNames || english?.GenderNames || {};
+	TL.egggroup = text.EggGroupNames || english?.EggGroupNames || {};
+	TL.tag = tagField(text.Tags || english?.Tags, 'name');
+	TL.tagHint = tagField(text.Tags || english?.Tags, 'hint');
+	TL.color = text.ColorNames || english?.ColorNames || {};
+	TL.status = text.StatusNames || english?.StatusNames || {};
+	TL.target = text.TargetNames || english?.TargetNames || {};
+	TL.stat = text.StatNames || english?.StatNames || {};
+	TL.statShort = text.StatShortNames || english?.StatShortNames || {};
+	TL.statMedium = text.StatMediumNames || english?.StatMediumNames || {};
 }
 
 function assignTextFields(target: BattleTextEntry, source: BattleTextEntry) {
@@ -875,8 +876,8 @@ export const Dex = new class implements ModdedDex {
 	}
 	loadTextData(lang = this.text.getLanguage()): Promise<void> {
 		const text = typeof BattleText === 'undefined' ? undefined : BattleText;
+		updateTranslatedNames(lang);
 		if (text?.[lang]) {
-			updateTranslatedNames(lang);
 			return Promise.resolve();
 		}
 		// in case the initial English failed to load
@@ -892,12 +893,17 @@ export const Dex = new class implements ModdedDex {
 			el.onerror = () => reject(new Error(`Failed to load text data from ${src}`));
 			document.getElementsByTagName('body')[0].appendChild(el);
 		});
-		let loading = loadScript(Config.testclient ? `data/text/${lang}.js` : `${this.resourcePrefix}data/text/${lang}.js`);
+		const cachebuster = Config.translationCachebuster ? `?${Config.translationCachebuster}` : '';
+		const textURL = Config.testclient ? `data/text/${lang}.js` : `${this.resourcePrefix}data/text/${lang}.js`;
+		let loading = loadScript(textURL + cachebuster);
 		if (Config.testclient) {
-			loading = loading.catch(() => loadScript(`https://play.pokemonshowdown.com/data/text/${lang}.js`));
+			loading = loading.catch(() =>
+				loadScript(`https://play.pokemonshowdown.com/data/text/${lang}.js${cachebuster}`)
+			);
 		}
 		loading = loading.then(() => updateTranslatedNames(lang)).catch(() => {
 			delete this.loadedTextData[lang];
+			updateTranslatedNames(lang);
 		});
 		this.loadedTextData[lang] = loading;
 		return loading;

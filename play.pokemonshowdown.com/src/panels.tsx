@@ -1585,8 +1585,11 @@ export class PSView extends preact.Component {
 		const isFixed = room.location !== 'popup';
 		const offsetLeft = isFixed || this.useScrollFrame() ? 0 : window.scrollX;
 		const offsetTop = isFixed ? 0 : window.scrollY;
-		const availableWidth = document.documentElement.clientWidth + offsetLeft;
-		const availableHeight = document.documentElement.clientHeight;
+
+		// overlay might have a scrollbar, which changes the available space
+		const overlay = isFixed ? document.getElementById(`room-${room.id}`)?.parentElement : null;
+		const availableWidth = (overlay?.clientWidth || document.documentElement.clientWidth) + offsetLeft;
+		const availableHeight = overlay?.clientHeight || document.documentElement.clientHeight;
 
 		const sourceWidth = source.width;
 		const sourceHeight = source.height;

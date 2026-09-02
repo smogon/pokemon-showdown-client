@@ -225,6 +225,7 @@ li::marker {
 	padding: 0;
 	height: 29px;
 	line-height: 29px;
+	white-space: nowrap;
 	border-left: 0;
 	border-right: 0;
 	border-top: 0;
@@ -263,6 +264,12 @@ li::marker {
 	float: left;
 	border-width: 0 1px 0 0;
 	margin-right: 5px;
+}
+.mini-header-right {
+	position: absolute;
+	top: 0;
+	right: 0;
+	background: inherit;
 }
 .mini-header-left.notifying {
 	color: #AA6600;

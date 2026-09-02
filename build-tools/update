@@ -52,9 +52,23 @@ try {
 } catch {}
 
 const routes = JSON.parse(fs.readFileSync('config/routes.json'));
+const translationCachebuster = (() => {
+	try {
+		const textDir = 'play.pokemonshowdown.com/data/text/';
+		const hash = crypto.createHash('md5');
+		for (const textFile of fs.readdirSync(textDir).filter(file => file.endsWith('.js')).sort()) {
+			hash.update(textFile);
+			hash.update(fs.readFileSync(textDir + textFile));
+		}
+		return hash.digest('hex').slice(0, 8);
+	} catch {
+		return '';
+	}
+})();
 const autoconfigRegex = new RegExp(`${escapeRegex(AUTOCONFIG_START)}[^]+${escapeRegex(AUTOCONFIG_END)}`);
 const autoconfig = `${AUTOCONFIG_START}
 Config.version = ${JSON.stringify(version)};
+Config.translationCachebuster = ${JSON.stringify(translationCachebuster)};
 
 Config.routes = {
 	root: '${routes.root}',

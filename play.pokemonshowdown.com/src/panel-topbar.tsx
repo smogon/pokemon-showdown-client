@@ -366,10 +366,10 @@ export class PSMiniHeader extends preact.Component {
 		);
 		return <div class="mini-header" style={`left:${PSView.verticalHeaderWidth + (PSView.narrowMode ? 0 : -1)}px;`}>
 			{menuButton}
-			{icon} {title}
 			<button data-href="options" class="mini-header-right" aria-label={TL`[Options]`}>
 				{PS.user.named ? <strong style={userColor}>{PS.user.name}</strong> : <i class="fa fa-cog" aria-hidden></i>}
 			</button>
+			{icon} {title}
 		</div>;
 	}
 }

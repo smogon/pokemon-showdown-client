@@ -711,7 +711,7 @@ class OptionsPanel extends PSRoomPanel {
 		const singlePanel = TL`Single panel`;
 		const verticalTabs = TL`Vertical tabs`;
 		const automaticLanguage = Dex.text.findLanguage(Dex.text.getBrowserLanguage())?.name;
-		return <PSPanelWrapper room={room} width={340}><div class="pad">
+		return <PSPanelWrapper room={room} width={380}><div class="pad">
 			<p style="padding-left:50px">
 				<img
 					class="trainersprite yours" width="40" height="40" style={{ float: 'left', marginLeft: '-50px' }}

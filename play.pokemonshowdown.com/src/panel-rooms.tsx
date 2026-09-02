@@ -10,6 +10,20 @@ import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { RoomInfo } from "./panel-mainmenu";
 import { Dex, TL, toID } from "./battle-dex";
 
+const LANGUAGE_ROOM_IDS: Record<string, readonly string[]> = {
+	it: ['italiano'],
+	es: ['espanol', 'espaol'],
+	'zh-cn': ['chinese'],
+	'zh-tw': ['chinese'],
+	hi: ['hindi'],
+	fr: ['franais', 'francais'],
+	pt: ['portugus', 'portugues'],
+	ja: ['japanese'],
+	nl: ['nederlands'],
+	de: ['deutsche'],
+	ko: ['korean'],
+};
+
 export class RoomsRoom extends PSRoom {
 	override readonly classType: string = 'rooms';
 	constructor(options: RoomOptions) {
@@ -127,10 +141,16 @@ class RoomsPanel extends PSRoomPanel {
 		if (!searchid) {
 			const roomsCache = PS.mainmenu.roomsCache;
 			let spotLightLabel = '';
-			const officialRooms = [], chatRooms = [], hiddenRooms = [], spotLightRooms = [];
+			const languageRooms = [], officialRooms = [], chatRooms = [], hiddenRooms = [], spotLightRooms = [];
+			const languageRoomIDs = LANGUAGE_ROOM_IDS[Dex.text.getLanguage()] || [];
+			const languageRoom = languageRoomIDs.map(roomid =>
+				roomsCache.chat?.find(room => room.id === roomid || toID(room.title) === roomid)
+			).find(room => !!room && room.privacy !== 'hidden');
 			for (const room of roomsCache.chat || []) {
 				if (room.section !== this.section && this.section !== '') continue;
-				if (room.privacy === 'hidden') {
+				if (room === languageRoom) {
+					languageRooms.push(room);
+				} else if (room.privacy === 'hidden') {
 					hiddenRooms.push(room);
 				} else if (room.spotlight) {
 					spotLightLabel = room.spotlight;
@@ -142,6 +162,7 @@ class RoomsPanel extends PSRoomPanel {
 				}
 			}
 			return [
+				[TL`Language room`, languageRooms],
 				[TL`Official chat rooms`, officialRooms],
 				[spotLightLabel, spotLightRooms],
 				[TL`Chat rooms`, chatRooms],

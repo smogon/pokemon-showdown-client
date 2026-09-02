@@ -55,6 +55,7 @@ export interface PSConfig {
 		teams: string,
 	};
 	customcolors: Record<string, string>;
+	translationCachebuster?: string;
 	whitelist?: string[];
 	testclient?: boolean;
 }

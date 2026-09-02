@@ -287,6 +287,7 @@ export const translations: UIText = {
 	"Meloetta is PS's mascot! The Aria forme is about using its voice, and represents our chatrooms.": null,
 	"Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles.": null,
 
+	"Language room": null,
 	"Official chat rooms": null,
 	"Hidden rooms": null,
 
