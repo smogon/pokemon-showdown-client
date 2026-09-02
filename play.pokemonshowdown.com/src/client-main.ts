@@ -187,6 +187,8 @@ class PSPrefs extends PSStreamModel<string | null> {
 		language?: string,
 	} = {};
 
+	persistentstatus: string | null = null;
+
 	// PREFS END HERE
 
 	storageEngine: 'localStorage' | 'iframeLocalStorage' | '' = '';
@@ -338,6 +340,12 @@ class PSPrefs extends PSStreamModel<string | null> {
 				// Fortunately, joining a joined room is a no-op.
 				room.connect();
 			}
+		}
+	}
+	setPersistentStatus() {
+		let persistentStatus = PS.prefs.persistentstatus;
+		if (persistentStatus) {
+			PS.send(`/noreply /status ${persistentStatus}`);
 		}
 	}
 }
@@ -1768,8 +1776,30 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				this.add('||/afd off - Disable April Fools\' Day jokes until the next refresh, and set /afd default.');
 				this.add('||/afd never - Disable April Fools\' Day jokes permanently.');
 				return;
+			case 'persistentstatus':
+				this.add('||/persistentstatus [status] - Set your status automatically on login from the current device.');
+				return;
+			case 'clearpersistentstatus':
+				this.add('||/clearpersistentstatus - Clear the persistent status from the current device.');
+				return;
 			default:
 				return true;
+			}
+		},
+		'persistentstatus'(target) {
+			if (target) {
+				PS.prefs.set('persistentstatus', target);
+				this.send(`/status ${target}`);
+			} else {
+				this.handleSend('/help persistentstatus');
+			}
+		},
+		'clearpersistentstatus'(target) {
+			if (target) {
+				this.handleSend('/help clearpersistentstatus');
+			} else {
+				PS.prefs.set('persistentstatus', null);
+				this.send('/clearstatus');
 			}
 		},
 		'autojoin,cmd,crq,query'() {
