@@ -594,7 +594,7 @@ export class TeamEditorState extends PSModel {
 		// only available through an event with 31 Spe IVs
 		if (set.species.startsWith('Terapagos')) minSpe = false;
 
-		const preferMaxAtkFormats = ['1v1', 'categoryswap', 'partnersincrime', 'typesplit'];
+		const preferMaxAtkFormats = ['1v1', 'categoryswap', 'noholdsbarred', 'partnersincrime', 'typesplit'];
 		if (preferMaxAtkFormats.some(f => this.format.includes(f))) {
 			minAtk = false;
 			return { minAtk, minSpe };
