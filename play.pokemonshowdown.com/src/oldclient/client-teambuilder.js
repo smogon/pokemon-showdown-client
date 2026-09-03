@@ -917,7 +917,7 @@
 			$('label[name=editMessage]').hide();
 		},
 		pokepasteExport: function (type) {
-			var team = Storage.exportTeam(this.curSetList, type === 'openteamsheet');
+			var team = Storage.exportTeam(this.curSetList, type.includes("openteamsheet"), type === "openteamsheetnatures");
 			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
 			document.getElementById("pasteData").value = team;
 			document.getElementById("pasteTitle").value = this.curTeam.name;
@@ -1274,7 +1274,9 @@
 				buf += '</p>';
 				buf += '<p><button name="pokepasteExport" type="submit" class="button exportbutton"><i class="fa fa-upload"></i> Upload to PokePaste</button></p>';
 				if (this.curTeam.format.includes('vgc')) {
-					buf += '<p><button name="pokepasteExport" value="openteamsheet" type="submit" class="button exportbutton"><i class="fa fa-upload"></i> Upload to PokePaste (Open Team Sheet)</button></p>';
+					buf += '<p><button name="pokepasteExport" value="';
+					buf += this.curTeam.format.includes("champions") ? 'openteamsheetnatures' : 'openteamsheet';
+					buf += '" type="submit" class="button exportbutton"><i class="fa fa-upload"></i> Upload to PokePaste (Open Team Sheet)</button></p>';
 				}
 				buf += '</form></div>';
 			}
