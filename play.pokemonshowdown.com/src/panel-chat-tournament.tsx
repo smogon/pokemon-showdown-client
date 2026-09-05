@@ -303,6 +303,7 @@ export class ChatTournament extends PSModel {
 
 			case 'battlestart': {
 				const roomid = toRoomid(data[2]);
+				PS.mainmenu.rejectBattleSearch(roomid as RoomID);
 				const bsP1 = BattleLog.escapeHTML(data[0]);
 				const bsP2 = BattleLog.escapeHTML(data[1]);
 				this.tryAdd(`|uhtml|tournament-${roomid}|<div class="tournament-message-battlestart"><a href="${roomid}" class="ilink">${TL`Tournament battle between ${bsP1} and ${bsP2} started.`}</a></div>`);
