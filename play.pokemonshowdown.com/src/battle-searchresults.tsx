@@ -74,7 +74,7 @@ export class PSSearchResults extends preact.Component<{
 			`<button class="sortcol pnamesortcol${sortCol === 'name' ? ' cur' : ''}" data-sort="name">Name</button>`,
 			`<button class="sortcol typesortcol${sortCol === 'type' ? ' cur' : ''}" data-sort="type">${escapeHTML(TL.term.types)}</button>`,
 			!abilityWidthClass ? '' :
-				`<button class="sortcol ${abilityWidthClass}${sortCol === 'ability' ? ' cur' : ''}" data-sort="ability">${escapeHTML(TL.term.abilities)}</button>`,
+			`<button class="sortcol ${abilityWidthClass}${sortCol === 'ability' ? ' cur' : ''}" data-sort="ability">${escapeHTML(TL.term.abilities)}</button>`,
 			`<button class="sortcol statsortcol${sortCol === 'hp' ? ' cur' : ''}" data-sort="hp">${TL.statShort.hp}</button>`,
 			`<button class="sortcol statsortcol${sortCol === 'atk' ? ' cur' : ''}" data-sort="atk">${TL.statShort.atk}</button>`,
 			`<button class="sortcol statsortcol${sortCol === 'def' ? ' cur' : ''}" data-sort="def">${TL.statShort.def}</button>`,
@@ -136,7 +136,7 @@ export class PSSearchResults extends preact.Component<{
 			buf += pokemon.abilities['1'] ?
 				`<span class="col twoabilitycol">${escapeHTML(ability0)}<br />${escapeHTML(ability1)}</span>` :
 				`<span class="col abilitycol">${escapeHTML(ability0)}</span>`;
-		}
+
 			if (search.dex.gen >= 5) {
 				const hiddenAbility = pokemon.abilities['H'] &&
 					search.dex.text.get(search.dex.abilities.get(pokemon.abilities['H'])).name;
