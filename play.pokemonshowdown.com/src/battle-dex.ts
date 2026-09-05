@@ -1194,7 +1194,7 @@ export const Dex = new class implements ModdedDex {
 		let homeExists = (!species.isNonstandard || !['CAP', 'Custom'].includes(species.isNonstandard) ||
 			species.id === "xerneasneutral") && ![
 			"pichuspikyeared", "pikachubelle", "pikachucosplay", "pikachulibre", "pikachuphd", "pikachupopstar", "pikachurockstar",
-		].includes(species.id);
+		].includes(species.id) && !(["floetteeternal", "floettemega"].includes(species.id) && spriteData.shiny);
 		if (gen >= 8 && homeExists) {
 			spriteData.spriteDir = 'sprites/home-centered';
 			spriteData.x = 8;
