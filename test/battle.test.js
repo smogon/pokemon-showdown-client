@@ -88,6 +88,47 @@ describe('Battle', () => {
 
 		assert.deepEqual(p1leafeon.moveTrack, [['Knock Off', 1]]);
 	});
+
+	it('should refresh weather after a details change updates an active ability', () => {
+		global.BattlePokedex = {
+			drampa: {
+				num: 780,
+				name: 'Drampa',
+				types: ['Normal', 'Dragon'],
+				abilities: { 0: 'Berserk', 1: 'Sap Sipper', H: 'Cloud Nine' },
+			},
+			drampamega: {
+				num: 780,
+				name: 'Drampa-Mega',
+				baseSpecies: 'Drampa',
+				forme: 'Mega',
+				types: ['Normal', 'Dragon'],
+				abilities: { 0: 'Berserk' },
+			},
+		};
+
+		const battle = new Battle({ debug: true });
+		battle.add('|gen|9');
+		battle.add('|switch|p1a: Drampa|Drampa, L100|100/100');
+		battle.add('|-ability|p1a: Drampa|Cloud Nine');
+		battle.add('|-weather|RainDance');
+		assert.equal(battle.abilityActive('Cloud Nine'), true);
+
+		let weatherUpdates = 0;
+		battle.scene.updateWeather = () => weatherUpdates++;
+		const weatherState = [battle.weather, battle.weatherMinTimeLeft, battle.weatherTimeLeft];
+
+		battle.add('|detailschange|p1a: Drampa|Drampa-Mega, L100');
+
+		assert.equal(battle.p1.active[0].ability, 'Berserk');
+		assert.equal(battle.abilityActive('Cloud Nine'), false);
+		assert.equal(weatherUpdates, 1);
+		assert.deepEqual(
+			[battle.weather, battle.weatherMinTimeLeft, battle.weatherTimeLeft],
+			weatherState
+		);
+		delete global.BattlePokedex;
+	});
 });
 
 describe('Text parser', () => {
