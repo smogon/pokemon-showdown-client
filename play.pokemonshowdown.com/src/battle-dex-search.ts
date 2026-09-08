@@ -90,6 +90,7 @@ export class DexSearch {
 	}
 	static unselectableResultTypes = ['header', 'html', 'sortpokemon', 'sortmove'];
 	firstPokemonColumn: 'Tier' | 'Number' = 'Number';
+	numAbilityCols: 0 | 1 | 2 = 0;
 
 	/**
 	 * Column to sort by. Default is `null`, a smart sort determined by how good
@@ -207,7 +208,13 @@ export class DexSearch {
 			this.sortCol = null;
 		}
 		this.typedSearch = this.getTypedSearch(searchType, format, speciesOrSet);
-		if (this.typedSearch) this.dex = this.typedSearch.dex;
+		this.numAbilityCols = 0;
+		if (this.typedSearch) {
+			this.dex = this.typedSearch.dex;
+			if (searchType === 'pokemon' && this.dex.gen >= 3 && this.dex.modid !== 'gen7letsgo') {
+				this.numAbilityCols = this.dex.gen < 5 ? 1 : 2;
+			}
+		}
 	}
 
 	capitalizeFirst(str: string) {

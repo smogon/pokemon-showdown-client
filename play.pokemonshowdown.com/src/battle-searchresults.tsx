@@ -65,18 +65,22 @@ export class PSSearchResults extends preact.Component<{
 	renderPokemonSortRowHTML(index: number) {
 		const search = this.props.search;
 		const sortCol = search.sortCol;
+		const abilityWidthClass = search.numAbilityCols === 1 ? 'singleabilitysortcol' : 'abilitysortcol';
 		return [
 			`<li class="result" value="${index}"><div class="sortrow">`,
 			`<button class="sortcol numsortcol${!sortCol ? ' cur' : ''}">`,
 			`${!sortCol ? 'Sort: ' : escapeHTML(search.firstPokemonColumn)}</button>`,
 			`<button class="sortcol pnamesortcol${sortCol === 'name' ? ' cur' : ''}" data-sort="name">Name</button>`,
 			`<button class="sortcol typesortcol${sortCol === 'type' ? ' cur' : ''}" data-sort="type">${escapeHTML(TL.term.types)}</button>`,
-			`<button class="sortcol abilitysortcol${sortCol === 'ability' ? ' cur' : ''}" data-sort="ability">${escapeHTML(TL.term.abilities)}</button>`,
+			!search.numAbilityCols ? '' :
+			`<button class="sortcol ${abilityWidthClass}${sortCol === 'ability' ? ' cur' : ''}" data-sort="ability">${escapeHTML(TL.term.abilities)}</button>`,
 			`<button class="sortcol statsortcol${sortCol === 'hp' ? ' cur' : ''}" data-sort="hp">${TL.statShort.hp}</button>`,
 			`<button class="sortcol statsortcol${sortCol === 'atk' ? ' cur' : ''}" data-sort="atk">${TL.statShort.atk}</button>`,
 			`<button class="sortcol statsortcol${sortCol === 'def' ? ' cur' : ''}" data-sort="def">${TL.statShort.def}</button>`,
-			`<button class="sortcol statsortcol${sortCol === 'spa' ? ' cur' : ''}" data-sort="spa">${TL.statShort.spa}</button>`,
-			`<button class="sortcol statsortcol${sortCol === 'spd' ? ' cur' : ''}" data-sort="spd">${TL.statShort.spd}</button>`,
+			search.dex.gen === 1 ?
+				`<button class="sortcol statsortcol${sortCol === 'spa' ? ' cur' : ''}" data-sort="spa">${TL.statShort.spc}</button>` :
+				`<button class="sortcol statsortcol${sortCol === 'spa' ? ' cur' : ''}" data-sort="spa">${TL.statShort.spa}</button>` +
+				`<button class="sortcol statsortcol${sortCol === 'spd' ? ' cur' : ''}" data-sort="spd">${TL.statShort.spd}</button>`,
 			`<button class="sortcol statsortcol${sortCol === 'spe' ? ' cur' : ''}" data-sort="spe">${TL.statShort.spe}</button>`,
 			`<button class="sortcol statsortcol${sortCol === 'bst' ? ' cur' : ''}" data-sort="bst">${TL.tag.bst}</button>`,
 			`</div></li>`,
@@ -126,27 +130,28 @@ export class PSSearchResults extends preact.Component<{
 			`<img src="${Dex.resourcePrefix}sprites/types/${type}.png" alt="${escapeHTML(search.dex.text.typeName(type))}" height="14" width="32" class="pixelated" />`
 		).join('')}</span>`;
 
-		if (search.dex.gen >= 3) {
+		if (search.numAbilityCols) {
 			const ability0 = search.dex.text.get(search.dex.abilities.get(pokemon.abilities['0'])).name;
 			const ability1 = pokemon.abilities['1'] &&
 				search.dex.text.get(search.dex.abilities.get(pokemon.abilities['1'])).name;
 			buf += pokemon.abilities['1'] ?
 				`<span class="col twoabilitycol">${escapeHTML(ability0)}<br />${escapeHTML(ability1)}</span>` :
 				`<span class="col abilitycol">${escapeHTML(ability0)}</span>`;
-		}
-		if (search.dex.gen >= 5) {
-			const hiddenAbility = pokemon.abilities['H'] &&
-				search.dex.text.get(search.dex.abilities.get(pokemon.abilities['H'])).name;
-			const specialAbility = pokemon.abilities['S'] &&
-				search.dex.text.get(search.dex.abilities.get(pokemon.abilities['S'])).name;
-			if (pokemon.abilities['S']) {
-				buf += `<span class="col twoabilitycol${pokemon.unreleasedHidden ? ' unreleasedhacol' : ''}">` +
-					`${escapeHTML(hiddenAbility || '')}<br />${escapeHTML(specialAbility)}</span>`;
-			} else if (pokemon.abilities['H']) {
-				buf += `<span class="col abilitycol${pokemon.unreleasedHidden ? ' unreleasedhacol' : ''}">` +
-					`${escapeHTML(hiddenAbility)}</span>`;
-			} else {
-				buf += `<span class="col abilitycol"></span>`;
+
+			if (search.numAbilityCols >= 2) {
+				const hiddenAbility = pokemon.abilities['H'] &&
+					search.dex.text.get(search.dex.abilities.get(pokemon.abilities['H'])).name;
+				const specialAbility = pokemon.abilities['S'] &&
+					search.dex.text.get(search.dex.abilities.get(pokemon.abilities['S'])).name;
+				if (pokemon.abilities['S']) {
+					buf += `<span class="col twoabilitycol${pokemon.unreleasedHidden ? ' unreleasedhacol' : ''}">` +
+						`${escapeHTML(hiddenAbility || '')}<br />${escapeHTML(specialAbility)}</span>`;
+				} else if (pokemon.abilities['H']) {
+					buf += `<span class="col abilitycol${pokemon.unreleasedHidden ? ' unreleasedhacol' : ''}">` +
+						`${escapeHTML(hiddenAbility)}</span>`;
+				} else {
+					buf += `<span class="col abilitycol"></span>`;
+				}
 			}
 		}
 
