@@ -782,7 +782,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		} else if (assertion.startsWith(';;')) {
 			this.updateLogin({ error: assertion.slice(2) });
 		} else if (assertion.includes('\n') || !assertion) {
-			PS.alert("Something is interfering with our connection to the login server.");
+			PS.alert(TL`Something is interfering with our connection to the login server.`);
 		} else {
 			PS.send(`/trn ${name},0,${assertion}`);
 			this.update({ success: true });
@@ -795,7 +795,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		PS.send(`/logout`);
 		PS.connection?.disconnect();
 
-		PS.alert("You have been logged out and disconnected.\n\nIf you wanted to change your name while staying connected, use the 'Change Name' button or the '/nick' command.");
+		PS.alert(TL`You have been logged out and disconnected.\n\nIf you wanted to change your name while staying connected, use the 'Change Name' button or the '/nick' command.`);
 		this.name = "";
 		this.group = '';
 		this.userid = "" as ID;
@@ -1327,7 +1327,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			// connect to server
 			const uptime = Date.now() - PS.startTime;
 			if (uptime > 24 * 60 * 60 * 1000) {
-				PS.confirm(`It's been over a day since you first connected. Please refresh.`, {
+				PS.confirm(TL`It's been over a day since you first connected. Please refresh.`, {
 					okButton: TL`[Refresh]`,
 				}).then(confirmed => {
 					if (confirmed) this.send(`/refresh`);
@@ -2382,7 +2382,7 @@ export const PS = new class extends PSModel {
 		const bracketRoomid = roomid ? `[${roomid}] ` : '';
 		console.log(`\u25b6\ufe0f ${bracketRoomid}%c${msg}`, "color: #776677");
 		if (!this.connection) {
-			PS.alert(`You are not connected and cannot send ${msg}.`);
+			PS.alert(TL`You are not connected and cannot send ${msg}.`);
 			return;
 		}
 		this.connection.send(`${roomid || ''}|${msg}`);

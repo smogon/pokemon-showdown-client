@@ -110,7 +110,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 				</p>
 
 				<p>
-					<label class="label">{TL.label(TL.term.format)}</label>
+					<label class="label">{TL.label(TL`Format`)}</label>
 					<FormatDropdown onChange={this.changeFormat} placeholder={TL`(All formats)`} />
 				</p>
 				<label class="label">
@@ -750,31 +750,33 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<div class="megaevo-box">
 				{canDynamax && <label class={`megaevo${choices.current.max ? ' cur' : ''}`}>
 					<input type="checkbox" name="max" checked={choices.current.max} onChange={this.toggleBoostedMove} /> {}
-					{moveRequest.gigantamax ? TL.tag.gigantamax : TL.term.dynamax}
+					{moveRequest.gigantamax ? TL.tag.gigantamax : TL`Dynamax`}
 				</label>}
 				{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
 					<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
-					{TL.term.megaevolution}
+					{TL`Mega Evolution`}
 				</label>}
 				{canMegaEvoX && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
 					<input type="checkbox" name="megax" checked={choices.current.megax} onChange={this.toggleBoostedMove} /> {}
-					{TL.term.megaevolution} X
+					{TL`Mega Evolution`} X
 				</label>}
 				{canMegaEvoY && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
 					<input type="checkbox" name="megay" checked={choices.current.megay} onChange={this.toggleBoostedMove} /> {}
-					{TL.term.megaevolution} Y
+					{TL`Mega Evolution`} Y
 				</label>}
 				{canUltraBurst && <label class={`megaevo${choices.current.ultra ? ' cur' : ''}`}>
 					<input type="checkbox" name="ultra" checked={choices.current.ultra} onChange={this.toggleBoostedMove} /> {}
-					{TL.term.ultraburst}
+					{TL`Ultra Burst`}
 				</label>}
 				{canZMove && <label class={`megaevo${choices.current.z ? ' cur' : ''}`}>
 					<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> {}
-					{TL.term.zpower}
+					{TL`Z-Power`}
 				</label>}
 				{canTerastallize && <label class={`megaevo${choices.current.tera ? ' cur' : ''}`}>
 					<input type="checkbox" name="tera" checked={choices.current.tera} onChange={this.toggleBoostedMove} /> {}
-					{TL.term.tera} {PSIcon({ type: canTerastallize, new: true, tera: true })}
+					{TL`Tera ${'{TYPE}'}`.split(/(\{TYPE\})/).map(part => (
+						part === '{TYPE}' ? PSIcon({ type: canTerastallize, new: true, tera: true }) : part
+					))}
 				</label>}
 			</div>
 			{overlayVersion && this.renderMoveControls(moveRequest, choices)}

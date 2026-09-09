@@ -42,7 +42,7 @@ class TeamRoom extends PSRoom {
 		return this.editor?.handleParentKeyDown?.(e as KeyboardEvent);
 	};
 	override getTitle() {
-		return `[${TL.term.team}] ${this.team?.name || (this.teamDeleted ? TL`Team deleted` : TL`Not found`)}`;
+		return `[${TL`Team`}] ${this.team?.name || (this.teamDeleted ? TL`Team deleted` : TL`Not found`)}`;
 	}
 	getTeam() {
 		const team = PS.teams.byKey[this.id.slice(5)] || null;
@@ -306,7 +306,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 			}
 			return <PSPanelWrapper room={room}>
 				<a class="button" href="teambuilder" data-target="replace">
-					<i class="fa fa-chevron-left" aria-hidden></i> {TL`Teams`}
+					<i class="fa fa-chevron-left" aria-hidden></i> {TL`[Teams]`}
 				</a>
 				<p class="error">
 					{room.teamDeleted ? TL`Team was deleted` : TL`Team doesn't exist`}
@@ -318,7 +318,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		return <PSPanelWrapper room={room}>
 			<div class="team-pad">
 				<a class="button" href="teambuilder" data-target="replace">
-					<i class="fa fa-chevron-left" aria-hidden></i> {TL`Teams`}
+					<i class="fa fa-chevron-left" aria-hidden></i> {TL`[Teams]`}
 				</a> {}
 				{team.uploaded ? (
 					<>
@@ -471,7 +471,7 @@ class ViewTeamPanel extends PSRoomPanel {
 				url={`https://psim.us/t/${team.teamid!}${teamData.private ? '-' + teamData.private : ''}`}
 			/> {}
 			<p>{TL.label(TL`Uploaded by`)}<strong>{teamData.ownerid}</strong></p>
-			<p>{TL.label(TL.term.format)}<strong>{teamData.format}</strong></p>
+			<p>{TL.label(TL`Format`)}<strong>{teamData.format}</strong></p>
 			<p>{TL.label(TL`Views`)}<strong>{teamData.views}</strong></p>
 			{team.key && <p><a class="button" href={`team-${team.key}`}>{TL`[Edit]`}</a></p>}
 			<TeamEditor team={team} readOnly></TeamEditor>

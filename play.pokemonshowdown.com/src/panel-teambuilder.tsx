@@ -100,7 +100,7 @@ class TeambuilderRoom extends PSRoom {
 		},
 		'createfolder'(name, cmd, elem) {
 			if (!name) {
-				PS.prompt("Folder name?", { parentElem: elem, okButton: TL`[Create]` }).then(newName => {
+				PS.prompt(TL`Folder name?`, { parentElem: elem, okButton: TL`[Create]` }).then(newName => {
 					newName = (newName || '').trim();
 					if (!newName) return;
 
@@ -246,7 +246,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 	static readonly icon = <i class="fa fa-pencil-square-o" aria-hidden></i>;
 	static readonly title = 'Teambuilder';
 	static getTitle() {
-		return TL`Teams`;
+		return TL`Teambuilder`;
 	}
 	mobileFormatFolderButton: HTMLButtonElement | null = null;
 	backupCopiedTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -627,7 +627,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		const elem = ev.currentTarget as HTMLElement;
 		ev.stopImmediatePropagation();
 		ev.preventDefault();
-		PS.prompt(`Rename \`\`${oldFolder}\`\` to?`, { defaultValue: oldFolder, okButton: TL`[Rename]`, parentElem: elem }).then(name => {
+		PS.prompt(TL`Rename \`\`${oldFolder}\`\` to?`, { defaultValue: oldFolder, okButton: TL`[Rename]`, parentElem: elem }).then(name => {
 			name = (name || '').trim();
 			if (!name) return;
 			if (name === oldFolder) return;
@@ -641,7 +641,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		const elem = ev.currentTarget as HTMLElement;
 		ev.stopImmediatePropagation();
 		ev.preventDefault();
-		PS.confirm(`Delete \`\`${oldFolder}\`\`? (doesn't delete teams)`, {
+		PS.confirm(TL`Delete \`\`${oldFolder}\`\`? (doesn't delete teams)`, {
 			okButton: TL`[Delete]`, otherButtons: <button class="button" data-cmd="/closeand /inopener /convertfoldertoprefix">{TL`[Convert to prefix]`}</button>,
 			parentElem: elem,
 		}).then(result => {
@@ -933,17 +933,19 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					<i class="fa fa-archive" aria-hidden></i> {TL`[New box]`}
 				</button>
 				<input
-					type="search" class="textbox" placeholder="Search teams"
+					type="search" class="textbox" placeholder={TL`Search teams`}
 					style="margin-left:5px;" onKeyUp={this.updateSearch}
 				></input>
 			</p>
 			<ul class="teamlist">
 				{!teams.length ? (
-					<li><em>you have no teams lol</em></li>
+					<li><em>{TL`you have no teams lol`}</em></li>
 				) : !filteredTeams.length && room.searchTerms.length ? (
-					<li><em>you have no teams matching <code>{room.searchTerms.join(", ")}</code></em></li>
+					<li><em>{TL`you have no teams matching {TEXT}`.split(/(\{TEXT\})/).map(
+						part => part === '{TEXT}' ? <code>{room.searchTerms.join(", ")}</code> : part
+					)}</em></li>
 				) : !filteredTeams.length ? (
-					<li><em>you have no teams in this folder</em></li>
+					<li><em>{TL`you have no teams in this folder`}</em></li>
 				) : filteredTeams.map(team => team ? (
 					<li
 						key={team.key} data-teamkey={team.key}
@@ -974,11 +976,11 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 								<i class="fa fa-copy" aria-hidden></i>
 							</button>} {}
 							{team.uploaded?.private ? (
-								<i class="fa fa-cloud gray" title="Uploaded"></i>
+								<i class="fa fa-cloud gray" title={TL`Uploaded`}></i>
 							) : team.uploaded ? (
-								<i class="fa fa-globe gray" title="Public"></i>
+								<i class="fa fa-globe gray" title={TL`Public`}></i>
 							) : team.teamid ? (
-								<i class="fa fa-plug message-error" title="Disconnected"></i>
+								<i class="fa fa-plug message-error" title={TL`Disconnected`}></i>
 							) : (
 								null
 							)} {}

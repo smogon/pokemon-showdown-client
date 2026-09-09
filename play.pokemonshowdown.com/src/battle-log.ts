@@ -398,7 +398,7 @@ export class BattleLog {
 			break;
 
 		case 'tier':
-			this.addDiv('', `<small>${TL.label(TL.term.format || 'Format')}</small><br /><strong>` + BattleLog.escapeHTML(args[1]) + '</strong>');
+			this.addDiv('', `<small>${TL.label(TL`Format`)}</small><br /><strong>` + BattleLog.escapeHTML(args[1]) + '</strong>');
 			break;
 
 		case 'turn':

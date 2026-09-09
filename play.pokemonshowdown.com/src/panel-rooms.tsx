@@ -281,14 +281,14 @@ class RoomsPanel extends PSRoomPanel {
 	renderRoomList() {
 		const roomsCache = PS.mainmenu.roomsCache;
 		if (roomsCache.userCount === undefined) {
-			return <div class="roomlist"><h2>{TL`Official chat rooms`}</h2><p><em>Connecting...</em></p></div>;
+			return <div class="roomlist"><h2>{TL`Official chat rooms`}</h2><p><em>{TL`Connecting...`}</em></p></div>;
 		}
 		if (this.search) {
 			// do nothing
 		} else if (PS.isOffline) {
-			return <div class="roomlist"><h2>Offline</h2></div>;
+			return <div class="roomlist"><h2>{TL`Offline`}</h2></div>;
 		} else if (roomsCache.userCount === undefined) {
-			return <div class="roomlist"><h2>{TL`Official chat rooms`}</h2><p><em>Connecting...</em></p></div>;
+			return <div class="roomlist"><h2>{TL`Official chat rooms`}</h2><p><em>{TL`Connecting...`}</em></p></div>;
 		}
 
 		// Descending order

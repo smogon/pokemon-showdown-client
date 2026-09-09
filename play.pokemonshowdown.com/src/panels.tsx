@@ -1347,8 +1347,12 @@ export class PSView extends preact.Component {
 				}
 			}
 			PS.alert(
-				`Sorry, we don't know what to do with that file.\n\nSupported file types:\n` +
-				`- images (to set your background)\n- downloaded replay files\n- team files`
+				TL`Sorry, we don't know what to do with that file.
+
+Supported file types:
+- images (to set your background)
+- downloaded replay files
+- team files`
 			);
 			PS.dragging = null;
 		});

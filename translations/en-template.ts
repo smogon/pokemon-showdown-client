@@ -1,8 +1,8 @@
-import type { UIText } from '../build-tools/translations.mts';
+import type { TranslationCatalog } from '../build-tools/translations.mts';
 
 // TRANSLATORS: Buttons are surrounded by brackets, like `[OK]` or `[Cancel]`
 // TRANSLATORS: Leave the brackets out of your translation.
-export const translations: UIText = {
+export const translations: TranslationCatalog = {
 	// #region Navigation
 	// ==================================================================
 
@@ -11,9 +11,8 @@ export const translations: UIText = {
 	"Home": null,
 	// TRANSLATORS: This is used as a "Back to Home" button after battles
 	"[Main menu]": null,
-	// TRANSLATORS: It's fine if "Teambuilder" and "Teams" are the same word in your language
-	// TRANSLATORS: Also consider something like "Edit teams" for "Teambuilder"
-	"Teambuilder": null,
+	// TRANSLATORS: the button that opens the teambuilder; consider something like "Edit teams"
+	"[Teambuilder]": null,
 	"Ladder": null,
 	"Tournaments": null,
 	"Friends": null,
@@ -68,8 +67,6 @@ export const translations: UIText = {
 	"[Create]": null,
 	"[Rename]": null,
 	"[Remove]": null,
-	// TRANSLATORS: intentionally chosen to be very short. do not go longer than three letters for this one
-	"Gen {NUMBER}": null,
 	"[Maximize]": null,
 	"[Expand/collapse]": null,
 
@@ -82,16 +79,17 @@ export const translations: UIText = {
 	"Failed to load team: {ERROR}": null,
 	"Error logging in.": null,
 	"Something is interfering with our connection to the login server. Most likely, your internet provider needs you to re-log-in, or your internet provider is blocking Pokémon Showdown.": null,
+	"Something is interfering with our connection to the login server.": null,
+	"You have been logged out and disconnected.\n\nIf you wanted to change your name while staying connected, use the 'Change Name' button or the '/nick' command.": null,
+	"You are not connected and cannot send {MESSAGE}.": null,
+	"It's been over a day since you first connected. Please refresh.": null,
+	"Sorry, we don't know what to do with that file.\n\nSupported file types:\n- images (to set your background)\n- downloaded replay files\n- team files": null,
 
-	// TRANSLATORS: for constructing lists
-	"{FIRST} or {SECOND}": null,
-	"{FIRST} and {SECOND}": null,
-	", {NEXT}": null,
-	", or {LAST}": null,
-	", and {LAST}": null,
-	// TRANSLATORS: this is for lists of users specifically
-	// TRANSLATORS: (languages with counters should use the "person" counter)
-	", and {NUMBER} others": null,
+	// TRANSLATORS: an unknown value, e.g. the "?" in "Ability: ? (Levitate, Heatproof)"
+	"?": null,
+	// TRANSLATORS: appends a parenthetical to a value, e.g. "Ability: ? (Levitate, Heatproof)"
+	// TRANSLATORS: note the leading space (fullwidth parens probably don't want one)
+	" ({PARENTHETICAL})": null,
 
 	// #endregion Generic UI
 
@@ -161,6 +159,10 @@ export const translations: UIText = {
 	"Invite only (hide from Battles list)": null,
 	"Ignore Pokémon nicknames": null,
 	"Automatically start timer": null,
+	// TRANSLATORS: this phrasing is because "forfeit" is an English word some people don't know
+	// TRANSLATORS: if your language's word for "forfeit" is easily understandable, you may wish to skip the explanation
+	"Forfeiting makes you lose the battle. Are you sure?": null,
+	"Replacement player's name:": null,
 	"Hardcore mode": null,
 	"Start at turn 0 when spectating battles": null,
 	"Open new battles in the right-side panel": null,
@@ -197,16 +199,26 @@ export const translations: UIText = {
 	"[Text formatting...]": null,
 	"[Set as background]": null,
 	"[Random]": null,
+	"Volume": null,
+	"(muted)": null,
+	"Default": null,
+	// TRANSLATORS: "Built-in" backgrounds, as opposed to user-uploaded backgrounds
+	"Official": null,
+	"Custom": null,
 
 	// TRANSLATORS: team chooser
 	"(uncategorized)": null,
 	"(all)": null,
 	"[Other gens]": null,
 	"Select a team": null,
+	"(empty box)": null,
+	"(empty team)": null,
 	"This team selector is no longer available (the challenge was cancelled or something).": null,
 	"No teams found": null,
 	"This format selector is no longer available.": null,
 	"Search formats": null,
+	"No formats matching \"{SEARCH}\" found": null,
+	"No formats found": null,
 
 	// TRANSLATORS: login
 	"[Choose name]": null,
@@ -249,6 +261,9 @@ export const translations: UIText = {
 	"Find a random opponent": null,
 	"Watch a battle": null,
 	"Find a user": null,
+	// TRANSLATORS: A list of "games" you are currently in
+	// TRANSLATORS: Games includes help tickets and similar interactive experiences that aren't exactly games
+	"You are in:": null,
 	"Info & Resources": null,
 	"Lobby chat": null,
 
@@ -287,7 +302,6 @@ export const translations: UIText = {
 	"Meloetta is PS's mascot! The Aria forme is about using its voice, and represents our chatrooms.": null,
 	"Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles.": null,
 
-	"Language room": null,
 	"Official chat rooms": null,
 	"Hidden rooms": null,
 
@@ -301,6 +315,8 @@ export const translations: UIText = {
 	"Possible secret room": null,
 	"(Private room?)": null,
 	"Search results": null,
+	// TRANSLATORS: the current language's chatroom, not a list of language rooms
+	"Language room": null,
 
 	// #endregion Rooms
 
@@ -374,7 +390,6 @@ export const translations: UIText = {
 	"No battles are going on": null,
 	"{NUMBER} battle": null,
 	"{NUMBER} battles": null,
-	"None": null,
 	"Timer": null,
 	"Error": null,
 	"The battle you're looking for has expired. Battles expire after 15 minutes of inactivity unless they're saved.": null,
@@ -459,7 +474,6 @@ export const translations: UIText = {
 	"Tournament created": null,
 	// TRANSLATORS: label, as in "Room: lobby"
 	"Room": null,
-	"Type": null,
 	"{USER} has joined the tournament, replacing {OLDUSER}.": null,
 	"({NUMBER} players)": null,
 	"The tournament has started!": null,
@@ -515,6 +529,7 @@ export const translations: UIText = {
 	"This command can only be used in proper chat rooms.": null,
 	"Error: corrupted ranking data": null,
 	"You are not in a battle": null,
+	"Turn number?": null,
 	"Invalid turn number: {NUMBER}": null,
 	"Turn navigation is disabled in hardcore mode.": null,
 	"You are not a player in this battle": null,
@@ -526,18 +541,27 @@ export const translations: UIText = {
 	// #region Teambuilder
 	// ==================================================================
 
-	// TRANSLATORS: This is for the Teams list view so it can't be singular
-	// TRANSLATORS: Should be something like "Teams List" if you have no singular
-	// TRANSLATORS: Can be different from TL.term.teams, which "Teams" as in "plural of Team"
-	"Teams": null,
+	// TRANSLATORS: the title of the teams list view, so it can't be singular
+	// TRANSLATORS: something like "Teams List" is fine; "Teams" (plural of Team) is a separate key
+	"Teambuilder": null,
+	// TRANSLATORS: the back button from a team to the teams list; same wording as the list title is fine
+	"[Teams]": null,
 	"[New team]": null,
 	"[New team in folder]": null,
 	"[New {FORMAT} team]": null,
 	"[New box]": null,
+	"Search teams": null,
+	// TRANSLATORS: a jokey tone. feel free to take it or leave it
+	"you have no teams lol": null,
+	"you have no teams matching {TEXT}": null,
+	"you have no teams in this folder": null,
 	// TRANSLATORS: When deleting a folder, button to add folder name to all teams in it
 	"[Convert to prefix]": null,
 	"[(add folder)]": null,
 	"[(add format folder)]": null,
+	"Folder name?": null,
+	"Rename ``{FOLDER}`` to?": null,
+	"Delete ``{FOLDER}``? (doesn't delete teams)": null,
 	"Names can't contain slashes, since they're used as a folder separator.": null,
 	"Names can't contain the character |, since they're used for storing teams.": null,
 	"New name required": null,
@@ -569,6 +593,7 @@ export const translations: UIText = {
 	"Account (public)": null,
 	"Local": null,
 	"Uploaded": null,
+	"Public": null,
 	"[Upload for shareable URL]": null,
 	"[Upload for shareable/searchable URL]": null,
 	"Disconnected (wrong account?)": null,
@@ -587,9 +612,6 @@ export const translations: UIText = {
 	"[Add Pokémon]": null,
 	"(choose ability)": null,
 	"Details": null,
-	// TRANSLATORS: Teambuilder "form" with text boxes inside, not form/forme "form" of a pokemon
-	"Form": null,
-	"Tera": null,
 	// TRANSLATORS: These two are for Hidden Power type
 	// TRANSLATORS: They're both designed to take up very little width, so keep that in mind
 	"H.P.": null,
@@ -611,8 +633,7 @@ export const translations: UIText = {
 	"Natures cannot raise or lower HP.": null,
 	// TRANSLATORS: {STATCHANGES} is +stat/-stat
 	"{STATCHANGES} nature": null,
-	// TRANSLATORS: {1} and {2} are the + and - keyboard keys
-	"You can also set natures by typing {1} and {2} in the EV box.": null,
+	"You can also set natures by typing {PLUS} and {MINUS} in the EV box.": null,
 	"Pasted team": null,
 	"Zoom out forms": null,
 	"Compact": null,
@@ -637,6 +658,8 @@ export const translations: UIText = {
 	"Must use on an uploaded team.": null,
 	"Team not found: {INPUT}": null,
 	"Your file \"{FILENAME}\" is not a valid team.": null,
+	"Hidden Power Type": null,
+	"Tera Type": null,
 
 	// #endregion Teambuilder
 

@@ -7,7 +7,9 @@ const vm = require('vm');
 global.preact = {Component: function () {}};
 global.Config = {routes: {dex: 'dex.pokemonshowdown.com'}};
 global.Dex = {resourcePrefix: '', getPokemonIcon() { return ''; }, getItemIcon() { return ''; }};
-global.TL = {term: {noitem: '(localized no item)', noability: '(localized no ability)'}};
+// the shared UI catalog: TL`(no item)` etc. are tagged-template calls
+const localized = {'(no item)': '(localized no item)', '(no ability)': '(localized no ability)'};
+global.TL = strings => localized[strings[0]] ?? strings[0];
 
 const searchResultsPath = path.resolve(__dirname, '../play.pokemonshowdown.com/js/battle-searchresults.js');
 const PSSearchResults = vm.runInThisContext(

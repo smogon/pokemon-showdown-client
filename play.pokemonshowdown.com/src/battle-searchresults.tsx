@@ -71,9 +71,9 @@ export class PSSearchResults extends preact.Component<{
 			`<button class="sortcol numsortcol${!sortCol ? ' cur' : ''}">`,
 			`${!sortCol ? 'Sort: ' : escapeHTML(search.firstPokemonColumn)}</button>`,
 			`<button class="sortcol pnamesortcol${sortCol === 'name' ? ' cur' : ''}" data-sort="name">Name</button>`,
-			`<button class="sortcol typesortcol${sortCol === 'type' ? ' cur' : ''}" data-sort="type">${escapeHTML(TL.term.types)}</button>`,
+			`<button class="sortcol typesortcol${sortCol === 'type' ? ' cur' : ''}" data-sort="type">${escapeHTML(TL`Types`)}</button>`,
 			!search.numAbilityCols ? '' :
-			`<button class="sortcol ${abilityWidthClass}${sortCol === 'ability' ? ' cur' : ''}" data-sort="ability">${escapeHTML(TL.term.abilities)}</button>`,
+			`<button class="sortcol ${abilityWidthClass}{sortCol === 'ability' ? ' cur' : ''}" data-sort="ability">${escapeHTML(TL`Abilities`)}</button>`,
 			`<button class="sortcol statsortcol${sortCol === 'hp' ? ' cur' : ''}" data-sort="hp">${TL.statShort.hp}</button>`,
 			`<button class="sortcol statsortcol${sortCol === 'atk' ? ' cur' : ''}" data-sort="atk">${TL.statShort.atk}</button>`,
 			`<button class="sortcol statsortcol${sortCol === 'def' ? ' cur' : ''}" data-sort="def">${TL.statShort.def}</button>`,
@@ -92,7 +92,7 @@ export class PSSearchResults extends preact.Component<{
 		const sortCol = search.sortCol;
 		return `<li class="result" value="${index}"><div class="sortrow">` +
 			`<button class="sortcol movenamesortcol${sortCol === 'name' ? ' cur' : ''}" data-sort="name">Name</button>` +
-			`<button class="sortcol movetypesortcol${sortCol === 'type' ? ' cur' : ''}" data-sort="type">${escapeHTML(TL.term.type)}</button>` +
+			`<button class="sortcol movetypesortcol${sortCol === 'type' ? ' cur' : ''}" data-sort="type">${escapeHTML(TL`Type`)}</button>` +
 			`<button class="sortcol movetypesortcol${sortCol === 'category' ? ' cur' : ''}" data-sort="category">Cat</button>` +
 			`<button class="sortcol powersortcol${sortCol === 'power' ? ' cur' : ''}" data-sort="power">Pow</button>` +
 			`<button class="sortcol accuracysortcol${sortCol === 'accuracy' ? ' cur' : ''}" data-sort="accuracy">Acc</button>` +
@@ -208,7 +208,7 @@ export class PSSearchResults extends preact.Component<{
 		const itemText = search.dex.text.get(item);
 		[matchStart, matchEnd] = getLocalizedMatch(itemText.name, item.name, matchStart, matchEnd);
 		const itemName = id ? this.renderNameHTML(itemText.name, matchStart, matchEnd) :
-			`<i>${escapeHTML(TL.term.noitem || '(no item)')}</i>`;
+			`<i>${escapeHTML(TL`(no item)`)}</i>`;
 
 		return `<li class="result" value="${index}"><a href="${this.URL_ROOT}items/${id}" ` +
 			`class="${id === this.itemId ? 'cur' : ''}" data-target="push" data-entry="item|${escapeHTML(item.name)}">` +
@@ -227,7 +227,7 @@ export class PSSearchResults extends preact.Component<{
 		[matchStart, matchEnd] = getLocalizedMatch(abilityText.name, ability.name, matchStart, matchEnd);
 		const abilityName = id && ability.id !== 'noability' ?
 			this.renderNameHTML(abilityText.name, matchStart, matchEnd) :
-			`<i>${escapeHTML(TL.term.noability || '(no ability)')}</i>`;
+			`<i>${escapeHTML(TL`(no ability)`)}</i>`;
 
 		return `<li class="result" value="${index}"><a href="${this.URL_ROOT}abilities/${id}" ` +
 			`class="${id === this.abilityId ? 'cur' : ''}" data-target="push" data-entry="ability|${escapeHTML(ability.name)}">` +

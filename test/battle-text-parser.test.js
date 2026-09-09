@@ -58,7 +58,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 			assert.equal(global.Dex.loadedTextData.en, undefined);
 			fail = false;
 			await global.Dex.loadTextData('en');
-			assert.equal(global.TL.term, battleText.en.TermNames);
+			assert.equal(global.TL.type, battleText.en.TypeNames);
 		} finally {
 			global.BattleText = battleText;
 			global.Dex.loadedTextData.en = loadedEnglish;
@@ -78,15 +78,12 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 	it('uses canonical language tables with English field fallback', () => {
 		global.BattleText.ja = {
 			Default: {
-				default: {hitCount: '{NUMBER}回 当たった！'},
+				default: {hitCount: '{NUMBER}回 当たった！', fullName: '{NICKNAME}（{SPECIES}）'},
 				sunnyday: {weatherName: 'はれ'},
 			},
 			Pokedex: {ironleaves: {name: 'テツノイサハ', baseSpecies: 'テツノイサハ'}},
 			TypeNames: {fire: 'ほのお'},
 			NatureNames: {adamant: 'いじっぱり'},
-			TermNames: {
-				egggroup: 'タマゴグループ', moves: '技', nicknamespecies: '{NICKNAME}（{SPECIES}）',
-			},
 			Tags: {physical: {name: 'ぶつり', hint: 'ぶつりのヒント'}},
 			GenderNames: {female: 'メス'},
 			EggGroupNames: {humanlike: 'ひとがた'},
@@ -117,7 +114,6 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		assert.equal(global.Dex.text.natureName('Adamant', 'ja'), 'いじっぱり');
 		assert.equal(global.Dex.text.get(global.BattleNatures.Adamant, 'en').name, 'Adamant');
 		assert.equal(global.Dex.text.natureName('Adamant', 'en'), 'Adamant');
-		assert.equal(global.Dex.text.termName('Egg Group', 'ja'), 'タマゴグループ');
 		assert.equal(global.Dex.text.categoryName('Physical', 'ja'), 'ぶつり');
 		assert.equal(global.Dex.text.genderName('F', 'ja'), 'メス');
 		assert.equal(global.Dex.text.eggGroupName('Human-Like', 'ja'), 'ひとがた');
@@ -163,7 +159,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 			'[OK]': 'Translated OK',
 			'[Keep translated brackets]': '[Keep these]',
 			'[Untranslated button]': null,
-			Open: {verb: '打开'},
+			Open: {'': 'Unscoped', verb: '打开', missing: null},
 			Untranslated: null,
 		}, ja: {
 			'Add Pokémon': 'ポケモンを追加',
@@ -181,6 +177,11 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		}};
 		assert.equal(global.TL`Hello ${'Mew'}!`, '你好，Mew！');
 		assert.equal(global.TL('Open', 'verb'), '打开');
+		assert.equal(global.TL`Open`, 'Unscoped');
+		assert.equal(global.TL('Open'), 'Unscoped');
+		assert.equal(global.TL('Open', ''), 'Unscoped');
+		assert.equal(global.TL('Open', 'missing'), 'Open');
+		assert.equal(global.TL('Open', 'unknown'), 'Open');
 		assert.equal(global.TL`Untranslated`, 'Untranslated');
 		assert.equal(global.TL`[OK]`, 'Translated OK');
 		assert.equal(global.TL`[Keep translated brackets]`, '[Keep these]');
@@ -189,6 +190,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		assert.equal(global.TL.inLanguage('Language', 'ja'), '言語');
 		assert.equal(global.TL.inLanguage('Language', 'de'), 'Language');
 		assert.equal(global.TL.inLanguage('Open', 'en', 'verb'), '打开');
+		assert.equal(global.TL.inLanguage('Open', 'en'), 'Unscoped');
 		assert.equal(global.TL.andList([]), '');
 		assert.equal(global.TL.andList(['A']), 'A');
 		assert.equal(global.TL.andList(['A', 'B']), 'A and B');
@@ -202,7 +204,6 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		global.Dex.prefs = () => 'japanese';
 		void global.Dex.loadTextData();
 		for (const [property, table] of Object.entries({
-			term: 'TermNames',
 			type: 'TypeNames',
 			nature: 'NatureNames',
 			gender: 'GenderNames',
@@ -220,7 +221,6 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		assert.deepEqual(global.TL.tagHint, {physical: 'ぶつりのヒント'});
 		assert.equal(global.TL('Moves'), 'UIの技');
 		assert.equal(global.TL`Moves`, 'UIの技');
-		assert.equal(global.TL.term.moves, '技');
 		assert.equal(global.TL('Add Pokémon'), 'ポケモンを追加');
 		assert.equal(global.TL`Add Pokémon`, 'ポケモンを追加');
 		assert.equal(global.TL('Unknown term'), 'Unknown term');

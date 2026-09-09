@@ -13,7 +13,6 @@ type BattleTextData = {
 	Abilities: BattleTextTable,
 	Items: BattleTextTable,
 	Tags: { [id: string]: { name?: string, hint?: string, desc?: string } },
-	TermNames: { [id: string]: string },
 	TypeNames: { [id: string]: string },
 	NatureNames: { [id: string]: string },
 	GenderNames: { [id: string]: string },

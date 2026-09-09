@@ -663,7 +663,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 
 		// This does not use the word "game" because it includes things like help tickets
 		return <div class="menugroup">
-			<p class="label">You are in:</p>
+			<p class="label">{TL`You are in:`}</p>
 			{Object.entries(PS.mainmenu.search.games).map(([roomid, gameName]) => <div>
 				<a class="blocklink" href={`${roomid}`}>{gameName}</a>
 			</div>)}
@@ -762,7 +762,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					{this.renderSearchButton()}
 
 					<div class="menugroup">
-						<p><a class="mainmenu2 mainmenu button" href="teambuilder">{TL`Teambuilder`}</a></p>
+						<p><a class="mainmenu2 mainmenu button" href="teambuilder">{TL`[Teambuilder]`}</a></p>
 						<p><a class={"mainmenu3 mainmenu" + onlineButton} href="ladder">{TL`Ladder`}</a></p>
 						<p><a class={"mainmenu4 mainmenu" + onlineButton} href="view-tournaments-all">{TL`Tournaments`}</a></p>
 					</div>
@@ -1062,7 +1062,7 @@ export class TeamForm extends preact.Component<{
 		return <form class={this.props.class} onSubmit={this.submit} onClick={this.handleClick}>
 			{!this.props.hideFormat && <p>
 				<label class="label">
-					{TL.label(TL.term.format)}<br />
+					{TL.label(TL`Format`)}<br />
 					<FormatDropdown
 						selectType={this.props.selectType} format={this.format}
 						onChange={this.props.format ? undefined : this.changeFormat}
@@ -1071,7 +1071,7 @@ export class TeamForm extends preact.Component<{
 			</p>}
 			<p>
 				<label class="label">
-					{TL.label(TL.term.team)}<br />
+					{TL.label(TL`Team`)}<br />
 					<TeamDropdown format={this.props.teamFormat || this.format} />
 				</label>
 			</p>

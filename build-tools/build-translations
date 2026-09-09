@@ -4,7 +4,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const {
-	compileBattleUIText, loadBattleUIText, updateUIText,
+	compileBattleUIText, loadTranslations, updateTranslationFiles,
 } = require('./translations.mts');
 
 const ROOT_PATH = path.resolve(__dirname, '..');
@@ -33,12 +33,12 @@ function getLanguages() {
 }
 
 function buildTextFiles(Dex, selectedLanguages = null, options = {}) {
-	const uiCalls = updateUIText(options);
+	const uiCalls = updateTranslationFiles(options);
 	const languages = selectedLanguages || getLanguages();
 	fs.mkdirSync(OUTPUT_PATH, { recursive: true });
 	for (const lang of languages) {
 		const battleTranslations = Dex.loadTextData(lang);
-		const uiText = compileBattleUIText(loadBattleUIText(lang), uiCalls);
+		const uiText = compileBattleUIText(loadTranslations(lang), uiCalls);
 		let output = 'exports.BattleText = exports.BattleText || {};\n' +
 			`exports.BattleText[${JSON.stringify(lang)}] = ${es3stringify(battleTranslations)};`;
 		if (Object.keys(uiText).length) {

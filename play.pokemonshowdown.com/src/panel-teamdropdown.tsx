@@ -163,7 +163,7 @@ export function TeamBox(props: {
 				pokemon => PSIcon({ pokemon })
 			)
 		) : (
-			<em>(empty {team.isBox ? 'box' : 'team'})</em>
+			<em>{team.isBox ? TL`(empty box)` : TL`(empty team)`}</em>
 		);
 		let format = team.format as string;
 		if (format.startsWith(Dex.modid)) format = format.slice(4);
@@ -563,9 +563,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 					})}
 				</ul>
 			))}
-			{noResults && <p>
-				<em>No formats{!!searchID && ` matching "${searchID}"`} found</em>
-			</p>}
+			{noResults && <p><em>{searchID ? TL`No formats matching "${searchID}" found` : TL`No formats found`}</em></p>}
 			<div style="float: left"></div>
 		</div></PSPanelWrapper>;
 	}

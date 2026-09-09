@@ -597,7 +597,7 @@ export class ChatRoom extends PSRoom {
 		'ffto,fastfowardto'(target, cmd, parentElem) {
 			if (!this.battle) return this.errorReply(TL`You are not in a battle`);
 			if (!target) {
-				PS.prompt("Turn number?", {
+				PS.prompt(TL`Turn number?`, {
 					defaultValue: `${this.battle.turn}`,
 					type: 'numeric',
 					okButton: TL`[Go]`,

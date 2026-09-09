@@ -137,7 +137,6 @@ interface ClientDexText {
 	languages(): Language[];
 	findLanguage(lang: string): Language | null;
 	get(effect: TranslatableEffect, lang?: string): ClientEffectTextEntry;
-	termName(name: string, lang?: string): string;
 	typeName(name: string, lang?: string): string;
 	natureName(name: string, lang?: string): string;
 	categoryName(name: string, lang?: string): string;
@@ -154,7 +153,7 @@ function translate(strings: TemplateStringsArray | string | TranslatableEffect, 
 	}
 
 	let source: string;
-	let context = 'default';
+	let context = '';
 	if (typeof strings === 'string') {
 		source = strings;
 		if (values.length) context = values[0] as string;
@@ -185,14 +184,14 @@ function tagField(tags: BattleTextData['Tags'] | undefined, field: 'name' | 'hin
 }
 
 export const TL = Object.assign(translate, {
-	inLanguage(source: string, language: string, context = 'default') {
+	inLanguage(source: string, language: string, context = '') {
 		const translation = typeof BattleUIText === 'undefined' ? undefined : BattleUIText[language]?.[source];
 		const fallback = source.startsWith('[') && source.endsWith(']') ? source.slice(1, -1) : source;
 		return (typeof translation === 'string' ? translation : translation?.[context]) ?? fallback;
 	},
 	/** `TL.label("Ability", "Intimidate")` === `"Ability: Intimidate"` */
 	label(label: string, value?: unknown) {
-		const labelText = (TL.term.label || '{LABEL}: ').replace('{LABEL}', label);
+		const labelText = TL`${label}: `;
 		return value === undefined ? labelText : labelText + String(value as any);
 	},
 	orList(items: readonly string[]) {
@@ -225,7 +224,6 @@ export const TL = Object.assign(translate, {
 		}
 		return TL.andList(items);
 	},
-	term: initialText?.TermNames || {},
 	type: initialText?.TypeNames || {},
 	nature: initialText?.NatureNames || {},
 	gender: initialText?.GenderNames || {},
@@ -246,7 +244,6 @@ function updateTranslatedNames(lang: string) {
 	const english = BattleText.en;
 	const text = BattleText[lang] || english;
 	if (!text) return;
-	TL.term = text.TermNames || english?.TermNames || {};
 	TL.type = text.TypeNames || english?.TypeNames || {};
 	TL.nature = text.NatureNames || english?.NatureNames || {};
 	TL.gender = text.GenderNames || english?.GenderNames || {};
@@ -268,7 +265,7 @@ function assignTextFields(target: BattleTextEntry, source: BattleTextEntry) {
 }
 
 type OtherNameTable =
-	'TermNames' | 'TypeNames' | 'NatureNames' | 'GenderNames' |
+	'TypeNames' | 'NatureNames' | 'GenderNames' |
 	'EggGroupNames' | 'ColorNames' |
 	'StatNames' | 'StatMediumNames' | 'StatShortNames';
 
@@ -624,7 +621,6 @@ export const Dex = new class implements ModdedDex {
 		get: (effect: TranslatableEffect, lang = Dex.text.getLanguage()) => {
 			return getTextEntry(effect, 9, lang);
 		},
-		termName: (name, lang = Dex.text.getLanguage()) => getOtherName('TermNames', name, lang),
 		typeName: (name, lang = Dex.text.getLanguage()) => getOtherName('TypeNames', name, lang),
 		natureName: (name, lang = Dex.text.getLanguage()) => getOtherName('NatureNames', name, lang),
 		categoryName: (name, lang = Dex.text.getLanguage()) =>
@@ -1315,7 +1311,6 @@ export class ModdedDex {
 		get: (effect: TranslatableEffect, lang = Dex.text.getLanguage()) => {
 			return getTextEntry(effect, this.gen, lang);
 		},
-		termName: (name, lang = Dex.text.getLanguage()) => getOtherName('TermNames', name, lang),
 		typeName: (name, lang = Dex.text.getLanguage()) => getOtherName('TypeNames', name, lang),
 		natureName: (name, lang = Dex.text.getLanguage()) => getOtherName('NatureNames', name, lang),
 		categoryName: (name, lang = Dex.text.getLanguage()) =>

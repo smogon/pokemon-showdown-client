@@ -276,6 +276,12 @@ export class BattleTextParser {
 	}
 
 	private static uiParser: BattleTextParser | null = null;
+	/** Render a `Default.default` template, like `fullName`, in the current language */
+	static defaultText(field: string, values?: { [placeholder: string]: RenderValue | undefined }) {
+		const parser = (BattleTextParser.uiParser ||= new BattleTextParser());
+		parser.language = Dex.text.getLanguage();
+		return parser.render(parser.defaultText(field), values);
+	}
 	static ui(field: string, values?: { [placeholder: string]: RenderValue | undefined }) {
 		const parser = (BattleTextParser.uiParser ||= new BattleTextParser());
 		parser.language = Dex.text.getLanguage();
@@ -574,8 +580,7 @@ export class BattleTextParser {
 		const species = details.split(',')[0];
 		const localizedSpecies = this.speciesName(species);
 		if (nickname === localizedSpecies) return [pokemon.slice(0, 2), `**${localizedSpecies}**`];
-		const template = BattleText[this.language]?.TermNames?.nicknamespecies ||
-			BattleText.en?.TermNames?.nicknamespecies || '{NICKNAME} ({SPECIES})';
+		const template = this.defaultText('fullName') || '{NICKNAME} ({SPECIES})';
 		return [pokemon.slice(0, 2), this.render(template, {
 			NICKNAME: nickname,
 			SPECIES: `**${localizedSpecies}**`,

@@ -553,13 +553,13 @@ class VolumePanel extends PSRoomPanel {
 	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}><div class="pad">
-			<h3>Volume</h3>
+			<h3>{TL`Volume`}</h3>
 			<p class="volume">
 				<label class="optlabel">
 					Effects: <span class="value">{!PS.prefs.mute && PS.prefs.effectvolume ? `${PS.prefs.effectvolume}%` : `-`}</span>
 				</label>
 				{PS.prefs.mute ?
-					<em>(muted)</em> :
+					<em>{TL`(muted)`}</em> :
 					<input
 						type="range" min="0" max="100" step="1" name="effectvolume" value={PS.prefs.effectvolume}
 						onChange={this.setVolume} onInput={this.setVolume} onKeyUp={this.setVolume}
@@ -570,7 +570,7 @@ class VolumePanel extends PSRoomPanel {
 					Music: <span class="value">{!PS.prefs.mute && PS.prefs.musicvolume ? `${PS.prefs.musicvolume}%` : `-`}</span>
 				</label>
 				{PS.prefs.mute ?
-					<em>(muted)</em> :
+					<em>{TL`(muted)`}</em> :
 					<input
 						type="range" min="0" max="100" step="1" name="musicvolume" value={PS.prefs.musicvolume}
 						onChange={this.setVolume} onInput={this.setVolume} onKeyUp={this.setVolume}
@@ -582,7 +582,7 @@ class VolumePanel extends PSRoomPanel {
 					<span class="value">{!PS.prefs.mute && PS.prefs.notifvolume ? `${PS.prefs.notifvolume}%` : `-`}</span>
 				</label>
 				{PS.prefs.mute ?
-					<em>(muted)</em> :
+					<em>{TL`(muted)`}</em> :
 					<input
 						type="range" min="0" max="100" step="1" name="notifvolume" value={PS.prefs.notifvolume}
 						onChange={this.setVolume} onInput={this.setVolume} onKeyUp={this.setVolume}
@@ -1067,7 +1067,7 @@ class BattleForfeitPanel extends PSRoomPanel {
 		const battleRoom = room.getParent() as BattleRoom;
 
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
-			<p>Forfeiting makes you lose the battle. Are you sure?</p>
+			<p>{TL`Forfeiting makes you lose the battle. Are you sure?`}</p>
 			<p>
 				<button data-cmd="/closeand /inopener /closeand /forfeit" class="button">
 					<strong>{TL`[Forfeit and close]`}</strong>
@@ -1108,7 +1108,7 @@ class ReplacePlayerPanel extends PSRoomPanel {
 
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
 			<form onSubmit={this.handleReplacePlayer}>
-				<p>Replacement player's name:</p>
+				<p>{TL`Replacement player's name:`}</p>
 				<p>
 					<input name="newplayer" class="textbox autofocus" />
 				</p>
@@ -1405,7 +1405,7 @@ class BackgroundListPanel extends PSRoomPanel {
 		const room = this.props.room;
 		const option = (val: string) => val === PSBackground.id ? 'option cur' : 'option';
 		return this.renderUpload() || <PSPanelWrapper room={room} width={480}><div class="pad">
-			<p><strong>Default</strong></p>
+			<p><strong>{TL`Default`}</strong></p>
 			<div class="bglist">
 				<button onClick={this.setBg} value="" class={option('')}>
 					<strong
@@ -1420,7 +1420,7 @@ class BackgroundListPanel extends PSRoomPanel {
 				</button>
 			</div>
 			<div style="clear: left"></div>
-			<p><strong>Official</strong></p>
+			<p><strong>{TL`Official`}</strong></p>
 			<div class="bglist">
 				<button onClick={this.setBg} value="charizards" class={option('charizards')}>
 					<span class="bg" style="background-position: 0 -0px"></span>{}
@@ -1444,7 +1444,7 @@ class BackgroundListPanel extends PSRoomPanel {
 				</button>
 			</div>
 			<div style="clear: left"></div>
-			<p><strong>Custom</strong></p>
+			<p><strong>{TL`Custom`}</strong></p>
 			<p>
 				Upload:
 			</p>

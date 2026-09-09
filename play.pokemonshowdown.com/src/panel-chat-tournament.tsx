@@ -170,7 +170,7 @@ export class ChatTournament extends PSModel {
 				if (notify) {
 					this.room.notify({
 						title: TL`Tournament created`,
-						body: `${TL.label(TL`Room`, this.room.title)}\n${TL.label(TL.term.format || 'Format', formatName)}\n${TL.label(TL`Type`, type)}`,
+						body: `${TL.label(TL`Room`, this.room.title)}\n${TL.label(TL`Format`, formatName)}\n${TL.label(TL('Type', 'kind'), type)}`,
 						id: 'tournament-create',
 					});
 				}
