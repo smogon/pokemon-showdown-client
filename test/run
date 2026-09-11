@@ -1,0 +1,70 @@
+#!/usr/bin/env node
+
+const fs = require('node:fs');
+const path = require('node:path');
+const { spawnSync } = require('node:child_process');
+
+const args = process.argv.slice(2);
+if (args.some(arg => !['--full', '--no-update', '--help'].includes(arg))) {
+	console.error('Usage: test/run [--full [--no-update]]');
+	process.exit(2);
+}
+if (args.includes('--help')) {
+	console.log(
+		`Usage: test/run [--full [--no-update]]\n\n` +
+		`Runs tests. Includes full-test when possible.\n` +
+		`--full runs a full build first, then requires full-test.\n` +
+		`--no-update skips updating the server checkout during the full build.`
+	);
+	process.exit(0);
+}
+if (args.includes('--no-update') && !args.includes('--full')) {
+	console.error('--no-update requires --full.');
+	process.exit(2);
+}
+
+const root = path.resolve(__dirname, '..');
+const buildArgs = ['build'];
+if (args.includes('--full')) buildArgs.push('full');
+if (args.includes('--no-update')) buildArgs.push('--no-update');
+run('', buildArgs);
+
+const required = [
+	'caches/pokemon-showdown/tools/tl-calls.mts',
+	'caches/pokemon-showdown/tools/translations.mts',
+	'caches/pokemon-showdown/tools/build-translations.mts',
+	'caches/pokemon-showdown/data/text/ui-template.ts',
+	'play.pokemonshowdown.com/data/pokedex.js',
+	'play.pokemonshowdown.com/data/moves.js',
+	'play.pokemonshowdown.com/data/text/en.js',
+	'play.pokemonshowdown.com/data/text/en-afd.js',
+];
+const missing = required.filter(file => !fs.existsSync(path.resolve(root, file)));
+const canFull = !missing.length;
+if (args.includes('--full') && !canFull) {
+	console.error(
+		`Full-test prerequisites are still missing after the full build:\n` +
+		missing.map(file => `  - ${file}`).join('\n')
+	);
+	process.exit(1);
+}
+
+function run(label, commandArgs) {
+	process.stdout.write(label);
+	const result = spawnSync(process.execPath, commandArgs, { cwd: root, stdio: 'inherit' });
+	if (result.error) console.error(result.error);
+	if (result.status !== 0) process.exit(result.status || 1);
+	if (label) console.log('DONE');
+}
+
+run('tsc... ', [require.resolve('typescript/bin/tsc')]);
+if (canFull) run('tsc build-tools... ', [require.resolve('typescript/bin/tsc'), '-p', 'build-tools']);
+run('eslint... ', [
+	'node_modules/eslint/bin/eslint.js', '--cache', '--cache-location', 'caches/eslintcache.json', '--max-warnings', '0',
+]);
+
+const tests = (canFull ? ['test', 'test/full'] : ['test']).flatMap(directory =>
+	fs.readdirSync(path.resolve(root, directory)).filter(file => file.endsWith('.test.js'))
+		.sort().map(file => `${directory}/${file}`)
+);
+run('', ['--test', ...tests]);

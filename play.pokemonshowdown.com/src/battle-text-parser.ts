@@ -778,7 +778,7 @@ export class BattleTextParser {
 		}
 		case '-activate': {
 			const id = BattleTextParser.effectId(args[2]);
-			if (id === 'confusion' || id === 'attract') return 'preMajor';
+			if (id === 'confusion' || id === 'attract' || id === 'pursuit') return 'preMajor';
 			return 'postMajor';
 		}
 		}

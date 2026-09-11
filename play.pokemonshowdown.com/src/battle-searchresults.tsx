@@ -651,6 +651,8 @@ export class PSSearchResults extends preact.Component<{
 		if (hasNextPage) html += this.renderPagerHTML(1);
 		if (bottomSpacer) html += `<li aria-hidden="true" style="height:${bottomSpacer}px"></li>`;
 		const selector = this.getFocusedListSelector(list);
+		// misbehaving ad (see 8c8b1175)
+		html = html.replace(/>Download</g, '>Down<!-- -->load<');
 		list.innerHTML = html;
 		this.updateSelection();
 		if (focusIndex >= 0) {

@@ -958,7 +958,7 @@ export class BattleLog {
 	static parseLogMessage(message: string): [string, string] {
 		const messages = message.split('\n').map(line => {
 			line = BattleLog.escapeHTML(line);
-			line = line.replace(/\*\*(.*)\*\*/, '<strong>$1</strong>');
+			line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 			line = line.replace(/\|\|([^|]*)\|\|([^|]*)\|\|/, '<abbr title="$1">$2</abbr>');
 			if (line.startsWith('  ')) line = '<small>' + line.trim() + '</small>';
 			return line;

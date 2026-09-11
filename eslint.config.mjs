@@ -76,6 +76,7 @@ export default configure([
 			'build-tools/*.js',
 			'build-tools/update',
 			'build-tools/build-*',
+			'test/run',
 		],
 		extends: [configs.js],
 		languageOptions: {

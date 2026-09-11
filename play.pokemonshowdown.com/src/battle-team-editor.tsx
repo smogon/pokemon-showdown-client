@@ -2903,11 +2903,11 @@ class TeamEditorForm extends preact.Component<{
 		const { editor } = this.props;
 		const set = editor.sets[setIndex];
 		const species = editor.dex.species.get(set.species);
-		const baseSpecies = editor.dex.species.get(species.baseSpecies);
+		const baseSpecies = editor.dex.text.get(species).baseSpecies;
 		return <input
 			type="text" class="textbox default-placeholder set-field" name="nickname"
 			data-focus={`set-${setIndex}-nickname`}
-			defaultValue={set.name || ''} placeholder={TL(baseSpecies)} readOnly={editor.readonly}
+			defaultValue={set.name || ''} placeholder={baseSpecies} readOnly={editor.readonly}
 			onInput={this.inputField} onChange={this.inputField} onKeyDown={this.keyDownNickname} autocomplete="off"
 		/>;
 	}
@@ -3942,12 +3942,12 @@ class DetailsForm extends preact.Component<{
 	render() {
 		const { editor, set } = this.props;
 		const species = editor.dex.species.get(set.species);
-		const baseSpecies = editor.dex.species.get(species.baseSpecies);
+		const baseSpecies = editor.dex.text.get(species).baseSpecies;
 		return <div class="set-details-form" role="dialog" aria-label={TL`Details`}>
 			<div class="resultheader"><h3>{TL`Details`}</h3></div>
 			<div class="pad">
 				<p><label class="label">{TL.label(TL`Nickname`)}<input
-					name="nickname" class="textbox default-placeholder" placeholder={TL(baseSpecies)}
+					name="nickname" class="textbox default-placeholder" placeholder={baseSpecies}
 					onInput={this.changeNickname} onChange={this.changeNickname}
 				/></label></p>
 				<p><label class="label">{TL.label(TL`Level`)}<input

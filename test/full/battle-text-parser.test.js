@@ -1,34 +1,48 @@
 const assert = require('assert').strict;
 const {describe, it} = require('node:test');
-const fs = require('fs');
 const path = require('path');
 
-const englishTextPath = path.resolve(__dirname, '../play.pokemonshowdown.com/data/text/en.js');
-const afdTextPath = path.resolve(__dirname, '../play.pokemonshowdown.com/data/text/en-afd.js');
-const hasBuiltText = fs.existsSync(englishTextPath) && fs.existsSync(afdTextPath);
+const englishTextPath = path.resolve(__dirname, '../../play.pokemonshowdown.com/data/text/en.js');
+const afdTextPath = path.resolve(__dirname, '../../play.pokemonshowdown.com/data/text/en-afd.js');
+global.window = global;
+global.BattleText = {en: {
+	Default: {
+		default: {
+			pokemon: '{NICKNAME}',
+			opposingPokemon: 'opponent {NICKNAME}',
+			switchInOwn: 'Send out {FULLNAME}.',
+			hitCount: '{NUMBER} {INFLECT:NUMBER:s=hit:p=hits}',
+			damage: '{POKEMON} took damage.',
+		},
+		unboost: {fail: "{POKEMON}: {STAT} {INFLECT:STAT:s=was:p=were} unchanged."},
+		psychicterrain: {block: '{POKEMON}: psychic block'},
+		electricterrain: {block: '{POKEMON}: electric block'},
+		mistyterrain: {block: '{POKEMON}: misty block'},
+	},
+	Moves: {}, Abilities: {}, Items: {}, Pokedex: {}, Tags: {},
+	TypeNames: {fire: 'Fire'},
+	NatureNames: {adamant: 'Adamant'},
+	StatNames: {atk: 'Attack', stats: 'stats'},
+}, 'en-afd': {
+	Default: {default: {hitCount: 'April hits: {NUMBER}'}},
+}};
 
-let BattleTextParser;
-if (hasBuiltText) {
-	global.window = global;
-	const englishText = require(englishTextPath);
-	global.BattleText = englishText.BattleText;
-	global.BattleText['en-afd'] = require(afdTextPath).BattleText['en-afd'];
-	global.BattleText.en.Default.default.hitCount =
-		"  The Pok\u00E9mon was hit {NUMBER} {INFLECT:NUMBER:s=time:p=times}!";
-	global.BattleText.en.Default.unboost.fail =
-		"  {POKEMON}'s {STAT} {INFLECT:STAT:s=was:p=were} not lowered!";
+require('../../play.pokemonshowdown.com/js/battle-dex-data.js');
+require('../../play.pokemonshowdown.com/js/battle-dex.js');
+require('../../play.pokemonshowdown.com/js/battle-text-parser.js');
+const BattleTextParser = global.BattleTextParser;
 
-	require('../play.pokemonshowdown.com/js/battle-dex-data.js');
-	require('../play.pokemonshowdown.com/js/battle-dex.js');
-	require('../play.pokemonshowdown.com/js/battle-text-parser.js');
-	BattleTextParser = global.BattleTextParser;
-}
+describe('BattleTextParser', () => {
+	it('loads the generated English and April Fools text tables', () => {
+		assert.ok(require(englishTextPath).BattleText.en.Default.default);
+		assert.ok(require(afdTextPath).BattleText['en-afd'].Default);
+	});
 
-describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not been built'}, () => {
 	it('uses en-afd as a sparse English overlay', () => {
 		global.Dex.afdMode = true;
 		const parser = new BattleTextParser();
-		assert.equal(parser.extractMessage('|-hitcount|p1a: Mew|3'), '  Hit 3 times!\n');
+		assert.equal(parser.extractMessage('|-hitcount|p1a: Mew|3'), 'April hits: 3\n');
+		assert.equal(parser.extractMessage('|-damage|p1a: Mew|58/100'), 'Mew took damage.\n');
 		global.Dex.afdMode = false;
 	});
 
@@ -129,7 +143,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 		assert.deepEqual(parser.pokemonFull('p1a: テツノイサハ', 'Iron Leaves'), ['p1', '**テツノイサハ**']);
 		assert.equal(
 			parser.extractMessage('|switch|p1a: Salad|Iron Leaves, L50|100/100'),
-			'Go! Salad（**テツノイサハ**）!\n'
+			'Send out Salad（**テツノイサハ**）.\n'
 		);
 	});
 
@@ -265,7 +279,7 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 	});
 
 	it('rejects empty UI translations', () => {
-		const {validateBattleUIText} = require('../build-tools/translations.mts');
+		const {validateBattleUIText} = require('../../build-tools/translations.mts');
 		assert.deepEqual(validateBattleUIText({Missing: null}, 'zh-cn.ts'), {Missing: null});
 		assert.throws(
 			() => validateBattleUIText({Missing: ''}, 'zh-cn.ts'),
@@ -291,23 +305,23 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 
 	it('inflects hit counts', () => {
 		const parser = new BattleTextParser();
-		assert.equal(parser.extractMessage('|-hitcount|p1a: Mew|1'), '  The Pok\u00E9mon was hit 1 time!\n');
-		assert.equal(parser.extractMessage('|-hitcount|p1a: Mew|3'), '  The Pok\u00E9mon was hit 3 times!\n');
+		assert.equal(parser.extractMessage('|-hitcount|p1a: Mew|1'), '1 hit\n');
+		assert.equal(parser.extractMessage('|-hitcount|p1a: Mew|3'), '3 hits\n');
 	});
 
 	it('falls back to default text for namespaced effects', () => {
 		const parser = new BattleTextParser('p1');
 		assert.equal(
 			parser.extractMessage('|-activate|p2a: Indeedee|move: Psychic Terrain'),
-			'  The opposing Indeedee is protected by the Psychic Terrain!\n'
+			'Opponent Indeedee: psychic block\n'
 		);
 		assert.equal(
 			parser.extractMessage('|-activate|p2a: Pikachu|move: Electric Terrain'),
-			'  The opposing Pikachu is protected by the Electric Terrain!\n'
+			'Opponent Pikachu: electric block\n'
 		);
 		assert.equal(
 			parser.extractMessage('|-activate|p2a: Garchomp|move: Misty Terrain'),
-			'  The opposing Garchomp surrounds itself with a protective mist!\n'
+			'Opponent Garchomp: misty block\n'
 		);
 	});
 
@@ -319,13 +333,13 @@ describe('BattleTextParser', {skip: hasBuiltText ? false : 'text data has not be
 			parser.extractMessage('|-damage|p1a: Mew|58/100|42%'),
 			'  (Mew lost 42% of its health!)\n'
 		);
-		assert.equal(parser.extractMessage('|-damage|p1a: Mew|58/100'), '  (Mew was hurt!)\n');
+		assert.equal(parser.extractMessage('|-damage|p1a: Mew|58/100'), 'Mew took damage.\n');
 	});
 
 	it('inflects single-stat and all-stat failures', () => {
 		const parser = new BattleTextParser();
-		assert.equal(parser.extractMessage('|-fail|p1a: Mew|unboost|atk'), "  Mew's Attack was not lowered!\n");
-		assert.equal(parser.extractMessage('|-fail|p1a: Mew|unboost'), "  Mew's stats were not lowered!\n");
+		assert.equal(parser.extractMessage('|-fail|p1a: Mew|unboost|atk'), 'Mew: Attack was unchanged.\n');
+		assert.equal(parser.extractMessage('|-fail|p1a: Mew|unboost'), 'Mew: stats were unchanged.\n');
 	});
 
 	it('applies placeholder modifiers after substitution', () => {

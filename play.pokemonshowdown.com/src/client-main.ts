@@ -733,7 +733,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 			this.loggingIn = null;
 			if (data?.curuser?.loggedin) {
 				// success!
-				const username = data.curuser.loggedin.username;
+				const username = data.curuser.username;
 				this.registered = { name: username, userid: toID(username) };
 				this.handleAssertion(name, data.assertion);
 			} else {
