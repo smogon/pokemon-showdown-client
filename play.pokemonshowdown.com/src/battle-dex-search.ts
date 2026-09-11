@@ -745,7 +745,12 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			if (format.startsWith('natdex') || format.startsWith('nationaldex')) this.formatType = 'natdexchampions';
 			if (format.startsWith('natdex')) format = format.slice(6) as ID;
 			if (format.startsWith('nationaldex')) format = format.slice(11) as ID;
-			if (format.startsWith('vgc') || format.startsWith('bss')) format = 'ubers' as ID;
+			if (format.startsWith('vgc')) {
+				this.isDoubles = true;
+				format = 'ubers' as ID;
+			} else if (format.startsWith('bss')) {
+				format = 'ubers' as ID;
+			}
 			if (format.endsWith('draft')) format = 'ag' as ID;
 		}
 		if (format.startsWith('vgc')) {
