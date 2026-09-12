@@ -75,8 +75,6 @@ default:
 	break;
 }
 
-execSync(`node ./build-tools/update` + full, options);
-
 if (full) {
 	try {
 		execSync(`node ./build-tools/build-commands`, options);
@@ -84,3 +82,5 @@ if (full) {
 		console.error(e);
 	}
 }
+
+execSync(`node ./build-tools/update` + full, options);

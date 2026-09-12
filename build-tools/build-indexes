@@ -6,6 +6,8 @@ const child_process = require('node:child_process');
 
 process.chdir(__dirname + '/..');
 
+fs.mkdirSync('play.pokemonshowdown.com/data', { recursive: true });
+
 const noUpdate = process.argv.includes('--no-update');
 if (!fs.existsSync('caches/pokemon-showdown')) {
 	if (noUpdate) {
