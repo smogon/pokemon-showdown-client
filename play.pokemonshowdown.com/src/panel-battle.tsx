@@ -686,8 +686,13 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<small class="pp">{pp}</small>&nbsp;
 		</button>;
 	}
+	getPokemonDisplayName(pokemon: Pokemon | ServerPokemon, isOpponent = false) {
+		const battle = this.props.room.battle;
+		return isOpponent && (battle.ignoreOpponent || battle.ignoreNicks) ? pokemon.speciesForme : pokemon.name;
+	}
 	renderPokemonButton(props: {
 		pokemon: Pokemon | ServerPokemon | null, cmd: string, noHPBar?: boolean, disabled?: boolean | 'fade', tooltip: string,
+		isOpponent?: boolean,
 	}) {
 		const pokemon = props.pokemon;
 		if (!pokemon) {
@@ -713,7 +718,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			style={props.disabled === 'fade' ? 'opacity: 0.5' : ''} data-tooltip={props.tooltip}
 		>
 			{PSIcon({ pokemon })}
-			{pokemon.name}
+			{this.getPokemonDisplayName(pokemon, props.isOpponent)}
 			{
 				!props.noHPBar && !pokemon.fainted &&
 				<span class={hpColorClass}>
@@ -883,6 +888,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					cmd: disabled ? `` : `/${moveChoice} +${i + 1}`,
 					disabled: disabled && 'fade',
 					tooltip: `activepokemon|1|${i}`,
+					isOpponent: true,
 				});
 			}).reverse()}
 			<div style={{ clear: 'left' }}></div>
@@ -1035,7 +1041,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				if (choice.targetLoc > 0) {
 					const targetPokemon = battle.farSide.active[choice.targetLoc - 1];
 					target = targetPokemon ?
-						BattleTextParser.ui('atTarget', { TARGET: targetPokemon.name }) :
+						BattleTextParser.ui('atTarget', { TARGET: this.getPokemonDisplayName(targetPokemon, true) }) :
 						BattleTextParser.ui('atSlot', { NUMBER: `${choice.targetLoc}` });
 				} else if (choice.targetLoc < 0) {
 					const targetPokemon = battle.nearSide.active[-choice.targetLoc - 1];
