@@ -917,7 +917,7 @@
 			$('label[name=editMessage]').hide();
 		},
 		pokepasteExport: function (type) {
-			var team = Storage.exportTeam(this.curSetList, type === 'openteamsheet');
+			var team = Storage.exportTeam(this.curSetList, type === 'openteamsheet', this.curTeam.format.includes('champions'));
 			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
 			document.getElementById("pasteData").value = team;
 			document.getElementById("pasteTitle").value = this.curTeam.name;
