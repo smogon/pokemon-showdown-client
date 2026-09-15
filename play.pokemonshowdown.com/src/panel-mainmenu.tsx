@@ -12,7 +12,7 @@ import {
 	Config, PS, PSRoom, type PSRoomFocusOptions, type RoomID, type RoomOptions, type Team,
 } from "./client-main";
 import { PSIcon, PSPanelErrorBoundary, PSPanelWrapper, PSRoomPanel, PSView, ReconnectTimer } from "./panels";
-import type { BattlesRoom } from "./panel-battle";
+import type { BattleRoom, BattlesRoom } from "./panel-battle";
 import type { ChatRoom } from "./panel-chat";
 import type { LadderFormatRoom } from "./panel-ladder";
 import type { RoomsRoom } from "./panel-rooms";
@@ -24,6 +24,28 @@ import { BattleLog } from "./battle-log"; // optional
 export type RoomInfo = {
 	title: string, id?: RoomID, desc?: string, userCount?: number, section?: string, privacy?: 'hidden',
 	spotlight?: string, subRooms?: string[],
+};
+
+export type BattleSearch = {
+	format: string,
+	packedTeam: string,
+};
+
+type PendingBattleSearch = BattleSearch & {
+	rated: boolean,
+	games: Record<RoomID, true>,
+	closeRoomid: RoomID | null,
+};
+
+type BattleSearchCandidate = BattleSearch & {
+	rated: boolean,
+	allowRenames: boolean,
+	closeRoomid: RoomID | null,
+};
+
+type BattleSearchResult = {
+	tier: string,
+	rated: string | boolean,
 };
 
 export class MainMenuRoom extends PSRoom {
@@ -46,12 +68,15 @@ export class MainMenuRoom extends PSRoom {
 		chat?: RoomInfo[],
 		sectionTitles?: string[],
 	} = {};
-	searchCountdown: {
-		format: string, packedTeam: string, countdown: number, timer: ReturnType<typeof setInterval>,
+	searchCountdown: BattleSearch & {
+		countdown: number, timer: ReturnType<typeof setInterval>, closeRoomid: RoomID | null,
 	} | null = null;
 	/** used to track the moment between "search sent" and "server acknowledged search sent" */
 	teamSent: string | null = null;
 	search: { searching: string[], games: Record<RoomID, string> | null } = { searching: [], games: null };
+	pendingSearch: PendingBattleSearch | null = null;
+	pendingSearchClearTimer: number | null = null;
+	battleSearches: Record<RoomID, BattleSearchCandidate | undefined> = {};
 	disallowSpectators: boolean | null = PS.prefs.disallowspectators;
 	lastChallenged: number | null = null;
 	constructor(options: RoomOptions) {
@@ -72,35 +97,48 @@ export class MainMenuRoom extends PSRoom {
 		return '';
 	}
 	startSearch = (format: string, team?: Team, parentElem?: HTMLElement | null) => {
+		return this.startSearchWithTeam(format, team ? team.packedTeam : '', parentElem);
+	};
+	startSearchWithTeam = (
+		format: string, packedTeam: string, parentElem?: HTMLElement | null, closeRoomid: RoomID | null = null
+	) => {
 		PS.requestNotifications();
-		if (this.searchCountdown) {
+		if (PS.isOffline) {
+			PS.alert(TL`You are offline.`, { parentElem });
+			return false;
+		} else if (this.searchCountdown) {
 			PS.alert(TL`Wait for this countdown to finish first...`, { parentElem });
-			return;
-		} else if (this.search.searching.includes(format)) {
-			PS.alert(TL`You're already searching for a ${BattleLog.formatName(format)} battle...`, { parentElem });
-			return;
+			return false;
+		} else if (this.searchingFormat()) {
+			const searchingFormat = this.searchingFormat()!;
+			PS.alert(TL`You're already searching for a ${BattleLog.formatName(searchingFormat)} battle...`, { parentElem });
+			return false;
 		}
 		this.searchCountdown = {
 			format,
-			packedTeam: team?.packedTeam || '',
+			packedTeam,
+			closeRoomid,
 			countdown: 3,
 			timer: setInterval(this.doSearchCountdown, 1000),
 		};
 		this.update(null);
+		return true;
 	};
 	searchingFormat() {
-		return this.searchCountdown?.format || this.teamSent ||
+		return this.searchCountdown?.format || this.teamSent || this.pendingSearch?.format ||
 			this.search.searching?.[this.search.searching.length - 1] || null;
 	}
 	cancelSearch = () => {
 		if (this.searchCountdown) {
 			clearTimeout(this.searchCountdown.timer);
 			this.searchCountdown = null;
+			this.clearPendingSearch();
 			this.update(null);
 			return true;
 		}
-		if (this.teamSent || this.search.searching?.length) {
+		if (this.teamSent || this.pendingSearch || this.search.searching?.length) {
 			this.teamSent = null;
+			this.clearPendingSearch();
 			PS.send(`/cancelsearch`);
 			this.update(null);
 			return true;
@@ -119,11 +157,108 @@ export class MainMenuRoom extends PSRoom {
 		this.update(null);
 	};
 	doSearch = (search: NonNullable<typeof this.searchCountdown>) => {
+		if (PS.isOffline) {
+			PS.alert(TL`You are offline.`);
+			return;
+		}
+		const searchingFormat = this.search.searching?.[this.search.searching.length - 1];
+		if (searchingFormat) {
+			PS.alert(TL`You're already searching for a ${BattleLog.formatName(searchingFormat)} battle...`);
+			return;
+		}
+		const games: Record<RoomID, true> = {};
+		for (const roomid in this.search.games || {}) {
+			games[roomid as RoomID] = true;
+		}
+		this.clearPendingSearch();
+		this.pendingSearch = {
+			format: search.format,
+			packedTeam: search.packedTeam,
+			rated: BattleFormats[toID(search.format)]?.rated !== false,
+			games,
+			closeRoomid: search.closeRoomid,
+		};
 		this.teamSent = search.format;
 		const privacy = this.adjustPrivacy();
 		PS.send(`/utm ${search.packedTeam}`);
 		PS.send(`${privacy}/search ${search.format}`);
 	};
+	clearPendingSearch = () => {
+		if (this.pendingSearchClearTimer !== null) clearTimeout(this.pendingSearchClearTimer);
+		this.pendingSearchClearTimer = null;
+		this.pendingSearch = null;
+	};
+	claimBattleSearch(roomid: RoomID, battle: BattleSearchResult) {
+		const search = this.battleSearches[roomid] || null;
+		delete this.battleSearches[roomid];
+		if (!search || toID(battle.tier) !== toID(search.format)) return null;
+
+		const isRatedSearch = search.rated && !search.allowRenames &&
+			battle.rated && battle.rated !== 'Tournament battle';
+		const isUnratedSearch = !search.rated && search.allowRenames && !battle.rated;
+		if (!isRatedSearch && !isUnratedSearch) return null;
+
+		const battleSearch = { format: search.format, packedTeam: search.packedTeam };
+		// Tournament battlestart updates arrive after the battle room initializes.
+		setTimeout(() => {
+			const room = PS.rooms[roomid] as BattleRoom | undefined;
+			if (room?.search === battleSearch) this.closeBattleSearchRoom(search.closeRoomid);
+		}, 1000);
+		return battleSearch;
+	}
+	rejectBattleSearch(roomid: RoomID) {
+		delete this.battleSearches[roomid];
+		const room = PS.rooms[roomid] as BattleRoom | undefined;
+		if (room?.classType !== 'battle' || !room.search) return;
+		room.search = null;
+		room.update(null);
+	}
+	closeBattleSearchRoom(roomid: RoomID | null) {
+		if (!roomid) return;
+		const room = PS.rooms[roomid] as BattleRoom | undefined;
+		if (room?.classType === 'battle' && room.battle?.ended) PS.leave(roomid);
+	}
+	closePendingSearchRoom() {
+		const roomid = this.pendingSearch?.closeRoomid;
+		if (!roomid) return;
+		this.pendingSearch!.closeRoomid = null;
+		this.closeBattleSearchRoom(roomid);
+	}
+	handleSearchUpdate(search: typeof this.search) {
+		for (const roomid in this.battleSearches) {
+			if (!search.games?.[roomid as RoomID]) delete this.battleSearches[roomid as RoomID];
+		}
+		const pendingSearch = this.pendingSearch;
+		if (!pendingSearch) return;
+
+		if (search.searching.includes(toID(pendingSearch.format))) {
+			this.closePendingSearchRoom();
+			if (this.pendingSearchClearTimer !== null) clearTimeout(this.pendingSearchClearTimer);
+			this.pendingSearchClearTimer = null;
+			return;
+		}
+
+		for (const roomid in search.games || {}) {
+			const battleRoomid = roomid as RoomID;
+			if (pendingSearch.games[battleRoomid]) continue;
+			if (!battleRoomid.startsWith(`battle-${toID(pendingSearch.format)}-`)) continue;
+
+			this.battleSearches[battleRoomid] = {
+				format: pendingSearch.format,
+				packedTeam: pendingSearch.packedTeam,
+				rated: pendingSearch.rated,
+				allowRenames: !search.games![battleRoomid].endsWith('*'),
+				closeRoomid: pendingSearch.closeRoomid,
+			};
+			this.clearPendingSearch();
+			return;
+		}
+
+		if (this.pendingSearchClearTimer === null) {
+			// A matched search disappears just before the server adds its new game.
+			this.pendingSearchClearTimer = setTimeout(this.clearPendingSearch, 1000);
+		}
+	}
 	override receiveLine(args: Args) {
 		const [cmd] = args;
 		switch (cmd) {
@@ -190,6 +325,7 @@ export class MainMenuRoom extends PSRoom {
 				const room = PS.rooms[roomid] as ChatRoom | MainMenuRoom;
 				if (room.teamSent) {
 					room.teamSent = null;
+					if (room === this) this.clearPendingSearch();
 					room.update(null);
 				}
 				if (room.type === 'team') (room as any).cancelUpload();
@@ -237,6 +373,7 @@ export class MainMenuRoom extends PSRoom {
 			json = JSON.parse(dataBuf);
 		} catch {}
 		this.search = json;
+		this.handleSearchUpdate(json);
 		this.update(null);
 	}
 	parseFormats(formatsList: string[]) {
@@ -379,6 +516,10 @@ export class MainMenuRoom extends PSRoom {
 		PS.teams.update('format');
 	}
 	handlePM(user1: string, user2: string, message?: string) {
+		const challengeBattle = message?.match(
+			/^\/nonotify .* accepted the challenge, starting &laquo;<a href="\/(battle-[a-z0-9-]+)">/
+		);
+		if (challengeBattle) this.rejectBattleSearch(challengeBattle[1] as RoomID);
 		const userid1 = toID(user1);
 		const userid2 = toID(user2);
 		const pmTarget = PS.user.userid === userid1 ? user2 : user1;
