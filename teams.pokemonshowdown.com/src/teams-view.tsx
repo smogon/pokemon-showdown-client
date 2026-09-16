@@ -188,7 +188,7 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 		status: 'par' as Dex.StatusName,
 		fainted: false,
 	};
-	const modifiableValue = new ModifiableValue(new Battle(), pokemon, serverPokemon);
+	const modifiableValue = new ModifiableValue(battle, pokemon, serverPokemon);
 	return <article class="psset">
 		{omName && omName !== set.species ? <>{omName} ({set.species})</> : <>{set.species}</>}
 		{set.gender ? <> ({set.gender})</> : <></>}
