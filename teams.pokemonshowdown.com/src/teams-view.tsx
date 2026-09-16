@@ -5,8 +5,10 @@ import { PSIcon, getShowdownUsername, unpackTeam, query } from './utils';
 import { BattleLog } from '../../play.pokemonshowdown.com/src/battle-log';
 import type { PageProps } from './teams';
 import { Dex } from '../../play.pokemonshowdown.com/src/battle-dex';
+import { BattleTooltips, ModifiableValue } from '../../play.pokemonshowdown.com/src/battle-tooltips';
 import { BattleStatNames } from '../../play.pokemonshowdown.com/src/battle-dex-data';
 import { Config } from '../../play.pokemonshowdown.com/src/client-main';
+import { Battle, Pokemon, Side, type HPColor } from '../../play.pokemonshowdown.com/src/battle';
 
 declare const toID: (str: any) => string;
 declare const BattleAliases: Record<string, string>;
@@ -147,6 +149,46 @@ function isOMNickname(nickname?: string) {
 
 function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 	const omName = isOMNickname(set.name);
+	const battle = new Battle();
+	const tooltip = new BattleTooltips(battle);
+	const details = {
+		name: set.name || set.species,
+		speciesForme: set.species,
+		details: '',
+		level: set.level || 100,
+		shiny: set.shiny || false,
+		gender: (set.gender || 'N') as Dex.GenderName,
+		terastallized: '',
+		searchid: '',
+		ident: '',
+	};
+	const pokemon = new Pokemon(details, new Side(battle, 0));
+	const serverPokemon = {
+		...details,
+		condition: '',
+		active: false,
+		commanding: false,
+		stats: {
+			atk: 0,
+			def: 0,
+			spa: 0,
+			spd: 0,
+			spe: 0,
+		},
+		moves: set.moves.map(move => Dex.moves.get(move).id),
+		baseAbility: Dex.abilities.get(set.ability || '').id,
+		ability: Dex.abilities.get(set.ability || '').id,
+		item: Dex.items.get(set.item || '').id,
+		pokeball: '',
+		teraType: set.teraType || '',
+		terastallized: '',
+		hp: 1000,
+		maxhp: 1000,
+		hpcolor: 'g' as HPColor,
+		status: 'par' as Dex.StatusName,
+		fainted: false,
+	};
+	const modifiableValue = new ModifiableValue(new Battle(), pokemon, serverPokemon);
 	return <article class="psset">
 		{omName && omName !== set.species ? <>{omName} ({set.species})</> : <>{set.species}</>}
 		{set.gender ? <> ({set.gender})</> : <></>}
@@ -178,76 +220,9 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 			)}<br /></> : <></>}
 
 		{set.moves ? set.moves.map(move => {
-			if (move.substr(0, 13) === 'Hidden Power ') {
-				const hpType = move.slice(13);
-				move = move.slice(0, 13);
-				move = `${move}[${hpType}]`;
-			}
+			const dexMove = Dex.moves.get(move);
 
-			let moveType = Dex.moves.get(move).type;
-			let item = Dex.items.get(set.item);
-			if (item) {
-				if (move === 'Judgment' && item.onPlate && !item.zMoveType) {
-					moveType = item.onPlate;
-				} else if (move === 'Multi-Attack' && item.onMemory) {
-					moveType = item.onMemory;
-				} else if (move === 'Techno Blast' && item.onDrive) {
-					moveType = item.onDrive;
-				} else if (move === 'Natural Gift' && item.naturalGift) {
-					moveType = item.naturalGift.type;
-				}
-			}
-
-			if (move === 'Raging Bull') {
-				switch (set.species) {
-				case 'Tauros-Paldea-Combat':
-					moveType = 'Fighting';
-					break;
-				case 'Tauros-Paldea-Blaze':
-					moveType = 'Fire';
-					break;
-				case 'Tauros-Paldea-Aqua':
-					moveType = 'Water';
-					break;
-				}
-			} else if (move === 'Ivy Cudgel') {
-				switch (set.species) {
-				case 'Ogerpon-Cornerstone':
-					moveType = 'Rock';
-					break;
-				case 'Ogerpon-Hearthflame':
-					moveType = 'Fire';
-					break;
-				case 'Ogerpon-Wellspring':
-					moveType = 'Water';
-					break;
-				}
-			} else if (move === 'Revelation Dance') {
-				moveType = Dex.species.get(set.species).types[0];
-			}
-
-			if (set.ability) {
-				const noTypeOverride = [
-					'Judgment', 'Multi Attack', 'Natural Gift', 'Revelation Dance', 'Techno Blast', 'Terrain Pulse', 'Weather Ball',
-				];
-				const allowTypeOverride = !noTypeOverride.includes(move);
-				if (set.ability === 'Normalize') {
-					moveType = 'Normal';
-				} else if (allowTypeOverride && moveType === 'Normal') {
-					if (set.ability === 'Aerilate') {
-						moveType = 'Flying';
-					} else if (set.ability === 'Galvanize') {
-						moveType = 'Electric';
-					} else if (set.ability === 'Pixilate') {
-						moveType = 'Fairy';
-					} else if (set.ability === 'Refrigerate') {
-						moveType = 'Ice';
-					}
-				} else if (set.ability === 'Liquid Voice' && Dex.moves.get(move).flags.sound) {
-					moveType = 'Water';
-				}
-			}
-
+			const [moveType, _] = tooltip.getMoveType(dexMove, modifiableValue);
 			// hide the alt so it doesn't interfere w/ copy/pasting
 			return <>- {move} <PSIcon type={moveType} hideAlt /><br /></>;
 		}) : <></>}
