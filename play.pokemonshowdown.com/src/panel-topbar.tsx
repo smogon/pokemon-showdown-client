@@ -247,7 +247,7 @@ export class PSHeader extends preact.Component {
 			<div class="scrollable-part">
 				<img
 					class="logo"
-					src={`https://${Config.routes.client}/favicon-256.png`}
+					src={`https://${Config.routes.client}/iconbeta.png`}
 					alt="Pokémon Showdown! (beta)"
 					width="50" height="50"
 				/>
@@ -297,7 +297,7 @@ export class PSHeader extends preact.Component {
 				>
 					<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 				</button> {}
-				<button class="icon button" data-href="options" title={TL`[Options]`} aria-label={TL`[Options]`}>
+				<button class="icon button alt-notifying" data-href="options" title={TL`[Options]`} aria-label={TL`[Options]`}>
 					<i class="fa fa-cog" aria-hidden></i>
 				</button>
 			</div>
@@ -306,7 +306,7 @@ export class PSHeader extends preact.Component {
 					<li>
 						<img
 							class="logo"
-							src={`https://${Config.routes.client}/favicon-256.png`}
+							src={`https://${Config.routes.client}/iconbeta.png`}
 							alt="Pokémon Showdown! (beta)"
 							width="48" height="48"
 						/>

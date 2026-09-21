@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pokémon Showdown logo comparison</title>
+<style>
+  body {
+    max-width: 720px;
+    margin: 40px auto;
+    padding: 0 16px;
+    font: 16px system-ui, sans-serif;
+    color: #222;
+    background: #eee;
+    --preview-background: #808080;
+  }
+  h1 { font-size: 24px; }
+  .preview {
+    width: 256px;
+    padding: 20px;
+    margin-top: 24px;
+    background: var(--preview-background);
+  }
+  .preview:focus-visible { outline: 3px solid #2684ff; outline-offset: 4px; }
+  .overlay { display: grid; place-items: center; aspect-ratio: 1; }
+  .overlay img { grid-area: 1 / 1; }
+  .svg { visibility: hidden; }
+  .preview:is(:hover, :focus-visible) .png { visibility: hidden; }
+  .preview:is(:hover, :focus-visible) .svg { visibility: visible; }
+  .small { display: flex; align-items: center; gap: 24px; margin-top: 24px; }
+  img { display: block; height: auto; }
+  .note { color: #555; }
+  .favicon-comparison { display: flex; flex-wrap: wrap; gap: 24px; }
+  .favicon-comparison figure { margin: 0; }
+  .favicon-comparison figcaption { margin-bottom: 12px; font-weight: 600; }
+  .favicon-sizes {
+    display: grid;
+    justify-items: center;
+    gap: 24px;
+    padding: 20px;
+    background: var(--preview-background);
+  }
+  .pixel-zoom { image-rendering: pixelated; }
+</style>
+
+<h1>Pokémon Showdown logo comparison</h1>
+<label>
+  Preview background:
+  <select onchange="document.body.style.setProperty('--preview-background', this.value)">
+    <option value="#808080">Gray</option>
+    <option value="#fff">White</option>
+    <option value="#000">Black</option>
+  </select>
+</label>
+<label>
+  SVG version:
+  <select onchange="document.querySelectorAll('img.svg').forEach(img => img.src = this.value)">
+    <option value="showdown-logo-color.svg">Classic blue</option>
+    <option value="showdown-logo-beta.svg">Classic blue + BETA</option>
+    <option value="showdown-logo-bw.svg">Black and white</option>
+  </select>
+</label>
+
+<p id="instructions">Hover over the preview to show the selected SVG. Move away to show the original PNG. Keyboard: Tab into the preview to show the SVG.</p>
+<div class="preview" tabindex="0" aria-label="Logo comparison" aria-describedby="instructions">
+  <div class="overlay">
+    <img class="png" src="old/favicon-256.png" width="256" alt="Original Pokémon Showdown logo">
+    <img class="svg" src="showdown-logo-color.svg" width="256" alt="SVG Pokémon Showdown logo">
+  </div>
+  <div class="small">
+    <div class="overlay">
+      <img class="png" src="old/favicon-256.png" width="64" alt="Original at 64 pixels">
+      <img class="svg" src="showdown-logo-color.svg" width="64" alt="SVG at 64 pixels">
+    </div>
+    <div class="overlay">
+      <img class="png" src="old/favicon-256.png" width="32" alt="Original at 32 pixels">
+      <img class="svg" src="showdown-logo-color.svg" width="32" alt="SVG at 32 pixels">
+    </div>
+    <div class="overlay">
+      <img class="png" src="old/favicon-256.png" width="16" alt="Original at 16 pixels">
+      <img class="svg" src="showdown-logo-color.svg" width="16" alt="SVG at 16 pixels">
+    </div>
+  </div>
+</div>
+<p class="note">Widths: 256 px above; 64, 32, and 16 px below. Each image keeps its original aspect ratio.</p>
+
+<h2>32 × 32 favicon comparison</h2>
+<p>The existing favicon and a candidate downsampled from the new 256 px SVG render. Each appears at its actual size, then enlarged 8× without smoothing.</p>
+<div class="favicon-comparison">
+  <figure>
+    <figcaption>Existing 32 px favicon</figcaption>
+    <div class="favicon-sizes">
+      <img src="../play.pokemonshowdown.com/favicon-32.png" width="32" height="32" alt="Existing favicon at actual size">
+      <img class="pixel-zoom" src="../play.pokemonshowdown.com/favicon-32.png" width="256" height="256" alt="Existing favicon enlarged 8 times">
+    </div>
+  </figure>
+  <figure>
+    <figcaption>New 32 px candidate</figcaption>
+    <div class="favicon-sizes">
+      <img src="favicon-32-candidate.png" width="32" height="32" alt="New favicon candidate at actual size">
+      <img class="pixel-zoom" src="favicon-32-candidate.png" width="256" height="256" alt="New favicon candidate enlarged 8 times">
+    </div>
+  </figure>
+</div>
+</html>

@@ -892,7 +892,9 @@ function toId() {
 				history.replaceState(null, null, location.pathname);
 			}
 			if (fragment && fragment.includes('.')) fragment = '';
-			this.fragment = fragment = toRoomid(fragment || '');
+			fragment = toRoomid(fragment || '');
+			if (fragment === 'oldclient') fragment = '';
+			this.fragment = fragment;
 			if (this.initialFragment === undefined) this.initialFragment = fragment;
 			this.tryJoinRoom(fragment);
 			this.updateTitle(this.rooms[fragment]);
@@ -1527,7 +1529,7 @@ function toId() {
 						var target = this.pathname.substr(1);
 
 						// keep this in sync with .htaccess
-						var shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|forgotpassword|bugs?(reports?)?|formatsuggestions|rules?|faq|credits?|news|privacy|contact|dex|(damage)?calc|insecure|replays?|devdiscord|smogdex|smogcord|forums?|trustworthy\-dlc\-link)$/;
+						var shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|forgotpassword|bugs?(reports?)?|formatsuggestions|rules?|faq|credits?|news|privacy|contact|dex|(damage)?calc|insecure|replays?|devdiscord|smogdex|smogcord|forums?|trustworthy\-dlc\-link|oldclient|newclient)$/;
 						if (target === 'appeal' || target === 'appeals') target = 'view-help-request--appeal';
 						if (target === 'report') target = 'view-help-request--report';
 						if (target === 'requesthelp') target = 'view-help-request--other';

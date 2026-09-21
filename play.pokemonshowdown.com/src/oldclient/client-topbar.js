@@ -206,7 +206,7 @@
 			for (var i in app.rooms) {
 				if (app.rooms[i] !== app.curRoom && app.rooms[i].notificationClass === ' notifying') notificationClass = ' notifying';
 			}
-			var buf = '<ul><li><a class="button minilogo' + notificationClass + '" href="' + app.root + '"><img src="' + Dex.resourcePrefix + 'favicon-256.png" width="32" height="32" alt="Pok&eacute;mon Showdown! (beta)" /><i class="fa fa-caret-down" style="display:inline-block"></i></a></li></ul>';
+			var buf = '<ul><li><a class="button minilogo' + notificationClass + '" href="' + app.root + '"><img src="' + Dex.resourcePrefix + 'iconbeta.png" width="32" height="32" alt="Pok&eacute;mon Showdown! (beta)" /><i class="fa fa-caret-down" style="display:inline-block"></i></a></li></ul>';
 
 			buf += '<ul>' + this.renderRoomTab(app.curRoom) + '</ul>';
 
@@ -502,6 +502,10 @@
 					buf += '<p><button class="button" name="register">Register</button></p>';
 				}
 			}
+
+			buf += '<hr />';
+			buf += '<p>We\'re working on a new client! Try it out!</p>';
+			buf += '<p><a class="button alt-notifying" href="/newclient">Try new client</a></p>';
 
 			buf += '<hr />';
 			buf += '<p><strong>Graphics</strong></p>';

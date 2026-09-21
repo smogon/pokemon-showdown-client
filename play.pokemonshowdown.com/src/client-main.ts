@@ -89,7 +89,7 @@ const PSPrefsDefaults: { [key: string]: any } = {};
  * Updates will name the key updated, so you don't need to overreact.
  */
 class PSPrefs extends PSStreamModel<string | null> {
-	// PREFS START HERE
+	// #region Prefs
 
 	/**
 	 * The theme to use. "system" matches the theme of the system accessing the client.
@@ -180,6 +180,14 @@ class PSPrefs extends PSStreamModel<string | null> {
 
 	highlights: Record<string, string[]> | null = null;
 	logtimes: { [serverid: ID]: { [roomid: RoomID]: number } } | null = null;
+	/**
+	 * News entry ID of last read news item. If news items newer than this number
+	 * exist, they will be marked as unread.
+	 *
+	 * `PS.newsid` stores the latest news ID, and `PS.newsid > PS.prefs.newsid`
+	 * means that unread news exists.
+	 */
+	newsid = 0;
 
 	avatar: string | null = null;
 	serversettings: {
@@ -188,7 +196,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 		language?: string,
 	} = {};
 
-	// PREFS END HERE
+	// #endregion Prefs
 
 	storageEngine: 'localStorage' | 'iframeLocalStorage' | '' = '';
 	storage: { [k: string]: any } = {};
@@ -2085,6 +2093,7 @@ export const PS = new class extends PSModel {
 	arrowKeysUsed = false;
 
 	newsHTML = document.querySelector('#room-news .readable-bg')?.innerHTML || '';
+	/** @see PS.prefs.newsid */
 	newsId = document.getElementById('room-news')?.getAttribute('data-newsid') || null;
 
 	libsLoaded = makeLoadTracker();

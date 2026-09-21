@@ -1,5 +1,68 @@
 (function ($) {
 
+	var NEW_CLIENT_LANGUAGE_MESSAGES = {
+		de: {
+			title: 'Pokémon Showdown auf Deutsch',
+			body: 'Der neue Pokémon-Showdown-Client ist auf Deutsch verfügbar.',
+			button: 'Neuen Client ausprobieren'
+		},
+		es: {
+			title: 'Pokémon Showdown en español',
+			body: 'El nuevo cliente de Pokémon Showdown está disponible en español.',
+			button: 'Probar el cliente nuevo'
+		},
+		fr: {
+			title: 'Pokémon Showdown en français',
+			body: 'Le nouveau client de Pokémon Showdown est disponible en français.',
+			button: 'Essayer le nouveau client'
+		},
+		it: {
+			title: 'Pokémon Showdown in italiano',
+			body: 'Il nuovo client di Pokémon Showdown è disponibile in italiano.',
+			button: 'Prova il nuovo client'
+		},
+		nl: {
+			title: 'Pokémon Showdown in het Nederlands',
+			body: 'De nieuwe Pokémon Showdown-client is beschikbaar in het Nederlands.',
+			button: 'Nieuwe client proberen'
+		},
+		pt: {
+			title: 'Pokémon Showdown em português',
+			body: 'O novo cliente do Pokémon Showdown está disponível em português.',
+			button: 'Experimentar o novo cliente'
+		},
+		tr: {
+			title: 'Türkçe Pokémon Showdown',
+			body: 'Yeni Pokémon Showdown istemcisi Türkçe olarak kullanılabilir.',
+			button: 'Yeni istemciyi dene'
+		},
+		hi: {
+			title: 'हिंदी में Pokémon Showdown',
+			body: 'नया Pokémon Showdown क्लाइंट हिंदी में उपलब्ध है।',
+			button: 'नया क्लाइंट आज़माएँ'
+		},
+		ja: {
+			title: '日本語版 Pokémon Showdown',
+			body: '新しい Pokémon Showdown クライアントは日本語で利用できます。',
+			button: '新しいクライアントを試す'
+		},
+		'zh-cn': {
+			title: '简体中文版 Pokémon Showdown',
+			body: '新版 Pokémon Showdown 客户端支持简体中文。',
+			button: '试用新版客户端'
+		},
+		'zh-tw': {
+			title: '繁體中文版 Pokémon Showdown',
+			body: '新版 Pokémon Showdown 用戶端支援繁體中文。',
+			button: '試用新版用戶端'
+		},
+		ko: {
+			title: '한국어 Pokémon Showdown',
+			body: '새 Pokémon Showdown 클라이언트는 한국어를 지원합니다.',
+			button: '새 클라이언트 사용해 보기'
+		}
+	};
+
 	this.MainMenuRoom = this.Room.extend({
 		type: 'mainmenu',
 		tinyWidth: 340,
@@ -77,6 +140,17 @@
 
 			this.$activityMenu = this.$('.activitymenu');
 			this.$pmBox = this.$activityMenu.find('.pmbox');
+
+			var newClientMessage = NEW_CLIENT_LANGUAGE_MESSAGES[Dex.text.getBrowserLanguage()];
+			if (newClientMessage) {
+				this.addPseudoPM({
+					title: newClientMessage.title,
+					html: '<p>' + newClientMessage.body + '</p>' +
+						'<p><a class="button" href="/newclient">' + newClientMessage.button + '</a></p>',
+					cssClass: 'newclient-embed',
+					noMinimize: true
+				});
+			}
 
 			app.on('init:formats', this.updateFormats, this);
 			this.updateFormats();

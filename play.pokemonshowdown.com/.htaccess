@@ -125,10 +125,11 @@ RewriteCond %{DOCUMENT_ROOT}/$1 !-d
 RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)/$ /$1 [R=301,L]
 
 # Anything that looks like a roomid: connect to the server
+RewriteRule ^oldclient$ ./caches/index-old.html [L,E=INDEX_PAGE:1]
 RewriteCond %{HTTP_COOKIE} ^.*preactalpha=1.*$
 RewriteRule ^(|[A-Za-z0-9][A-Za-z0-9-]*)$ ./caches/index-new.html [L,E=INDEX_PAGE:1]
 RewriteRule ^$ - [E=INDEX_PAGE:1]
-RewriteRule ^(preactalpha|preactbeta|beta|dev|development|login|users|(dm|challenge|user|viewuser|ladder)-[a-z0-9-]*)$ ./caches/index-new.html [L,E=INDEX_PAGE:1]
+RewriteRule ^(newclient|preactalpha|preactbeta|beta|dev|development|login|users|(dm|challenge|user|viewuser|ladder)-[a-z0-9-]*)$ ./caches/index-new.html [L,E=INDEX_PAGE:1]
 RewriteRule ^(|[A-Za-z0-9][A-Za-z0-9-]*)$ ./caches/index-old.html [L,E=INDEX_PAGE:1]
 
 # RewriteRule ^crossprotocol\.html$ - [E=CROSSPROTOCOL:1]

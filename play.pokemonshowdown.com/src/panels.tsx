@@ -22,7 +22,7 @@ import {
 import type { ChatRoom } from "./panel-chat";
 import { PSHeader, PSMiniHeader } from "./panel-topbar";
 
-export const EXTERNAL_REDIRECTS = /^(appeals?|rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|privacy|contact|dex|insecure)$/;
+export const EXTERNAL_REDIRECTS = /^(appeals?|rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|privacy|contact|dex|insecure|oldclient)$/;
 
 export class PSRouter {
 	roomid = '' as RoomID;
@@ -142,8 +142,14 @@ export class PSRouter {
 	}
 	subscribeHistory() {
 		const currentRoomid = location.pathname.slice(1);
+		if (currentRoomid === 'newclient' && !/(?:^|;\s*)preactalpha=/.test(document.cookie)) {
+			this.setDefaultClientCookie('new');
+		}
 		if (/^[a-z0-9-]+$/.test(currentRoomid)) {
-			if (currentRoomid !== 'preactalpha' && currentRoomid !== 'preactbeta' && currentRoomid !== 'beta') {
+			if (
+				currentRoomid !== 'preactalpha' && currentRoomid !== 'preactbeta' &&
+				currentRoomid !== 'beta' && currentRoomid !== 'newclient'
+			) {
 				PS.join(currentRoomid as RoomID);
 			}
 		}
@@ -183,6 +189,9 @@ export class PSRouter {
 				PS.join(roomid);
 			}
 		});
+	}
+	setDefaultClientCookie(client: 'old' | 'new') {
+		document.cookie = `preactalpha=${client === 'new' ? '1' : '0'}; expires=Thu, 1 Sep 2027 12:00:00 UTC; path=/`;
 	}
 }
 PS.router = new PSRouter();
