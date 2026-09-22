@@ -10,6 +10,11 @@ import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { RoomInfo } from "./panel-mainmenu";
 import { Dex, TL, toID } from "./battle-dex";
 
+const ROOM_ALIASES: Record<string, string> = {
+	tmg: 'toursminigames',
+	tours: 'tournaments',
+};
+
 const LANGUAGE_ROOM_IDS: Record<string, readonly string[]> = {
 	it: ['italiano'],
 	es: ['espanol', 'espaol'],
@@ -126,8 +131,10 @@ class RoomsPanel extends PSRoomPanel {
 			this.roomListFocusIndex = this.search ? 0 : -1;
 		}
 		this.roomList = this.getRoomList(forceNoAutocomplete);
-		for (const [, rooms] of this.roomList) {
-			rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
+		if (!this.search) {
+			for (const [, rooms] of this.roomList) {
+				rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
+			}
 		}
 	}
 	getRoomList(forceNoAutocomplete?: boolean): RoomsSection[] {
@@ -170,8 +177,6 @@ class RoomsPanel extends PSRoomPanel {
 			];
 		}
 
-		let exactMatch = false;
-
 		const rooms = PS.mainmenu.roomsCache;
 		let roomList = [...(rooms.chat || [])];
 		for (const room of roomList) {
@@ -184,15 +189,20 @@ class RoomsPanel extends PSRoomPanel {
 			}
 		}
 
-		let results = roomList.filter(room => {
-			const titleid = toID(room.title);
-			if (titleid === searchid) exactMatch = true;
-			return titleid.startsWith(searchid) ||
-				toID(room.title.replace(/^The /, '')).startsWith(searchid);
-		});
+		roomList.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
+		const exactMatch = roomList.some(room => toID(room.title) === searchid);
+
+		// exact alias match has priority
+		let results = roomList.filter(room =>
+			toID(room.title) === ROOM_ALIASES[searchid] ||
+			toID(room.title.toLowerCase().replace(/\b([a-z0-9])[a-z0-9]*\b/g, '$1')) === searchid ||
+			room.title.replace(/[^A-Z0-9]+/g, '').toLowerCase() === searchid
+		);
 		roomList = roomList.filter(room => !results.includes(room));
 
 		results = results.concat(roomList.filter(room =>
+			toID(room.title).startsWith(searchid) ||
+			toID(room.title.replace(/^The /, '')).startsWith(searchid) ||
 			toID(room.title.toLowerCase().replace(/\b([a-z0-9])[a-z0-9]*\b/g, '$1')).startsWith(searchid) ||
 			room.title.replace(/[^A-Z0-9]+/g, '').toLowerCase().startsWith(searchid)
 		));
@@ -202,7 +212,6 @@ class RoomsPanel extends PSRoomPanel {
 
 		const autoFill = this.lastKeyCode !== 127 && this.lastKeyCode >= 32;
 		if (autoFill && !forceNoAutocomplete) {
-			results.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
 			const firstTitle = (results[0] || hidden[0][1][0]).title;
 			let firstTitleOffset = 0;
 			while (
@@ -291,12 +300,10 @@ class RoomsPanel extends PSRoomPanel {
 			return <div class="roomlist"><h2>{TL`Official chat rooms`}</h2><p><em>{TL`Connecting...`}</em></p></div>;
 		}
 
-		// Descending order
 		let nextOffset = 0;
 		return this.roomList.filter(([, rooms]) => rooms.length > 0).map(([title, rooms], sectionCount) => {
-			const sortedRooms = rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
 			const offset = nextOffset;
-			nextOffset += sortedRooms.length;
+			nextOffset += rooms.length;
 			this.roomListLength = nextOffset;
 
 			const index = this.roomListFocusIndex >= offset && this.roomListFocusIndex < nextOffset ?
@@ -305,7 +312,7 @@ class RoomsPanel extends PSRoomPanel {
 			return <>
 				<div class="roomlist">
 					<h2>{title}</h2>
-					{sortedRooms.map((roomInfo, i) => <div key={roomInfo.title}>
+					{rooms.map((roomInfo, i) => <div key={roomInfo.title}>
 						<a href={`/${roomInfo.id || toID(roomInfo.title)}`} class={`blocklink${i === index ? " cur" : ''}`}>
 							{roomInfo.userCount !== undefined && <small style="float:right">({TL`${roomInfo.userCount} users`})</small>}
 							<strong><i class="fa fa-comment-o" aria-hidden></i> {roomInfo.title}<br /></strong>

@@ -8,7 +8,7 @@ AddType application/x-tgz .tgz
 AddType application/x-chrome-extension .crx
 AddType application/x-web-app-manifest+json .webapp
 
-<filesMatch "^caches/index-(old|new)\.html$">
+<filesMatch "^index-(old|new|test)\.html$">
   FileETag None
   <ifModule mod_headers.c>
      Header unset ETag
@@ -125,6 +125,8 @@ RewriteCond %{DOCUMENT_ROOT}/$1 !-d
 RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)/$ /$1 [R=301,L]
 
 # Anything that looks like a roomid: connect to the server
+RewriteCond %{DOCUMENT_ROOT}/caches/index-test.html -f
+RewriteRule ^index-test\.html$ ./caches/index-test.html [L,E=INDEX_PAGE:1]
 RewriteRule ^oldclient$ ./caches/index-old.html [L,E=INDEX_PAGE:1]
 RewriteCond %{HTTP_COOKIE} ^.*preactalpha=1.*$
 RewriteRule ^(|[A-Za-z0-9][A-Za-z0-9-]*)$ ./caches/index-new.html [L,E=INDEX_PAGE:1]

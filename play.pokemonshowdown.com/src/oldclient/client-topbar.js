@@ -475,6 +475,7 @@
 			'change input[name=syncteams]': 'setSyncTeams',
 			'change select[name=onepanel]': 'setOnePanel',
 			'change select[name=theme]': 'setTheme',
+			'change select[name=defaultclient]': 'setDefaultClient',
 			'change input[name=logchat]': 'setLogChat',
 			'change input[name=selfhighlight]': 'setSelfHighlight',
 			'click img': 'avatars',
@@ -504,8 +505,17 @@
 			}
 
 			buf += '<hr />';
-			buf += '<p>We\'re working on a new client! Try it out!</p>';
-			buf += '<p><a class="button alt-notifying" href="/newclient">Try new client</a></p>';
+			var hasClientCookie = /(?:^|;\s*)preactalpha=/.test(document.cookie);
+			var defaultClient = /(?:^|;\s*)preactalpha=1(?:;|$)/.test(document.cookie) ? 'new' : 'old';
+			if (hasClientCookie) {
+				buf += '<p>This is the old client.</p>';
+				buf += '<label class="optlabel">Default: <select name="defaultclient" class="button"><option value="old"' + (defaultClient === 'old' ? ' selected="selected"' : '') + '>Old client</option><option value="new"' + (defaultClient === 'new' ? ' selected="selected"' : '') + '>New client</option></select></label>';
+			} else {
+				buf += '<p>We\'re working on a new client! Try it out!</p>';
+			}
+			var switchClientLabel = !hasClientCookie ? 'Try new client' :
+				(defaultClient === 'new' ? 'Back to new client' : 'Use new client temporarily');
+			buf += '<p><a class="button' + (hasClientCookie ? '' : ' alt-notifying') + '" href="/newclient">' + switchClientLabel + '</a></p>';
 
 			buf += '<hr />';
 			buf += '<p><strong>Graphics</strong></p>';
@@ -621,6 +631,11 @@
 				}
 			}
 			$('html').toggleClass('dark', theme === 'dark');
+		},
+		setDefaultClient: function (e) {
+			document.cookie = 'preactalpha=' + (e.currentTarget.value === 'new' ? '1' : '0') +
+				'; expires=Thu, 1 Sep 2027 12:00:00 UTC; path=/';
+			this.update();
 		},
 		setBwgfx: function (e) {
 			var bwgfx = !!e.currentTarget.checked;

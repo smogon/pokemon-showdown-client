@@ -700,50 +700,50 @@ p.or:after {
 	color: #EE4422;
 }
 
-.options {
-	margin: -2px 0 -1px 0;
+.options-column {
 	padding: 0 2px;
-	list-style: none;
 	font-size: 8pt;
 	float: left;
 }
-.options .option {
+.options-column ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.options-column .option {
 	display: block;
 	width: 220px;
 	box-sizing: border-box;
 }
-.options .star {
+.options-column .star {
 	float: right;
-}
-.options .star {
 	color: #888;
 }
-.options .star:hover {
+.options-column .star:hover {
 	color: #1ea1c8;
 }
-.options .star.cur {
+.options-column .star.cur {
 	color: #FFD700;
 	text-shadow: 0 0 1px #000;
 }
-.options h3 {
+.options-column summary {
 	margin: 5px 0 0 -2px;
 	padding: 1px 0;
 	font-size: 8pt;
+	font-weight: bold;
 	color: #579;
+	width: 220px;
 }
-.options li:first-child h3 {
-	margin-top: 0;
+.options-column .details summary:before {
+	font-size: 12px;
 }
 @media (max-height:590px) {
-	.options h3 {
+	.options-column summary {
 		margin-top: 2px;
-	}
-	.options {
-		margin: -3px 0 -2px 0;
 	}
 }
 @media (max-height:518px) {
-	.options h3 {
+	.options-column summary {
 		margin-top: 1px;
 	}
 }

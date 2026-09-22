@@ -1338,6 +1338,7 @@ export class Battle {
 		// activity queue state
 		this.activeMoveIsSpread = null;
 		this.currentStep = 0;
+		this.preemptStepQueue = [];
 		this.resetTurnsSinceMoved();
 		this.nextStep();
 	}

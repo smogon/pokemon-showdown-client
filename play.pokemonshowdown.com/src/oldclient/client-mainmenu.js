@@ -145,8 +145,8 @@
 			if (newClientMessage) {
 				this.addPseudoPM({
 					title: newClientMessage.title,
-					html: '<p>' + newClientMessage.body + '</p>' +
-						'<p><a class="button" href="/newclient">' + newClientMessage.button + '</a></p>',
+					html: '<div class="pad"><p>' + newClientMessage.body + '</p>' +
+						'<p><a class="button" href="/newclient">' + newClientMessage.button + '</a></p></div>',
 					cssClass: 'newclient-embed',
 					noMinimize: true
 				});

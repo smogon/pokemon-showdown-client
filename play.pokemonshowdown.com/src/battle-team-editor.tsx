@@ -2773,7 +2773,7 @@ class TeamEditorForm extends preact.Component<{
 	}
 	getOuterSetButton(focus: NonNullable<TeamEditorState['innerFocus']>) {
 		if (focus.setIndex >= this.props.editor.sets.length) return null;
-		return this.base!.querySelectorAll<HTMLElement>('.teameditor > .set-form')[focus.setIndex] || null;
+		return this.base!.querySelector<HTMLElement>(`.set-form[data-set-index="${focus.setIndex}"]`);
 	}
 	removeDuplicateMove(name: string) {
 		const { editor } = this.props;
@@ -2858,7 +2858,7 @@ class TeamEditorForm extends preact.Component<{
 			) || this.base!.querySelector<HTMLButtonElement>(
 				`.team-focus-editor .tabbar button[name=addpokemon]`
 			) || this.base!.querySelector<HTMLButtonElement>(
-				`.teameditor > .set-form button[name=delete][value="${focus.setIndex}"]`
+				`.set-list > .set-form button[name=delete][value="${focus.setIndex}"]`
 			) || this.base!.querySelector<HTMLButtonElement>(
 				`.teameditor button[name=addpokemon]`
 			);
@@ -3537,6 +3537,22 @@ class StatForm extends preact.Component<{
 	override componentDidUpdate(): void {
 		this.update();
 	}
+	override componentWillUnmount(): void {
+		this.endEVSliderDrag();
+	}
+	draggingEVSlider: HTMLInputElement | null = null;
+	startEVSliderDrag = (ev: PointerEvent) => {
+		this.draggingEVSlider = ev.currentTarget as HTMLInputElement;
+		window.addEventListener('pointerup', this.endEVSliderDrag);
+		window.addEventListener('pointercancel', this.endEVSliderDrag);
+		window.addEventListener('blur', this.endEVSliderDrag);
+	};
+	endEVSliderDrag = () => {
+		this.draggingEVSlider = null;
+		window.removeEventListener('pointerup', this.endEVSliderDrag);
+		window.removeEventListener('pointercancel', this.endEVSliderDrag);
+		window.removeEventListener('blur', this.endEVSliderDrag);
+	};
 	plus: Dex.StatNameExceptHP | null = null;
 	minus: Dex.StatNameExceptHP | null = null;
 	renderStatbar(stat: number, statID: StatName) {
@@ -3552,8 +3568,9 @@ class StatForm extends preact.Component<{
 	}
 	changeEV = (ev: Event) => {
 		const target = ev.currentTarget as HTMLInputElement;
-		const { set } = this.props;
+		const { editor, set } = this.props;
 		const statID = target.name.split('-')[1] as Dex.StatName;
+		const previousValue = set.evs?.[statID] ?? (editor.gen <= 2 && !set.evs ? 252 : 0);
 		let value = Math.abs(parseInt(target.value));
 
 		if (isNaN(value)) {
@@ -3568,6 +3585,18 @@ class StatForm extends preact.Component<{
 		}
 
 		if (target.type === 'range') {
+			const step = editor.isLetsGo || editor.isChampions ? 1 : 4;
+			const iv = editor.getIVs(set)[statID];
+			// while dragging, always round down, but other methods (e.g. pressing Right on a keyboard)
+			// should jump a whole step
+			if (this.draggingEVSlider !== target && value > previousValue) {
+				const previousStat = editor.getStat(statID, set, iv, previousValue);
+				const maxValue = editor.isChampions ? 32 : editor.isLetsGo ? 200 : 252;
+				while (value < maxValue && editor.getStat(statID, set, iv, value) === previousStat) {
+					value = Math.min(value + step, maxValue);
+				}
+				set.evs![statID] = value;
+			}
 			// enforce limit
 			const maxEv = this.maxEVs();
 			let usableMaxEv = maxEv === 510 ? 508 : maxEv;
@@ -3576,12 +3605,18 @@ class StatForm extends preact.Component<{
 				for (const curEv of Object.values(set.evs || {})) totalEv += curEv;
 				if (totalEv > maxEv && totalEv - value <= maxEv) {
 					set.evs![statID] = usableMaxEv - (totalEv - value);
-					// in mobile, you can drag the slider while the textbox is still focused,
-					// so onChange won't update it, so we manually update it here too
-					const textbox = this.base!.querySelector<HTMLInputElement>(`input.stat-input[name="ev-${statID}"]`);
-					if (textbox) textbox.value = this.getEVText(statID);
 				}
 			}
+			// snap to the fewest EVs necessary for this (round down)
+			value = Math.max(0, Math.floor(set.evs![statID]! / step) * step);
+			const stat = editor.getStat(statID, set, iv, value);
+			while (value > 0 && editor.getStat(statID, set, iv, value - step) === stat) value -= step;
+			set.evs![statID] = value;
+			target.value = `${value}`;
+			// in mobile, the textbox can still be focused while dragging the slider,
+			// so onChange won't update it, so we manually update it here
+			const textbox = this.base!.querySelector<HTMLInputElement>(`input.stat-input[name="ev-${statID}"]`);
+			if (textbox) textbox.value = this.getEVText(statID);
 		} else {
 			if (target.value.includes('+')) {
 				if (statID === 'hp') {
@@ -3782,6 +3817,7 @@ class StatForm extends preact.Component<{
 						<td><input
 							name={`evslider-${statID}`} value={set.evs?.[statID] ?? defaultEV} min="0" max={maxEV} step={stepEV}
 							type="range" class="evslider" tabIndex={-1} aria-hidden
+							onPointerDown={this.startEVSliderDrag}
 							onInput={this.changeEV} onChange={this.changeEV}
 						/></td>
 						{!editor.isChampions && <td><input

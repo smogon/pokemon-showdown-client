@@ -136,6 +136,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	rightpanelbattles: boolean | null = null;
 	disallowspectators: boolean | null = null;
 	starredformats: { [formatid: string]: true | undefined } | null = null;
+	openformats: { [section: string]: boolean | undefined } | null = null;
 
 	/* Teambuilder preferences */
 	teameditorspacious: boolean | null = null;
@@ -1978,7 +1979,7 @@ export const PS = new class extends PSModel {
 	/**
 	 * The currently focused room. Should always be the topmost popup
 	 * if it exists. If no popups are open, it should be
-	 * `PS.panel`.
+	 * `PS.baseRoom`.
 	 *
 	 * Determines which room receives keyboard shortcuts.
 	 *
@@ -1986,21 +1987,30 @@ export const PS = new class extends PSModel {
 	 */
 	room: PSRoom = null!;
 	/**
-	 * The currently active panel. Should always be either `PS.leftPanel`
-	 * or `PS.leftPanel`. If no popups are open, should be `PS.room`.
+	 * The currently in-focus non-popup room. If no popups are open, this
+	 * will be `PS.room`. Otherwise, this is the room that will be
+	 * re-focused once the popups are closed.
 	 *
-	 * In one-panel mode, determines whether the left or right panel is
-	 * visible. Otherwise, it just tracks which panel will be in focus
-	 * after all popups are closed.
+	 * This will either be a mini-window or the currently visible panel.
 	 */
-	panel: PSRoom = null!;
+	baseRoom: PSRoom = null!;
+	/**
+	 * The currently visible panel, in one-panel mode, and the currently focused
+	 * panel, regardless (guaranteed to be either `PS.leftPanel` or `PS.rightPanel`).
+	 *
+	 * If `baseRoom` is a mini-window, this will be mainmenu, otherwise this will
+	 * be `baseRoom`.
+	 */
+	getPanel(): PSRoom {
+		return this.baseRoom?.location === 'mini-window' ? this.mainmenu : this.baseRoom;
+	}
 	/**
 	 * Currently active left room.
 	 *
 	 * In two-panel mode, this will be the visible left panel.
 	 *
 	 * In one-panel mode, this is the visible room only if it is
-	 * `PS.panel`. Still tracked when not visible, so we know which
+	 * `PS.getPanel()`. Still tracked when not visible, so we know which
 	 * panels to display if PS is resized to two-panel mode.
 	 */
 	leftPanel: PSRoom = null!;
@@ -2010,7 +2020,7 @@ export const PS = new class extends PSModel {
 	 * In two-panel mode, this will be the visible right panel.
 	 *
 	 * In one-panel mode, this is the visible room only if it is
-	 * `PS.panel`. Still tracked when not visible, so we know which
+	 * `PS.getPanel()`. Still tracked when not visible, so we know which
 	 * panels to display if PS is resized to two-panel mode.
 	 */
 	rightPanel: PSRoom | null = null;
@@ -2206,6 +2216,7 @@ export const PS = new class extends PSModel {
 	}
 	/** @returns changed */
 	updateLayout(): boolean {
+		const panel = this.getPanel();
 		const leftPanelWidth = this.calculateLeftPanelWidth();
 		// `window.inner*` subtracts on-screen keyboards, but `document.body.offset*` doesn't
 		// we don't want the layout to jump around wildly when we open an OSK, so...
@@ -2218,9 +2229,9 @@ export const PS = new class extends PSModel {
 		if (leftPanelWidth === null) {
 			const headerWidthOffset = viewportWidth <= 700 ? 0 : VERTICAL_HEADER_WIDTH;
 			const roomWidth = viewportWidth + 1 - headerWidthOffset;
-			needsUpdate ||= this.roomLayoutBreakpointPassed(this.panel, roomWidth, viewportHeight - 30);
-			this.panel.width = roomWidth;
-			this.panel.height = viewportHeight - 30;
+			needsUpdate ||= this.roomLayoutBreakpointPassed(panel, roomWidth, viewportHeight - 30);
+			panel.width = roomWidth;
+			panel.height = viewportHeight - 30;
 		} else if (leftPanelWidth) {
 			const rightPanelWidth = viewportWidth + 1 - leftPanelWidth;
 			needsUpdate ||= this.roomLayoutBreakpointPassed(this.leftPanel, leftPanelWidth, roomHeight);
@@ -2230,16 +2241,16 @@ export const PS = new class extends PSModel {
 			this.rightPanel!.width = rightPanelWidth;
 			this.rightPanel!.height = roomHeight;
 		} else {
-			needsUpdate ||= this.roomLayoutBreakpointPassed(this.panel, viewportWidth, roomHeight);
-			this.panel.width = viewportWidth;
-			this.panel.height = roomHeight;
+			needsUpdate ||= this.roomLayoutBreakpointPassed(panel, viewportWidth, roomHeight);
+			panel.width = viewportWidth;
+			panel.height = roomHeight;
 		}
 
 		if (this.leftPanelWidth !== leftPanelWidth) {
 			this.leftPanelWidth = leftPanelWidth;
 		}
 		this.layoutViewportWidth = viewportWidth;
-		(this.panel as ChatRoom).log?.updateScroll();
+		(panel as ChatRoom).log?.updateScroll();
 		if (this.leftPanelWidth) {
 			(this.leftPanel as ChatRoom).log?.updateScroll();
 			(this.rightPanel as ChatRoom).log?.updateScroll();
@@ -2422,10 +2433,10 @@ export const PS = new class extends PSModel {
 	}
 	isVisible(room: PSRoom): boolean {
 		if (PS.isPanel(room)) {
-			return !this.leftPanelWidth ? room === this.panel : room === this.leftPanel || room === this.rightPanel;
+			return !this.leftPanelWidth ? room === this.getPanel() : room === this.leftPanel || room === this.rightPanel;
 		}
 		if (room.location === 'mini-window') {
-			return !this.leftPanelWidth ? this.mainmenu === this.panel : this.mainmenu === this.leftPanel;
+			return !this.leftPanelWidth ? this.mainmenu === this.getPanel() : this.mainmenu === this.leftPanel;
 		}
 		// some kind of popup
 		return true;
@@ -2433,7 +2444,7 @@ export const PS = new class extends PSModel {
 	isVisiblePanel(room: PSRoom) {
 		if (!this.leftPanelWidth) {
 			// one panel visible
-			return room === this.panel || room === this.room;
+			return room === this.getPanel() || room === this.room;
 		} else {
 			// both panels visible
 			return room === this.rightPanel || room === this.leftPanel || room === this.room;
@@ -2563,7 +2574,7 @@ export const PS = new class extends PSModel {
 			this.rooms[roomid] = newRoom;
 			if (this.leftPanel === room) this.leftPanel = newRoom;
 			if (this.rightPanel === room) this.rightPanel = newRoom;
-			if (this.panel === room) this.panel = newRoom;
+			if (this.baseRoom === room) this.baseRoom = newRoom;
 			if (roomid === '') this.mainmenu = newRoom as MainMenuRoom;
 			if (this.pendingFocus?.room === room) this.pendingFocus.room = newRoom;
 			if (this.room === room) {
@@ -2596,10 +2607,11 @@ export const PS = new class extends PSModel {
 			} else {
 				this.leftPanel = room;
 			}
-			this.panel = this.room = room;
+			this.baseRoom = this.room = room;
 		} else { // popup or mini-window
 			if (room.location === 'mini-window') {
-				this.leftPanel = this.panel = PS.mainmenu;
+				this.leftPanel = PS.mainmenu;
+				this.baseRoom = room;
 			}
 			this.room = room;
 		}
@@ -2814,6 +2826,9 @@ export const PS = new class extends PSModel {
 		}
 		const room = this.createRoom(options);
 		this.rooms[room.id] = room;
+		if (options.autofocus && this.isPopup(room) && parentRoom && !this.isPopup(parentRoom)) {
+			this.baseRoom = parentRoom;
+		}
 		const location = room.location;
 		room.location = null!;
 		this.moveRoom(room, location, !options.autofocus);
@@ -2825,7 +2840,7 @@ export const PS = new class extends PSModel {
 	}
 	hideRightRoom() {
 		if (PS.rightPanel) {
-			if (PS.panel === PS.rightPanel) PS.panel = PS.leftPanel;
+			if (PS.baseRoom === PS.rightPanel) PS.baseRoom = PS.leftPanel;
 			if (PS.room === PS.rightPanel) PS.room = PS.leftPanel;
 			PS.rightPanel = null;
 			PS.update();
@@ -2867,10 +2882,10 @@ export const PS = new class extends PSModel {
 			if (background === true) {
 				if (room === this.leftPanel) {
 					this.leftPanel = this.mainmenu;
-					this.panel = this.mainmenu;
+					this.baseRoom = this.mainmenu;
 				} else if (room === this.rightPanel) {
 					this.rightPanel = this.rooms['rooms'] || null;
-					this.panel = this.rightPanel || this.leftPanel;
+					this.baseRoom = this.rightPanel || this.leftPanel;
 				}
 			} else if (background === false) {
 				this.focusRoom(room.id);
@@ -2889,20 +2904,21 @@ export const PS = new class extends PSModel {
 			if (miniRoomIndex >= 0) {
 				this.miniRoomList.splice(miniRoomIndex, 1);
 			}
-			if (this.room === room) this.room = this.panel;
+			if (this.baseRoom === room) this.baseRoom = this.mainmenu;
+			if (this.room === room) this.room = this.baseRoom;
 		} else if (room.location === 'popup' || room.location === 'modal-popup') {
 			const popupIndex = this.popups.indexOf(room.id);
 			if (popupIndex >= 0) {
 				this.popups.splice(popupIndex, 1);
 			}
-			if (this.room === room) this.room = this.panel;
+			if (this.room === room) this.room = this.baseRoom;
 		} else if (room.location === 'left') {
 			const leftRoomIndex = this.leftRoomList.indexOf(room.id);
 			if (leftRoomIndex >= 0) {
 				this.leftRoomList.splice(leftRoomIndex, 1);
 			}
 			if (this.room === room) this.room = this.mainmenu;
-			if (this.panel === room) this.panel = this.mainmenu;
+			if (this.baseRoom === room) this.baseRoom = this.mainmenu;
 			if (this.leftPanel === room) this.leftPanel = this.mainmenu;
 		} else if (room.location === 'right') {
 			const rightRoomIndex = this.rightRoomList.indexOf(room.id);
@@ -2910,7 +2926,7 @@ export const PS = new class extends PSModel {
 				this.rightRoomList.splice(rightRoomIndex, 1);
 			}
 			if (this.room === room) this.room = this.rooms['rooms'] || this.leftPanel;
-			if (this.panel === room) this.panel = this.rooms['rooms'] || this.leftPanel;
+			if (this.baseRoom === room) this.baseRoom = this.rooms['rooms'] || this.leftPanel;
 			if (this.rightPanel === room) this.rightPanel = this.rooms['rooms'] || null;
 		}
 
@@ -2935,9 +2951,12 @@ export const PS = new class extends PSModel {
 			throw new Error(`Invalid room location: ${location satisfies never as string}`);
 		}
 		if (!background) {
-			if (location === 'left') this.leftPanel = this.panel = room;
-			if (location === 'right') this.rightPanel = this.panel = room;
-			if (location === 'mini-window') this.leftPanel = this.panel = this.mainmenu;
+			if (location === 'left') this.leftPanel = this.baseRoom = room;
+			if (location === 'right') this.rightPanel = this.baseRoom = room;
+			if (location === 'mini-window') {
+				this.leftPanel = this.mainmenu;
+				this.baseRoom = room;
+			}
 			this.room = room;
 			this.queueFocus(room);
 		}
@@ -2953,7 +2972,7 @@ export const PS = new class extends PSModel {
 		}
 		if (PS.leftPanel === room) {
 			PS.leftPanel = this.mainmenu;
-			if (PS.panel === room) PS.panel = this.mainmenu;
+			if (PS.baseRoom === room) PS.baseRoom = this.mainmenu;
 			if (PS.room === room) PS.room = this.mainmenu;
 		}
 
@@ -2964,8 +2983,8 @@ export const PS = new class extends PSModel {
 		if (PS.rightPanel === room) {
 			let newRightRoomid = PS.rightRoomList[rightRoomIndex] || PS.rightRoomList[rightRoomIndex - 1];
 			PS.rightPanel = newRightRoomid ? PS.rooms[newRightRoomid]! : null;
-			if (PS.panel === room) PS.panel = PS.rightPanel || PS.leftPanel;
-			if (PS.room === room) PS.room = PS.panel;
+			if (PS.baseRoom === room) PS.baseRoom = PS.rightPanel || PS.leftPanel;
+			if (PS.room === room) PS.room = PS.baseRoom;
 		}
 
 		if (room.location === 'mini-window') {
@@ -2973,9 +2992,10 @@ export const PS = new class extends PSModel {
 			if (miniRoomIndex >= 0) {
 				PS.miniRoomList.splice(miniRoomIndex, 1);
 			}
-			if (PS.room === room) {
-				PS.room = PS.rooms[PS.miniRoomList[miniRoomIndex]] || PS.rooms[PS.miniRoomList[miniRoomIndex - 1]] || PS.mainmenu;
+			if (PS.baseRoom === room) {
+				PS.baseRoom = PS.rooms[PS.miniRoomList[miniRoomIndex]] || PS.rooms[PS.miniRoomList[miniRoomIndex - 1]] || PS.mainmenu;
 			}
+			if (PS.room === room) PS.room = PS.baseRoom;
 		}
 
 		if (this.popups.length && room.id === this.popups[this.popups.length - 1]) {
@@ -2987,10 +3007,7 @@ export const PS = new class extends PSModel {
 					// focus topmost popup
 					PS.room = PS.rooms[this.popups[this.popups.length - 1]]!;
 				} else {
-					// if popup parent is a mini-window, focus popup parent
-					PS.room = PS.rooms[room.parentRoomid ?? PS.panel.id] || PS.panel;
-					// otherwise focus current panel
-					if (PS.room.location !== 'mini-window' || PS.panel !== PS.mainmenu) PS.room = PS.panel;
+					PS.room = PS.baseRoom;
 				}
 			}
 		}

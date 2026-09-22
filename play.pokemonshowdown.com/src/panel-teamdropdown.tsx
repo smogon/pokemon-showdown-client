@@ -390,6 +390,10 @@ class FormatDropdownPanel extends PSRoomPanel {
 	gen = '' as ID;
 	format: string | null = null;
 	search = '';
+	openSections = PS.prefs.openformats || {
+		'S/V Singles': true, 'S/V Doubles': true, 'Unofficial Metagames': true, 'National Dex': true,
+		'Ladder Spotlight': true, 'Other Metagames': true, 'Random Meta of the Decade': true,
+	};
 	click = (e: MouseEvent) => {
 		let curTarget = e.target as HTMLElement | null;
 		let target;
@@ -411,6 +415,16 @@ class FormatDropdownPanel extends PSRoomPanel {
 	toggleGen = (ev: Event) => {
 		const target = ev.currentTarget as HTMLButtonElement;
 		this.gen = this.gen === target.value ? '' as ID : target.value as ID;
+		this.forceUpdate();
+	};
+	toggleSection = (ev: Event) => {
+		const target = ev.currentTarget as HTMLDetailsElement;
+		const section = target.dataset.section!;
+		// Filtering temporarily opens sections (without changing saved preferences)
+		if (!toID(this.search) && !this.gen && target.open !== !!this.openSections[section]) {
+			this.openSections = { ...this.openSections, [section]: target.open };
+			PS.prefs.set('openformats', this.openSections);
+		}
 		this.forceUpdate();
 	};
 	override render() {
@@ -438,7 +452,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 			}
 		}
 		const curGen = (gen: string) => this.gen === gen ? ' cur' : '';
-		const searchBar = <div style="margin-bottom: 0.5em">
+		const searchBar = <div>
 			<input
 				type="search" name="search" placeholder={TL`Search formats`} class="textbox autofocus" autocomplete="off"
 				onInput={this.updateSearch} onChange={this.updateSearch}
@@ -473,13 +487,13 @@ class FormatDropdownPanel extends PSRoomPanel {
 			if (selectType === 'challenge' && format.challengeShow === false) return false;
 			if (selectType === 'search' && format.searchShow === false) return false;
 			if (selectType === 'tournament' && format.tournamentShow === false) return false;
-			if (selectType === 'teambuilder' && format.team) return false;
+			if (selectType === 'teambuilder' && !format.isTeambuilderFormat) return false;
 			return true;
 		});
 
-		let curSection = '';
+		type FormatSection = { section: string, formats: { id: ID, name: string, section: string }[] };
 		let curColumnNum = 0;
-		let curColumn: ({ id: ID, name: string, section: string } | { id: null, section: string })[] = [];
+		let curColumn: FormatSection[] = [];
 		const columns = [curColumn];
 		const searchID = toID(this.search);
 		for (const format of formats) {
@@ -495,19 +509,17 @@ class FormatDropdownPanel extends PSRoomPanel {
 				}
 				curColumnNum = format.column;
 			}
-			if (format.section !== curSection) {
-				curSection = format.section;
-				if (curSection) {
-					curColumn.push({ id: null, section: curSection });
-				}
+			let curSection = curColumn[curColumn.length - 1];
+			if (format.section !== curSection?.section) {
+				curSection = { section: format.section, formats: [] };
+				curColumn.push(curSection);
 			}
-			curColumn.push(format);
+			curSection.formats.push(format);
 		}
 		if (this.gen && selectType === 'teambuilder') {
 			columns[0].unshift({
-				id: this.gen,
-				name: `[Gen ${this.gen.slice(3)}]`,
-				section: 'No Format',
+				section: '',
+				formats: [{ id: this.gen, name: `[Gen ${this.gen.slice(3)}]`, section: 'No Format' }],
 			});
 		}
 
@@ -521,8 +533,8 @@ class FormatDropdownPanel extends PSRoomPanel {
 		return <PSPanelWrapper room={room} width={width}><div class="pad">
 			{searchBar}
 			{columns.map(column => (
-				<ul class="options" onClick={this.click}>
-					{!starredDone && starred?.map((id, i) => {
+				<div class="options-column" onClick={this.click}>
+					{!starredDone && !!starred.length && <ul>{starred.map((id, i) => {
 						if (this.gen && !id.startsWith(this.gen)) return null;
 						let format = BattleFormats[id] as FormatData | undefined;
 						if (/^gen[1-9]$/.test(id)) {
@@ -530,6 +542,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 								id: id as ID,
 								name: `[Gen ${id.slice(3)}]`,
 								section: 'No Format',
+								isTeambuilderFormat: true,
 								challengeShow: false,
 								searchShow: false,
 							} as any;
@@ -538,33 +551,40 @@ class FormatDropdownPanel extends PSRoomPanel {
 						if (i === starred.length - 1) starredDone = true;
 						if (selectType === 'challenge' && format.challengeShow === false) return null;
 						if (selectType === 'search' && format.searchShow === false) return null;
-						if (selectType === 'teambuilder' && format.team) return null;
+						if (selectType === 'teambuilder' && !format.isTeambuilderFormat) return null;
 						return <li><button value={format.name} class={`option${curFormat === format.id ? ' cur' : ''}`}>
 							{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
 							{format.section === 'No Format' && <em> {TL`(uncategorized)`}</em>}
 							<i class="star fa fa-star cur" data-cmd={`/unstar ${format.id}`}></i>
 						</button></li>;
+					})}</ul>}
+					{column.map(({ section, formats: sectionFormats }) => {
+						// don't repeat starred formats
+						const unstarred = sectionFormats.filter(format => !starred.includes(format.id));
+						if (!unstarred.length) return null;
+						const options = <ul>{unstarred.map(format => <li key={format.id}><button
+							value={format.name}
+							class={`option${curFormat === format.id ? ' cur' : ''}`}
+						>
+							{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
+							{format.section === 'No Format' && <em> {TL`(uncategorized)`}</em>}
+							<i class="star fa fa-star-o" data-cmd={`/star ${format.id}`}></i>
+						</button></li>)}</ul>;
+						if (!section) return options;
+						return <details
+							// reset open state when search/filter changes
+							key={`${section}:${this.gen}:${searchID}`} data-section={section} class="details"
+							// always default to open when searching/filtering
+							open={!!(searchID || this.gen || this.openSections[section])} onToggle={this.toggleSection}
+						>
+							<summary>{section}</summary>
+							{options}
+						</details>;
 					})}
-					{column.map(format => {
-						// do not include starred formats
-						if (starred.includes(format.id || '')) return '';
-						if (format.id) {
-							return <li><button
-								value={format.name}
-								class={`option${curFormat === format.id ? ' cur' : ''}`}
-							>
-								{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
-								{format.section === 'No Format' && <em> {TL`(uncategorized)`}</em>}
-								<i class="star fa fa-star-o" data-cmd={`/star ${format.id}`}></i>
-							</button></li>;
-						} else {
-							return <li><h3>{format.section}</h3></li>;
-						}
-					})}
-				</ul>
+				</div>
 			))}
 			{noResults && <p><em>{searchID ? TL`No formats matching "${searchID}" found` : TL`No formats found`}</em></p>}
-			<div style="float: left"></div>
+			<div style="clear: left"></div>
 		</div></PSPanelWrapper>;
 	}
 }

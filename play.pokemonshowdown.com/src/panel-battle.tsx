@@ -593,6 +593,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const scene = battle.scene as BattleScene;
 		room.log = scene.log;
 		room.log.getHighlight = room.handleHighlight;
+		room.log.isIgnored = room.isIgnored;
 		scene.tooltips.unlisten(scene.$frame);
 		scene.tooltips.listen(this.base!);
 		battle.subscribe(() => this.forceUpdate());
@@ -844,7 +845,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					type: moveType,
 					tags,
 					tooltip,
-					moveData,
+					moveData: { ...moveData, disabled: active.maxMoves![i].disabled },
 				});
 			});
 		}

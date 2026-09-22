@@ -15,7 +15,7 @@ import type { Battle } from "./battle";
 import { MiniEdit } from "./miniedit";
 import { Dex, PSUtils, TL, toID, type ID } from "./battle-dex";
 import { BattleTextParser, type Args } from "./battle-text-parser";
-import { Net, PSLoginServer } from "./client-connection";
+import { PSLoginServer } from "./client-connection";
 import type { BattleRoom } from "./panel-battle";
 import { BattleChoiceBuilder } from "./battle-choices";
 import { ChatTournament, TournamentBox } from "./panel-chat-tournament";
@@ -322,6 +322,15 @@ export class ChatRoom extends PSRoom {
 		}
 		return '"' + message + '"';
 	}
+	isIgnored = (name: string) => {
+		if (!PS.prefs.ignore?.[toID(name)]) return false;
+		// can't ignore staff
+		if (!' +^\u2605\u2606'.includes(name.charAt(0))) return false;
+		if (this.pmTarget !== null) return true;
+		// can't ignore users in rooms you're staff in
+		const roomGroup = PS.server.getGroup(this.users[PS.user.userid]);
+		return roomGroup.order > PS.server.getGroup('%').order;
+	};
 	handleHighlight = (args: Args) => {
 		let name: string;
 		let message: string;
@@ -340,8 +349,7 @@ export class ChatRoom extends PSRoom {
 
 		const isDM = this.id.startsWith("dm-");
 		const highlightType = ChatRoom.isHighlightableChatMessage(message, isDM);
-		const isIgnored = PS.prefs.ignore?.[userid];
-		if (isIgnored || !highlightType) return false;
+		if (this.isIgnored(name) || !highlightType) return false;
 		if (highlightType === 'subtle') {
 			this.subtleNotify();
 			return false;
@@ -488,17 +496,7 @@ export class ChatRoom extends PSRoom {
 
 			PSLoginServer.query("ladderget", {
 				user: targets[0],
-			}).then(data => (
-				// I very explicitly am not caching this call
-				// this data can theoretically change at any time and we have no way of knowing otherwise
-				// this data is important to suspect test players since it changes what reqs they need to get
-				// which is information that always needs to be accurate
-				// so optimally it can't be cached, it has to be re-checked
-				// --hecate
-				Net(`${location.protocol}//${Config.routes.client}/config/coil.json`).get()
-					.then(res => ({ data, coil: JSON.parse(res) }))
-					.catch(() => ({ data, coil: {} }))
-			)).then(({ data, coil }) => {
+			}).then(data => {
 				if (!data || !Array.isArray(data)) return this.errorReply(TL`Error: corrupted ranking data`);
 				let buffer = `<div class="ladder"><table><tr><td colspan="9">User: <strong>${toID(targets[0])}</strong></td></tr>`;
 				if (!data.length) {
@@ -546,10 +544,9 @@ export class ChatRoom extends PSRoom {
 						buffer += `<td><em>${Math.round(row.rpr)} <small> &#177; ${Math.round(row.rprd)}</small></em></td>`;
 					}
 					const N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
-					const COIL_B = coil[formatId];
 
-					if (COIL_B) {
-						buffer += `<td>${Math.round(40.0 * parseFloat(row.gxe) * 2.0 ** (-COIL_B / N))}</td>`;
+					if (row.coil) {
+						buffer += `<td>${Math.round(row.coil)}</td>`;
 					} else {
 						buffer += '<td>&mdash;</td>';
 					}
@@ -1111,7 +1108,7 @@ export class ChatTextEntry extends preact.Component<{
 			if (this.undoTabComplete()) {
 				return true;
 			}
-			if (PS.room !== PS.panel) { // only close if in mini-room mode
+			if (PS.room !== PS.getPanel()) { // only close if in mini-room mode
 				PS.leave(PS.room.id);
 				return true;
 			}
@@ -1595,6 +1592,11 @@ export class ChatLog extends preact.Component<{
 		if (!this.props.noSubscription) {
 			room.log ||= new BattleLog(elem, null, innerElem);
 			room.log.getHighlight = room.handleHighlight;
+			room.log.isIgnored = room.isIgnored;
+			room.log.canRevealMessages = () => {
+				const group = PS.server.getGroup(room.users[PS.user.userid]);
+				return group.type === 'staff' || group.type === 'leadership';
+			};
 			if (room.backlog) {
 				const backlog = room.backlog;
 				room.backlog = null;
