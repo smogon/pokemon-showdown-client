@@ -21,7 +21,7 @@
 import { Pokemon, type ServerPokemon } from "./battle";
 import {
 	BattleAvatarNumbers, BattleBaseSpeciesChart, BattlePokemonIconIndexes, BattlePokemonIconIndexesLeft,
-	Ability, Item, Move, Species, PureEffect, Format, type FormatData, type ID, type NatureEffect, type Type,
+	Ability, Item, Move, Species, PureEffect, BattleFormat, type FormatData, type ID, type NatureEffect, type Type,
 } from "./battle-dex-data";
 import type * as DexData from "./battle-dex-data";
 import type { Teams } from "./battle-teams";
@@ -34,7 +34,7 @@ export declare namespace Dex {
 	export type Item = DexData.Item;
 	export type Move = DexData.Move;
 	export type Species = DexData.Species;
-	export type Format = DexData.Format;
+	export type Format = DexData.BattleFormat;
 	export type Type = DexData.Type;
 	export type Nature = DexData.Nature;
 	export type PureEffect = DexData.PureEffect;
@@ -515,20 +515,20 @@ export const Dex = new class implements ModdedDex {
 		return this.mod(`gen${gen}` as ID);
 	}
 	formats = {
-		cache: Object.create(null) as { [id: string]: Format },
-		get(name: string): Format {
+		cache: Object.create(null) as { [id: string]: BattleFormat },
+		get(name: string): BattleFormat {
 			const id = toID(name);
-			this.cache[id] ||= new Format(name, window.BattleFormats?.[id]);
+			this.cache[id] ||= new BattleFormat(name, window.BattleFormats?.[id]);
 			return this.cache[id];
 		},
-		load(data: { [id: string]: FormatData }): { [id: string]: Format } {
+		load(data: { [id: string]: FormatData }): { [id: string]: BattleFormat } {
 			// Update in-place so retained references get updated too
 			for (const id in this.cache) {
-				Object.assign(this.cache[id], new Format(this.cache[id].name, data[id]));
+				Object.assign(this.cache[id], new BattleFormat(this.cache[id].name, data[id]));
 			}
-			const formats: { [id: string]: Format } = {};
+			const formats: { [id: string]: BattleFormat } = {};
 			for (const id in data) {
-				const format = this.cache[id] ||= new Format(data[id].name, data[id]);
+				const format = this.cache[id] ||= new BattleFormat(data[id].name, data[id]);
 				formats[id] = format;
 			}
 			return formats;

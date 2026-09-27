@@ -45,6 +45,7 @@ export interface PSConfig {
 		mainmenuHTML?: string,
 		roomlistTopHTML?: string,
 		roomlistAfterFirstHTML?: string,
+		htmlDidMount?: () => void,
 	} | null;
 	routes: {
 		root: string,
