@@ -761,9 +761,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const moveRequest = choices.currentMoveRequest()!;
 
 		const canDynamax = moveRequest.canDynamax && !choices.alreadyMax;
-		const canMegaEvo = moveRequest.canMegaEvo && !choices.alreadyMega;
-		const canMegaEvoX = moveRequest.canMegaEvoX && !choices.alreadyMega;
-		const canMegaEvoY = moveRequest.canMegaEvoY && !choices.alreadyMega;
+		const alreadyMega = choices.alreadyMega && !this.props.room.battle.format.allowMultipleMegas;
+		const canMegaEvo = moveRequest.canMegaEvo && !alreadyMega;
+		const canMegaEvoX = moveRequest.canMegaEvoX && !alreadyMega;
+		const canMegaEvoY = moveRequest.canMegaEvoY && !alreadyMega;
 		const canZMove = moveRequest.zMoves && !choices.alreadyZ;
 		const canUltraBurst = moveRequest.canUltraBurst;
 		const canTerastallize = moveRequest.canTerastallize;

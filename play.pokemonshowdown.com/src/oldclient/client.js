@@ -1480,6 +1480,7 @@ function toId() {
 					}
 				}
 			}
+			window.BattleFormats = Dex.formats.load(BattleFormats);
 			if (columnChanged) app.supports['formatColumns'] = true;
 			this.trigger('init:formats');
 		},

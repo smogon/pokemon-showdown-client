@@ -366,6 +366,7 @@ export class MainMenuRoom extends PSRoom {
 				}
 			}
 		}
+		window.BattleFormats = Dex.formats.load(BattleFormats);
 		PS.teams.update('format');
 	}
 	handlePM(user1: string, user2: string, message?: string) {

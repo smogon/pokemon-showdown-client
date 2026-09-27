@@ -8,6 +8,7 @@
 import { PS, type Team } from "./client-main";
 import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
 import { Dex, TL, toID, type ID } from "./battle-dex";
+import { type FormatData } from "./battle-dex-data";
 import { Teams } from "./battle-teams";
 
 export class PSTeambuilder {
@@ -357,29 +358,6 @@ class TeamDropdownPanel extends PSRoomPanel {
 		</div></PSPanelWrapper>;
 	}
 }
-
-export interface FormatData {
-	id: ID;
-	name: string;
-	team?: 'preset' | null;
-	section: string;
-	column: number;
-	searchShow?: boolean;
-	challengeShow?: boolean;
-	tournamentShow?: boolean;
-	bestOfDefault?: boolean;
-	teraPreviewDefault?: boolean;
-	itemClauseDefault?: boolean;
-	rated: boolean;
-	teambuilderLevel?: number | null;
-	partner?: boolean;
-	teambuilderFormat?: ID;
-	battleFormat?: string;
-	isTeambuilderFormat: boolean;
-	effectType: 'Format';
-}
-
-declare const BattleFormats: { [id: string]: FormatData };
 
 export type SelectType = 'teambuilder' | 'challenge' | 'search' | 'tournament';
 class FormatDropdownPanel extends PSRoomPanel {
