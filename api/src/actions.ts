@@ -456,8 +456,13 @@ export const actions: { [k: string]: QueryHandler } = {
 		const user = Ladder.isValidPlayer(params.user);
 		if (!user) throw new ActionError("Invalid username.");
 
-		const ratings = await Ladder.getAllRatings(user) as (LadderEntry & { suspect?: boolean })[];
+		const ratings = await Ladder.getAllRatings(user) as (LadderEntry & { suspect?: boolean, coil?: number })[];
 		for (const rating of ratings) {
+			const coilB = coil[rating.formatid];
+			if (coilB !== undefined) {
+				const N = rating.w + rating.l + rating.t;
+				rating.coil = N ? 40 * rating.gxe * 2 ** (-coilB / N) : 0;
+			}
 			const suspect = await tables.suspects.get(rating.formatid);
 			if (suspect) {
 				rating.suspect = !!rating.first_played && rating.first_played > suspect.start_date;
