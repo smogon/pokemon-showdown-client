@@ -3453,24 +3453,6 @@ export class BattleStatGuesser {
 			evs[secondaryStat] = ev;
 			evTotal += ev;
 
-			if (this.supportsEVs) {
-				if (species.id === 'tentacruel') {
-					evTotal = this.ensureMinEVs(evs, 'spe', 16, evTotal);
-				} else if (species.id === 'skarmory') {
-					evTotal = this.ensureMinEVs(evs, 'spe', 24, evTotal);
-				} else if (species.id === 'jirachi') {
-					evTotal = this.ensureMinEVs(evs, 'spe', 32, evTotal);
-				} else if (species.id === 'celebi') {
-					evTotal = this.ensureMinEVs(evs, 'spe', 36, evTotal);
-				} else if (species.id === 'volcarona') {
-					evTotal = this.ensureMinEVs(evs, 'spe', 52, evTotal);
-				} else if (species.id === 'gliscor') {
-					evTotal = this.ensureMinEVs(evs, 'spe', 72, evTotal);
-				} else if (species.id === 'dragonite' && evs['hp']) {
-					evTotal = this.ensureMaxEVs(evs, 'spe', 220, evTotal);
-				}
-			}
-
 			let SRweaknesses = ['Fire', 'Flying', 'Bug', 'Ice'];
 			let SRresistances = ['Ground', 'Steel', 'Fighting'];
 			let SRweak = 0;
