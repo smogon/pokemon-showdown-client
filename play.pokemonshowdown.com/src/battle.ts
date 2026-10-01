@@ -2181,7 +2181,7 @@ export class Battle {
 			break;
 		}
 		case '-center': case '-notarget': case '-ohko': case '-combine':
-		case '-hitcount': case '-waiting': case '-zbroken': case '-brokeprotect': {
+		case '-hitcount': case '-waiting': case '-zbroken': case '-partialprotect': {
 			this.log(args, kwArgs);
 			break;
 		}

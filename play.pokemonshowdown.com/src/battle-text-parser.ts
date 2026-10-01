@@ -1200,9 +1200,9 @@ export class BattleTextParser {
 		}
 
 		case '-zbroken':
-		case '-brokeprotect': {
+		case '-partialprotect': {
 			const [, pokemon] = args;
-			const template = this.template('brokeProtect');
+			const template = this.template('partialProtect');
 			return template.replace('[POKEMON]', this.pokemon(pokemon));
 		}
 
