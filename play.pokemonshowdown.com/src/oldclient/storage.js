@@ -391,8 +391,10 @@ Storage.onMessage = function ($e) {
 	var e = $e.originalEvent;
 	if (e.origin !== Storage.origin) return;
 
-	Storage.crossOriginFrame = e.source;
 	var data = e.data;
+	if (typeof data !== 'string') return; // we don't do this but external code can
+
+	Storage.crossOriginFrame = e.source;
 	switch (data.charAt(0)) {
 	case 'c':
 		Config.server = JSON.parse(data.substr(1));
@@ -618,6 +620,7 @@ Storage.compareTeams = function (serverTeam, localTeam) {
 };
 
 Storage.loadRemoteTeams = function (after) {
+	if (Storage.prefs('nosyncteams')) return;
 	$.get(app.user.getActionPHP(), { act: 'getteams' }, Storage.safeJSON(function (data) {
 		if (data.actionerror) {
 			return app.addPopupMessage('Error loading uploaded teams: ' + data.actionerror);
@@ -1150,7 +1153,7 @@ Storage.packedTeamIcons = function (buf) {
 	if (!buf) return '<em>(empty team)</em>';
 
 	return this.packedTeamNames(buf).map(function (species) {
-		return '<span class="picon" style="' + Dex.getPokemonIcon(species) + ';float:left;overflow:visible"><span style="font-size:0px">' + toID(species) + '</span></span>';
+		return '<span class="picon" style="' + Dex.getPokemonIcon(species) + '"><span style="font-size:0px">' + toID(species) + '</span></span>';
 	}).join('');
 };
 

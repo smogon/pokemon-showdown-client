@@ -366,7 +366,6 @@ export class MiniTeam extends preact.Component<{ team: ServerTeam, fullTeam?: bo
 					{team.name || team.title || "Untitled " + team.teamid}
 					{team.private ? <> <i class="fa fa-lock"></i></> : <></>}
 				</strong>
-				<br />
 				<small>
 					{(this.props.fullTeam ?
 						unpackTeam(team.team).map(x => x.species) :

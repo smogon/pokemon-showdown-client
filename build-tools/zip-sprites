@@ -1,0 +1,56 @@
+#!/usr/bin/env node
+'use strict';
+
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+
+process.chdir(import.meta.dirname + '/..');
+
+const CONFIGS = {
+	sprites: {
+		inputDir: 'play.pokemonshowdown.com',
+		outputFile: 'pokemonshowdown.com/files/resources/sprites.zip',
+		entries: ['sprites'],
+		excludes: ['sprites/trainers-custom/*'],
+	},
+	audio: {
+		inputDir: 'play.pokemonshowdown.com',
+		outputFile: 'pokemonshowdown.com/files/resources/audio.zip',
+		entries: ['audio'],
+	},
+	afd: {
+		inputDir: 'play.pokemonshowdown.com',
+		outputFile: 'pokemonshowdown.com/files/pokemon-showdown-afd.zip',
+		entries: ['sprites/afd', 'sprites/afd-back', 'sprites/afd-shiny', 'sprites/afd-back-shiny'],
+	},
+	backup: {
+		inputDir: '.',
+		outputFile: '../backup.zip',
+		entries: ['config', 'pokemonshowdown.com/images', 'pokemonshowdown.com/files/showdown-coppa-form.pdf', 'play.pokemonshowdown.com/audio', 'play.pokemonshowdown.com/sprites'],
+	},
+};
+
+const config = CONFIGS[process.argv[2] || '!ERROR!'];
+if (!config) {
+	console.error(`Usage: build-tools/zip-sprites [${Object.keys(CONFIGS).join('|')}]`);
+	process.exit(1);
+}
+
+process.stdout.write(`Zipping ${config.outputFile}... `);
+
+fs.rmSync(config.outputFile, { force: true });
+
+const args = ['-qr', path.resolve(config.outputFile), ...config.entries, ...(
+	config.excludes?.length ? ['-x', ...config.excludes] : []
+)];
+
+const result = spawnSync('zip', args, {
+	cwd: config.inputDir,
+	stdio: 'inherit',
+});
+
+if (result.error) console.error(result.error.message);
+if (result.error || result.status) process.exit(result.status || 1);
+
+console.log(`DONE`);

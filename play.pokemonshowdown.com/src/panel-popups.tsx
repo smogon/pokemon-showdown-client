@@ -1,18 +1,30 @@
 import preact from "../js/lib/preact";
-import { toID, toRoomid, toUserid, Dex, PSUtils } from "./battle-dex";
+import { toID, toRoomid, toUserid, Dex, PSUtils, TL } from "./battle-dex";
 import type { ID } from "./battle-dex-data";
 import { BattleLog } from "./battle-log";
 import { PSLoginServer } from "./client-connection";
 import { PSBackground } from "./client-core";
 import {
-	PS, PSRoom, Config, type RoomOptions, type PSLoginState, type RoomID, type TimestampOptions,
+	PS, PSRoom, Config, type PSRoomFocusOptions, type RoomOptions, type PSLoginState, type RoomID,
+	type TimestampOptions, type BattleLayoutPreference,
 } from "./client-main";
 import { type BattleRoom } from "./panel-battle";
-import { ChatUserList, type ChatRoom } from "./panel-chat";
+import { ChatUserList, PSTextarea, type ChatRoom } from "./panel-chat";
 import { PSRoomPanel, PSPanelWrapper, PSView } from "./panels";
 import { PSHeader } from "./panel-topbar";
 
 const WARNING_SECONDS = 5;
+// a function because it's evaluated before translations have loaded
+function battleLayoutLabel(layout: BattleLayoutPreference): string {
+	switch (layout) {
+	case 'side-by-side': return TL`Side-by-side, controls below`;
+	case 'side-by-side-overlay': return TL`Side-by-side, overlay controls`;
+	case 'top-and-bottom': return TL`Top-and-bottom, controls below`;
+	case 'top-and-bottom-overlay': return TL`Top-and-bottom, overlay controls`;
+	case 'scrolling': return TL`Scrolling, controls below`;
+	case 'scrolling-overlay': return TL`Scrolling, overlay controls`;
+	}
+}
 
 /**
  * User popup
@@ -38,6 +50,105 @@ export class UserRoom extends PSRoom {
 	}
 }
 
+export class StatusEditor extends preact.Component {
+	declare state: { addingStatus?: boolean, statusChanged?: boolean };
+	fetchStatus() {
+		if (!PS.user.userid) return;
+		PS.mainmenu.makeQuery('userdetails', PS.user.userid).then(() => this.forceUpdate());
+	}
+	currentStatus() {
+		let status = PS.mainmenu.userdetailsCache[PS.user.userid]?.status || '';
+		if (status.startsWith('!')) status = status.slice(1);
+		return status.replace(/^\((?:Busy|Idle)\) ?/, '');
+	}
+	statusLabel() {
+		const status = PS.mainmenu.userdetailsCache[PS.user.userid]?.status || '';
+		return /^!?(\((?:Busy|Idle)\))/.exec(status)?.[1] || '';
+	}
+	statusInput() {
+		return this.base!.querySelector<HTMLTextAreaElement>('textarea[name=statustext]');
+	}
+	addStatus = (ev: Event) => {
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		this.setState({ addingStatus: true }, () => this.focusStatus());
+	};
+	focusStatus = (ev?: Event) => {
+		ev?.preventDefault();
+		ev?.stopImmediatePropagation();
+		const input = this.statusInput();
+		input?.focus();
+		input?.select();
+	};
+	handleStatusInput = (ev: Event) => {
+		const changed = (ev.currentTarget as HTMLTextAreaElement).value !== this.currentStatus();
+		if (changed !== !!this.state.statusChanged) this.setState({ statusChanged: changed });
+	};
+	handleStatusKeyDown = (ev: KeyboardEvent) => {
+		if (ev.key === 'Escape') {
+			ev.preventDefault();
+			ev.stopImmediatePropagation();
+			this.revertStatus();
+		}
+	};
+	revertStatus = (ev?: Event) => {
+		ev?.preventDefault();
+		ev?.stopImmediatePropagation();
+		const input = this.statusInput();
+		if (input) {
+			input.value = input.defaultValue;
+			input.dispatchEvent(new Event('input'));
+		}
+		this.setState({ addingStatus: false, statusChanged: false });
+	};
+	submitStatus = (ev: Event) => {
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		const status = (this.statusInput()?.value || '').trim();
+		PS.send(status ? `/noreply /status ${status}` : `/noreply /clearstatus`);
+		// optimistic update; the requery below will catch any server-side filtering
+		const details = PS.mainmenu.userdetailsCache[PS.user.userid];
+		if (details) {
+			const awayMarkers = /^!?(?:\((?:Busy|Idle)\) ?)?/.exec(details.status || '')![0];
+			details.status = awayMarkers + status;
+		}
+		this.setState({ addingStatus: false, statusChanged: false });
+		this.fetchStatus();
+	};
+	override render() {
+		const curStatus = this.currentStatus();
+		const label = this.statusLabel();
+		if (!curStatus && !this.state.addingStatus) {
+			return <div>
+				{label && <span class="userstatus" style="display:inline">{label}</span>} {}
+				<button class="button small" onClick={this.addStatus}>{TL`[Add status]`}</button>
+			</div>;
+		}
+		return <form onSubmit={this.submitStatus} class="statusform">
+			{label && <span class="userstatus" style="display:inline">{label}</span>} {}
+			<PSTextarea
+				class="userstatus"
+				key={curStatus} singleLine subtle name="statustext" defaultValue={curStatus}
+				onInput={this.handleStatusInput} onKeyDown={this.handleStatusKeyDown}
+			/> {}
+			{this.state.statusChanged || this.state.addingStatus ? (
+				<>
+					<button class="button" type="submit">
+						<strong>{curStatus ? TL`[Change]` : TL`[Add]`}</strong>
+					</button> {}
+					<button class="button" type="button" onClick={this.revertStatus}>
+						{curStatus ? TL`[Revert]` : TL`[Cancel]`}
+					</button>
+				</>
+			) : (
+				<button class="button small" type="button" onClick={this.focusStatus} aria-label={TL`[Edit]`}>
+					<i class="fa fa-pencil" aria-hidden></i>
+				</button>
+			)}
+		</form>;
+	}
+}
+
 class UserPanel extends PSRoomPanel<UserRoom> {
 	static readonly id = 'user';
 	static readonly routes = ['user-*', 'viewuser-*', 'users'];
@@ -58,16 +169,18 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 
 		const group = PS.server.getGroup(room.name);
 		let groupName: preact.ComponentChild = group.name || null;
+
+		const globalGroup = PS.server.getGroup(user.group);
+		let globalGroupName: preact.ComponentChild = globalGroup.name && TL`Global ${globalGroup.name}` || null;
+		if (globalGroup.name === groupName) groupName = null;
+		let customGroup = toID(user.customgroup) !== toID(globalGroupName || groupName) ? user.customgroup : '';
+
 		if (group.type === 'punishment') {
 			groupName = <span style="color:#777777">{groupName}</span>;
 		}
-
-		const globalGroup = PS.server.getGroup(user.group);
-		let globalGroupName: preact.ComponentChild = globalGroup.name && `Global ${globalGroup.name}` || null;
 		if (globalGroup.type === 'punishment') {
 			globalGroupName = <span style="color:#777777">{globalGroupName}</span>;
 		}
-		if (globalGroup.name === group.name) groupName = null;
 
 		let roomsList: preact.ComponentChild = null;
 		if (user.rooms) {
@@ -89,7 +202,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 					const ownBattle = (PS.user.userid === toUserid(p1) || PS.user.userid === toUserid(p2));
 					const roomLink = <a
 						href={`/${roomid}`} class={'ilink' + (ownBattle || roomid in PS.rooms ? ' yours' : '')}
-						title={`${p1 || '?'} v. ${p2 || '?'}`}
+						title={TL`${p1 || '?'} vs. ${p2 || '?'}`}
 					>{roomrank}{roomid.substr(7)}</a>;
 					if (curRoom.isPrivate) {
 						if (privatebuf.length) privatebuf.push(', ');
@@ -111,14 +224,14 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 					}
 				}
 			}
-			if (battlebuf.length) battlebuf.unshift(<br />, <em>Battles:</em>, " ");
-			if (chatbuf.length) chatbuf.unshift(<br />, <em>Chatrooms:</em>, " ");
-			if (privatebuf.length) privatebuf.unshift(<br />, <em>Private rooms:</em>, " ");
+			if (battlebuf.length) battlebuf.unshift(<br />, <em>{TL.label(TL`Battles`)}</em>);
+			if (chatbuf.length) chatbuf.unshift(<br />, <em>{TL.label(TL`Chatrooms`)}</em>);
+			if (privatebuf.length) privatebuf.unshift(<br />, <em>{TL.label(TL`Private rooms`)}</em>);
 			if (battlebuf.length || chatbuf.length || privatebuf.length) {
 				roomsList = <small class="rooms">{battlebuf}{chatbuf}{privatebuf}</small>;
 			}
 		} else if (user.rooms === false) {
-			roomsList = <strong class="offline">OFFLINE</strong>;
+			roomsList = <strong class="offline">{TL`OFFLINE`}</strong>;
 		}
 
 		const isSelf = user.userid === PS.user.userid;
@@ -133,19 +246,19 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		if (!hideInteraction) {
 			buttonbar.push(isSelf ? (
 				<p class="buttonbar">
-					<button class="button" disabled>Challenge</button> {}
-					<button class="button" data-href="dm-">Chat Self</button>
+					<button class="button" disabled>{TL`[Challenge]`}</button> {}
+					<button class="button" data-href="dm-">{TL`[Chat self]`}</button>
 				</p>
 			) : !PS.user.named ? (
 				<p class="buttonbar">
-					<button class="button" disabled>Challenge</button> {}
-					<button class="button" disabled>Chat</button> {}
+					<button class="button" disabled>{TL`[Challenge]`}</button> {}
+					<button class="button" disabled>{TL`[Chat]`}</button> {}
 					<button class="button" disabled>{'\u2026'}</button>
 				</p>
 			) : (
 				<p class="buttonbar">
-					<button class="button" data-href={`challenge-${user.userid}`}>Challenge</button> {}
-					<button class="button" data-href={`dm-${user.userid}`}>Chat</button> {}
+					<button class="button" data-href={`challenge-${user.userid}`}>{TL`[Challenge]`}</button> {}
+					<button class="button" data-href={`dm-${user.userid}`}>{TL`[Chat]`}</button> {}
 					<button class="button" data-href={`useroptions-${user.userid}-${room.parentRoomid || ''}`}>{'\u2026'}</button>
 				</p>
 			));
@@ -153,8 +266,8 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 				buttonbar.push(
 					<hr />,
 					<p class="buttonbar" style="text-align: right">
-						<button class="button" data-href="login"><i class="fa fa-pencil" aria-hidden></i> Change name</button> {}
-						<button class="button" data-cmd="/logout"><i class="fa fa-power-off" aria-hidden></i> Log out</button>
+						<button class="button" data-href="login"><i class="fa fa-pencil" aria-hidden></i> {TL`[Change name]`}</button> {}
+						<button class="button" data-cmd="/logout"><i class="fa fa-power-off" aria-hidden></i> {TL`[Log out]`}</button>
 					</p>
 				);
 			}
@@ -173,10 +286,14 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			>
 				{user.name}
 			</a></strong><br />
-			{status && <div class="userstatus">{status}</div>}
+			{isSelf && !hideInteraction ? (
+				<StatusEditor />
+			) : status ? (
+				<div class="userstatus">{status}</div>
+			) : null}
 			{groupName && <div class="usergroup roomgroup">{groupName}</div>}
 			{globalGroupName && <div class="usergroup globalgroup">{globalGroupName}</div>}
-			{user.customgroup && <div class="usergroup globalgroup">{user.customgroup}</div>}
+			{customGroup && <div class="usergroup globalgroup">{customGroup}</div>}
 			{!hideInteraction && roomsList}
 		</div>, buttonbar];
 	}
@@ -203,12 +320,12 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		return <PSPanelWrapper room={room}><div class="pad">
 			{showLookup && <form onSubmit={this.lookup} style={{ minWidth: '278px' }}>
 				<label class="label">
-					Username: {}
+					{TL.label(TL`Username`)}
 					<input type="search" name="username" class="textbox autofocus" onInput={this.maybeReset} onChange={this.maybeReset} />
 				</label>
 				{!room.userid && <p class="buttonbar">
-					<button type="submit" class="button"><strong>Look up</strong></button> {}
-					<button name="closeRoom" class="button">Close</button>
+					<button type="submit" class="button"><strong>{TL`[Look up]`}</strong></button> {}
+					<button name="closeRoom" class="button">{TL`[Close]`}</button>
 				</p>}
 				{!!room.userid && <hr />}
 			</form>}
@@ -218,133 +335,68 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 	}
 }
 
+const USER_PUNISHMENTS = {
+	mute: { label: 'Mute', duration: '7 minutes', scope: 'room' },
+	hourmute: { label: 'Hourmute', duration: '1 hour', scope: 'room' },
+	ban: { label: 'Ban', duration: '2 days', scope: 'room' },
+	weekban: { label: 'Weekban', duration: '1 week', scope: 'room' },
+	lock: { label: 'Lock', duration: '2 days', scope: 'global' },
+	weeklock: { label: 'Weeklock', duration: '1 week', scope: 'global' },
+	namelock: { label: 'Namelock', duration: '2 days', scope: 'global' },
+} as const;
+type UserPunishment = keyof typeof USER_PUNISHMENTS;
+
 class UserOptionsPanel extends PSRoomPanel {
 	static readonly id = 'useroptions';
 	static readonly routes = ['useroptions-*'];
 	static readonly location = 'popup';
 	static readonly noURL = true;
-	declare state: {
-		showMuteInput?: boolean,
-		showBanInput?: boolean,
-		showLockInput?: boolean,
-		showConfirm?: boolean,
-		requestSent?: boolean,
-		data?: Record<string, string>,
-	};
 	getTargets() {
 		const [, targetUser, targetRoomid] = PSUtils.splitFirst(this.props.room.id, '-', 2);
-		let targetRoom = (PS.rooms[targetRoomid] || null) as ChatRoom | null;
+		let targetRoom = (targetRoomid ? PS.rooms[targetRoomid] : null) as ChatRoom | null || null;
 		if (targetRoom?.type !== 'chat') targetRoom = targetRoom?.getParent() as ChatRoom;
 		if (targetRoom?.type !== 'chat') targetRoom = targetRoom?.getParent() as ChatRoom;
 		if (targetRoom?.type !== 'chat') targetRoom = null;
+		if (targetRoom?.pmTarget) targetRoom = null;
 		return { targetUser: targetUser as ID, targetRoomid: targetRoomid as RoomID, targetRoom };
 	}
 
-	handleMute = (ev: Event) => {
-		this.setState({ showMuteInput: true, showBanInput: false, showLockInput: false });
+	handleCommand = (ev: Event) => {
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
+		const command = (ev.currentTarget as HTMLButtonElement).getAttribute('data-cmdpreview');
+		if (!command) return PS.alert(TL`Room not found`, { parentElem: ev.currentTarget as HTMLElement });
+		this.send(command);
 	};
-	handleBan = (ev: Event) => {
-		this.setState({ showBanInput: true, showMuteInput: false, showLockInput: false });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-	handleLock = (ev: Event) => {
-		this.setState({ showLockInput: true, showMuteInput: false, showBanInput: false });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
-	handleCancel = (ev: Event) => {
-		this.setState({ showBanInput: false, showMuteInput: false, showLockInput: false, showConfirm: false });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
-	handleConfirm = (ev: Event) => {
-		const data = this.state.data;
-		if (!data) return;
+	send(command: string) {
 		const { targetUser, targetRoom } = this.getTargets();
-
-		let cmd = '';
-		if (data.action === "Mute") {
-			cmd += data.duration === "1 hour" ? "/hourmute " : "/mute ";
-		} else if (data.action === "Ban") {
-			cmd += data.duration === "1 week" ? "/weekban " : "/ban ";
-		} else if (data.action === "Lock") {
-			cmd += data.duration === "1 week" ? "/weeklock " : "/lock ";
-		} else if (data.action === "Namelock") {
-			cmd += "/namelock ";
+		if (targetRoom) {
+			targetRoom.send(command);
 		} else {
-			return;
+			PS.join(`dm-${targetUser}` as RoomID);
+			PS.rooms[`dm-${targetUser}`]!.send(command);
 		}
-		cmd += `${targetUser} ${data.reason ? ',' + data.reason : ''}`;
-		targetRoom?.send(cmd);
 		this.close();
-	};
+	}
 
-	handleAddFriend = (ev: Event) => {
+	openPunishment = (ev: Event) => {
+		const button = ev.currentTarget as HTMLButtonElement;
+		const punishment = button.value as UserPunishment;
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		if (!(punishment in USER_PUNISHMENTS)) return;
+
 		const { targetUser, targetRoom } = this.getTargets();
-		targetRoom?.send(`/friend add ${targetUser}`);
-		this.setState({ requestSent: true });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
-	handleIgnore = () => {
-		const { targetUser, targetRoom } = this.getTargets();
-		targetRoom?.send(`/ignore ${targetUser}`);
-		this.close();
-	};
-
-	handleUnignore = () => {
-		const { targetUser, targetRoom } = this.getTargets();
-		targetRoom?.send(`/unignore ${targetUser}`);
-		this.close();
-	};
-
-	muteUser = (ev: Event) => {
-		this.setState({ showMuteInput: false });
-		const hrMute = (ev.currentTarget as HTMLButtonElement).value === "1hr";
-		const reason = this.base?.querySelector<HTMLInputElement>("input[name=mutereason]")?.value;
-		const data = {
-			action: 'Mute',
-			reason,
-			duration: hrMute ? "1 hour" : "7 minutes",
-		};
-		this.setState({ data, showConfirm: true });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
-	banUser = (ev: Event) => {
-		this.setState({ showBanInput: false });
-		const weekBan = (ev.currentTarget as HTMLButtonElement).value === "1wk";
-		const reason = this.base?.querySelector<HTMLInputElement>("input[name=banreason]")?.value;
-		const data = {
-			action: 'Ban',
-			reason,
-			duration: weekBan ? "1 week" : "2 days",
-		};
-		this.setState({ data, showConfirm: true });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
-	lockUser = (ev: Event) => {
-		this.setState({ showLockInput: false });
-		const weekLock = (ev.currentTarget as HTMLButtonElement).value === "1wk";
-		const isNamelock = (ev.currentTarget as HTMLButtonElement).value === "nmlk";
-		const reason = this.base?.querySelector<HTMLInputElement>("input[name=lockreason]")?.value;
-		const data = {
-			action: isNamelock ? 'Namelock' : 'Lock',
-			reason,
-			duration: weekLock ? "1 week" : "2 days",
-		};
-		this.setState({ data, showConfirm: true });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
+		const action = USER_PUNISHMENTS[punishment];
+		const scope = action.scope === 'room' ? ` in ${targetRoom?.title || '???'}` : '';
+		PS.prompt(
+			`${action.label} ${targetUser}${scope} for ${action.duration}?`,
+			{ okButton: action.label, parentElem: button, label: "Reason (optional):" }
+		).then(reason => {
+			if (reason === null) return;
+			reason = reason.trim();
+			this.send(`/${punishment} ${targetUser}${reason ? `, ${reason}` : ''}`);
+		});
 	};
 
 	isIgnoringUser = (userid: string) => {
@@ -355,116 +407,106 @@ class UserOptionsPanel extends PSRoomPanel {
 
 	override render() {
 		const room = this.props.room;
-		const banPerms = ["@", "#", "~"];
-		const mutePerms = ["%", ...banPerms];
 		const { targetUser, targetRoom } = this.getTargets();
-		const userRoomGroup = targetRoom?.users[PS.user.userid].charAt(0) || '';
-		const canMute = mutePerms.includes(userRoomGroup);
-		const canBan = banPerms.includes(userRoomGroup);
-		const canLock = mutePerms.includes(PS.user.group);
-		const isVisible = (actionName: string) => {
-			if (actionName === 'mute') {
-				return canMute && !this.state.showLockInput && !this.state.showBanInput && !this.state.showConfirm;
-			}
-			if (actionName === 'ban') {
-				return canBan && !this.state.showLockInput && !this.state.showMuteInput && !this.state.showConfirm;
-			}
-			if (actionName === 'lock') {
-				return canLock && !this.state.showBanInput && !this.state.showMuteInput && !this.state.showConfirm;
-			}
-		};
+		const userRoomGroup = targetRoom?.users[PS.user.userid]?.charAt(0);
+		const roomGroupOrder = PS.server.getGroup(userRoomGroup).order;
+		const globalGroupOrder = PS.server.getGroup(PS.user.group).order;
+		const canMute = !!targetRoom && roomGroupOrder <= PS.server.getGroup('%').order;
+		const canBan = !!targetRoom && roomGroupOrder <= PS.server.getGroup('@').order;
+		const canLock = globalGroupOrder <= PS.server.getGroup('%').order;
 
-		return <PSPanelWrapper room={room} width={280}><div class="pad">
+		return <PSPanelWrapper room={room} width={280}><div class="pad buttonmenu">
+			<p>
+				<button data-cmd={`/dm ${targetUser}, /friend add ${targetUser}`} class="button">
+					{TL`[Add friend]`}
+				</button>
+			</p>
 			<p>
 				{this.isIgnoringUser(targetUser) ? (
-					<button onClick={this.handleUnignore} class="button">
-						Unignore
+					<button data-cmdpreview={`/unignore ${targetUser}`} onClick={this.handleCommand} class="button">
+						{TL`[Unignore]`}
 					</button>
 				) : (
-					<button onClick={this.handleIgnore} class="button">
-						Ignore
+					<button data-cmdpreview={`/ignore ${targetUser}`} onClick={this.handleCommand} class="button">
+						{TL`[Ignore]`}
 					</button>
 				)}
 			</p>
 			<p>
 				<button data-href={`view-help-request-report-user-${targetUser}`} class="button">
-					Report
+					{TL`[Report]`}
 				</button>
 			</p>
-			<p>
-				{this.state.requestSent ? (
-					<button class="button disabled">
-						Sent request
+			{(canMute || canBan) && <fieldset class="fieldset">
+				<legend>Moderate in {targetRoom?.title}</legend>
+				{canMute && <p>
+					<button
+						class="button button-first" value="mute" onClick={this.openPunishment}
+						data-cmdpreview={`/mute ${targetUser}`}
+					>
+						{TL`[Mute]`} <small>{TL`[7m]`}</small>
 					</button>
-				) : (
-					<button onClick={this.handleAddFriend} class="button">
-						Add friend
+					<button
+						class="button button-last" value="hourmute" onClick={this.openPunishment}
+						data-cmdpreview={`/hourmute ${targetUser}`}
+					>
+						{TL`[Hourmute]`} <small>{TL`[1h]`}</small>
 					</button>
-				)}
-			</p>
-			{(canMute || canBan || canLock) && <hr />}
-			{this.state.showConfirm && <p>
-				<small>
-					{this.state.data?.action} <b>{targetUser}</b> {}
-					{!this.state.data?.action.endsWith('ock') ? <>from <b>{targetRoom?.title}</b></> : ''} for {this.state.data?.duration}?
-				</small>
-				<p class="buttonbar">
-					<button class="button" onClick={this.handleConfirm}>
-						<i class="fa fa-confirm" aria-hidden></i> Confirm
-					</button> {}
-					<button class="button" onClick={this.handleCancel}>
-						Cancel
+				</p>}
+				{canBan && <p>
+					<button
+						class="button button-first" value="ban" onClick={this.openPunishment}
+						data-cmdpreview={`/ban ${targetUser}`}
+					>
+						{TL`[Ban]`} <small>{TL`[2d]`}</small>
+					</button>
+					<button
+						class="button button-last" value="weekban" onClick={this.openPunishment}
+						data-cmdpreview={`/weekban ${targetUser}`}
+					>
+						{TL`[Weekban]`} <small>{TL`[1w]`}</small>
+					</button>
+				</p>}
+				<p>
+					<button
+						data-cmdpreview={`/modlog userid=${targetUser}, room=${targetRoom?.id}`} onClick={this.handleCommand} class="button"
+					>
+						{TL`[Modlog]`}
 					</button>
 				</p>
-			</p>}
-			<p class="buttonbar">
-				{isVisible('mute') && (this.state.showMuteInput ? (
-					<div>
-						<label class="label">
-							Reason: {}
-							<input name="mutereason" class="textbox autofocus" placeholder="Mute reason (optional)" />
-						</label> {} <br />
-						<button class="button" onClick={this.muteUser} value="7min">For 7 Mins</button> {}
-						<button class="button" onClick={this.muteUser} value="1hr">For 1 Hour</button> {}
-						<button class="button" onClick={this.handleCancel}> Cancel</button>
-					</div>
-				) : (
-					<button class="button" onClick={this.handleMute}>
-						<i class="fa fa-hourglass-half" aria-hidden></i> Mute
+			</fieldset>}
+			{canLock && <fieldset class="fieldset">
+				<legend>Global moderation</legend>
+				<p>
+					<button
+						class="button button-first" value="lock" onClick={this.openPunishment}
+						data-cmdpreview={`/lock ${targetUser}`}
+					>
+						{TL`[Lock]`} <small>{TL`[2d]`}</small>
 					</button>
-				))} {}
-				{isVisible('ban') && (this.state.showBanInput ? (
-					<div>
-						<label class="label">
-							Reason: {}
-							<input name="banreason" class="textbox autofocus" placeholder="Ban reason (optional)" />
-						</label><br />
-						<button class="button" onClick={this.banUser} value="2d">For 2 Days</button> {}
-						<button class="button" onClick={this.banUser} value="1wk">For 1 Week</button> {}
-						<button class="button" onClick={this.handleCancel}>Cancel</button>
-					</div>
-				) : (
-					<button class="button" onClick={this.handleBan}>
-						<i class="fa fa-gavel" aria-hidden></i> Ban
+					<button
+						class="button button-last" value="weeklock" onClick={this.openPunishment}
+						data-cmdpreview={`/weeklock ${targetUser}`}
+					>
+						{TL`[Weeklock]`} <small>{TL`[1w]`}</small>
 					</button>
-				))} {}
-				{isVisible('lock') && (this.state.showLockInput ? (
-					<div>
-						<label class="label">
-							Reason: {}
-							<input name="lockreason" class="textbox autofocus" placeholder="Lock reason (optional)" />
-						</label><br />
-						<button class="button" onClick={this.lockUser} value="2d">For 2 Days</button> {}
-						<button class="button" onClick={this.lockUser} value="1wk">For 1 Week</button> {}
-						<button class="button" onClick={this.lockUser} value="nmlk">Namelock</button> {}
-						<button class="button" onClick={this.handleCancel}>Cancel</button>
-					</div>
-				) : (
-					<button class="button" onClick={this.handleLock}>
-						<i class="fa fa-lock" aria-hidden></i> Lock/Namelock
+				</p>
+				<p>
+					<button
+						class="button" value="namelock" onClick={this.openPunishment}
+						data-cmdpreview={`/namelock ${targetUser}`}
+					>
+						{TL`[Namelock]`} <small>{TL`[2d]`}</small>
 					</button>
-				))}
-			</p>
+				</p>
+				<p>
+					<button
+						data-cmdpreview={`/modlog userid=${targetUser}, room=global`} onClick={this.handleCommand} class="button"
+					>
+						{TL`[Global modlog]`}
+					</button>
+				</p>
+			</fieldset>}
 		</div></PSPanelWrapper>;
 	}
 }
@@ -511,13 +553,13 @@ class VolumePanel extends PSRoomPanel {
 	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}><div class="pad">
-			<h3>Volume</h3>
+			<h3>{TL`Volume`}</h3>
 			<p class="volume">
 				<label class="optlabel">
 					Effects: <span class="value">{!PS.prefs.mute && PS.prefs.effectvolume ? `${PS.prefs.effectvolume}%` : `-`}</span>
 				</label>
 				{PS.prefs.mute ?
-					<em>(muted)</em> :
+					<em>{TL`(muted)`}</em> :
 					<input
 						type="range" min="0" max="100" step="1" name="effectvolume" value={PS.prefs.effectvolume}
 						onChange={this.setVolume} onInput={this.setVolume} onKeyUp={this.setVolume}
@@ -528,7 +570,7 @@ class VolumePanel extends PSRoomPanel {
 					Music: <span class="value">{!PS.prefs.mute && PS.prefs.musicvolume ? `${PS.prefs.musicvolume}%` : `-`}</span>
 				</label>
 				{PS.prefs.mute ?
-					<em>(muted)</em> :
+					<em>{TL`(muted)`}</em> :
 					<input
 						type="range" min="0" max="100" step="1" name="musicvolume" value={PS.prefs.musicvolume}
 						onChange={this.setVolume} onInput={this.setVolume} onKeyUp={this.setVolume}
@@ -540,7 +582,7 @@ class VolumePanel extends PSRoomPanel {
 					<span class="value">{!PS.prefs.mute && PS.prefs.notifvolume ? `${PS.prefs.notifvolume}%` : `-`}</span>
 				</label>
 				{PS.prefs.mute ?
-					<em>(muted)</em> :
+					<em>{TL`(muted)`}</em> :
 					<input
 						type="range" min="0" max="100" step="1" name="notifvolume" value={PS.prefs.notifvolume}
 						onChange={this.setVolume} onInput={this.setVolume} onKeyUp={this.setVolume}
@@ -559,11 +601,34 @@ class OptionsPanel extends PSRoomPanel {
 	static readonly id = 'options';
 	static readonly routes = ['options'];
 	static readonly location = 'modal-popup';
-	declare state: { showStatusInput?: boolean, showStatusUpdated?: boolean };
 
 	override componentDidMount() {
 		super.componentDidMount();
 		this.subscribeTo(PS.user);
+		PS.mainmenu.makeQuery('userdetails', PS.user.userid).then(() => this.forceUpdate());
+		this.loadAltLanguage();
+	}
+	loadedAltLanguage = '';
+	getAltLanguage() {
+		let currentLanguage = Dex.text.getLanguage();
+		if (currentLanguage === 'en-afd') currentLanguage = 'en';
+		const browserLanguage = Dex.text.getBrowserLanguage();
+		if (browserLanguage !== currentLanguage) return browserLanguage;
+		return currentLanguage === 'en' ? '' : 'en';
+	}
+	loadAltLanguage() {
+		const altLanguage = this.getAltLanguage();
+		if (altLanguage === this.loadedAltLanguage) return;
+		this.loadedAltLanguage = altLanguage;
+		if (altLanguage) {
+			void Dex.loadTextData(altLanguage).then(() => {
+				if (this.loadedAltLanguage === altLanguage) this.forceUpdate();
+			});
+		}
+	}
+	override componentDidUpdate() {
+		super.componentDidUpdate();
+		this.loadAltLanguage();
 	}
 	setTheme = (e: Event) => {
 		const theme = (e.currentTarget as HTMLSelectElement).value as 'light' | 'dark' | 'system';
@@ -594,11 +659,10 @@ class OptionsPanel extends PSRoomPanel {
 		const timestamp = (ev.currentTarget as HTMLSelectElement).value as TimestampOptions;
 		PS.prefs.set('timestamps', { ...PS.prefs.timestamps, pms: timestamp || undefined });
 	};
-
-	handleShowStatusInput = (ev: Event) => {
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-		this.setState({ showStatusInput: !this.state.showStatusInput });
+	setDefaultClient = (ev: Event) => {
+		const client = (ev.currentTarget as HTMLSelectElement).value;
+		PS.router.setDefaultClientCookie(client as 'old' | 'new');
+		this.forceUpdate();
 	};
 
 	handleOnChange = (ev: Event) => {
@@ -622,8 +686,9 @@ class OptionsPanel extends PSRoomPanel {
 			break;
 		}
 		case 'language': {
-			PS.prefs.set('serversettings', { ...PS.prefs.serversettings, language: elem.value });
-			PS.send(`/language ${elem.value}`);
+			PS.prefs.set('serversettings', { ...PS.prefs.serversettings, language: elem.value || undefined });
+			void Dex.loadTextData().then(() => PS.updateTranslatedText());
+			PS.send(`/language ${Dex.text.findLanguage(Dex.text.getLanguage())?.legacyId || 'english'}`);
 			break;
 		}
 		case 'tournaments': {
@@ -641,180 +706,186 @@ class OptionsPanel extends PSRoomPanel {
 		}
 	};
 
-	editStatus = (ev: Event) => {
-		const statusInput = this.base!.querySelector<HTMLInputElement>('input[name=statustext]');
-		PS.send(statusInput?.value?.length ? `/status ${statusInput.value}` : `/clearstatus`);
-		this.setState({ showStatusUpdated: true, showStatusInput: false });
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-	};
-
 	override render() {
 		const room = this.props.room;
 		const serverSettings = PS.prefs.serversettings;
-		return <PSPanelWrapper room={room} width={340}><div class="pad">
-			<p>
+		const altLanguage = this.getAltLanguage();
+		const currentLanguageLabel = TL`Language`;
+		const altLanguageLabel = altLanguage ? TL.inLanguage('Language', altLanguage) : '';
+		const languageLabel = altLanguageLabel ? `${currentLanguageLabel} (${altLanguageLabel})` : currentLanguageLabel;
+		const singlePanel = TL`Single panel`;
+		const verticalTabs = TL`Vertical tabs`;
+		const automaticLanguage = Dex.text.findLanguage(Dex.text.getBrowserLanguage())?.name;
+		const defaultClient = /(?:^|;\s*)preactalpha=1(?:;|$)/.test(document.cookie) ? 'new' : 'old';
+		return <PSPanelWrapper room={room} width={380}><div class="pad">
+			<p style="padding-left:50px">
 				<img
-					class="trainersprite yours" width="40" height="40" style={{ verticalAlign: 'middle' }}
+					class="trainersprite yours" width="40" height="40" style={{ float: 'left', marginLeft: '-50px' }}
 					src={Dex.resolveAvatar(`${PS.user.avatar}`)} data-href="avatars"
 				/> {}
 				<strong>{PS.user.name}</strong>
-			</p>
-			<p>
-				<button class="button" data-href="avatars"> Avatar...</button>
+				<StatusEditor />
 			</p>
 
-			{this.state.showStatusInput ? (
-				<p>
-					<input class="textbox" name="statustext" />
-					<button class="button" onClick={this.editStatus}><i class="fa fa-pencil" aria-hidden></i></button>
-				</p>
-			) : (
-				<p>
-					<button class="button" onClick={this.handleShowStatusInput} disabled={this.state.showStatusUpdated}>
-						{this.state.showStatusUpdated ? 'Status Updated' : 'Status...'}</button>
-				</p>
-			)}
+			<p style="clear:both">
+				<button class="button" data-href="avatars">{TL`[Avatar...]`}</button>
+			</p>
 
 			{PS.user.named && (PS.user.registered?.userid === PS.user.userid ?
-				<button className="button" data-href="changepassword">Password...</button> :
-				<button className="button" data-href="register">Register</button>)}
+				<button className="button" data-href="changepassword">{TL`[Password...]`}</button> :
+				<button className="button" data-href="register">{TL`[Register]`}</button>)}
 
 			<hr />
-			<h3>Graphics</h3>
+			<h3>{TL`General`}</h3>
 			<p>
-				<label class="optlabel">Theme: <select
-					name="theme" class="button" onChange={this.setTheme} value={PS.prefs.theme || 'light'}
+				<label class="optlabel">
+					<i class="fa fa-globe" aria-hidden></i> {TL.label(languageLabel)}
+					<select
+						name="language" onChange={this.handleOnChange} class="select"
+						value={PS.prefs.serversettings.language || ''}
+					>
+						<option value="">{TL`Automatic (${automaticLanguage})`}</option>
+						{Dex.text.languages().map(lang => <option value={lang.legacyId}>{lang.fullName}</option>)}
+					</select>
+				</label>
+			</p>
+			<hr />
+			<div class="construction">
+				<p>
+					This is the new client.
+				</p>
+				<label class="label" style="width:auto">{TL.label(TL`Default`)}<select
+					name="defaultclient" class="select" onChange={this.setDefaultClient} value={defaultClient}
 				>
-					<option value="light">Light</option>
-					<option value="dark">Dark</option>
-					<option value="system">Match system theme</option>
+					<option value="old">Old client</option>
+					<option value="new">New client</option>
+				</select></label>
+				<p>
+					<a class="button" href="/oldclient" style="font-weight: normal">
+						{defaultClient === 'old' ? "Back to old client" : "Use old client temporarily"}
+					</a>
+				</p>
+			</div>
+			<hr />
+			<h3>{TL`Appearance`}</h3>
+			<p>
+				<label class="optlabel">{TL.label(TL`Theme`)}<select
+					name="theme" class="select" onChange={this.setTheme} value={PS.prefs.theme || 'light'}
+				>
+					<option value="light">{TL`Light`}</option>
+					<option value="dark">{TL`Dark`}</option>
+					<option value="system">{TL`Match system theme`}</option>
 				</select></label>
 			</p>
 			<p>
-				<label class="optlabel">Layout: <select
-					name="layout" class="button" onChange={this.setLayout}
+				<label class="optlabel">{TL.label(TL`Layout`)}<select
+					name="layout" class="select" onChange={this.setLayout}
 					value={PS.prefs.onepanel === true ? 'onepanel' : PS.prefs.onepanel || ''}
 				>
-					<option value="">Two panels (if wide enough)</option>
-					<option value="onepanel">Single panel</option>
-					<option value="vertical">Vertical tabs</option>
+					<option value="">
+						{window.innerWidth < 700 || window.innerHeight < 430 ? TL`Automatic (${verticalTabs})` :
+						window.innerWidth < 900 ? TL`Automatic (${singlePanel})` :
+						TL`Two panels (if wide enough)`}
+					</option>
+					<option value="onepanel">{singlePanel}</option>
+					<option value="vertical">{verticalTabs}</option>
 				</select></label>
 			</p>
 			<p>
 				<label class="optlabel">
-					Background: <button class="button" data-href="changebackground">
-						Change Background
+					{TL.label(TL`Background`)}<button class="button" data-href="changebackground">
+						{TL`[Change background]`}
 					</button>
 				</label>
 			</p>
 			<p>
 				<label class="checkbox"> <input
 					name="noanim" checked={PS.prefs.noanim || false} type="checkbox" onChange={this.handleOnChange}
-				/> Disable animations</label>
+				/> {TL`Disable animations`}</label>
 			</p>
 			<p>
 				<label class="checkbox"><input
 					name="bwgfx" checked={PS.prefs.bwgfx || false} type="checkbox" onChange={this.handleOnChange}
-				/>  Use 2D sprites instead of 3D models</label>
+				/>  {TL`Use 2D sprites instead of 3D models`}</label>
 			</p>
 			<p>
 				<label class="checkbox"><input
 					name="nopastgens" checked={PS.prefs.nopastgens || false} type="checkbox" onChange={this.handleOnChange}
-				/> Use modern sprites for past generations</label>
+				/> {TL`Use modern sprites for past generations`}</label>
 			</p>
 			<hr />
-			<h3>Chat</h3>
+			<h3>{TL`Chat`}</h3>
 			<p>
 				<label class="checkbox"><input
 					name="blockPMs" checked={!!serverSettings.blockPMs} type="checkbox" onChange={this.handleOnChange}
-				/> Block DMs</label>
+				/> {TL`Block DMs`}</label>
 			</p>
 			<p>
 				<label class="checkbox"><input
 					name="blockChallenges" checked={!!serverSettings.blockChallenges} type="checkbox" onChange={this.handleOnChange}
-				/> Block challenges</label>
+				/> {TL`Block challenges`}</label>
 			</p>
 			<p>
 				<label class="checkbox"><input
 					name="inchatpm" checked={PS.prefs.inchatpm || false} type="checkbox" onChange={this.handleOnChange}
-				/> Show DMs in chatrooms</label>
+				/> {TL`Show DMs in chatrooms`}</label>
 			</p>
 			<p>
 				<label class="checkbox"><input
 					name="noselfhighlight" checked={PS.prefs.noselfhighlight || false} type="checkbox" onChange={this.handleOnChange}
-				/> Do not highlight when your name is said in chat</label>
+				/> {TL`Do not highlight when your name is said in chat`}</label>
 			</p>
 			<p>
 				<label class="checkbox"><input
 					name="leavePopupRoom" checked={PS.prefs.leavePopupRoom || false} type="checkbox" onChange={this.handleOnChange}
-				/> Confirm before leaving a room</label>
+				/> {TL`Confirm before leaving a room`}</label>
 			</p>
 			<p>
 				<label class="checkbox"><input
 					name="refreshprompt" checked={PS.prefs.refreshprompt || false} type="checkbox" onChange={this.handleOnChange}
-				/> Confirm before refreshing</label>
+				/> {TL`Confirm before refreshing`}</label>
 			</p>
 			<p>
 				<label class="optlabel">
-					Language: {}
-					<select name="language" onChange={this.handleOnChange} class="button" value={serverSettings.language || 'english'}>
-						<option value="english">English</option>
-						<option value="german">Deutsch</option>
-						<option value="spanish">Español</option>
-						<option value="french">Français</option>
-						<option value="italian">Italiano</option>
-						<option value="dutch">Nederlands</option>
-						<option value="portuguese">Português</option>
-						<option value="turkish">Türkçe</option>
-						<option value="hindi">हिंदी</option>
-						<option value="japanese">日本語</option>
-						<option value="simplifiedchinese">简体中文</option>
-						<option value="traditionalchinese">中文</option>
-					</select>
-				</label>
-			</p>
-			<p>
-				<label class="optlabel">
-					Tournaments: <select
-						name="tournaments" class="button" onChange={this.handleOnChange} value={PS.prefs.tournaments || 'notify'}
+					{TL.label(TL`Tournaments`)}<select
+						name="tournaments" class="select" onChange={this.handleOnChange} value={PS.prefs.tournaments || 'notify'}
 					>
-						<option value="notify">Always notify</option>
-						<option value="nonotify">Notify when joined</option>
-						<option value="hide">Hide</option>
+						<option value="notify">{TL`Always notify`}</option>
+						<option value="nonotify">{TL`Notify when joined`}</option>
+						<option value="hide">{TL`Hide`}</option>
 					</select>
 				</label>
 			</p>
 			<p>
-				<label class="optlabel">Timestamps: <select
-					name="layout" class="button" onChange={this.setChatroomTimestamp} value={PS.prefs.timestamps.chatrooms || ''}
+				<label class="optlabel">{TL.label(TL`Timestamps`)}<select
+					name="layout" class="select" onChange={this.setChatroomTimestamp} value={PS.prefs.timestamps.chatrooms || ''}
 				>
-					<option value="">Off</option>
+					<option value="">{TL`Off`}</option>
 					<option value="minutes">[HH:MM]</option>
 					<option value="seconds">[HH:MM:SS]</option>
 				</select></label>
 			</p>
 			<p>
-				<label class="optlabel">Timestamps in DMs: <select
-					name="layout" class="button" onChange={this.setPMsTimestamp} value={PS.prefs.timestamps.pms || ''}
+				<label class="optlabel">{TL.label(TL`Timestamps in DMs`)}<select
+					name="layout" class="select" onChange={this.setPMsTimestamp} value={PS.prefs.timestamps.pms || ''}
 				>
-					<option value="">Off</option>
+					<option value="">{TL`Off`}</option>
 					<option value="minutes">[HH:MM]</option>
 					<option value="seconds">[HH:MM:SS]</option>
 				</select></label>
 			</p>
 			<p>
 				<label class="optlabel">
-					Chat preferences: {}
-					<button class="button" data-href="chatformatting">Text formatting...</button>
+					{TL.label(TL`Chat preferences`)}
+					<button class="button" data-href="chatformatting">{TL`[Text formatting...]`}</button>
 				</label>
 			</p>
 			<hr />
 			{PS.user.named ? <p class="buttonbar" style="text-align: right">
-				<button class="button" data-href="login"><i class="fa fa-pencil" aria-hidden></i> Change name</button> {}
-				<button class="button" data-cmd="/logout"><i class="fa fa-power-off" aria-hidden></i> Log out</button>
+				<button class="button" data-href="login"><i class="fa fa-pencil" aria-hidden></i> {TL`[Change name]`}</button> {}
+				<button class="button" data-cmd="/logout"><i class="fa fa-power-off" aria-hidden></i> {TL`[Log out]`}</button>
 			</p> : <p class="buttonbar" style="text-align: right">
-				<button class="button" data-href="login"><i class="fa fa-pencil" aria-hidden></i> Choose name</button>
+				<button class="button" data-href="login"><i class="fa fa-pencil" aria-hidden></i> {TL`[Choose name]`}</button>
 			</p> }
 		</div></PSPanelWrapper>;
 	}
@@ -842,7 +913,7 @@ class GooglePasswordBox extends preact.Component<{ name: string }> {
 				class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_blue" data-text="continue_with"
 				data-size="large" data-logo_alignment="left" data-auto_select="true" data-itp_support="true"
 				style="width:fit-content;margin:0 auto"
-			>[loading Google log-in button]</div>
+			>{TL`Loading Google log-in button...`}</div>
 		</div>;
 	}
 }
@@ -889,7 +960,7 @@ class LoginPanel extends PSRoomPanel {
 	update = () => {
 		this.forceUpdate();
 	};
-	override focus() {
+	override focus(_options?: PSRoomFocusOptions) {
 		const passwordBox = this.base!.querySelector<HTMLInputElement>('input[name=password]');
 		const usernameBox = this.base!.querySelector<HTMLInputElement>('input[name=username]');
 		(passwordBox || usernameBox)?.select();
@@ -909,11 +980,12 @@ class LoginPanel extends PSRoomPanel {
 		const room = this.props.room;
 		const loginState = room.args as PSLoginState;
 		return <PSPanelWrapper room={room} width={280}><div class="pad">
-			<h3>Log in</h3>
+			<h3>{TL`[Log in]`}</h3>
 			<form onSubmit={this.handleSubmit}>
 				{loginState?.error && <p class="error">{loginState.error}</p>}
 				<p><label class="label">
-					Username: <small class="preview" style={`color:${BattleLog.usernameColor(toID(this.getUsername()))}`}>(color)</small>
+					{TL.label(TL`Username`)}
+					<small class="preview" style={`color:${BattleLog.usernameColor(toID(this.getUsername()))}`}>{TL`(color)`}</small>
 					<input
 						class="textbox" type="text" name="username"
 						onInput={this.update} onChange={this.update} autocomplete="username"
@@ -921,52 +993,52 @@ class LoginPanel extends PSRoomPanel {
 					/>
 				</label></p>
 				{PS.user.named && !loginState && <p>
-					<small>(Others will be able to see your name change. To change name privately, use "Log out")</small>
+					<small>{TL`(Others will be able to see your name change. To change name privately, use "Log out")`}</small>
 				</p>}
 				{loginState?.needsPassword && <p>
-					<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> <strong>if you registered this name:</strong>
+					<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> <strong>{TL`if you registered this name:`}</strong>
 					<label class="label">
-						Password: {}
+						{TL.label(TL`Password`)}
 						<input
 							class="textbox" type={this.state.passwordShown ? 'text' : 'password'} name="password"
 							autocomplete="current-password" style="width:173px"
 						/>
 						<button
-							type="button" onClick={this.handleShowPassword} aria-label="Show password"
+							type="button" onClick={this.handleShowPassword} aria-label={TL`[Show password]`}
 							class="button" style="float:right;margin:-21px 0 10px;padding: 2px 6px"
 						><i class="fa fa-eye" aria-hidden></i></button>
 					</label>
 				</p>}
 				{loginState?.needsGoogle && <>
-					<p><i class="fa fa-level-up fa-rotate-90" aria-hidden></i> <strong>if you registered this name:</strong></p>
+					<p><i class="fa fa-level-up fa-rotate-90" aria-hidden></i> <strong>{TL`if you registered this name:`}</strong></p>
 					<p><GooglePasswordBox name={this.getUsername()} /></p>
 				</>}
 				<p class="buttonbar">
 					{PS.user.loggingIn ? (
-						<button disabled class="cur">Logging in...</button>
+						<button disabled class="cur">{TL`Logging in...`}</button>
 					) : loginState?.needsPassword ? (
 						<>
-							<button type="submit" class="button"><strong>Log in</strong></button> {}
-							<button type="button" onClick={this.reset} class="button">Cancel</button>
+							<button type="submit" class="button"><strong>{TL`[Log in]`}</strong></button> {}
+							<button type="button" onClick={this.reset} class="button">{TL`[Cancel]`}</button>
 						</>
 					) : loginState?.needsGoogle ? (
-						<button type="button" onClick={this.reset} class="button">Cancel</button>
+						<button type="button" onClick={this.reset} class="button">{TL`[Cancel]`}</button>
 					) : (
 						<>
-							<button type="submit" class="button"><strong>Choose name</strong></button> {}
-							<button type="button" name="closeRoom" class="button">Cancel</button>
+							<button type="submit" class="button"><strong>{TL`[Choose name]`}</strong></button> {}
+							<button type="button" name="closeRoom" class="button">{TL`[Cancel]`}</button>
 						</>
 					)} {}
 				</p>
 				{loginState?.name && <div>
 					<p>
-						<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> <strong>if not:</strong>
+						<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> <strong>{TL`if not:`}</strong>
 					</p>
 					<p style={{ maxWidth: '210px', margin: '0 auto' }}>
-						This is someone else's account. Sorry.
+						{TL`This is someone else's account. Sorry.`}
 					</p>
 					<p class="buttonbar">
-						<button class="button" onClick={this.reset}>Try another name</button>
+						<button class="button" onClick={this.reset}>{TL`[Try another name]`}</button>
 					</p>
 				</div>}
 			</form>
@@ -990,7 +1062,7 @@ class AvatarsPanel extends PSRoomPanel {
 
 		return <PSPanelWrapper room={room} width={1210}><div class="pad">
 			<label class="optlabel"><strong>Choose an avatar or </strong>
-				<button class="button" data-cmd="/close"> Cancel</button>
+				<button class="button" data-cmd="/close"> {TL`[Cancel]`}</button>
 			</label>
 			<div class="avatarlist">
 				{avatars.map(([i, avatar]) => (
@@ -1002,7 +1074,7 @@ class AvatarsPanel extends PSRoomPanel {
 				))}
 			</div>
 			<div style="clear:left"></div>
-			<p><button class="button" data-cmd="/close">Cancel</button></p>
+			<p><button class="button" data-cmd="/close">{TL`[Cancel]`}</button></p>
 		</div></PSPanelWrapper>;
 	}
 }
@@ -1018,15 +1090,17 @@ class BattleForfeitPanel extends PSRoomPanel {
 		const battleRoom = room.getParent() as BattleRoom;
 
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
-			<p>Forfeiting makes you lose the battle. Are you sure?</p>
+			<p>{TL`Forfeiting makes you lose the battle. Are you sure?`}</p>
 			<p>
-				<button data-cmd="/closeand /inopener /closeand /forfeit" class="button"><strong>Forfeit and close</strong></button> {}
-				<button data-cmd="/closeand /inopener /forfeit" class="button">Just forfeit</button> {}
-				{!battleRoom.battle.rated && <button type="button" data-href="replaceplayer" class="button">
-					Replace player
+				<button data-cmd="/closeand /inopener /closeand /forfeit" class="button">
+					<strong>{TL`[Forfeit and close]`}</strong>
+				</button> {}
+				<button data-cmd="/closeand /inopener /forfeit" class="button">{TL`[Forfeit]`}</button> {}
+				{battleRoom.battle && !battleRoom.battle.rated && <button type="button" data-href="replaceplayer" class="button">
+					{TL`[Replace player]`}
 				</button>} {}
 				<button type="button" data-cmd="/close" class="button">
-					Cancel
+					{TL`[Cancel]`}
 				</button>
 			</p>
 		</div></PSPanelWrapper>;
@@ -1043,8 +1117,8 @@ class ReplacePlayerPanel extends PSRoomPanel {
 		const room = this.props.room;
 		const battleRoom = room.getParent()?.getParent() as BattleRoom;
 		const newPlayer = this.base?.querySelector<HTMLInputElement>("input[name=newplayer]")?.value;
-		if (!newPlayer?.length) return battleRoom.add("|error|Enter player's name");
-		if (battleRoom.battle.ended) return battleRoom.add("|error|Cannot replace player, battle has already ended.");
+		if (!newPlayer?.length) return battleRoom.errorReply(TL`Enter player's name`);
+		if (battleRoom.battle.ended) return battleRoom.errorReply(TL`Cannot replace player, battle has already ended.`);
 		let playerSlot = battleRoom.battle.p1.id === PS.user.userid ? "p1" : "p2";
 		battleRoom.send('/leavebattle');
 		battleRoom.send(`/addplayer ${newPlayer}, ${playerSlot}`);
@@ -1057,16 +1131,16 @@ class ReplacePlayerPanel extends PSRoomPanel {
 
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
 			<form onSubmit={this.handleReplacePlayer}>
-				<p>Replacement player's name:</p>
+				<p>{TL`Replacement player's name:`}</p>
 				<p>
 					<input name="newplayer" class="textbox autofocus" />
 				</p>
 				<p class="buttonbar">
 					<button type="submit" class="button">
-						<strong>Replace</strong>
+						<strong>{TL`[Replace]`}</strong>
 					</button> {}
 					<button type="button" data-cmd="/close" class="button">
-						Cancel
+						{TL`[Cancel]`}
 					</button>
 				</p>
 			</form>
@@ -1089,15 +1163,15 @@ class ChangePasswordPanel extends PSRoomPanel {
 		let cpassword = this.base?.querySelector<HTMLInputElement>('input[name=cpassword]')?.value;
 		if (!oldpassword?.length ||
 			!password?.length ||
-			!cpassword?.length) return this.setState({ errorMsg: "All fields are required" });
-		if (password !== cpassword) return this.setState({ errorMsg: 'Passwords do not match' });
+			!cpassword?.length) return this.setState({ errorMsg: TL`All fields are required` });
+		if (password !== cpassword) return this.setState({ errorMsg: TL`Passwords do not match` });
 		PSLoginServer.query("changepassword", {
 			oldpassword,
 			password,
 			cpassword,
 		}).then(data => {
 			if (data?.actionerror) return this.setState({ errorMsg: data?.actionerror });
-			PS.alert("Your password was successfully changed!");
+			PS.alert(TL`Your password was successfully changed!`);
 
 		}).catch(err => {
 			console.error(err);
@@ -1115,36 +1189,36 @@ class ChangePasswordPanel extends PSRoomPanel {
 				{ !!this.state.errorMsg?.length && <p>
 					<b class="message-error"> {this.state.errorMsg}</b>
 				</p> }
-				<p>Change your password:</p>
+				<p>{TL`Change your password:`}</p>
 				<p>
 					<label class="label">
-						Username: {}
+						{TL.label(TL`Username`)}
 						<input name="username" value={PS.user.name} readOnly={true} autocomplete="username" class="textbox disabled" />
 					</label>
 				</p>
 				<p>
 					<label class="label">
-						Old password: {}
+						{TL.label(TL`Old password`)}
 						<input name="oldpassword" type="password" autocomplete="current-password" class="textbox autofocus" />
 					</label>
 				</p>
 				<p>
 					<label class="label">
-						New password: {}
+						{TL.label(TL`New password`)}
 						<input name="password" type="password" autocomplete="new-password" class="textbox" />
 					</label>
 				</p>
 				<p>
 					<label class="label">
-						New password (confirm): {}
+						{TL.label(TL`New password (confirm)`)}
 						<input name="cpassword" type="password" autocomplete="new-password" class="textbox" />
 					</label>
 				</p>
 				<p class="buttonbar">
 					<button type="submit" class="button">
-						<strong>Change password</strong>
+						<strong>{TL`[Change password]`}</strong>
 					</button> {}
-					<button type="button" data-cmd="/close" class="button">Cancel</button>
+					<button type="button" data-cmd="/close" class="button">{TL`[Cancel]`}</button>
 				</p>
 			</form>
 		</div>
@@ -1166,10 +1240,21 @@ class RegisterPanel extends PSRoomPanel {
 		let captcha = this.base?.querySelector<HTMLInputElement>('input[name=captcha]')?.value;
 		let password = this.base?.querySelector<HTMLInputElement>('input[name=password]')?.value;
 		let cpassword = this.base?.querySelector<HTMLInputElement>('input[name=cpassword]')?.value;
-		if (!captcha?.length ||
-			!password?.length ||
-			!cpassword?.length) return this.setState({ errorMsg: "All fields are required" });
-		if (password !== cpassword) return this.setState({ errorMsg: 'Passwords do not match' });
+		if (!captcha?.length || !password?.length || !cpassword?.length) {
+			return this.setState({ errorMsg: TL`All fields are required` });
+		}
+		if (password !== cpassword) return this.setState({ errorMsg: TL`Passwords do not match` });
+
+		if (typeof BattleText !== 'undefined') {
+			for (const lang in BattleText) {
+				const pikachuName = BattleText[lang].Pokedex?.['pikachu']?.name;
+				if (captcha.trim().toLowerCase() === pikachuName?.toLowerCase()) {
+					captcha = 'pikachu';
+					break;
+				}
+			}
+		}
+
 		PSLoginServer.query("register", {
 			captcha,
 			password,
@@ -1183,7 +1268,7 @@ class RegisterPanel extends PSRoomPanel {
 				PS.user.registered = { name, userid: toID(name) };
 				if (data?.assertion) PS.user.handleAssertion(name, data?.assertion);
 				this.close();
-				PS.alert("You have been successfully registered.");
+				PS.alert(TL`You have been successfully registered.`);
 			}
 		}).catch(err => {
 			console.error(err);
@@ -1201,40 +1286,40 @@ class RegisterPanel extends PSRoomPanel {
 				{ !!this.state.errorMsg?.length && <p>
 					<b class="message-error"> {this.state.errorMsg}</b>
 				</p> }
-				<p>Register your account:</p>
+				<p>{TL`Register your account:`}</p>
 				<p>
 					<label class="label">
-						Username: {}
+						{TL.label(TL`Username`)}
 						<input name="name" value={PS.user.name} readOnly={true} autocomplete="username" class="textbox disabled" />
 					</label>
 				</p>
 				<p>
 					<label class="label">
-						Password: {}
+						{TL.label(TL`Password`)}
 						<input name="password" type="password" autocomplete="new-password" class="textbox autofocus" />
 					</label>
 				</p>
 				<p>
 					<label class="label">
-						Password (confirm): {}
+						{TL.label(TL`Password (confirm)`)}
 						<input name="cpassword" type="password" autocomplete="new-password" class="textbox" />
 					</label>
 				</p>
 				<p>
 					<label class="label"><img
 						src="https://play.pokemonshowdown.com/sprites/gen5ani/pikachu.gif"
-						alt="An Electric-type mouse that is the mascot of the Pok&eacute;mon franchise."
+						alt={TL`An Electric-type mouse that is the mascot of the Pokémon franchise.`}
 					/></label>
 				</p>
 				<p>
 					<label class="label">
-						What is this pokemon? {}
+						{TL`What is this Pokémon?`} {}
 						<input name="captcha" class="textbox" />
 					</label>
 				</p>
 				<p class="buttonbar">
-					<button type="submit" class="button"><strong>Register</strong></button> {}
-					<button type="button" data-cmd="/close" class="button">Cancel</button>
+					<button type="submit" class="button"><strong>{TL`[Register]`}</strong></button> {}
+					<button type="button" data-cmd="/close" class="button">{TL`[Cancel]`}</button>
 				</p>
 			</form>
 
@@ -1319,7 +1404,7 @@ class BackgroundListPanel extends PSRoomPanel {
 			return <PSPanelWrapper room={room} width={480}><div class="pad">
 				<p class="error">{room.args.error}</p>
 				<p class="buttonbar">
-					<button data-cmd="/close" class="button"><strong>Done</strong></button>
+					<button data-cmd="/close" class="button"><strong>{TL`[Done]`}</strong></button>
 				</p>
 			</div></PSPanelWrapper>;
 		}
@@ -1330,8 +1415,8 @@ class BackgroundListPanel extends PSRoomPanel {
 					<img src={room.args.bgUrl as string} style="display:block;margin:auto;max-width:90%;max-height:500px" />
 				</p>
 				<p class="buttonbar">
-					<button onClick={this.setBg} value="custom" class="button"><strong>Set as background</strong></button> {}
-					<button data-cmd="/close" class="button">Cancel</button>
+					<button onClick={this.setBg} value="custom" class="button"><strong>{TL`[Set as background]`}</strong></button> {}
+					<button data-cmd="/close" class="button">{TL`[Cancel]`}</button>
 				</p>
 			</div></PSPanelWrapper>;
 		}
@@ -1343,7 +1428,7 @@ class BackgroundListPanel extends PSRoomPanel {
 		const room = this.props.room;
 		const option = (val: string) => val === PSBackground.id ? 'option cur' : 'option';
 		return this.renderUpload() || <PSPanelWrapper room={room} width={480}><div class="pad">
-			<p><strong>Default</strong></p>
+			<p><strong>{TL`Default`}</strong></p>
 			<div class="bglist">
 				<button onClick={this.setBg} value="" class={option('')}>
 					<strong
@@ -1354,11 +1439,11 @@ class BackgroundListPanel extends PSRoomPanel {
 						display: block;
 						font-size: 12pt;
 					"
-					>Random</strong>
+					>{TL`[Random]`}</strong>
 				</button>
 			</div>
 			<div style="clear: left"></div>
-			<p><strong>Official</strong></p>
+			<p><strong>{TL`Official`}</strong></p>
 			<div class="bglist">
 				<button onClick={this.setBg} value="charizards" class={option('charizards')}>
 					<span class="bg" style="background-position: 0 -0px"></span>{}
@@ -1382,14 +1467,14 @@ class BackgroundListPanel extends PSRoomPanel {
 				</button>
 			</div>
 			<div style="clear: left"></div>
-			<p><strong>Custom</strong></p>
+			<p><strong>{TL`Custom`}</strong></p>
 			<p>
 				Upload:
 			</p>
 			<p><input type="file" accept="image/*" name="bgfile" onChange={this.uploadBg} /></p>
 			{!!this.state.status && <p class="error">{this.state.status}</p>}
 			<p class="buttonbar">
-				<button data-cmd="/close" class="button"><strong>Done</strong></button>
+				<button data-cmd="/close" class="button"><strong>{TL`[Done]`}</strong></button>
 			</p>
 		</div>
 		</PSPanelWrapper>;
@@ -1474,7 +1559,7 @@ class ChatFormattingPanel extends PSRoomPanel {
 					/> Don't warn for untrusted links
 				</label>
 			</p>
-			<p><button data-cmd="/close" class="button">Done</button></p>
+			<p><button data-cmd="/close" class="button">{TL`[Done]`}</button></p>
 		</div>
 		</PSPanelWrapper>;
 	}
@@ -1494,10 +1579,10 @@ class LeaveRoomPanel extends PSRoomPanel {
 			<p>Close <code>{parentRoomid || "ERROR"}</code>?</p>
 			<p class="buttonbar">
 				<button data-cmd={`/closeand /close ${parentRoomid}`} class="button autofocus">
-					<strong>Close Room</strong>
+					<strong>{TL`[Close room]`}</strong>
 				</button> {}
 				<button data-cmd="/close" class="button">
-					Cancel
+					{TL`[Cancel]`}
 				</button>
 			</p>
 		</div></PSPanelWrapper>;
@@ -1516,9 +1601,9 @@ class BattleOptionsPanel extends PSRoomPanel {
 
 		room.battle.setHardcoreMode(mode);
 		if (mode) {
-			room.add(`||Hardcore mode ON: Information not available in-game is now hidden.`);
+			room.add(`||${TL`Hardcore mode ON: Information not available in-game is now hidden.`}`);
 		} else {
-			room.add(`||Hardcore mode OFF: Information not available in-game is now shown.`);
+			room.add(`||${TL`Hardcore mode OFF: Information not available in-game is now shown.`}`);
 		}
 		room.update(null);
 	};
@@ -1530,7 +1615,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 		if (!room) return this.close();
 
 		room.battle.ignoreSpects = value;
-		room.add(`||Spectators ${room.battle.ignoreSpects ? '' : 'no longer '}ignored.`);
+		room.add(`||${room.battle.ignoreSpects ? TL`Spectators ignored.` : TL`Spectators no longer ignored.`}`);
 		const chats = document.querySelectorAll<HTMLElement>('.battle-log .chat');
 		const displaySetting = room.battle.ignoreSpects ? 'none' : '';
 		for (const chat of chats) {
@@ -1615,6 +1700,11 @@ class BattleOptionsPanel extends PSRoomPanel {
 		}
 		}
 	};
+	handleBattleLayout = (ev: Event) => {
+		const value = (ev.currentTarget as HTMLSelectElement).value as typeof PS.prefs.battlelayout;
+		PS.prefs.set('battlelayout', value || null);
+		PS.update();
+	};
 	getBattleRoom() {
 		const battleRoom = this.props.room.getParent() as BattleRoom | null;
 		return battleRoom?.battle ? battleRoom : null;
@@ -1623,17 +1713,30 @@ class BattleOptionsPanel extends PSRoomPanel {
 	override render() {
 		const room = this.props.room;
 		const battleRoom = this.getBattleRoom();
-		const isPlayer = !!battleRoom?.battle.myPokemon;
-		const canOfferTie = battleRoom && ((battleRoom.battle.turn >= 100 && isPlayer) || PS.user.group === '~');
+		const isPlaying = !!battleRoom?.isPlaying();
+		const canOfferTie = battleRoom && ((battleRoom.battle.turn >= 100 && isPlaying) || PS.user.group === '~');
+		let automaticLayout: BattleLayoutPreference | null = null;
+		if (battleRoom) {
+			const { layout, overlayControls } = PS.chooseBattleLayout(battleRoom.width, battleRoom.height);
+			automaticLayout = `${layout}${overlayControls ? '-overlay' : ''}` as BattleLayoutPreference;
+		}
 		return <PSPanelWrapper room={room} width={380}><div class="pad">
 			{battleRoom && <>
-				<p><strong>In this battle</strong></p>
+				<p><strong>{TL`In this battle`}</strong></p>
+				<p class="buttonbar">
+					<button data-cmd="/closeand /inopener /forfeit" class="button" disabled={!isPlaying}>
+						{TL`[Forfeit]`}
+					</button> {}
+					<button data-cmd="/closeand /inopener /offertie" class="button" disabled={!canOfferTie}>
+						{TL`[Offer tie]`} {!canOfferTie && TL`(turn 100+)`}
+					</button>
+				</p>
 				<p>
 					<label class="checkbox">
 						<input
 							checked={battleRoom.battle.hardcoreMode}
 							type="checkbox" onChange={this.handleHardcoreMode}
-						/> Hardcore mode (hide info not shown in-game)
+						/> {TL`Hardcore mode (hide info not shown in-game)`}
 					</label>
 				</p>
 				<p>
@@ -1641,7 +1744,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 						<input
 							checked={battleRoom.battle.ignoreSpects}
 							type="checkbox" onChange={this.handleIgnoreSpectators}
-						/> Ignore spectators
+						/> {TL`Ignore spectators`}
 					</label>
 				</p>
 				<p>
@@ -1649,7 +1752,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 						<input
 							checked={battleRoom.battle.ignoreOpponent}
 							type="checkbox" onChange={this.handleIgnoreOpponent}
-						/> Ignore opponent
+						/> {TL`Ignore opponent`}
 					</label>
 				</p>
 				<p>
@@ -1657,17 +1760,47 @@ class BattleOptionsPanel extends PSRoomPanel {
 						<input
 							checked={battleRoom.battle?.ignoreNicks}
 							type="checkbox" onChange={this.handleIgnoreNicks}
-						/> Ignore nicknames
+						/> {TL`Ignore nicknames`}
 					</label>
 				</p>
 			</>}
-			<p><strong>All battles</strong></p>
+			<p><strong>{TL`All battles`}</strong></p>
+			<p>
+				<label class="optlabel">{TL.label(TL`Layout`)}<select
+					name="battlelayout" class="select" onChange={this.handleBattleLayout}
+					value={PS.prefs.battlelayout || ''}
+				>
+					<option value="">
+						{automaticLayout ? TL`Automatic (${battleLayoutLabel(automaticLayout)})` : TL`Automatic`}
+					</option>
+					<option value="side-by-side">
+						{battleLayoutLabel('side-by-side')} {TL`(DESKTOP)`}
+					</option>
+					<option value="side-by-side-overlay">
+						{battleLayoutLabel('side-by-side-overlay')}
+					</option>
+					<option value="top-and-bottom">
+						{battleLayoutLabel('top-and-bottom')} {TL`(MOBILE VERTICAL)`}
+					</option>
+					<option value="top-and-bottom-overlay">
+						{battleLayoutLabel('top-and-bottom-overlay')}
+					</option>
+					<option value="scrolling">
+						{battleLayoutLabel('scrolling')}
+					</option>
+					<option value="scrolling-overlay">
+						{battleLayoutLabel('scrolling-overlay')} {TL`(MOBILE HORIZONTAL)`}
+					</option>
+				</select></label>
+			</p>
 			<p>
 				<label class="checkbox">
 					<input
 						name="disallowspectators" checked={PS.prefs.disallowspectators || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Invite only (hide from Battles list)</abbr>
+					/> <abbr title={TL`You can still invite spectators by giving them the URL or using the /invite command`}>
+						{TL`Invite only (hide from Battles list)`}
+					</abbr>
 				</label>
 			</p>
 			<p>
@@ -1675,7 +1808,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<input
 						name="ignorenicks" checked={PS.prefs.ignorenicks || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> Ignore Pok&eacute;mon nicknames
+					/> {TL`Ignore Pokémon nicknames`}
 				</label>
 			</p>
 			<p>
@@ -1683,7 +1816,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<input
 						name="ignorespects" checked={PS.prefs.ignorespects || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> Ignore spectators
+					/> {TL`Ignore spectators`}
 				</label>
 			</p>
 			<p>
@@ -1691,7 +1824,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<input
 						name="ignoreopp" checked={PS.prefs.ignoreopp || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> Ignore opponent
+					/> {TL`Ignore opponent`}
 				</label>
 			</p>
 			<p>
@@ -1699,7 +1832,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<input
 						name="autotimer" checked={PS.prefs.autotimer || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> Automatically start timer
+					/> {TL`Automatically start timer`}
 				</label>
 			</p>
 			<p>
@@ -1707,7 +1840,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<input
 						name="autohardcore" checked={PS.prefs.autohardcore || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> Automatically enable hardcore mode
+					/> {TL`Hardcore mode`}
 				</label>
 			</p>
 			<p>
@@ -1715,22 +1848,19 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<input
 						name="spectatefromstart" checked={!!PS.prefs.spectatefromstart}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> Start at turn 0 when spectating battles
+					/> {TL`Start at turn 0 when spectating battles`}
 				</label>
 			</p>
-			{!PS.prefs.onepanel && document.body.offsetWidth >= 800 && <p>
+			{!PS.prefs.onepanel && window.innerWidth >= 800 && <p>
 				<label class="checkbox">
 					<input
 						name="rightpanel" checked={PS.prefs.rightpanelbattles || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> Open new battles in the right-side panel
+					/> {TL`Open new battles in the right-side panel`}
 				</label>
 			</p>}
 			<p class="buttonbar">
-				<button data-cmd="/close" class="button">Done</button> {}
-				{battleRoom && <button data-cmd="/closeand /inopener /offertie" class="button" disabled={!canOfferTie}>
-					Offer Tie
-				</button>}
+				<button data-cmd="/close" class="button">{TL`[Done]`}</button> {}
 			</p>
 		</div>
 		</PSPanelWrapper>;
@@ -1783,7 +1913,7 @@ class PopupPanel extends PSRoomPanel<PopupRoom> {
 
 	override render() {
 		const room = this.props.room;
-		const okButton = room.args?.okButton as string || 'OK';
+		const okButton = room.args?.okButton as string || TL`[OK]`;
 		const cancelButton = room.args?.cancelButton as string | undefined;
 		const otherButtons = room.args?.otherButtons as preact.ComponentChildren;
 		const value = room.args?.value as string | undefined;
@@ -1797,9 +1927,9 @@ class PopupPanel extends PSRoomPanel<PopupRoom> {
 					style="white-space:pre-wrap;word-wrap:break-word"
 					dangerouslySetInnerHTML={{ __html: this.parseMessage(message as string || '') }}
 				></p>}
-				{!!type && <p><input
+				{!!type && <p><label class="label">{room.args?.label as string || ''} <input
 					name="value" type={type} inputMode={inputMode} class="textbox autofocus" style="width:100%;box-sizing:border-box"
-				/></p>}
+				/></label></p>}
 				<p class="buttonbar">
 					<button class={`button${!type ? ' autofocus' : ''}`} type="submit" style="min-width:50px">
 						<strong>{okButton}</strong>
@@ -1844,16 +1974,16 @@ class RoomTabListPanel extends PSRoomPanel {
 class BattleTimerPanel extends PSRoomPanel {
 	static readonly id = 'battletimer';
 	static readonly routes = ['battletimer'];
-	static readonly location = 'modal-popup';
+	static readonly location = 'popup';
 	static readonly noURL = true;
 
 	override render() {
 		const room = this.props.room.getParent() as BattleRoom;
 		return <PSPanelWrapper room={this.props.room}><div class="pad">
 			{room.battle.kickingInactive ? (
-				<button class="button" data-cmd="/closeand /inopener /timer stop">Stop Timer</button>
+				<button class="button" data-cmd="/closeand /inopener /timer stop">{TL`[Stop timer]`}</button>
 			) : (
-				<button class="button" data-cmd="/closeand /inopener /timer start">Start Timer</button>
+				<button class="button" data-cmd="/closeand /inopener /timer start">{TL`[Start timer]`}</button>
 			)}
 		</div>
 		</PSPanelWrapper>;
@@ -1959,7 +2089,7 @@ class RulesPanel extends PSRoomPanel<PopupRoom> {
 					name="close"
 					data-cmd="/close" class="button autofocus"
 					disabled={!this.state.canClose}
-				> Close {this.state.timerRef && <>({this.state.timeLeft} sec)</>}</button></p>
+				> {TL`[Close]`} {this.state.timerRef && TL`(${this.state.timeLeft} sec)`}</button></p>
 			</div>
 		</PSPanelWrapper>;
 	}

@@ -29,3 +29,13 @@ jobs:
     - run: npm run test
       env:
         CI: true
+    - name: Check out server for full-test
+      uses: actions/checkout@v6
+      with:
+        repository: smogon/pokemon-showdown
+        path: caches/pokemon-showdown
+    - run: npm ci
+      working-directory: caches/pokemon-showdown
+    - run: npm run full-test -- --no-update
+      env:
+        CI: true

@@ -1,7 +1,13 @@
 RewriteEngine on
 RewriteRule ^api(/.*)?$ http://localhost:9000/api$1 [P,L]
-
-RewriteRule ^([A-Za-z0-9-/]+)$ index.html [L,QSA]
-
 DirectoryIndex index.php index.html /dirindex/dirindex.php
 ErrorDocument 404 /dirindex/404.html
+
+# cached index.html
+RewriteRule ^$ caches/index.html [L,QSA]
+RewriteRule ^index\.html$ caches/index.html [L,QSA]
+RewriteRule ^([A-Za-z0-9-/]+)$ caches/index.html [L,QSA]
+
+# Disallow direct access to caches
+RewriteCond %{THE_REQUEST} \s/caches/
+RewriteRule ^caches/ - [F]
