@@ -8,15 +8,34 @@
 import { Config, PS, PSRoom, type RoomID, type RoomOptions } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { RoomInfo } from "./panel-mainmenu";
-import { Dex, toID } from "./battle-dex";
+import { Dex, TL, toID } from "./battle-dex";
+
+const ROOM_ALIASES: Record<string, string> = {
+	tmg: 'toursminigames',
+	tours: 'tournaments',
+};
+
+const LANGUAGE_ROOM_IDS: Record<string, readonly string[]> = {
+	it: ['italiano'],
+	es: ['espanol', 'espaol'],
+	'zh-cn': ['chinese'],
+	'zh-tw': ['chinese'],
+	hi: ['hindi'],
+	fr: ['franais', 'francais'],
+	pt: ['portugus', 'portugues'],
+	ja: ['japanese'],
+	nl: ['nederlands'],
+	de: ['deutsche'],
+	ko: ['korean'],
+};
 
 export class RoomsRoom extends PSRoom {
 	override readonly classType: string = 'rooms';
 	constructor(options: RoomOptions) {
 		super(options);
-		if (Object.keys(PS.prefs.serversettings).length) {
-			PS.send(`/updatesettings ${JSON.stringify(PS.prefs.serversettings)}`);
-		}
+		const settings = { ...PS.prefs.serversettings };
+		settings.language ||= Dex.text.getBrowserLanguage();
+		PS.send(`/updatesettings ${JSON.stringify(settings)}`);
 		PS.send(`/cmd rooms`);
 	}
 }
@@ -112,14 +131,16 @@ class RoomsPanel extends PSRoomPanel {
 			this.roomListFocusIndex = this.search ? 0 : -1;
 		}
 		this.roomList = this.getRoomList(forceNoAutocomplete);
-		for (const [, rooms] of this.roomList) {
-			rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
+		if (!this.search) {
+			for (const [, rooms] of this.roomList) {
+				rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
+			}
 		}
 	}
 	getRoomList(forceNoAutocomplete?: boolean): RoomsSection[] {
 		if (this.search.startsWith('/')) {
-			return [["Command", [{
-				title: "Console", id: 'dm-' as RoomID, desc: `Enter = run command ${this.search}`,
+			return [[TL`Command`, [{
+				title: TL`Console`, id: 'dm-' as RoomID, desc: TL`Enter = run command ${this.search}`,
 			}]]];
 		}
 		const searchid = toID(this.search);
@@ -127,10 +148,16 @@ class RoomsPanel extends PSRoomPanel {
 		if (!searchid) {
 			const roomsCache = PS.mainmenu.roomsCache;
 			let spotLightLabel = '';
-			const officialRooms = [], chatRooms = [], hiddenRooms = [], spotLightRooms = [];
+			const languageRooms = [], officialRooms = [], chatRooms = [], hiddenRooms = [], spotLightRooms = [];
+			const languageRoomIDs = LANGUAGE_ROOM_IDS[Dex.text.getLanguage()] || [];
+			const languageRoom = languageRoomIDs.map(roomid =>
+				roomsCache.chat?.find(room => room.id === roomid || toID(room.title) === roomid)
+			).find(room => !!room && room.privacy !== 'hidden');
 			for (const room of roomsCache.chat || []) {
 				if (room.section !== this.section && this.section !== '') continue;
-				if (room.privacy === 'hidden') {
+				if (room === languageRoom) {
+					languageRooms.push(room);
+				} else if (room.privacy === 'hidden') {
 					hiddenRooms.push(room);
 				} else if (room.spotlight) {
 					spotLightLabel = room.spotlight;
@@ -142,14 +169,13 @@ class RoomsPanel extends PSRoomPanel {
 				}
 			}
 			return [
-				["Official chat rooms", officialRooms],
+				[TL`Language room`, languageRooms],
+				[TL`Official chat rooms`, officialRooms],
 				[spotLightLabel, spotLightRooms],
-				["Chat rooms", chatRooms],
-				["Hidden rooms", hiddenRooms],
+				[TL`Chat rooms`, chatRooms],
+				[TL`Hidden rooms`, hiddenRooms],
 			];
 		}
-
-		let exactMatch = false;
 
 		const rooms = PS.mainmenu.roomsCache;
 		let roomList = [...(rooms.chat || [])];
@@ -158,30 +184,34 @@ class RoomsPanel extends PSRoomPanel {
 			for (const title of room.subRooms) {
 				roomList.push({
 					title,
-					desc: `(Subroom of ${room.title})`,
+					desc: TL`(Subroom of ${room.title})`,
 				});
 			}
 		}
 
-		let results = roomList.filter(room => {
-			const titleid = toID(room.title);
-			if (titleid === searchid) exactMatch = true;
-			return titleid.startsWith(searchid) ||
-				toID(room.title.replace(/^The /, '')).startsWith(searchid);
-		});
+		roomList.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
+		const exactMatch = roomList.some(room => toID(room.title) === searchid);
+
+		// exact alias match has priority
+		let results = roomList.filter(room =>
+			toID(room.title) === ROOM_ALIASES[searchid] ||
+			toID(room.title.toLowerCase().replace(/\b([a-z0-9])[a-z0-9]*\b/g, '$1')) === searchid ||
+			room.title.replace(/[^A-Z0-9]+/g, '').toLowerCase() === searchid
+		);
 		roomList = roomList.filter(room => !results.includes(room));
 
 		results = results.concat(roomList.filter(room =>
+			toID(room.title).startsWith(searchid) ||
+			toID(room.title.replace(/^The /, '')).startsWith(searchid) ||
 			toID(room.title.toLowerCase().replace(/\b([a-z0-9])[a-z0-9]*\b/g, '$1')).startsWith(searchid) ||
 			room.title.replace(/[^A-Z0-9]+/g, '').toLowerCase().startsWith(searchid)
 		));
 
 		const hidden: RoomsSection[] = !exactMatch ?
-			[["Possible secret room", [{ title: this.search, desc: "(Private room?)" }]]] : [];
+			[[TL`Possible secret room`, [{ title: this.search, desc: TL`(Private room?)` }]]] : [];
 
 		const autoFill = this.lastKeyCode !== 127 && this.lastKeyCode >= 32;
 		if (autoFill && !forceNoAutocomplete) {
-			results.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
 			const firstTitle = (results[0] || hidden[0][1][0]).title;
 			let firstTitleOffset = 0;
 			while (
@@ -202,10 +232,10 @@ class RoomsPanel extends PSRoomPanel {
 				this.search += '-';
 			}
 
-			return [["Search results", results], ...hidden];
+			return [[TL`Search results`, results], ...hidden];
 		}
 
-		return [...hidden, ["Search results", results]];
+		return [...hidden, [TL`Search results`, results]];
 	}
 	override render() {
 		if (this.hidden && PS.isVisiblePanel(this.props.room)) this.hidden = false;
@@ -217,22 +247,22 @@ class RoomsPanel extends PSRoomPanel {
 
 		return <PSPanelWrapper room={this.props.room}><div class="pad">
 			<button class="button" style="float:right;font-size:10pt;margin-top:3px" onClick={this.hide}>
-				<i class="fa fa-caret-right" aria-hidden></i> Hide
+				<i class="fa fa-caret-right" aria-hidden></i> {TL`[Hide]`}
 			</button>
 			<div class="roomcounters">
-				<a class="button" href="users" title="Find an online user">
+				<a class="button" href="users" title={TL`Find an online user`}>
 					<span
 						class={`pixelated usercount${Dex.afdMode === true ? ' afd' : ''}`}
-						title="Meloetta is PS's mascot! The Aria forme is about using its voice, and represents our chatrooms."
+						title={TL`Meloetta is PS's mascot! The Aria forme is about using its voice, and represents our chatrooms.`}
 					></span>
-					<strong>{rooms.userCount || '-'}</strong> users online
+					<strong>{rooms.userCount || '-'}</strong> {TL`users online`}
 				</a> {}
-				<a class="button" href="battles" title="Watch an active battle">
+				<a class="button" href="battles" title={TL`Watch an active battle`}>
 					<span
 						class={`pixelated battlecount${Dex.afdMode ? ' afd' : ''}`}
-						title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
+						title={TL`Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles.`}
 					></span>
-					<strong>{rooms.battleCount || '-'}</strong> active battles
+					<strong>{rooms.battleCount || '-'}</strong> {TL`active battles`}
 				</a>
 			</div>
 			{!!PS.leftPanelWidth && Config.includes?.roomlistTopHTML && (
@@ -240,14 +270,14 @@ class RoomsPanel extends PSRoomPanel {
 			)}
 			<div>
 				<select name="sections" class="select" onChange={this.changeSection}>
-					<option value="">(All rooms)</option>
+					<option value="">{TL`(All rooms)`}</option>
 					{rooms.sectionTitles?.map(title => {
 						return <option value={title}> {title} </option>;
 					})}
 				</select>
 				<p><input
 					type="search" name="roomsearch" class="textbox autofocus" style="width: 100%; max-width: 480px"
-					placeholder="Join or search for rooms" autocomplete="off"
+					placeholder={TL`Join or search for rooms`} autocomplete="off"
 					onInput={this.changeSearch} onKeyDown={this.keyDownSearch} onBlur={this.handleOnBlur}
 				/></p>
 			</div>
@@ -260,22 +290,20 @@ class RoomsPanel extends PSRoomPanel {
 	renderRoomList() {
 		const roomsCache = PS.mainmenu.roomsCache;
 		if (roomsCache.userCount === undefined) {
-			return <div class="roomlist"><h2>Official chat rooms</h2><p><em>Connecting...</em></p></div>;
+			return <div class="roomlist"><h2>{TL`Official chat rooms`}</h2><p><em>{TL`Connecting...`}</em></p></div>;
 		}
 		if (this.search) {
 			// do nothing
 		} else if (PS.isOffline) {
-			return <div class="roomlist"><h2>Offline</h2></div>;
+			return <div class="roomlist"><h2>{TL`Offline`}</h2></div>;
 		} else if (roomsCache.userCount === undefined) {
-			return <div class="roomlist"><h2>Official chat rooms</h2><p><em>Connecting...</em></p></div>;
+			return <div class="roomlist"><h2>{TL`Official chat rooms`}</h2><p><em>{TL`Connecting...`}</em></p></div>;
 		}
 
-		// Descending order
 		let nextOffset = 0;
 		return this.roomList.filter(([, rooms]) => rooms.length > 0).map(([title, rooms], sectionCount) => {
-			const sortedRooms = rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
 			const offset = nextOffset;
-			nextOffset += sortedRooms.length;
+			nextOffset += rooms.length;
 			this.roomListLength = nextOffset;
 
 			const index = this.roomListFocusIndex >= offset && this.roomListFocusIndex < nextOffset ?
@@ -284,14 +312,14 @@ class RoomsPanel extends PSRoomPanel {
 			return <>
 				<div class="roomlist">
 					<h2>{title}</h2>
-					{sortedRooms.map((roomInfo, i) => <div key={roomInfo.title}>
+					{rooms.map((roomInfo, i) => <div key={roomInfo.title}>
 						<a href={`/${roomInfo.id || toID(roomInfo.title)}`} class={`blocklink${i === index ? " cur" : ''}`}>
-							{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
+							{roomInfo.userCount !== undefined && <small style="float:right">({TL`${roomInfo.userCount} users`})</small>}
 							<strong><i class="fa fa-comment-o" aria-hidden></i> {roomInfo.title}<br /></strong>
 							<small>{roomInfo.desc || ''}</small>
 						</a>
 						{roomInfo.subRooms && <div class="subrooms">
-							<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> Subrooms: {}
+							<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> {TL.label(TL`Subrooms`)}
 							{roomInfo.subRooms.map(roomName => [<a href={`/${toID(roomName)}`} class="blocklink">
 								<i class="fa fa-comment-o" aria-hidden></i> <strong>{roomName}</strong>
 							</a>, ' '])}

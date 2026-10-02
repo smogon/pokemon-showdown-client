@@ -334,6 +334,9 @@
 .dexlist .abilitysortcol {
 	width: 172px;
 }
+.dexlist .singleabilitysortcol {
+	width: 86px;
+}
 .dexlist .statsortcol {
 	width: 24px;
 	text-align: right;

@@ -329,9 +329,11 @@ export class BattleChoiceBuilder {
 	addChoices(choiceString: string) {
 		let choiceStrings: string[];
 		if (choiceString.startsWith('team ')) {
-			const teamChoice = choiceString.slice(5).trim();
-			const teamChoices = teamChoice.includes(',') ? teamChoice.split(',') :
-				(/^[0-9]+$/.test(teamChoice) ? teamChoice.split('') : [teamChoice]);
+			let teamChoice = choiceString.slice(5).trim();
+			const isBracketedTeam = teamChoice.startsWith('[') && teamChoice.endsWith(']');
+			if (isBracketedTeam) teamChoice = teamChoice.slice(1, -1).trim();
+			const teamChoices = isBracketedTeam || teamChoice.includes(',') || (this.request.side?.pokemon.length ?? 0) >= 10 ?
+				teamChoice.split(',') : (/^[0-9]+$/.test(teamChoice) ? teamChoice.split('') : [teamChoice]);
 			choiceStrings = teamChoices.slice(0, this.requestLength()).map(choice => `team ${choice.trim()}`);
 		} else {
 			choiceStrings = choiceString.split(',').map(choice => choice.trim());

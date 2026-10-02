@@ -6,11 +6,48 @@ window = global;
 require('../play.pokemonshowdown.com/js/battle-dex-data.js');
 require('../play.pokemonshowdown.com/js/battle-dex.js');
 require('../play.pokemonshowdown.com/js/battle-scene-stub.js');
-// global.BattleText = require('../play.pokemonshowdown.com/data/text.js').BattleText;
+// global.BattleText = require('../play.pokemonshowdown.com/data/text/en.js').BattleText;
 require('../play.pokemonshowdown.com/js/battle-text-parser.js');
 require('../play.pokemonshowdown.com/js/battle.js');
 
 describe('Battle', () => {
+
+	it('preserves chat scrollback when changing viewpoint before catching up', () => {
+		const battle = new Battle({paused: true, debug: true});
+		const messages = [];
+		const pendingMessages = [];
+		battle.scene.log.add = (args, kwargs, preempt) => {
+			if (args[0] === 'c') (preempt ? pendingMessages : messages).push(args[2]);
+		};
+		battle.scene.reset = () => {
+			messages.length = 0;
+			pendingMessages.length = 0;
+		};
+		battle.scene.preemptCatchup = () => {
+			if (pendingMessages.length) messages.push(pendingMessages.shift());
+		};
+		battle.addBatch([
+			'|start',
+			'|turn|1',
+			'|c| Player|Earlier message',
+			'|turn|2',
+			'|c| Player|Latest message',
+		]);
+		assert.equal(battle.turn, 0);
+		assert.deepEqual(pendingMessages, ['Earlier message', 'Latest message']);
+
+		battle.setViewpoint('p2');
+		battle.seekTurn(Infinity);
+		assert.equal(battle.turn, 2);
+		assert.deepEqual(messages, ['Earlier message', 'Latest message']);
+		assert.deepEqual(pendingMessages, []);
+
+		battle.addBatch(['|c| Player|New message']);
+		assert.deepEqual(pendingMessages, ['New message']);
+		battle.play();
+		assert.deepEqual(messages, ['Earlier message', 'Latest message', 'New message']);
+		assert.deepEqual(pendingMessages, []);
+	});
 
 	it('should process a bunch of messages properly', () => {
 		let battle = new Battle({

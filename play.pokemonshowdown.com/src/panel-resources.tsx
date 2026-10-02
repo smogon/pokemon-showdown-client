@@ -4,7 +4,7 @@
  */
 import { PS } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
-import { PSUtils, toID } from "./battle-dex";
+import { PSUtils, TL, toID } from "./battle-dex";
 declare const BattleChatCommands: Record<string, string[]>;
 
 class ResourcePanel extends PSRoomPanel {
@@ -78,10 +78,10 @@ class ResourcePanel extends PSRoomPanel {
 						<a href="https://www.smogon.com/articles/getting-started">Next Steps for Competitive Battling</a>
 					</li>
 					<li>
-						<button className="button" data-cmd="/report">Report a user</button>
+						<button className="button" data-cmd="/report">{TL`[Report a user]`}</button>
 					</li>
 					<li>
-						<button className="button" data-cmd="/join help">Join the Help room for live help</button>
+						<button className="button" data-cmd="/join help">{TL`[Join the Help room for live help]`}</button>
 					</li>
 				</ul>
 				<hr />

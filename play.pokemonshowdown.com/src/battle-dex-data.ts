@@ -21,12 +21,99 @@ import { Dex, toID } from "./battle-dex";
  */
 export type ID = string & { __isID: true };
 
+export interface FormatData {
+	id: ID;
+	name: string;
+	team?: 'preset' | null;
+	section: string;
+	column: number;
+	searchShow?: boolean;
+	challengeShow?: boolean;
+	tournamentShow?: boolean;
+	bestOfDefault?: boolean;
+	teraPreviewDefault?: boolean;
+	itemClauseDefault?: boolean;
+	rated: boolean;
+	teambuilderLevel?: number | null;
+	partner?: boolean;
+	teambuilderFormat?: ID;
+	battleFormat?: string;
+	isTeambuilderFormat: boolean;
+	effectType: 'Format';
+}
+
+export class Format implements FormatData {
+	id: ID;
+	name: string;
+	readonly effectType = 'Format';
+	gen: number;
+	mod: ID;
+	team: 'preset' | null = null;
+	section = '';
+	column = 0;
+	searchShow?: boolean = undefined;
+	challengeShow?: boolean = undefined;
+	tournamentShow?: boolean = undefined;
+	bestOfDefault?: boolean = undefined;
+	teraPreviewDefault?: boolean = undefined;
+	itemClauseDefault?: boolean = undefined;
+	rated = false;
+	teambuilderLevel?: number | null = undefined;
+	partner?: boolean = undefined;
+	teambuilderFormat?: ID = undefined;
+	battleFormat?: string = undefined;
+	isTeambuilderFormat = false;
+	isLetsGo: boolean;
+	isNatDex: boolean;
+	isBDSP: boolean;
+	isChampions: boolean;
+	allowMultipleMegas: boolean;
+	formeLegality: 'normal' | 'hackmons' | 'custom' = 'normal';
+	abilityLegality: 'normal' | 'hackmons' = 'normal';
+	defaultLevel = 100;
+
+	constructor(name: string, data?: FormatData) {
+		this.id = toID(name);
+		this.name = name;
+		const id = this.id;
+		this.gen = !id ? Dex.gen : id.startsWith('gen') ? parseInt(id.charAt(3)) || Dex.gen : 6;
+		this.isLetsGo = id.includes('letsgo');
+		this.isNatDex = id.includes('nationaldex') || id.includes('natdex');
+		this.isBDSP = id.includes('bdsp');
+		this.isChampions = id.includes('champions');
+		this.allowMultipleMegas = id.includes('mega');
+		this.mod = `gen${this.gen}` as ID;
+		if (this.gen === 7 && this.isLetsGo) this.mod = 'gen7letsgo' as ID;
+		if (this.gen === 8 && this.isBDSP) this.mod = 'gen8bdsp' as ID;
+		if (this.gen === 9 && this.isChampions) this.mod = 'champions' as ID;
+		if (id.includes('almostanyability') || id.includes('aaa')) this.abilityLegality = 'hackmons';
+		if (id.includes('hackmons') || id.includes('bh')) {
+			this.formeLegality = 'hackmons';
+			this.abilityLegality = 'hackmons';
+		} else if (id.includes('metronome') || id.includes('customgame')) {
+			this.formeLegality = 'custom';
+			this.abilityLegality = 'hackmons';
+		}
+		if (
+			id.includes('vgc') || id.includes('bss') || id.includes('ultrasinnohclassic') ||
+			id.includes('battlespot') || id.includes('battlestadium') || id.includes('battlefestival') ||
+			this.isLetsGo || this.isChampions
+		) this.defaultLevel = 50;
+		if (id.includes('lc')) this.defaultLevel = 5;
+		if (data) Object.assign(this, data);
+	}
+}
+
 export interface Nature {
 	plus?: StatNameExceptHP;
 	minus?: StatNameExceptHP;
 }
 
-export const BattleNatures: { [k in NatureName]: Nature } = {
+export interface NatureEffect extends Nature, Effect {
+	readonly effectType: 'Nature';
+}
+
+const BattleNatureData: { [k in NatureName]: Nature } = {
 	Adamant: {
 		plus: 'atk',
 		minus: 'spa',
@@ -113,28 +200,50 @@ export const BattleNatures: { [k in NatureName]: Nature } = {
 		minus: 'atk',
 	},
 };
+
+export const BattleNatures = {} as { [k in NatureName]: NatureEffect };
+for (const natureName in BattleNatureData) {
+	const name = natureName as NatureName;
+	const data = BattleNatureData[name];
+	BattleNatures[name] = {
+		...data,
+		id: name.toLowerCase() as ID,
+		name,
+		gen: 3,
+		effectType: 'Nature',
+		exists: true,
+	};
+}
+/** exportable-to-stat. most of the complexity is just "spd" can be Sp. Def or Speed */
 export const BattleStatIDs: { [k: string]: StatName | undefined } = {
+	H: 'hp',
 	HP: 'hp',
 	hp: 'hp',
+	A: 'atk',
 	Atk: 'atk',
 	atk: 'atk',
+	B: 'def',
 	Def: 'def',
 	def: 'def',
+	C: 'spa',
 	SpA: 'spa',
 	SAtk: 'spa',
 	SpAtk: 'spa',
 	spa: 'spa',
+	CD: 'spa',
 	spc: 'spa',
 	Spc: 'spa',
+	D: 'spd',
 	SpD: 'spd',
 	SDef: 'spd',
 	SpDef: 'spd',
 	spd: 'spd',
+	S: 'spe',
 	Spe: 'spe',
 	Spd: 'spe',
 	spe: 'spe',
 };
-/** Stat short names */
+/** Stat short names; should only be used for exportables. Use TL.statShort otherwise. */
 export const BattleStatNames = {
 	hp: 'HP',
 	atk: 'Atk',
@@ -144,10 +253,14 @@ export const BattleStatNames = {
 	spe: 'Spe',
 } as const;
 
+/** Allows correct sprites to be loaded without pokedex loaded.
+ *  Now that we support tooltips in battles, we always want pokedex loaded,
+ *  so this is mostly historical. Which is also why it's so out-of-date. */
 export const BattleBaseSpeciesChart = [
 	"unown", "burmy", "shellos", "gastrodon", "deerling", "sawsbuck", "vivillon", "flabebe", "floette", "florges", "furfrou", "minior", "alcremie", "tatsugiri", "pokestarufo", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestartransport", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit", "pokestarblackdoor", "pokestarwhitedoor", "pokestarblackbelt",
 ] as ID[];
 
+/** Offsets for the sprite sheets. */
 export const BattlePokemonIconIndexes: { [id: string]: number } = {
 	// alt forms
 	egg: 1032 + 1,
@@ -791,6 +904,7 @@ export const BattlePokemonIconIndexesLeft: { [id: string]: number } = {
 	blacephalon: 1452 + 105,
 };
 
+/** Back-compat for the old number-based avatar system. */
 export const BattleAvatarNumbers: { [k: string]: string } = {
 	1: 'lucas',
 	2: 'dawn',
@@ -1122,7 +1236,7 @@ export interface Effect {
 	readonly id: ID;
 	readonly name: string;
 	readonly gen: number;
-	readonly effectType: 'Item' | 'Move' | 'Ability' | 'Species' | 'PureEffect';
+	readonly effectType: 'Item' | 'Move' | 'Ability' | 'Species' | 'Nature' | 'Type' | 'PureEffect';
 	/**
 	 * Do we have data on this item/move/ability/species?
 	 * WARNING: Always false if the relevant data files aren't loaded.
@@ -1262,9 +1376,9 @@ export interface MoveFlags {
 }
 
 export type MoveTarget = 'normal' | 'any' | 'adjacentAlly' | 'adjacentFoe' | 'adjacentAllyOrSelf' | // single-target
-	'self' | 'randomNormal' | // single-target, automatic
-	'allAdjacent' | 'allAdjacentFoes' | // spread
-	'allySide' | 'foeSide' | 'all'; // side and field
+	'self' | 'randomNormal' | 'scripted' | // single-target, automatic
+	'allAdjacent' | 'allAdjacentFoes' | 'allies' | // spread
+	'allySide' | 'foeSide' | 'allyTeam' | 'all'; // side and field
 
 export class Move implements Effect {
 	// effect
@@ -1652,6 +1766,7 @@ export class Species implements Effect {
 }
 
 export interface Type extends Effect {
+	readonly effectType: 'Type';
 	damageTaken?: Record<Dex.TypeName | 'powder' | 'prankster' | 'trapped', Dex.WeaknessType>;
 	HPivs?: Partial<Dex.StatsTable>;
 	HPdvs?: Partial<Dex.StatsTable>;
@@ -1668,4 +1783,5 @@ if (typeof require === 'function') {
 	global.Ability = Ability;
 	global.Item = Item;
 	global.Move = Move;
+	global.Format = Format;
 }

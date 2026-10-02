@@ -367,7 +367,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			if (ppUsed[1] < 0) ppUsed[1] = 0;
 			const move = this.side.battle.dex.moves.get(entry[0]);
 			let maxpp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
-			if (this.side.battle.tier.includes('Champions')) {
+			if (this.side.battle.format.isChampions) {
 				maxpp = move.pp > 20 ? 20 : move.pp;
 				maxpp = move.pp === 1 || move.noPPBoosts ? move.pp : (move.pp / 5 + 1) * 4;
 			}
@@ -608,6 +608,13 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			let range = Pokemon.getPixelRange(this.hp, this.hpcolor);
 			let ratio = (range[0] + range[1]) / 2;
 			return Math.round(maxWidth * ratio) || 1;
+		}
+		if (this.side.battle.hpPercentageMod) {
+			let percentage = Math.ceil(100 * this.hp / this.maxhp);
+			if ((percentage === 100) && (this.hp < this.maxhp)) {
+				percentage = 99;
+			}
+			return percentage * maxWidth / 100;
 		}
 		const width = Math.round(this.hp / this.maxhp * maxWidth) || 1;
 		return this.hp < this.maxhp && width === maxWidth ? maxWidth - 1 : width;
@@ -950,7 +957,7 @@ export class Side {
 		}
 		pokemon.statusData.toxicTurns = 0;
 		if (this.battle.gen === 5) pokemon.statusData.sleepTurns = 0;
-		if (this.battle.tier.includes('Champions')) {
+		if (this.battle.format.isChampions) {
 			pokemon.timesAttacked = 0;
 		}
 		this.lastPokemon = pokemon;
@@ -1144,12 +1151,14 @@ export class Battle {
 	teamPreviewCount = 0;
 	speciesClause = false;
 	tier = '';
+	format = Dex.formats.get('');
 	gameType: 'singles' | 'doubles' | 'triples' | 'multi' | 'freeforall' | 'rotation' = 'singles';
 	compatMode = true;
 	rated: string | boolean = false;
 	rules: { [ruleName: string]: 1 | undefined } = {};
 	isBlitz = false;
 	reportExactHP = false;
+	hpPercentageMod = false;
 	endLastTurnPending = false;
 	totalTimeLeft = 0;
 	graceTimeLeft = 0;
@@ -1330,6 +1339,7 @@ export class Battle {
 		// activity queue state
 		this.activeMoveIsSpread = null;
 		this.currentStep = 0;
+		this.preemptStepQueue = [];
 		this.resetTurnsSinceMoved();
 		this.nextStep();
 	}
@@ -1420,7 +1430,7 @@ export class Battle {
 		if (turnNum === this.turn + 1) {
 			this.endLastTurnPending = true;
 		}
-		if (this.turn && !this.usesUpkeep) this.updateTurnCounters(); // for compatibility with old replays
+		if (this.turn > 0 && !this.usesUpkeep) this.updateTurnCounters(); // for compatibility with old replays
 		this.turn = turnNum;
 		this.started = true;
 
@@ -3471,6 +3481,18 @@ export class Battle {
 			this.nextStep();
 		}
 	}
+	addBatch(commands: string[]) {
+		for (const command of commands) {
+			switch (command.split('|', 2)[1]) {
+			case 'c': case 'c:': case 'chat': case 'chatmsg': case 'inactive':
+				this.run(command, true);
+				this.preemptStepQueue.push(command);
+				break;
+			}
+			this.stepQueue.push(command);
+		}
+		this.add();
+	}
 	/**
 	 * PS's preempt system is intended to show chat messages immediately,
 	 * instead of waiting for the battle to get to the point where the
@@ -3509,6 +3531,7 @@ export class Battle {
 		}
 		case 'tier': {
 			this.tier = args[1];
+			this.format = Dex.formats.get(this.tier);
 			if (this.tier.endsWith('Random Battle')) {
 				this.speciesClause = true;
 			}
@@ -3516,13 +3539,13 @@ export class Battle {
 				this.messageFadeTime = 40;
 				this.isBlitz = true;
 			}
-			if (this.tier.includes(`Let's Go`)) {
+			if (this.format.isLetsGo) {
 				this.dex = Dex.mod('gen7letsgo' as ID);
 			}
 			if (this.tier.includes('Super Staff Bros')) {
 				this.dex = Dex.mod('gen9ssb' as ID);
 			}
-			if (this.tier.includes(`Champions`)) {
+			if (this.format.isChampions) {
 				this.dex = Dex.mod('champions' as ID);
 			}
 			this.log(args);
@@ -3580,6 +3603,7 @@ export class Battle {
 				this.isBlitz = true;
 			}
 			if (ruleName === 'Exact HP Mod') this.reportExactHP = true;
+			if (ruleName === 'HP Percentage Mod') this.hpPercentageMod = true;
 			this.rules[ruleName] = 1;
 			this.log(args);
 			break;
@@ -3915,7 +3939,8 @@ export class Battle {
 			}
 		}
 
-		if (nextLine.startsWith('|start') || args[0] === 'teampreview') {
+		// Replays before clicking "Play" will pause themselves on the line before `|start`
+		if (nextLine.startsWith('|start') || args[0] === 'start' || args[0] === 'teampreview') {
 			if (this.turn === -1) {
 				this.turn = 0;
 				this.scene.updateBgm();

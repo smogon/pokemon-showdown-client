@@ -1174,11 +1174,12 @@
 					this.add('AFD is currently set to ' + mode);
 					this.parseCommand('/help afd');
 				}
-				for (var roomid in app.rooms) {
-					var battle = app.rooms[roomid] && app.rooms[roomid].battle;
-					if (!battle) continue;
-					battle.resetToCurrentTurn();
-				}
+				Dex.loadTextData().then(function () {
+					for (var roomid in app.rooms) {
+						var battle = app.rooms[roomid] && app.rooms[roomid].battle;
+						if (battle) battle.resetToCurrentTurn();
+					}
+				});
 				return false;
 
 			// documentation of client commands
