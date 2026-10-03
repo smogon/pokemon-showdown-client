@@ -205,8 +205,8 @@ export class Session {
 		}
 		let userType;
 		const userData = user.loggedIn ? await users.get(user.id, SQL`banstate, registertime, logintime`) : null;
-		const { banstate, registertime, logintime } = userData || {
-			banstate: 0, registertime: 0, logintime: 0,
+		const { banstate, group, registertime, logintime } = userData || {
+			banstate: 0, registertime: 0, logintime: 0, group: 0,
 		};
 		const server = await this.context.getServer();
 		const serverHost = server?.server || 'sim3.psim.us';
@@ -234,6 +234,8 @@ export class Session {
 					userType = '6';
 				} else if (banstate >= 20) {
 					userType = '5';
+				} else if (group === 10) {
+					userType = '10';
 				} else if (banstate === 0) {
 					// should we update autoconfirmed status? check to see if it's been long enough
 					if (registertime && time() - registertime > (7 * 24 * 60 * 60)) {
