@@ -1694,7 +1694,7 @@ export class Battle {
 			break;
 		case 'frz':
 			this.scene.resultAnim(pokemon, 'Frozen', 'frz');
-			if (this.tier.includes('Champions')) pokemon.statusData.freezeTurns++;
+			if (this.format.isChampions) pokemon.statusData.freezeTurns++;
 			break;
 		case 'slp':
 			this.scene.resultAnim(pokemon, 'Asleep', 'slp');
