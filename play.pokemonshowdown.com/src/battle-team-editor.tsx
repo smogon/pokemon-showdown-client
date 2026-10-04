@@ -3353,7 +3353,7 @@ class StatForm extends preact.Component<{
 		}
 
 		let generation: string;
-		if (editor.isChampions) {
+		if (editor.format.isChampions) {
 			generation = 'champions';
 		} else {
 			let generationNumber = 9;
