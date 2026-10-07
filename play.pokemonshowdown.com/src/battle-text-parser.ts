@@ -1658,10 +1658,11 @@ export class BattleTextParser {
 			return this.render(template, { POKEMON: this.pokemon(pokemon) });
 		}
 
-		case '-zbroken': {
+		case '-zbroken':
+		case '-partialprotect': {
 			const [, pokemon] = args;
-			const template = this.template('zBroken');
-			return this.render(template, { POKEMON: this.pokemon(pokemon) });
+			const template = this.template('partialProtect');
+			return template.replace('[POKEMON]', this.pokemon(pokemon));
 		}
 
 		case '-hitcount': {
