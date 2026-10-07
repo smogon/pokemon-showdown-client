@@ -10,7 +10,7 @@ const serverRepoRemote = 'https://github.com/SuperPokemonChampions/Super-Pokemon
 process.chdir(rootDir);
 
 if (!fs.existsSync('caches/Super-Pokemon-Champions')) {
-	child_process.execSync('git clone https://github.com/SuperPokemonChampions/Super-Pokemon-Champions.git', {
+	child_process.execSync(`git clone ${serverRepoRemote}`, {
 		cwd: 'caches',
 	});
 }

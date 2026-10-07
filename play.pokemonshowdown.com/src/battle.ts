@@ -422,26 +422,29 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		if (!isRBY && (boostStat === 'accuracy' || boostStat === 'evasion')) {
 			if (this.boosts[boostStat] > 0) {
 				let goodBoostTable = [
-					'1&times;', '1.33&times;', '1.67&times;', '2&times;', '2.33&times;', '2.67&times;', '3&times;',
+					'1&times;', '1.16&times;', '1.33&times;', '1.5&times;', '1.67&times;', '2&times;', '2.16&times;', '2.33&times;', '2.5&times;', '2.67&times;', '2.83&times;', '3&times;',
 				];
 				// let goodBoostTable = ['Normal', '+1', '+2', '+3', '+4', '+5', '+6'];
 				return '' + goodBoostTable[this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 			}
 			let badBoostTable = [
-				'1&times;', '0.75&times;', '0.6&times;', '0.5&times;', '0.43&times;', '0.38&times;', '0.33&times;',
+				'1&times;', '0.83&times;', '0.75&times;', '0.68&times;', '0.6&times;', '0.55&times;', '0.5&times;',
+				'0.43&times;', '0.4&times;', '0.38&times;', '0.35&times;', '0.33&times;',
 			];
 			// let badBoostTable = ['Normal', '&minus;1', '&minus;2', '&minus;3', '&minus;4', '&minus;5', '&minus;6'];
 			return '' + badBoostTable[-this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 		}
 		if (this.boosts[boostStat] > 0) {
 			let goodBoostTable = [
-				'1&times;', '1.5&times;', '2&times;', '2.5&times;', '3&times;', '3.5&times;', '4&times;',
+				'1&times;', '1.25&times;', '1.5&times;', '1.75&times;', '2&times;', '2.25&times;', '2.5&times;',
+				'2.75&times;', '3&times;', '3.25&times;', '3.5&times;', '3.75&times;', '4&times;',
 			];
 			// let goodBoostTable = ['Normal', '+1', '+2', '+3', '+4', '+5', '+6'];
 			return '' + goodBoostTable[this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 		}
 		let badBoostTable = [
-			'1&times;', '0.67&times;', '0.5&times;', '0.4&times;', '0.33&times;', '0.29&times;', '0.25&times;',
+			'1&times;', '8.5&times;', '0.67&times;', '0.6&times;', '0.5&times;', '0.45&times;', '0.4&times;',
+			'0.37&times;', '0.33&times;', '0.31&times;', '0.29&times;', '0.27&times;', '0.25&times;',
 		];
 		// let badBoostTable = ['Normal', '&minus;1', '&minus;2', '&minus;3', '&minus;4', '&minus;5', '&minus;6'];
 		return '' + badBoostTable[-this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
