@@ -296,6 +296,7 @@ https://replay.pokemonshowdown.com/gen7randomdoublesbattle-865046831.log
 <script defer src="//play.pokemonshowdown.com/data/teambuilder-tables.js?a7"></script>
 <script defer src="//play.pokemonshowdown.com/js/battle-tooltips.js?a7"></script>
 <script defer src="//play.pokemonshowdown.com/js/battle.js?a7"></script>
+<script defer src="//play.pokemonshowdown.com/js/replay-wake-lock.js?"></script>
 
 <script defer src="/js/utils.js?"></script>
 <script defer src="/js/replays-battle.js?"></script>

@@ -6,6 +6,7 @@ import { PSRouter, PSReplays } from './replays';
 import { Battle } from '../../play.pokemonshowdown.com/src/battle';
 import { BattleLog } from '../../play.pokemonshowdown.com/src/battle-log';
 import { BattleSound } from '../../play.pokemonshowdown.com/src/battle-sound';
+import { ReplayScreenWakeLock } from '../../play.pokemonshowdown.com/src/replay-wake-lock';
 import type { ID } from '../../play.pokemonshowdown.com/src/battle-dex';
 declare function toID(input: string): string;
 
@@ -73,6 +74,7 @@ export class BattlePanel extends preact.Component<{ id: string, user: PSReplays[
 	manageError = '';
 	manageOpen = false;
 	battle!: Battle | null;
+	screenWakeLock = new ReplayScreenWakeLock();
 	/** debug purposes */
 	lastUsedKeyCode = '0';
 	turnView: boolean | string = false;
@@ -100,6 +102,7 @@ export class BattlePanel extends preact.Component<{ id: string, user: PSReplays[
 		return passwordIndex > 0 ? fullid.slice(0, passwordIndex) : fullid;
 	}
 	loadBattle(id: string) {
+		this.screenWakeLock.update(null);
 		if (this.battle) this.battle.destroy();
 		this.battle = null;
 		this.result = undefined;
@@ -140,7 +143,9 @@ export class BattlePanel extends preact.Component<{ id: string, user: PSReplays[
 			});
 			// for ease of debugging
 			(window as any).battle = this.battle;
+			this.screenWakeLock.update(this.battle);
 			this.battle.subscribe(_ => {
+				this.screenWakeLock.update(this.battle);
 				this.forceUpdate();
 			});
 			const query = Net.decodeQuery(id);
@@ -157,6 +162,7 @@ export class BattlePanel extends preact.Component<{ id: string, user: PSReplays[
 		this.forceUpdate();
 	}
 	override componentWillUnmount(): void {
+		this.screenWakeLock.destroy();
 		this.battle?.destroy();
 		(window as any).battle = null;
 		window.onkeydown = null;
