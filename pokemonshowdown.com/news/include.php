@@ -1,6 +1,6 @@
 <?php
 
-include_once __DIR__ . '/../../config/news.inc.php';
+include_once __DIR__ . '/../../lib/news.lib.php';
 
 function readableDate($time=0) {
 	if (!$time) {

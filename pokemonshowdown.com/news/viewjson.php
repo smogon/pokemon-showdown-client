@@ -1,6 +1,6 @@
 <?php
 
-include __DIR__ . '/../../config/news.inc.php';
+include __DIR__ . '/../../lib/news.lib.php';
 
 function toJSON($topic) {
   return [

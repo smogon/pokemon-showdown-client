@@ -19,7 +19,7 @@ $protocol = @$_REQUEST['protocol'] === 'https:' ? 'https:' : 'http:';
 $portType = ($protocol === 'http:' ? 'port' : 'httpsport');
 
 if ($config['host'] !== 'showdown') {
-	include_once __DIR__ . '/../config/servers.inc.php';
+	include_once __DIR__ . '/../lib/servers.lib.php';
 
 	if ($protocol === 'https:') $config['https'] = true;
 	if (str_ends_with($config['host'], '.insecure')) {
