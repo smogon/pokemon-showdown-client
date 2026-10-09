@@ -2873,7 +2873,11 @@ class TeamEditorForm extends preact.Component<{
 	}
 	renderSet(set: Dex.PokemonSet | undefined, i: number) {
 		const { editor } = this.props;
-		const sprite = Dex.getTeambuilderSprite(set, editor.dex);
+		const species = editor.dex.species.get(set?.species || '');
+		const [firstType, secondType] = species.types.map(type => `var(--tint-${type})`);
+		const typeBackground = secondType ?
+			`linear-gradient(157.5deg, ${firstType} 0%, ${firstType} 42%, ${secondType} 58%, ${secondType} 100%)` : '';
+		const sprite = Dex.getTeambuilderSprite(set, editor.dex, 0, 0, typeBackground);
 		const spriteClass = set && Dex.getTeambuilderSpriteData(set, editor.dex).pixelated ? ' pixelated' : '';
 		if (!set) {
 			return <div class="set-form" data-set-index={i}>
@@ -2911,7 +2915,6 @@ class TeamEditorForm extends preact.Component<{
 		}
 		while (set.moves.length < 4) set.moves.push('');
 
-		const species = editor.dex.species.get(set.species);
 		const tintClass = ` tint-${species.types[0]}`;
 		const isCur = TeamEditorState.clipboard?.teams?.[editor.team.key]?.sets[i] ? ' cur' : '';
 		const overfull = set.moves.length > 5 ? ' overfull' : set.moves.length > 4 ? ' overfull overfull5' : '';
@@ -2995,7 +2998,9 @@ class TeamEditorForm extends preact.Component<{
 					</div></td>
 					<td rowSpan={2} class="set-stats">
 						<label class="label">
-							{TL`Stats`} {}
+							<span class={`tint-${species.types[1] || species.types[0]}`} style="background-color:transparent">
+								{TL`Stats`}
+							</span> {}
 							<button
 								class={`textbox${this.cur('stats', i)}`} onClick={this.clickPanelButton}
 								onKeyDown={this.keyDownPanelButton} name="stats"
