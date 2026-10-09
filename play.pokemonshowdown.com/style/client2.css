@@ -424,6 +424,12 @@ li::marker {
 	padding: 3px 2px 3px 2px;
 	font-size: 11px;
 }
+.maintabbar .button.roomtab-team {
+	max-width: 160px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	vertical-align: bottom;
+}
 .tabbar .button i {
 	display: block;
 	text-align: center;

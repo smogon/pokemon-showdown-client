@@ -419,7 +419,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		return formatEntry?.teambuilderFormat || formatid;
 	}
 	getKey(name: string) {
-		const baseKey: string = toID(name) || '0';
+		const baseKey: string = toID(name).slice(0, 40) || '0';
 		let key = baseKey;
 		let i = 1;
 		while (key in this.byKey) {

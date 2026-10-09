@@ -277,7 +277,8 @@ export class BattleLog {
 			}
 			const colorStyle = ` style="color:${BattleLog.usernameColor(toID(args[1]))}"`;
 			const pmTarget = BattleLog.escapeHTML(args[2]);
-			divHTML = `<strong${colorStyle}> ${this.renderName(args[1])}:</strong> <span class="message-pm"><i style="cursor:pointer" data-href="dm-${toID(args[1])}">${TL`(Private to ${pmTarget})`}</i> ${BattleLog.parseMessage(args[3])} </span>`;
+			divHTML = BattleLog.renderTimestamp(null, showTimestamps) +
+				`<strong${colorStyle}> ${this.renderName(args[1])}:</strong> <span class="message-pm"><i style="cursor:pointer" data-href="dm-${toID(args[1])}">${TL`(Private to ${pmTarget})`}</i> ${BattleLog.parseMessage(args[3])} </span>`;
 			break;
 
 		case 'b': case 'B': {

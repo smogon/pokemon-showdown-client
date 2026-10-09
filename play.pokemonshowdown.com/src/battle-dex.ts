@@ -762,6 +762,15 @@ export const Dex = new class implements ModdedDex {
 			if (data && typeof data.exists === 'boolean') {
 				species = data;
 			} else {
+				if (data?.isCosmeticForme) {
+					data = {
+						...this.species.get(data.baseSpecies),
+						...data,
+						baseForme: "",
+						otherFormes: null,
+						cosmeticFormes: null,
+					};
+				}
 				if (!data) data = { exists: false };
 				if (!data.tier && id.endsWith('totem')) {
 					data.tier = this.species.get(id.slice(0, -5)).tier;

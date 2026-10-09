@@ -57,6 +57,13 @@ export declare namespace Teams {
 }
 
 export const Teams = new class {
+	getFilename(team: Teams.Team) {
+		const name = `${team.format ? `[${team.format}] ` : ''}${team.name}`.trim().replace(/[\\/]+/g, '');
+		// Leave room for `.txt` and ` (copy)` in a 255-byte filename, a common limit.
+		// This is technically 244 UTF-16 code units, not bytes, but whatever.
+		const filename = name.slice(0, 244);
+		return `${filename || 'Untitled'}.txt`;
+	}
 	pack(team: Teams.PokemonSet[] | null): string {
 		if (!team) return '';
 

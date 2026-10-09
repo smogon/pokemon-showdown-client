@@ -164,7 +164,9 @@ export class MainMenuRoom extends PSRoom {
 			const [, user1, user2, message] = args;
 			this.handlePM(user1, user2, message);
 			let sideRoom = PS.rightPanel as ChatRoom;
-			if (sideRoom?.type === "chat" && PS.prefs.inchatpm) sideRoom?.log?.add(args);
+			if (sideRoom?.type === "chat" && PS.prefs.inchatpm) {
+				sideRoom.log?.add(args, undefined, undefined, PS.prefs.timestamps.chatrooms);
+			}
 			return true;
 		} case 'customgroups': {
 			const [, groupsList] = args;
@@ -967,10 +969,11 @@ export class TeamForm extends preact.Component<{
 		let format = this.format;
 		// in tournaments, format is the custom name & teamFormat is the original format.
 		const teambuilderFormat = PS.teams.teambuilderFormat(this.props.teamFormat || format);
+		const needsTeam = !window.BattleFormats[teambuilderFormat]?.team;
 		const teamElement = this.base!.querySelector<HTMLButtonElement>('button[name=team]');
 		const teamKey = teamElement!.value;
-		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
-		if (!window.BattleFormats[teambuilderFormat]?.team && !team) {
+		const team = needsTeam && teamKey ? PS.teams.byKey[teamKey] : undefined;
+		if (needsTeam && !team) {
 			PS.alert(TL`You need to go into the Teambuilder and build a team for this format.`, {
 				parentElem: teamElement!,
 			});

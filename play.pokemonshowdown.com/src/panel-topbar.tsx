@@ -143,6 +143,10 @@ export class PSHeader extends preact.Component {
 		let { icon, title: roomTitle } = PSHeader.roomInfo(room);
 		if (room.type === 'rooms' && PS.leftPanelWidth !== null) roomTitle = '';
 		if (room.type === 'battle') className += ' roomtab-battle';
+		if (room.type === 'team' || room.type === 'viewteam') {
+			className += ' roomtab-team';
+			hoverTitle = roomTitle + (hoverTitle ? `\n${hoverTitle}` : '');
+		}
 
 		let closeButton = null;
 		if (closable) {

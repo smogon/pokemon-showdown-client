@@ -2099,6 +2099,7 @@ class TeamEditorForm extends preact.Component<{
 			for (let i = 0; i < set.moves.length + 1; i++) {
 				if (!set.moves[i]) {
 					set.moves[i] = name;
+					if (name.startsWith('Hidden Power ')) set.hpType = name.slice(13);
 					break;
 				}
 			}
@@ -2441,6 +2442,7 @@ class TeamEditorForm extends preact.Component<{
 				if (focus.typeIndex >= set.moves.length && !canonical) return true;
 				while (set.moves.length <= focus.typeIndex) set.moves.push('');
 				set.moves[focus.typeIndex] = canonical;
+				if (canonical.startsWith('Hidden Power ')) set.hpType = canonical.slice(13);
 				target.value = canonical;
 				break;
 			}
@@ -3959,7 +3961,7 @@ class DetailsForm extends preact.Component<{
 				{editor.gen > 1 && (<>
 					<p><div class="label">{TL.label(TL`Shiny`)}<div class="labeled">
 						<label class="checkbox inline"><input
-							type="checkbox" name="shiny" checked={set.shiny}
+							type="checkbox" name="shiny" checked={!!set.shiny}
 							onInput={this.changeShiny} onChange={this.changeShiny}
 						/> <img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="" /> {TL`Shiny`}</label>
 					</div></div></p>
@@ -4007,7 +4009,7 @@ class DetailsForm extends preact.Component<{
 						/></label> {}
 						{species.canGigantamax ? (
 							<label class="checkbox inline"><input
-								type="checkbox" name="gigantamax" value="true" checked={set.gigantamax}
+								type="checkbox" name="gigantamax" value="true" checked={!!set.gigantamax}
 								onInput={this.changeGigantamax} onChange={this.changeGigantamax}
 							/> Gigantamax</label>
 						) : species.forme === 'Gmax' && (

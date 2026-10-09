@@ -107,6 +107,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 	static readonly routes = ['team-*'];
 	static readonly Model = TeamRoom;
 	static readonly title = 'Team';
+	nameInput: string | null = null;
 
 	constructor(props?: { room: TeamRoom }) {
 		super(props);
@@ -217,8 +218,13 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		const textbox = ev.currentTarget as HTMLInputElement;
 		const room = this.props.room;
 
-		room.team.name = textbox.value.trim();
-		room.save();
+		this.nameInput = textbox.value;
+		const name = textbox.value.trim().slice(0, 220);
+		if (name !== room.team.name) {
+			room.team.name = name;
+			room.save();
+		}
+		this.forceUpdate();
 	};
 
 	uploadTeam = (ev: Event) => {
@@ -314,6 +320,10 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 			</PSPanelWrapper>;
 		}
 
+		// something changed under us (e.g. an import)
+		if (this.nameInput !== null && this.nameInput.trim().slice(0, 220) !== team.name) this.nameInput = null;
+		const nameTooLong = this.nameInput !== null && this.nameInput.trim().length > 220;
+		const nameErrorId = `teamname-error-${team.key}`;
 		const unsaved = team.uploaded && team.uploadedPackedTeam ? team.uploadedPackedTeam !== team.packedTeam : false;
 		return <PSPanelWrapper room={room}>
 			<div class="team-pad">
@@ -348,9 +358,13 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 				<label class="label teamname">
 					Team name:{}
 					<input
-						class="textbox" type="text" defaultValue={team.name}
-						onInput={this.handleRename} onChange={this.handleRename} onKeyUp={this.handleRename}
+						class="textbox" type="text" value={this.nameInput ?? team.name}
+						aria-invalid={nameTooLong || undefined} aria-describedby={nameTooLong ? nameErrorId : undefined}
+						onInput={this.handleRename} onChange={this.handleRename}
 					/>
+					{nameTooLong && <small class="message-error" style="display:block" id={nameErrorId}>
+						Name too long! Limit 220 characters.
+					</small>}
 				</label>
 			</div>
 			<TeamEditor
