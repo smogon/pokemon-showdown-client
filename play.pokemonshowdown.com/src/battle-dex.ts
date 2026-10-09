@@ -1219,12 +1219,15 @@ export const Dex = new class implements ModdedDex {
 		return spriteData;
 	}
 
-	getTeambuilderSprite(pokemon: any, dex?: ModdedDex, xOffset = 0, yOffset = 0) {
+	getTeambuilderSprite(pokemon: any, dex?: ModdedDex, xOffset = 0, yOffset = 0, background = '') {
 		if (!pokemon) return '';
 		const data = this.getTeambuilderSpriteData(pokemon, dex);
 		const shiny = (data.shiny ? '-shiny' : '');
-		const resize = (data.h ? `background-size:${data.h}px` : '');
-		return `background-image:url(${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x + xOffset}px ${data.y + yOffset}px;background-repeat:no-repeat;${resize}`;
+		const image = `url(${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png)` +
+			(background ? `, ${background}` : '');
+		const position = `${data.x + xOffset}px ${data.y + yOffset}px${background ? ', center' : ''}`;
+		const resize = (data.h ? `background-size:${data.h}px${background ? ', auto' : ''}` : '');
+		return `background-image:${image};background-position:${position};background-repeat:no-repeat;${resize}`;
 	}
 
 	getItemIcon(item: any) {
