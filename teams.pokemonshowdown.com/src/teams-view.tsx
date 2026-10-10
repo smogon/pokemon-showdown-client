@@ -17,6 +17,16 @@ const MODES: Record<string, { width: number, colGap: string }> = {
 	'3col': { width: 33, colGap: '2rem' },
 };
 
+const SPRITE_OPTS = [
+	{ title: 'Gen 1', val: 1 },
+	{ title: 'Gen 2', val: 2 },
+	{ title: 'Gen 3', val: 3 },
+	{ title: 'Gen 4', val: 4 },
+	{ title: 'Gen 5', val: 5 },
+	{ title: 'Gen 6', val: 6 },
+	{ val: 'home', title: 'Home' },
+];
+
 interface Team {
 	team: string;
 	title: string;
@@ -155,7 +165,7 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 			</>
 		))}<br /></> : <></>}
 
-		{set.nature ? <>{set.nature} Nature<br /></> : <></>}
+		{set.nature ? <>{set.nature.charAt(0).toUpperCase() + set.nature.slice(1)} Nature<br /></> : <></>}
 
 		{set.ivs ? <>{Dex.statNames
 			.filter(stat => !(set.ivs![stat] === undefined || isNaN(set.ivs![stat]) || set.ivs![stat] === 31))
@@ -188,7 +198,7 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 }
 
 class SetBlock extends preact.Component<{
-	set: Dex.PokemonSet, gen: number, mode?: string | null,
+	set: Dex.PokemonSet, gen: number | string, mode?: string | null,
 }> {
 	render() {
 		const set = this.props.set;
@@ -196,42 +206,75 @@ class SetBlock extends preact.Component<{
 		const spriteData = Dex.getSpriteData(
 			Dex.species.get(set.species),
 			true,
-			{ gen, shiny: set.shiny, gender: set.gender as 'F' }
+			// home unsupported by this, hack it a bit
+			{ gen: gen as number, shiny: set.shiny, gender: set.gender as 'F' }
 		);
-		let forceResize = 110;
+		let forceResize = 100;
 		if (matchMedia("(max-width: 450px)").matches && this.props.mode === '2col') {
-			forceResize = 55;
+			forceResize /= 2;
 		}
 		if (spriteData.w > forceResize) {
 			const w = spriteData.w;
 			spriteData.w *= (forceResize / w);
 			spriteData.h *= (forceResize / w);
 		}
-		return <div>
-			<div style={{ flex: '0 0 20%', width: 'auto', pad: '3px' }}>
-				<img
-					src={spriteData.url}
-					width={spriteData.w}
-					height={spriteData.h}
-				/>
-				{set.item ? <PSIcon item={set.item} /> : <></>}
+		if (gen === 'home') {
+			spriteData.url = spriteData.url.replace(/gen\d/, 'home');
+		}
+		return (
+			<div style={{ display: "flex", alignItems: "center" }}>
+				<div
+					style={{
+						flex: "0 0 20%",
+						display: "flex",
+						justifyContent: "flex-start",
+						alignItems: "center",
+						alignSelf: "flex-start",
+						padding: "5px",
+					}}
+				>
+					<div>
+						<img
+							src={spriteData.url}
+							width={spriteData.w}
+							height={spriteData.h}
+							alt=""
+						/>
+						{set.item && <PSIcon item={set.item} />}
+					</div>
+				</div>
+
+				<div
+					style={{
+						flex: "0 0 60%",
+						minWidth: 0,
+						textAlign: "left",
+						padding: "5px",
+						overflowWrap: "anywhere",
+						wordBreak: "break-word",
+					}}
+				>
+					<PokemonSet set={set} />
+				</div>
 			</div>
-			<div style={{ flex: "0 0 80%", textAlign: 'left' }}>
-				<PokemonSet set={set} />
-			</div>
-		</div>;
+		);
 	}
 }
 
 export class TeamViewer extends preact.Component<PageProps> {
 	id: string;
 	pw?: string;
+	static getSpriteGen() {
+		const val = localStorage.getItem('spritegen') || 6;
+		if (val === 'home') return val;
+		return Number(val) || 6;
+	}
 	override state = {
 		team: undefined as null | void | Team,
 		error: undefined as string | undefined,
-		copyButtonMsg: false as boolean,
+		copyButtonUsed: undefined as number | undefined,
 		displayMode: localStorage.getItem('teamdisplaymode') || null,
-		spriteGen: Number(localStorage.getItem('spritegen')) || 6,
+		spriteGen: TeamViewer.getSpriteGen(),
 		manageOpen: false,
 		changesMade: false,
 		teamEdits: null as { format?: string, private?: number } | null,
@@ -275,7 +318,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 
 		return <div class="section" style={{ wordWrap: 'break-word' }}>
 			<div name="header" className="noselect">
-				<small><a href={'//' + Config.routes.teams}><i class="fa fa-arrow-left"></i></a></small>
+				<a href={'//' + Config.routes.teams} class="button"><i class="fa fa-caret-left"></i> Back</a>
 				<h1>{title}</h1>
 				Owner: <strong style={{ color: BattleLog.usernameColor(ownerid as any) }}>{ownerid}</strong><br />
 				Format: {format}<br />
@@ -287,10 +330,10 @@ export class TeamViewer extends preact.Component<PageProps> {
 						<button class={manageClass} onClick={() => this.changeManage()}>Manage</button> :
 						loggedin && <button class="button" onClick={() => this.copyToBuilder()}>Copy to builder</button>}
 					<button
-						class="button"
-						disabled={!this.state.team || this.state.copyButtonMsg}
+						class={`button ${this.state.copyButtonUsed ? 'disabled' : ''}`}
+						disabled={!this.state.team}
 						onClick={() => this.copyTeam()}
-					>{this.state.copyButtonMsg ? 'Copied!' : 'Copy team'}</button>
+					>{this.state.copyButtonUsed ? 'Copied!' : 'Copy team'}</button>
 					<button class="button" onClick={() => this.changeDisplayMode()}>Display: {modeName}</button>
 					<button class="button" onClick={() => this.changeColorMode()}>Use {isDark ? 'light' : 'dark'} mode</button>
 					<select
@@ -298,7 +341,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 						value={this.state.spriteGen}
 						class="button"
 					>
-						{[1, 2, 3, 4, 5, 6].map(num => <option value={num}>Gen {num} Sprites</option>)}
+						{SPRITE_OPTS.map(({ val, title: spriteTitle }) => <option value={val}>{spriteTitle} Sprites</option>)}
 					</select>
 				</div>
 				<hr />
@@ -433,11 +476,11 @@ export class TeamViewer extends preact.Component<PageProps> {
 	copyTeam() {
 		if (!this.state.team) return;
 		const team = unpackTeam(this.state.team.team);
-		navigator.clipboard.writeText(team.map(exportSet).join('\n'));
-		this.setState({ copyButtonMsg: true });
-		setTimeout(() => {
-			this.setState({ copyButtonMsg: false });
-		}, 1000);
+		navigator.clipboard.writeText(team.map(exportSet).join('\n\n'));
+		clearTimeout(this.state.copyButtonUsed);
+		this.setState({
+			copyButtonUsed: setTimeout(() => this.setState({ copyButtonUsed: undefined }), 3000),
+		});
 	}
 
 	copyToBuilder() {

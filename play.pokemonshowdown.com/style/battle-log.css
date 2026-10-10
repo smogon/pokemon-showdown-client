@@ -148,8 +148,38 @@ button:disabled {
 select.button {
 	text-align: left;
 }
+select.base-select, select.base-select::picker(select) {
+	appearance: base-select;
+}
+select.base-select {
+	width: fit-content;
+}
+select.base-select::picker-icon {
+	margin-left: 2px;
+	display: inline;
+}
+.base-select::picker(select) {
+	text-align: left;
+	background: #E1E8E8;
+	color: black;
+	border: 1px solid #999999;
+
+	padding: 2px 4px;
+	border-radius: 6px;
+	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
+}
+.dark .base-select::picker(select) {
+	background: #0D151E;
+	color: #DDD;
+	border-color: #34373b;
+
+	box-shadow: 2px 2px 3px rgba(0,0,0,.5), inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
+}
+
 .button option,
-.button optgroup {
+.button optgroup,
+.select option,
+.select optgroup {
 	background: #f6f6f6;
 	color: #222222;
 }
@@ -255,7 +285,9 @@ select.button {
 	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45);
 }
 .dark .button option,
-.dark .button optgroup {
+.dark .button optgroup,
+.dark .select option,
+.dark .select optgroup {
 	/* Chrome/Win does this thing where it takes <select> styling and applies it
 	to options, which would be cool except it of course can't handle gradient
 	backgrounds, and also can't fall back to the last non-gradient background,
@@ -319,12 +351,10 @@ select.button {
 	border-color: #34373b;
 }
 
-.button.small,
 .button.small {
 	font-size: 8pt;
 	padding: 2px 5px;
 }
-.button.big,
 .button.big {
 	font-size: 12pt;
 	padding: 5px 10px;
@@ -365,9 +395,6 @@ select.button {
 .checkbox img {
 	vertical-align: middle;
 }
-.checkbox.inline {
-	display: inline-block;
-}
 .checkbox input {
 	width: 14px;
 	height: 14px;
@@ -404,21 +431,40 @@ select.button {
 	font-weight: normal;
 }
 .textbox {
-	border: 1px solid #AAAAAA;
-	border-radius: 3px;
-	padding: 2px 3px;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 	font-size: 9pt;
+	padding: 2px 3px;
+	border-radius: 3px;
+}
+.textbox,
+.textbox-subtle[data-changed="1"],
+textarea.textbox-subtle:empty,
+input.textbox-subtle[value=""] {
+	border: 1px solid #AAAAAA;
 
 	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
 	background: #F8FBFD;
 	color: black;
+}
+textarea.textbox {
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	resize: none;
+	field-sizing: content;
+	overflow-wrap: break-word;
 }
 pre.textbox {
 	white-space: pre-wrap;
 }
 .textbox tt {
 	color: #3388CC;
+}
+.textbox tt.message-cmd {
+	color: #1a5f97;
+}
+.dark .textbox tt.message-cmd {
+	color: #86b7df;
 }
 .textbox:hover {
 	border-color: #474747;
@@ -440,7 +486,10 @@ pre.textbox {
 .textbox::-webkit-search-cancel-button {
 	cursor: pointer;
 }
-.dark .textbox {
+.dark .textbox,
+.dark .textbox-subtle[data-changed="1"],
+.dark textarea.textbox-subtle:empty,
+.dark input.textbox-subtle[value=""] {
 	border-color: #6b7178;
 
 	/* box-shadow: inset 0px -1px 2px #606060, -1px -1px 0 rgba(255,255,255,.2); */
@@ -469,7 +518,25 @@ pre.textbox {
 	box-shadow: none;
 }
 
-.option {
+.textbox-subtle,
+.dark .textbox-subtle {
+	border-color: transparent;
+	background: transparent;
+	box-shadow: none;
+}
+
+/* like <input type="text"> but with dynamic size */
+textarea.textbox.textbox-singleline {
+	display: inline-block;
+	width: auto;
+	max-width: 100%;
+	field-sizing: content;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+	vertical-align: middle;
+}
+
+.option, .base-select option {
 	background-color: transparent;
 	border: 1px solid transparent;
 	border-radius: 4px;
@@ -480,24 +547,33 @@ pre.textbox {
 	text-align: left;
 	overflow: hidden;
 }
-.option.sel, .option.cur {
+.base-select option {
+	padding: 0 4px;
+}
+.option.sel, .option.cur, .base-select option:checked {
 	border-color: #999999;
 }
 .option:hover,
 .option.sel:hover,
-.option.cur:hover {
+.option.cur:hover,
+.base-select option:hover {
 	border-color: #888888;
 	background-color: #D5D5D5;
 	color: black;
 }
+.base-select option::checkmark {
+	display: none;
+}
 
-.dark .option {
+.dark .option, .dark .base-select option {
+	background: transparent;
 	color: #DDD;
 	box-shadow: none;
 }
 .dark .option:hover,
 .dark .option.sel:hover,
-.dark .option.cur:hover {
+.dark .option.cur:hover,
+.dark .base-select option:hover {
 	border-color: #777777;
 	background-color: rgba(100, 100, 100, 0.5);
 	color: #FFFFFF;
@@ -622,6 +698,187 @@ input[type=range]:active::-webkit-slider-thumb {
 	}
 }
 
+.select, .team {
+	padding: 4px 22px 4px 8px;
+	font-size: 9pt;
+	text-align: left;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	text-decoration: none;
+	cursor: pointer;
+
+	border-radius: 4px;
+	border: 1px solid #888888;
+	background: #EEEEEE;
+	box-shadow: inset 0 1px 0 #FFFFFF;
+	background: linear-gradient(to bottom,  #edf2f8,  #d7e3ec);
+	color: black;
+	box-sizing: border-box;
+
+	position: relative;
+}
+.dark .select, .dark .team {
+	border-color: #34373b;
+	box-shadow: none;
+	background: linear-gradient(to bottom, #5a6169, #3e444d);
+	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45), inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
+	color: white;
+}
+.select:hover, .select:hover .team, a.team:hover, button.team:hover {
+	border-color: #555555;
+	background: #FFFFFF;
+	background: linear-gradient(to bottom,  #dce4ec,  #c6d3e0);
+}
+.select:active, .select:active .team, a.team:active, button.team:active {
+	border-color: #777777;
+	background: #DDDDDD;
+	box-shadow: none;
+	background: linear-gradient(to bottom,  #bbc4cd,  #e7edf2);
+}
+.dark .select:hover, .dark .select:hover .team, .dark a.team:hover, .dark button.team:hover {
+	border-color: #34373b;
+	background: #FFFFFF;
+	color: white;
+	background: linear-gradient(to bottom, #6b737e, #4a5057);
+}
+.dark .select:active, .dark .select:active .team, .dark a.team:active, .dark button.team:active {
+	border-color: #34373b;
+	box-shadow: none;
+	background: linear-gradient(to bottom, #4a5057, #8f98a1);
+}
+@supports (content-visibility: auto) {
+	.dark .team small {
+		filter: drop-shadow(0px 1px 0px #8f98a1);
+	}
+}
+
+select.select {
+	padding: 3px 4px;
+}
+.label .select {
+	margin-top: 2px;
+	display: block;
+}
+select.select.base-select {
+	padding: 4px 22px 4px 8px;
+}
+.select:before {
+	position: absolute;
+	top: 50%;
+	right: 6px;
+	margin-top: -7px;
+	padding: 0;
+
+	font-size: 14px;
+	content: "\f0d7";
+	font-family: FontAwesome;
+	-webkit-font-smoothing: antialiased;
+	color: #777777;
+}
+select.select::picker-icon {
+	display: none;
+}
+.dark .select:before {
+	color: #cccccc;
+}
+.select:disabled, .select:disabled:hover {
+	border-color: #999999;
+	background: rgba(220,220,220,.65);
+	color: #555555;
+	box-shadow: none;
+}
+.dark .select:disabled, .dark .select:disabled:hover {
+	border-color: #888;
+	background: rgba(90,90,90,.65);
+	color: #BBB;
+	box-shadow: none;
+}
+.select:disabled .team, .select:disabled:hover .team, .select:disabled:active .team {
+	border-color: #999999;
+	cursor: default;
+}
+.dark .select:disabled .team, .dark .select:disabled:hover .team, .dark .select:disabled:active .team {
+	border-color: #888888;
+}
+.select:disabled:before {
+	color: #AAAAAA;
+}
+.dark .select:disabled:before {
+	color: #888888;
+}
+.select.preselected,
+.select:disabled.preselected {
+	color: black;
+}
+.dark .select.preselected,
+.dark .select:disabled.preselected {
+	color: white;
+}
+
+/*********************************************************
+ * Team tiles
+ *********************************************************/
+
+/* UNSUPPORTED: Unlike most CSS in here, we make no guarantees
+that we won't change how team tile CSS works. Don't depend on
+this. */
+
+.team {
+	width: 300px;
+	min-height: 49px;
+	height: auto;
+	padding: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-align: left;
+}
+/* team name */
+.team strong {
+	display: block;
+	font-size: 8pt;
+	text-align: center;
+	height: 13px;
+	padding: 2px 0 0 0;
+	margin: 0;
+}
+.dark .team strong {
+	color: #ddd;
+	text-shadow: 0px -1px 0px #3b3c41;
+}
+.team strong span {
+	font-weight: normal;
+}
+/* team icons */
+.team small {
+	display: block;
+	width: 220px;
+	min-height: 30px;
+	padding: 0 0 2px;
+	margin: 0 auto;
+	white-space: normal;
+}
+.team.pc-box small {
+	width: auto;
+	padding-left: 5px;
+	padding-right: 5px;
+	min-height: 60px;
+}
+.team small .picon {
+	margin-right: -4px;
+}
+.select:disabled small {
+	opacity: 0.7;
+}
+/* empty team message */
+.team em {
+	display: block;
+	text-align: center;
+	padding-top: 7px;
+}
+.inline {
+	display: inline-block;
+	vertical-align: middle;
+}
+
 /*********************************************************
  * Table
  *********************************************************/
@@ -673,6 +930,12 @@ input[type=range]:active::-webkit-slider-thumb {
 	padding: 3px 0 3px 0;
 	font-size: 9pt;
 }
+.highlighted {
+	background: rgba(255,200,80,0.33);
+}
+.dark .highlighted {
+	background: rgba(120,220,255,0.28);
+}
 .chat.highlighted {
 	margin-left: -8px;
 	margin-right: -8px;
@@ -718,6 +981,9 @@ input[type=range]:active::-webkit-slider-thumb {
 	margin-right: -8px;
 	padding-left: 8px;
 	padding-right: 8px;
+}
+.dark .chat.mine {
+	background: rgba(255,255,255,0.05);
 }
 .spoiler {
 	color: #BBBBBB;
@@ -985,6 +1251,12 @@ details[open] .expandbutton.fa-caret-right:before {
 }
 .dark .message-error {
 	color: #EF4333;
+}
+.message-warning {
+	color: #cb6619;
+}
+.dark .message-warning {
+	color: #ef8e33;
 }
 .message-overflow,
 .chat small.message-overflow {

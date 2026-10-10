@@ -1,9 +1,14 @@
+RewriteEngine on
+RewriteRule ^api(/.*)?$ http://localhost:9000/api$1 [P,L]
+DirectoryIndex index.php index.html /dirindex/dirindex.php
+ErrorDocument 404 /dirindex/404.html
+
 AddType text/plain .phps
 AddType application/x-tgz .tgz
 AddType application/x-chrome-extension .crx
 AddType application/x-web-app-manifest+json .webapp
 
-<filesMatch "^(index|preactalpha)\.html$">
+<filesMatch "^index-(old|new|test)\.html$">
   FileETag None
   <ifModule mod_headers.c>
      Header unset ETag
@@ -17,9 +22,6 @@ AddType application/x-web-app-manifest+json .webapp
     Header set Access-Control-Allow-Origin "*" 
     Header set Access-Control-Allow-Methods "GET,POST,OPTIONS"
 </filesMatch>
-
-<IfModule mod_rewrite.c>
-RewriteEngine on
 
 RewriteCond %{HTTP:X-Forwarded-Proto} ^http$
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
@@ -53,6 +55,7 @@ RewriteRule ^devdiscord\/?$ https://discord.com/invite/D8QwhsH [R=302,L]
 RewriteRule ^smogcord\/?$ https://discord.gg/smogon [R=302,L]
 RewriteRule ^smogdex\/?$ https://smogon.com/dex/ [R=302,L]
 RewriteRule ^forums?\/?$ https://smogon.com/forums/ [R=302,L]
+RewriteRule ^replays?\/?$ https://replay.pokemonshowdown.com/ [R=302,L]
 RewriteRule ^trustworthy\-dlc\-link\/?$ https://www.youtube.com/watch?v=dQw4w9WgXcQ [R=302,L]
 
 # teams shortlinks
@@ -61,6 +64,11 @@ RewriteRule ^t\/([a-z0-9-]*)$ https://teams.pokemonshowdown.com/view/$1 [R=302,L
 # replays shortlinks
 RewriteRule ^r\/?$ https://replay.pokemonshowdown.com/ [R=302,L]
 RewriteRule ^r\/([a-z0-9-]*)$ https://replay.pokemonshowdown.com/$1 [R=302,L]
+
+# data dir names
+RewriteRule ^images?\/?$ /sprites/ [R=302,L]
+RewriteRule ^css\/?$ /style/ [R=302,L]
+RewriteRule ^styles\/?$ /style/ [R=302,L]
 
 # rewrite old sprite directories/files
 RewriteRule ^sprites\/xyani(.*)?$ sprites/ani$1 [L,QSA]
@@ -91,8 +99,6 @@ RewriteRule ^sprites\/gen4dp-2-back(.*)?$ sprites/gen4-back$1 [L,QSA]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^sprites\/gen3frlg(.*)?$ sprites/gen3$1 [L,QSA]
 
-RewriteRule ^replays?\/?$ https://replay.pokemonshowdown.com/ [R=302,L]
-
 RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^(.*) https://play.pokemonshowdown.com/$1 [R=301,L]
 
@@ -119,11 +125,14 @@ RewriteCond %{DOCUMENT_ROOT}/$1 !-d
 RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)/$ /$1 [R=301,L]
 
 # Anything that looks like a roomid: connect to the server
+RewriteCond %{DOCUMENT_ROOT}/caches/index-test.html -f
+RewriteRule ^index-test\.html$ ./caches/index-test.html [L,E=INDEX_PAGE:1]
+RewriteRule ^oldclient$ ./caches/index-old.html [L,E=INDEX_PAGE:1]
 RewriteCond %{HTTP_COOKIE} ^.*preactalpha=1.*$
-RewriteRule ^(|[A-Za-z0-9][A-Za-z0-9-]*)$ ./preactalpha.html [L,E=INDEX_PAGE:1]
+RewriteRule ^(|[A-Za-z0-9][A-Za-z0-9-]*)$ ./caches/index-new.html [L,E=INDEX_PAGE:1]
 RewriteRule ^$ - [E=INDEX_PAGE:1]
-RewriteRule ^(preactalpha|preactbeta|beta|dev|development|login|users|(dm|challenge|user|viewuser|ladder)-[a-z0-9-]*)$ ./preactalpha.html [L,E=INDEX_PAGE:1]
-RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE:1]
+RewriteRule ^(newclient|preactalpha|preactbeta|beta|dev|development|login|users|(dm|challenge|user|viewuser|ladder)-[a-z0-9-]*)$ ./caches/index-new.html [L,E=INDEX_PAGE:1]
+RewriteRule ^(|[A-Za-z0-9][A-Za-z0-9-]*)$ ./caches/index-old.html [L,E=INDEX_PAGE:1]
 
 # RewriteRule ^crossprotocol\.html$ - [E=CROSSPROTOCOL:1]
 # Header set X-Frame-Options "ALLOW-FROM http://play.pokemonshowdown.com" env=CROSSPROTOCOL
@@ -132,6 +141,9 @@ RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE:1]
 Header set Cache-Control "no-cache, no-store, must-revalidate" env=INDEX_PAGE
 Header set Pragma "no-cache" env=INDEX_PAGE
 Header set Expires "0" env=INDEX_PAGE
+
+# Crossprotocol cache page
+RewriteRule ^crossprotocol\.html$ ./caches/crossprotocol.html [L]
 
 # No direct linking to the lobby.
 # RewriteCond %{ENV:SCRIPT_URL} ^/(lobby/?)?$
@@ -160,15 +172,11 @@ RewriteRule ^backup/ - [F]
 RewriteRule ^\.git/ - [F]
 RewriteRule ^lib/ - [F]
 
-RewriteRule ^index\.template\.html$ - [F]
-RewriteRule ^preactalpha\.template\.html$ - [F]
-RewriteRule ^testclient\.html$ - [F]
+# Disallow direct access to caches
+RewriteCond %{THE_REQUEST} \s/caches/
+RewriteRule ^caches/ - [F]
+RewriteRule ^testclient-old\.html$ - [F]
 RewriteRule ^testclient-beta\.html$ - [F]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(apple-touch-icon-precomposed\.png)$ - [R=404,L]
-
-</IfModule>
-
-DirectoryIndex index.php index.html /dirindex/dirindex.php
-ErrorDocument 404 /dirindex/404.html

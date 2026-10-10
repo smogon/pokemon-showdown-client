@@ -22,7 +22,7 @@ https://github.com/smogon/Pokemon-Showdown/blob/master/sim/prng.ts
 
 Ebenso gibt es zahlreiche Seiten, welche bestätigen, dass es sich tatsächlich um den gleichen Zufallszahlengenerator wie auf der Switch und dem 3Ds handelt:
 
-https://bulbapedia.bulbagarden.net/wiki/Pseudorandom_number_generation_in_Pokémon
+https://bulbapedia.bulbagarden.net/wiki/Pseudorandom_number_generation
 
 Außerdem dokumentieren zahlreiche Seiten, dass dieser Gebrauch des Zufallszahlengenerators dem Standard entspricht:
 

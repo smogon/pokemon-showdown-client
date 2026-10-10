@@ -11,12 +11,12 @@
  * @license MIT
  */
 
-import type { Battle, Pokemon, Side, WeatherState } from './battle';
+import type { Battle, HPColor, Pokemon, Side, WeatherState } from './battle';
 import type { BattleSceneStub } from './battle-scene-stub';
 import { BattleMoveAnims } from './battle-animations-moves';
-import { BattleLog } from './battle-log';
+import { BattleLog, eHTML } from './battle-log';
 import { type BattleBGM, BattleSound } from './battle-sound';
-import { Dex, toID, type ID, type SpriteData } from './battle-dex';
+import { Dex, TL, toID, type ID, type SpriteData } from './battle-dex';
 import { BattleNatures } from './battle-dex-data';
 import { BattleTooltips } from './battle-tooltips';
 import { BattleTextParser, type Args, type KWArgs } from './battle-text-parser';
@@ -167,10 +167,10 @@ export class BattleScene implements BattleSceneStub {
 		this.$sprite.append(this.$spritesFront[0]);
 		this.$sprite.append(this.$sprites[0]);
 
-		this.$stat = $('<div role="complementary" aria-label="Active Pokemon"></div>');
+		this.$stat = $(eHTML`<div role="complementary" aria-label="${TL`Active Pokémon`}"></div>`);
 		this.$fx = $('<div></div>');
-		this.$leftbar = $('<div class="leftbar" role="complementary" aria-label="Your Team"></div>');
-		this.$rightbar = $('<div class="rightbar" role="complementary" aria-label="Opponent\'s Team"></div>');
+		this.$leftbar = $(eHTML`<div class="leftbar" role="complementary" aria-label="${TL`Your team`}"></div>`);
+		this.$rightbar = $(eHTML`<div class="rightbar" role="complementary" aria-label="${TL`Opponent's team`}"></div>`);
 		this.$turn = $('<div></div>');
 		this.$messagebar = $('<div class="messagebar message"></div>');
 		this.$delay = $('<div></div>');
@@ -273,6 +273,20 @@ export class BattleScene implements BattleSceneStub {
 		transition: string, after?: string, additionalCss?: JQuery.PlainObject
 	) {
 		if (typeof effect === 'string') effect = BattleEffects[effect];
+
+		let $effect = $(`<img src="${effect.url!}" style="display:block;position:absolute" />`);
+		this.$fx.append($effect);
+		if (additionalCss) $effect.css(additionalCss);
+		$effect = this.$fx.children().last();
+
+		return this.animateEffect($effect, effect, start, end, transition, after);
+	}
+	animateEffect(
+		$effect: JQuery, effect: string | SpriteData, start: ScenePos, end: ScenePos,
+		transition: string, after?: string, additionalCss?: JQuery.PlainObject
+	) {
+		if (typeof effect === 'string') effect = BattleEffects[effect];
+
 		if (!start.time) start.time = 0;
 		if (!end.time) end.time = start.time + 500;
 		start.time += this.timeOffset;
@@ -285,16 +299,13 @@ export class BattleScene implements BattleSceneStub {
 		let startpos = this.pos(start, effect);
 		let endpos = this.posT(end, effect, transition, start);
 
-		let $effect = $(`<img src="${effect.url!}" style="display:block;position:absolute" />`);
-		this.$fx.append($effect);
-		if (additionalCss) $effect.css(additionalCss);
-		$effect = this.$fx.children().last();
-
 		if (start.time) {
 			$effect.css({ ...startpos, opacity: 0 });
 			$effect.delay(start.time).animate({
 				opacity: startpos.opacity,
 			}, 1);
+		} else if ($effect.queue().length) {
+			$effect.animate(startpos, 0);
 		} else {
 			$effect.css(startpos);
 		}
@@ -313,6 +324,8 @@ export class BattleScene implements BattleSceneStub {
 			$effect.animate(endendpos, 200);
 		}
 		this.waitFor($effect);
+
+		return $effect;
 	}
 	backgroundEffect(bg: string, duration: number, opacity = 1, delay = 0) {
 		let $effect = $('<div class="background"></div>');
@@ -581,6 +594,12 @@ export class BattleScene implements BattleSceneStub {
 		} else if (typeof rated === 'string' && rated.startsWith('National Pokemon Association')) {
 			bg = 'fx/bg-npa.png';
 			this.setBgm(-101);
+		} else if (typeof rated === 'string' && rated.startsWith('World Cup of Pokemon')) {
+			bg = 'fx/bg-wcop.png';
+			this.setBgm(-101);
+		} else if (typeof rated === 'string' && rated.startsWith('Smogon Champions League')) {
+			bg = 'fx/bg-scl.png';
+			this.setBgm(-101);
 		} else {
 			if (gen <= 1) bg = 'fx/bg-gen1.png?';
 			else if (gen <= 2) bg = 'fx/bg-gen2.png?';
@@ -674,16 +693,18 @@ export class BattleScene implements BattleSceneStub {
 				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('pokeball-none')}"></span>`;
 			} else if (noShow) {
 				if (poke?.fainted) {
-					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball-fainted')}" aria-label="Fainted"></span>`;
+					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball-fainted')}" aria-label="${BattleLog.escapeHTML(TL.status.fnt || 'Fainted')}"></span>`;
 				} else if (poke?.status) {
-					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball-statused')}" aria-label="Statused"></span>`;
+					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball-statused')}" aria-label="${BattleLog.escapeHTML(TL`Statused`)}"></span>`;
 				} else {
-					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball')}" aria-label="Non-statused"></span>`;
+					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball')}" aria-label="${BattleLog.escapeHTML(TL`Non-statused`)}"></span>`;
 				}
 			} else if (iconType === 'pseudo-zoroark') {
-				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('zoroark')}" title="Unrevealed Illusion user" aria-label="Unrevealed Illusion user"></span>`;
+				const unrevealedIllusion = BattleLog.escapeHTML(TL`Unrevealed Illusion user`);
+				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('zoroark')}" title="${unrevealedIllusion}" aria-label="${unrevealedIllusion}"></span>`;
 			} else if (!poke) {
-				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('pokeball')}" title="Not revealed" aria-label="Not revealed"></span>`;
+				const notRevealed = BattleLog.escapeHTML(TL`Not revealed`);
+				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('pokeball')}" title="${notRevealed}" aria-label="${notRevealed}"></span>`;
 			} else if (!poke.ident && this.battle.teamPreviewCount && this.battle.teamPreviewCount < side.pokemon.length) {
 				// in VGC (bring 6 pick 4) and other pick-less-than-you-bring formats, this is
 				// a pokemon that's been brought but not necessarily picked
@@ -721,9 +742,20 @@ export class BattleScene implements BattleSceneStub {
 			}
 			badgehtml += '</span>';
 		}
+		let avatar = Dex.resolveAvatar(side.avatar);
+		let noflip = '';
+		if (posStr.startsWith('near')) {
+			if (avatar.includes('unknown.png')) {
+				avatar = avatar.replace('unknown.png', 'unknown-flipped.png');
+				noflip = ' noflip';
+			} else if (avatar.includes('unknownf.png')) {
+				avatar = avatar.replace('unknownf.png', 'unknownf-flipped.png');
+				noflip = ' noflip';
+			}
+		}
 		return (
 			`<div class="trainer trainer-${posStr}"${faded}><strong>${BattleLog.escapeHTML(side.name)}</strong>` +
-			`<div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})">` +
+			`<div class="trainersprite${noflip}"${ratinghtml} style="background-image:url(${avatar})">` +
 			`</div>${badgehtml}${pokemonhtml}</div>`
 		);
 	}
@@ -916,24 +948,33 @@ export class BattleScene implements BattleSceneStub {
 		this.$battle.find('.playbutton1, .playbutton2').remove();
 	}
 
+	turnsLeft(min: number, max = 0) {
+		if (max) {
+			const range = TL.orList([`${min}`, `${max}`]);
+			return TL`(${range} turns)`;
+		}
+		return min === 1 ? TL`(${min} turn)` : TL`(${min} turns)`;
+	}
 	pseudoWeatherLeft(pWeather: WeatherState) {
-		let buf = `<br />${Dex.moves.get(pWeather[0]).name}`;
+		let buf = `<br />${TL(Dex.moves.get(pWeather[0]))}`;
 		if (!pWeather[1] && pWeather[2]) {
 			pWeather[1] = pWeather[2];
 			pWeather[2] = 0;
 		}
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
 		if (pWeather[2]) {
-			return `${buf} <small>(${pWeather[1]} or ${pWeather[2]} turns)</small>`;
+			return `${buf} <small>${this.turnsLeft(pWeather[1], pWeather[2])}</small>`;
 		}
 		if (pWeather[1]) {
-			return `${buf} <small>(${pWeather[1]} turn${pWeather[1] === 1 ? '' : 's'})</small>`;
+			return `${buf} <small>${this.turnsLeft(pWeather[1])}</small>`;
 		}
 		return buf; // weather not found
 	}
 	sideConditionLeft(cond: Side['sideConditions'][string], isFoe: boolean, all?: boolean) {
 		if (!cond[2] && !cond[3] && !all) return '';
-		let buf = `<br />${isFoe && !all ? "Foe's " : ""}${Dex.moves.get(cond[0]).name}`;
+		const condition = TL(Dex.moves.get(cond[0]));
+		const foeCondition = TL`Foe's ${condition}`;
+		let buf = `<br />${isFoe && !all ? foeCondition : condition}`;
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
 
 		if (!cond[2] && !cond[3]) return buf;
@@ -942,9 +983,9 @@ export class BattleScene implements BattleSceneStub {
 			cond[3] = 0;
 		}
 		if (!cond[3]) {
-			return `${buf} <small>(${cond[2]} turn${cond[2] === 1 ? '' : 's'})</small>`;
+			return `${buf} <small>${this.turnsLeft(cond[2])}</small>`;
 		}
-		return `${buf} <small>(${cond[2]} or ${cond[3]} turns)</small>`;
+		return `${buf} <small>${this.turnsLeft(cond[2], cond[3])}</small>`;
 	}
 	weatherLeft() {
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return '';
@@ -952,21 +993,13 @@ export class BattleScene implements BattleSceneStub {
 		let weatherhtml = ``;
 
 		if (this.battle.weather) {
-			const weatherNameTable: { [id: string]: string } = {
-				sunnyday: 'Sun',
-				desolateland: 'Intense Sun',
-				raindance: 'Rain',
-				primordialsea: 'Heavy Rain',
-				sandstorm: 'Sandstorm',
-				hail: 'Hail',
-				snowscape: 'Snow',
-				deltastream: 'Strong Winds',
-			};
-			weatherhtml = `${weatherNameTable[this.battle.weather] || this.battle.weather}`;
+			weatherhtml = BattleTextParser.weatherName(this.battle.weather);
 			if (this.battle.weatherMinTimeLeft !== 0) {
-				weatherhtml += ` <small>(${this.battle.weatherMinTimeLeft} or ${this.battle.weatherTimeLeft} turns)</small>`;
+				weatherhtml += ` <small>${this.turnsLeft(
+					this.battle.weatherMinTimeLeft, this.battle.weatherTimeLeft
+				)}</small>`;
 			} else if (this.battle.weatherTimeLeft !== 0) {
-				weatherhtml += ` <small>(${this.battle.weatherTimeLeft} turn${this.battle.weatherTimeLeft === 1 ? '' : 's'})</small>`;
+				weatherhtml += ` <small>${this.turnsLeft(this.battle.weatherTimeLeft)}</small>`;
 			}
 			const nullifyWeather = this.battle.abilityActive(['Air Lock', 'Cloud Nine']);
 			weatherhtml = `${nullifyWeather ? '<s>' : ''}${weatherhtml}${nullifyWeather ? '</s>' : ''}`;
@@ -1054,7 +1087,8 @@ export class BattleScene implements BattleSceneStub {
 			this.$turn.html('');
 			return;
 		}
-		this.$turn.html(`<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">Turn ${this.battle.turn}</div>`);
+		const turnText = BattleLog.escapeHTML(this.log.turnText(`${this.battle.turn}`));
+		this.$turn.html(`<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">${turnText}</div>`);
 	}
 	incrementTurn() {
 		if (!this.animating) return;
@@ -1062,7 +1096,8 @@ export class BattleScene implements BattleSceneStub {
 		const turn = this.battle.turn;
 		if (turn <= 0) return;
 		const $prevTurn = this.$turn.children();
-		const $newTurn = $(`<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">Turn ${turn}</div>`);
+		const turnText = BattleLog.escapeHTML(this.log.turnText(`${turn}`));
+		const $newTurn = $(`<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">${turnText}</div>`);
 		$newTurn.css({
 			opacity: 0,
 			left: 160,
@@ -1686,7 +1721,8 @@ export class BattleScene implements BattleSceneStub {
 		}
 		this.battle = null!;
 	}
-	static getHPColor(pokemon: { hp: number, maxhp: number }) {
+	static getHPColor(pokemon: { hp: number, maxhp: number, hpcolor: HPColor | '' }) {
+		if (pokemon.hpcolor) return pokemon.hpcolor;
 		let ratio = pokemon.hp / pokemon.maxhp;
 		if (ratio > 0.5) return 'g';
 		if (ratio > 0.2) return 'y';
@@ -2820,7 +2856,7 @@ export class PokemonSprite extends Sprite {
 		}
 		if (pokemon.terastallized) {
 			status += `<img src="${Dex.resourcePrefix}sprites/types/${encodeURIComponent(pokemon.terastallized)}.png" alt="${pokemon.terastallized}" class="pixelated" /> `;
-		} else if (pokemon.volatiles.typechange && pokemon.volatiles.typechange[1]) {
+		} else if (pokemon.volatiles.typechange?.[1]) {
 			const types = pokemon.volatiles.typechange[1].split('/');
 			for (const type of types) {
 				status += '<img src="' + Dex.resourcePrefix + 'sprites/types/' + encodeURIComponent(type) + '.png" alt="' + type + '" class="pixelated" /> ';
@@ -2927,8 +2963,8 @@ const BattleEffects: { [k: string]: SpriteData } = {
 		url: 'wisp.png',
 		w: 100, h: 100,
 	},
-	poisonwisp: {
-		url: 'poisonwisp.png',
+	purplewisp: {
+		url: 'purplewisp.png',
 		w: 100, h: 100,
 	},
 	waterwisp: {
@@ -4804,7 +4840,7 @@ export const BattleOtherAnims: AnimTable = {
 				opacity: 0.1,
 				time: 400,
 			}, 'decel', 'fade');
-			scene.showEffect('poisonwisp', {
+			scene.showEffect('purplewisp', {
 				x: defender.x,
 				y: defender.y - 25,
 				z: defender.z,
@@ -4816,7 +4852,7 @@ export const BattleOtherAnims: AnimTable = {
 				opacity: 0.3,
 				time: 500,
 			}, 'linear', 'fade');
-			scene.showEffect('poisonwisp', {
+			scene.showEffect('purplewisp', {
 				x: defender.x,
 				y: defender.y - 25,
 				z: defender.z,
@@ -4877,7 +4913,7 @@ export const BattleOtherAnims: AnimTable = {
 				time: 450,
 			}, 'accel');
 
-			scene.showEffect('poisonwisp', {
+			scene.showEffect('purplewisp', {
 				x: defender.x - 50,
 				y: defender.y - 40,
 				z: defender.z,
@@ -4890,7 +4926,7 @@ export const BattleOtherAnims: AnimTable = {
 				z: attacker.z,
 				time: 900,
 			}, 'decel', 'fade');
-			scene.showEffect('poisonwisp', {
+			scene.showEffect('purplewisp', {
 				x: defender.x - 50,
 				y: defender.y - 40,
 				z: defender.z,
@@ -4903,7 +4939,7 @@ export const BattleOtherAnims: AnimTable = {
 				z: attacker.z,
 				time: 900,
 			}, 'decel', 'fade');
-			scene.showEffect('poisonwisp', {
+			scene.showEffect('purplewisp', {
 				x: defender.x,
 				y: defender.y - 40,
 				z: defender.z,
@@ -4982,7 +5018,7 @@ export const BattleOtherAnims: AnimTable = {
 				time: 1350,
 			}, 'decel');
 
-			scene.showEffect('poisonwisp', {
+			scene.showEffect('purplewisp', {
 				x: attacker.x,
 				y: attacker.y - 25,
 				z: attacker.z,
@@ -4994,7 +5030,7 @@ export const BattleOtherAnims: AnimTable = {
 				opacity: 0.3,
 				time: 1200,
 			}, 'linear', 'fade');
-			scene.showEffect('poisonwisp', {
+			scene.showEffect('purplewisp', {
 				x: attacker.x,
 				y: attacker.y - 25,
 				z: attacker.z,
@@ -5848,7 +5884,7 @@ export const BattleStatusAnims: AnimTable = {
 	},
 	psn: {
 		anim(scene, [attacker]) {
-			scene.showEffect('poisonwisp', {
+			scene.showEffect('purplewisp', {
 				x: attacker.x + 30,
 				y: attacker.y - 40,
 				z: attacker.z,
@@ -5861,7 +5897,7 @@ export const BattleStatusAnims: AnimTable = {
 				opacity: 0.5,
 				time: 300,
 			}, 'decel', 'fade');
-			scene.showEffect('poisonwisp', {
+			scene.showEffect('purplewisp', {
 				x: attacker.x - 30,
 				y: attacker.y - 40,
 				z: attacker.z,
@@ -5874,7 +5910,7 @@ export const BattleStatusAnims: AnimTable = {
 				opacity: 0.5,
 				time: 400,
 			}, 'decel', 'fade');
-			scene.showEffect('poisonwisp', {
+			scene.showEffect('purplewisp', {
 				x: attacker.x,
 				y: attacker.y - 40,
 				z: attacker.z,

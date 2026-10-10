@@ -5,27 +5,16 @@ import { configs, configure, globals } from './eslint-ps-standard.mjs';
 export default configure([
 	{
 		ignores: [
-			'caches/**',
-			'play.pokemonshowdown.com/config/*',
+			'caches/',
+			'play.pokemonshowdown.com/config/',
 			'play.pokemonshowdown.com/src/battle-log-misc.js',
-			'play.pokemonshowdown.com/js/replay-embed.js',
+			'play.pokemonshowdown.com/js/',
 		],
 	},
 	{
 		name: "JavaScript for browsers (ES3)",
 		files: [
-			'play.pokemonshowdown.com/js/client-battle.js',
-			'play.pokemonshowdown.com/js/client-chat-tournament.js',
-			'play.pokemonshowdown.com/js/client-chat.js',
-			'play.pokemonshowdown.com/js/client-ladder.js',
-			'play.pokemonshowdown.com/js/client-mainmenu.js',
-			'play.pokemonshowdown.com/js/client-rooms.js',
-			'play.pokemonshowdown.com/js/client-teambuilder.js',
-			'play.pokemonshowdown.com/js/client-topbar.js',
-			'play.pokemonshowdown.com/js/client.js',
-			'play.pokemonshowdown.com/js/replay-embed.template.js',
-			'play.pokemonshowdown.com/js/search.js',
-			'play.pokemonshowdown.com/js/storage.js',
+			'play.pokemonshowdown.com/src/oldclient/*',
 			'config/config-example.js',
 		],
 		extends: [configs.es3],
@@ -87,6 +76,7 @@ export default configure([
 			'build-tools/*.js',
 			'build-tools/update',
 			'build-tools/build-*',
+			'test/run',
 		],
 		extends: [configs.js],
 		languageOptions: {
@@ -131,6 +121,28 @@ export default configure([
 				],
 				allowBoolean: false, allowNever: false, allowNullish: false, allowRegExp: false,
 			}],
+		},
+	},
+	{
+		name: "TypeScript for Node",
+		files: ['build-tools/*.{ts,mts}'],
+		extends: [configs.ts],
+		languageOptions: {
+			parserOptions: {
+				projectService: true,
+				tsconfigRootDir: import.meta.dirname,
+			},
+			globals: {
+				...globals.builtin,
+				...globals.node,
+			},
+		},
+		rules: {
+			// Translation files are trusted code, and evaluating them keeps this tool independent of Babel.
+			"@typescript-eslint/no-implied-eval": "off",
+			// These regexes describe the catalog's source syntax more clearly than string primitives.
+			"@typescript-eslint/prefer-regexp-exec": "off",
+			"@typescript-eslint/prefer-string-starts-ends-with": "off",
 		},
 	},
 ]);

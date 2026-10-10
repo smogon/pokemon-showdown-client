@@ -61,7 +61,7 @@ includeHeader();
 				<li><p><strong>Kris Johnson</strong> [dhelmise] <small>&ndash; Development (battle simulation), Art (battle animations)</small></p></li>
 				<li><p><strong>Leonard Craft III</strong> [DaWoblefet] <small>&ndash; Research (game mechanics), Development</small></p></li>
 				<li><p><strong>Mathieu Dias-Martins</strong> [Marty] <small>&ndash; Research (game mechanics), Development</small></p></li>
-				<li><p><strong>Mia H.</strong> [Hecate] <small>&ndash; Development (chat, loginserver, UI)</small></p></li>
+				<li><p><strong>Mia H.</strong> [Cassiopeia] <small>&ndash; Development (chat, loginserver, UI)</small></p></li>
 			</ul>
 
 			<h2><span>Retired Staff</span></h2>
@@ -80,7 +80,7 @@ includeHeader();
 			<ul>
 				<li><p><strong>Austin Couturier</strong> [Austin] <small>&ndash; Development (damage calculator)</small></p></li>
 				<li><p><strong>Kevin Lau</strong> [Ascriptmaster] <small>&ndash; Development, Art (battle animations)</small></p></li>
-				<li><p><strong>Kamila Borowska</strong> [xfix] <small>&ndash; Development</small></p></li>
+				<li><p><strong>Luna Borowska</strong> [sugar700] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Neil Rashbrook</strong> [urkerab] <small>&ndash; Development (battle simulation)</small></p></li>
 				<li><p>[<strong>peach</strong>] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>pyuk</strong>] <small>&ndash; Development (game mechanics)</small></p></li>
@@ -136,7 +136,6 @@ includeHeader();
 				<li><p><a href="https://lit.link/en/seiryuuden" target="_blank" class="subtle"><strong>Jessica Valencia</strong> [seiryuuden]</a> <small>&ndash; Art (Charizards background)</small></p></li>
 				<li><p><a href="http://kyle-dove.deviantart.com/" target="_blank" class="subtle"><strong>Kyle Dove</strong></a> <small>&ndash; Art (battle backdrops)</small></p></li>
 				<li><p><a href="http://vtas.deviantart.com/" target="_blank" class="subtle"><strong>Vivian Zou</strong> [Vtas]</a> <small>&ndash; Art (Horizon background)</small></p></li>
-				<li><p><a href="https://x.com/Yilxaevum" target="_blank" class="subtle"><strong>Samuel Teo</strong> [Yilx]</a> <small>&ndash; Art (Waterfall background)</small></p></li>
 				<li><p><a href="http://quanyails.deviantart.com/" target="_blank" class="subtle">[<strong>Quanyails</strong>]</a> <small>&ndash; Art (Ocean background)</small></p></li>
 				<li><p><a href="http://smogon.com/forums/threads/3486712/" target="_blank" class="subtle"><strong>X/Y</strong></a> and <a href="http://www.smogon.com/forums/threads/3577711/" target="_blank" class="subtle"><strong>Sun/Moon Sprite Projects</strong></a> led by <strong>Ian Clail</strong> [Layell]<small>&ndash; Sprites</small></p></li>
 				<li><p><a href="http://www.smogon.com/forums/threads/3577711/" target="_blank" class="subtle"><strong>Sun/Moon</strong></a> and <a href="https://www.smogon.com/forums/threads/3647722/" target="_blank" class="subtle"><strong>Sword/Shield Sprite Projects</strong></a> led by [<strong>leparagon</strong>] <small>&ndash; Sprites</small></p></li>

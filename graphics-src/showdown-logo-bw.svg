@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Pokémon Showdown logo, black and white</title>
+  <g fill="black" stroke="white" stroke-width="5" stroke-linejoin="round">
+    <!-- exclamation mark -->
+    <path d="M 176 21 H 221 Q 236 21 231 36
+             L 188 152 Q 185 164 173 164
+             H 146 Q 134 164 138 150
+             L 164 32 Q 166 21 176 21 Z" />
+    <path d="M 137 174 H 182 Q 198 174 194 188
+             L 186 218 Q 184 226 174 226
+             H 127 Q 114 226 117 213
+             L 125 184 Q 127 174 137 174 Z" />
+
+    <!-- ball -->
+    <path d="M 30 114 C 33 75 64 45 104 45
+             C 144 45 175 75 178 114
+             H 126 A 23 23 0 0 0 82 114 Z" />
+    <path d="M 30 126 H 82 A 23 23 0 0 0 126 126
+             H 178 C 175 165 144 195 104 195
+             C 64 195 33 165 30 126 Z" />
+  </g>
+</svg>

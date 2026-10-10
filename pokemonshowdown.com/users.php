@@ -485,13 +485,13 @@ if (!$user) {
 		</p>
 <?php
 	}
-	if ($user['userid'] === 'slarty' || $user['userid'] === 'peterthegreeat' || $user['userid'] === 'chrisloud' || $user['userid'] === 'skitty' || $user['userid'] === 'aulu' || $user['userid'] === 'morpeko' || $user['userid'] === 'morfent' || $user['userid'] === 'mikotomisaka' || $user['userid'] === 'xbossarux' || $user['userid'] === 'victoriousbig') {
+	if ($user['userid'] === 'slarty' || $user['userid'] === 'peterthegreeat' || $user['userid'] === 'chrisloud' || $user['userid'] === 'skitty' || $user['userid'] === 'aulu' || $user['userid'] === 'morpeko' || $user['userid'] === 'morfent' || $user['userid'] === 'mikotomisaka' || $user['userid'] === 'xbossarux' || $user['userid'] === 'victoriousbig' || $user['userid'] === 'rau' || $user['userid'] === 'fakee') {
 		echo '<p>;_;7</p>';
 	}
 
 	// Ladder
 
-	$ladderTourID = str_starts_with($user['userid'], 'lt12');
+	$ladderTourID = str_starts_with($user['userid'], 'lt13');
 	if ($user['userid'] === $curuser['userid'] && !$ladderTourID) {
 		if ($users->csrfCheck() && @$_POST['resetLadder']) {
 			$formatLadder = new NTBBLadder(@$_POST['resetLadder']);

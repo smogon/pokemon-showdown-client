@@ -20,6 +20,11 @@ export interface BattleRequestSideInfo {
 	id: 'p1' | 'p2' | 'p3' | 'p4';
 	pokemon: ServerPokemon[];
 }
+export interface BattleRequestAllyInfo {
+	id: string;
+	name: string;
+	pokemon: ServerPokemon[];
+}
 export interface BattleRequestActivePokemon {
 	moves: {
 		name: string,
@@ -60,6 +65,7 @@ export interface BattleMoveRequest {
 	requestType: 'move';
 	rqid: number;
 	side: BattleRequestSideInfo;
+	ally?: BattleRequestAllyInfo;
 	active: (BattleRequestActivePokemon | null)[];
 	noCancel?: boolean;
 	targetable?: boolean;
@@ -67,6 +73,7 @@ export interface BattleMoveRequest {
 export interface BattleSwitchRequest {
 	requestType: 'switch';
 	rqid: number;
+	ally?: BattleRequestAllyInfo;
 	side: BattleRequestSideInfo;
 	forceSwitch: boolean[];
 	noCancel?: boolean;
@@ -75,6 +82,7 @@ export interface BattleTeamRequest {
 	requestType: 'team';
 	rqid: number;
 	side: BattleRequestSideInfo;
+	ally?: BattleRequestAllyInfo;
 	maxTeamSize?: number;
 	maxChosenTeamSize?: number;
 	chosenTeamSize?: number;
@@ -84,6 +92,7 @@ export interface BattleWaitRequest {
 	requestType: 'wait';
 	rqid: number;
 	side: undefined;
+	ally: undefined;
 	noCancel?: boolean;
 }
 export type BattleRequest = BattleMoveRequest | BattleSwitchRequest | BattleTeamRequest | BattleWaitRequest;
@@ -118,8 +127,6 @@ type BattleChoice = BattleMoveChoice | BattleSwitchChoice | BattleMiscChoice;
 /**
  * Tracks a partial choice, allowing you to build it up one step at a time,
  * and maybe even construct a UI to build it!
- *
- * Doesn't support going backwards; just use `new BattleChoiceBuilder`.
  */
 export class BattleChoiceBuilder {
 	request: BattleRequest;
@@ -145,6 +152,7 @@ export class BattleChoiceBuilder {
 	alreadyMax = false;
 	alreadyZ = false;
 	alreadyTera = false;
+	serializedChoice: string | null = null;
 
 	constructor(request: BattleRequest) {
 		this.request = request;
@@ -153,20 +161,49 @@ export class BattleChoiceBuilder {
 	}
 
 	toString() {
+		if (this.serializedChoice) return this.serializedChoice;
 		let choices = this.choices;
 		if (this.current.move) choices = choices.concat(this.stringChoice(this.current));
 		return choices.join(', ').replace(/, team /g, ', ');
 	}
 
 	isDone() {
-		return this.choices.length >= this.requestLength();
+		return !!this.serializedChoice || this.choices.length >= this.requestLength();
 	}
 	isEmpty() {
+		if (this.serializedChoice) return false;
 		for (const choice of this.choices) {
 			if (choice !== 'pass') return false;
 		}
 		if (this.current.move) return false;
 		return true;
+	}
+	previous() {
+		const previous = new BattleChoiceBuilder(this.request);
+		const choices = this.choices.slice();
+		let partialChoice = '';
+
+		if (!this.current.move && !this.serializedChoice) {
+			while (choices[choices.length - 1] === 'pass') choices.pop();
+			const lastChoiceString = choices.pop();
+			if (lastChoiceString) {
+				const lastChoice = this.parseChoice(lastChoiceString, choices.length);
+				if (lastChoice?.choiceType === 'move' && lastChoice.targetLoc) {
+					lastChoice.targetLoc = 0;
+					partialChoice = this.stringChoice(lastChoice);
+				}
+			}
+		}
+		for (const choice of choices) {
+			if (choice === 'pass') continue;
+			const possibleError = previous.addChoice(choice);
+			if (possibleError) throw new Error(possibleError);
+		}
+		if (partialChoice) {
+			const possibleError = previous.addChoice(partialChoice);
+			if (possibleError) throw new Error(possibleError);
+		}
+		return previous;
 	}
 
 	/** Index of the current Pokémon to make choices for */
@@ -191,11 +228,17 @@ export class BattleChoiceBuilder {
 		if (this.request.requestType !== 'move') return null;
 		return this.request.active[index];
 	}
+	isReviving(index = this.index()) {
+		if (this.request.requestType !== 'switch') return false;
+		return !!this.request.side.pokemon[index]?.reviving;
+	}
 	noMoreSwitchChoices() {
 		if (this.request.requestType !== 'switch') return false;
-		for (let i = this.requestLength(); i < this.request.side.pokemon.length; i++) {
+		const isReviving = this.isReviving();
+		const firstChoice = isReviving ? 0 : this.requestLength();
+		for (let i = firstChoice; i < this.request.side.pokemon.length; i++) {
 			const pokemon = this.request.side.pokemon[i];
-			if (!pokemon.fainted && !this.alreadySwitchingIn.includes(i + 1)) {
+			if (!!pokemon.fainted === isReviving && !this.alreadySwitchingIn.includes(i + 1)) {
 				return false;
 			}
 		}
@@ -203,6 +246,12 @@ export class BattleChoiceBuilder {
 	}
 
 	addChoice(choiceString: string) {
+		if (this.isDone()) return `You've already chosen for this turn; cancel to change your choice`;
+		if (choiceString === 'auto' || choiceString === 'default') {
+			const currentChoice = this.toString();
+			this.serializedChoice = currentChoice ? `${currentChoice}, default` : 'default';
+			return null;
+		}
 		let choice: BattleChoice | null;
 		try {
 			choice = this.parseChoice(choiceString);
@@ -215,14 +264,15 @@ export class BattleChoiceBuilder {
 		/** only the last choice can be uncancelable */
 		const isLastChoice = this.choices.length + 1 >= this.requestLength();
 		if (choice.choiceType === 'move') {
-			if (!choice.targetLoc && (this.request as BattleMoveRequest).targetable) {
+			const targetable = (this.request as BattleMoveRequest).targetable;
+			if (!choice.targetLoc && targetable) {
 				const choosableTargets: unknown[] = ['normal', 'any', 'adjacentAlly', 'adjacentAllyOrSelf', 'adjacentFoe'];
 				if (choosableTargets.includes(this.currentMove(choice)?.target)) {
 					this.current = choice;
 					return null;
 				}
 			}
-			if (this.currentMoveRequest()?.maybeDisabled && isLastChoice) {
+			if (this.currentMoveRequest()?.maybeDisabled && isLastChoice && !targetable) {
 				this.noCancel = true;
 			}
 			if (choice.mega || choice.megax || choice.megay) this.alreadyMega = true;
@@ -276,6 +326,31 @@ export class BattleChoiceBuilder {
 		this.fillPasses();
 		return null;
 	}
+	addChoices(choiceString: string) {
+		let choiceStrings: string[];
+		if (choiceString.startsWith('team ')) {
+			let teamChoice = choiceString.slice(5).trim();
+			const isBracketedTeam = teamChoice.startsWith('[') && teamChoice.endsWith(']');
+			if (isBracketedTeam) teamChoice = teamChoice.slice(1, -1).trim();
+			const teamChoices = isBracketedTeam || teamChoice.includes(',') || (this.request.side?.pokemon.length ?? 0) >= 10 ?
+				teamChoice.split(',') : (/^[0-9]+$/.test(teamChoice) ? teamChoice.split('') : [teamChoice]);
+			choiceStrings = teamChoices.slice(0, this.requestLength()).map(choice => `team ${choice.trim()}`);
+		} else {
+			choiceStrings = choiceString.split(',').map(choice => choice.trim());
+		}
+		for (const choice of choiceStrings) {
+			const possibleError = this.addChoice(choice);
+			if (possibleError) return possibleError;
+		}
+		if (this.request.requestType === 'team' && choiceString.startsWith('team ')) {
+			for (let i = 1; this.choices.length < this.requestLength(); i++) {
+				if (this.alreadySwitchingIn.includes(i)) continue;
+				const possibleError = this.addChoice(`team ${i}`);
+				if (possibleError) return possibleError;
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * Move and switch requests will often skip over some active Pokémon (mainly
@@ -286,14 +361,17 @@ export class BattleChoiceBuilder {
 		const request = this.request;
 		switch (request.requestType) {
 		case 'move':
-			while (this.choices.length < request.active.length && !request.active[this.choices.length]) {
+			while (
+				(this.choices.length < request.active.length &&
+					!request.active[this.choices.length]) ||
+					request.side?.pokemon[this.choices.length]?.commanding
+			) {
 				this.choices.push('pass');
 			}
 			break;
 		case 'switch':
-			const noMoreSwitchChoices = this.noMoreSwitchChoices();
 			while (this.choices.length < request.forceSwitch.length) {
-				if (!request.forceSwitch[this.choices.length] || noMoreSwitchChoices) {
+				if (!request.forceSwitch[this.choices.length] || this.noMoreSwitchChoices()) {
 					this.choices.push('pass');
 				} else {
 					break;
@@ -449,6 +527,7 @@ export class BattleChoiceBuilder {
 				choiceType: isTeamPreview ? 'team' : 'switch',
 				targetPokemon: 0,
 			};
+			if (choice === 'notMine') throw new Error(`You cannot decide for your partner!`);
 			if (/^[0-9]+$/.test(choice)) {
 				// Parse a one-based move index.
 				current.targetPokemon = parseInt(choice, 10);
@@ -482,13 +561,13 @@ export class BattleChoiceBuilder {
 				}
 				current.targetPokemon = match;
 			}
-			if (!isTeamPreview && current.targetPokemon - 1 < this.requestLength()) {
-				throw new Error(`That Pokémon is already in battle!`);
-			}
 			const target = request.side.pokemon[current.targetPokemon - 1];
-			const isReviving = this.request.side?.pokemon!.some(p => p.reviving);
+			const isReviving = this.isReviving(index);
 			if (!target) {
 				throw new Error(`Couldn't find Pokémon "${choice}" to switch to!`);
+			}
+			if (!isTeamPreview && !isReviving && current.targetPokemon - 1 < this.requestLength()) {
+				throw new Error(`That Pokémon is already in battle!`);
 			}
 			if (isReviving && target.fainted) return current;
 			if (isReviving && !target.fainted) {
@@ -527,6 +606,7 @@ export class BattleChoiceBuilder {
 			(choice.mega ? ' mega' : '') +
 			(choice.megax ? ' megax' : '') +
 			(choice.megay ? ' megay' : '') +
+			(choice.ultra ? ' ultra' : '') +
 			(choice.z ? ' zmove' : '') +
 			(choice.tera ? ' terastallize' : '');
 	}
@@ -557,6 +637,12 @@ export class BattleChoiceBuilder {
 		if (request.requestType === 'wait') request.noCancel = true;
 		if (request.side) {
 			for (const serverPokemon of request.side.pokemon) {
+				battle.parseDetails(serverPokemon.ident.substr(4), serverPokemon.ident, serverPokemon.details, serverPokemon);
+				battle.parseHealth(serverPokemon.condition, serverPokemon);
+			}
+		}
+		if (request.ally) {
+			for (const serverPokemon of request.ally.pokemon) {
 				battle.parseDetails(serverPokemon.ident.substr(4), serverPokemon.ident, serverPokemon.details, serverPokemon);
 				battle.parseHealth(serverPokemon.condition, serverPokemon);
 			}

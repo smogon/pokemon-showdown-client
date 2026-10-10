@@ -188,7 +188,7 @@ export const defaultRules = {
 	"@stylistic/lines-between-class-members": "off",
 	"@stylistic/multiline-ternary": "off",
 	"@stylistic/object-curly-spacing": ["error", "always"],
-	"@stylistic/indent": ["error", "tab", { "flatTernaryExpressions": true }],
+	"@stylistic/indent": ["error", "tab", { "flatTernaryExpressions": true, "SwitchCase": 0 }],
 };
 
 /** @type {NonNullable<Config['rules']>} */
@@ -321,6 +321,9 @@ export const defaultRulesES3 = {
 		{ selector: "TaggedTemplateExpression", message: "Not supported by ES3" },
 		{ selector: "CallExpression[callee.name='Symbol']", message: "Annoying to serialize, just use a string" },
 	],
+	"no-restricted-properties": ["error",
+		{ object: "Object", property: "defineProperty", message: "Not in ES3" },
+	],
 
 	// with no block scoping, coming up with original variable names is too hard
 	"no-redeclare": "off",
@@ -349,7 +352,15 @@ export const defaultRulesES3TSChecked = {
 	// Map/Set can be polyfilled but it's nontrivial and it's easier just to use bare objects
 	// fetch can be polyfilled, but our standard is to use $.get or Net as appropriate.
 	"no-restricted-globals": ["error", "Proxy", "Reflect", "Symbol", "WeakSet", "WeakMap", "Set", "Map", "fetch"],
-	"no-restricted-syntax": ["error", "YieldExpression", "AwaitExpression", "BigIntLiteral"],
+	"no-restricted-syntax": ["error",
+		"YieldExpression", "AwaitExpression", "BigIntLiteral",
+		{ selector: "MethodDefinition[kind='get']", message: "Getters cannot be compiled to ES3" },
+		{ selector: "Property[kind='get']", message: "Getters cannot be compiled to ES3" },
+		{ selector: "CallExpression[callee.name='Symbol']", message: "Annoying to serialize, just use a string" },
+	],
+	"no-restricted-properties": ["error",
+		{ object: "Object", property: "defineProperty", message: "Not in ES3" },
+	],
 };
 
 /**

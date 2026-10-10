@@ -749,6 +749,8 @@ if (function_exists('dirindex_intro')) {
 $has_sprites = false;
 $special_sprites = function_exists('dirindex_sprites');
 $view = $_GET['view'] ?? ($special_sprites ? 'sprites' : 'dir');
+if (!ctype_alnum($view)) die('Access denied; invalid view');
+
 if ($special_sprites || array_key_exists($rel_dir, $sprites_whitelist)) {
 	$has_sprites = true;
 	if ($view === 'sprites') {
