@@ -2352,6 +2352,12 @@ p.or:after {
 .teamlist button i {
 	margin-right: 2px;
 }
+.teamlist .team-favorite.cur {
+	color: #9a6700;
+}
+.dark .teamlist .team-favorite.cur {
+	color: #ffd33d;
+}
 .setmenu-left {
 	position: absolute;
 	top: 5px;

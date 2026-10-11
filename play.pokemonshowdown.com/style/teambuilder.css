@@ -221,7 +221,13 @@
 }
 .team-controls {
 	display: inline-block;
-	width: 118px;
+	width: 150px;
+}
+.team-controls .team-favorite.cur {
+	color: #9a6700;
+}
+.dark .team-controls .team-favorite.cur {
+	color: #ffd33d;
 }
 .teamlist li.cur .team {
 	opacity: 0.5;

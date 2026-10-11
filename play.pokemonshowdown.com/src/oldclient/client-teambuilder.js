@@ -2,6 +2,7 @@
 
 	// this is a useful global
 	var teams;
+	var FAVORITES_FOLDER = '++favorites';
 
 	exports.TeambuilderRoom = exports.Room.extend({
 		type: 'teambuilder',
@@ -213,7 +214,7 @@
 			if (this.exportMode) {
 				if (this.curFolder) {
 					buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button></div>';
-					buf += '<div class="teamedit"><textarea readonly class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportFolder(this.curFolder)) + '</textarea></div>';
+					buf += '<div class="teamedit"><textarea readonly class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportFolder(this.curFolder, this.curFolder === FAVORITES_FOLDER)) + '</textarea></div>';
 				} else {
 					buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button> <button name="saveBackup" class="savebutton button"><i class="fa fa-floppy-o"></i> Save</button></div>';
 					buf += '<div class="teamedit"><textarea class="textbox" rows="17">';
@@ -268,6 +269,7 @@
 			var buf = '<div class="folderlist"><div class="folderlistbefore"></div>';
 
 			buf += '<div class="folder' + (!this.curFolder ? ' cur"><div class="folderhack3"><div class="folderhack1"></div><div class="folderhack2"></div>' : '">') + '<div class="selectFolder" data-value="all"><em>(all)</em></div></div>' + (!this.curFolder ? '</div>' : '');
+			buf += '<div class="folder' + (this.curFolder === FAVORITES_FOLDER ? ' cur"><div class="folderhack3"><div class="folderhack1"></div><div class="folderhack2"></div>' : '">') + '<div class="selectFolder" data-value="' + FAVORITES_FOLDER + '"><i class="fa fa-star"></i>Favorites</div></div>' + (this.curFolder === FAVORITES_FOLDER ? '</div>' : '');
 			var folderTable = {};
 			var folders = [];
 			if (Storage.teams) for (var i = -2; i < Storage.teams.length; i++) {
@@ -391,6 +393,7 @@
 			buf += this.clipboardHTML();
 
 			var filterFormat = '';
+			var filterFavorites = false;
 
 			// filterFolder === undefined: show teams in any folder
 			// filterFolder === '': show only teams that don't have a folder
@@ -402,7 +405,11 @@
 				buf += '<p><button class="button" name="greeting" value="Y"><i class="fa fa-smile-o"></i> Yes, my day was pretty good</button> <button class="button" name="greeting" value="N"><i class="fa fa-frown-o"></i> No, it wasn\'t great</button></p>';
 				buf += '<h2>All teams <small style="font-weight: normal">(' + teams.length + ')</small></h2>';
 			} else {
-				if (this.curFolder.slice(-1) === '/') {
+				if (this.curFolder === FAVORITES_FOLDER) {
+					filterFavorites = true;
+					var favoriteCount = teams.filter(function (team) { return team.favorite; }).length;
+					buf += '<h2><i class="fa fa-star"></i> Favorites <small style="font-weight: normal">(' + favoriteCount + ')</small></h2>';
+				} else if (this.curFolder.slice(-1) === '/') {
 					filterFolder = this.curFolder.slice(0, -1);
 					if (filterFolder) {
 						buf += '<h2><i class="fa fa-folder-open"></i> ' + filterFolder + ' <button class="button small" style="margin-left:5px" name="renameFolder"><i class="fa fa-pencil"></i> Rename</button> <button class="button small" style="margin-left:5px" name="promptDeleteFolder"><i class="fa fa-times"></i> Remove</button></h2>';
@@ -465,6 +472,7 @@
 
 					if (filterFormat && filterFormat !== (team.format || 'gen9')) continue;
 					if (filterFolder !== undefined && filterFolder !== team.folder) continue;
+					if (filterFavorites && !team.favorite) continue;
 
 					if (this.curSearchVal) {
 						// If a Pokemon hasn't been given a nickname, species is omitted
@@ -499,7 +507,7 @@
 					if (team.capacity === 24) buf += ' pc-box';
 					buf += '" draggable="true"><strong><span>' + BattleLog.escapeHTML(formatText) + '</span>' + BattleLog.escapeHTML(team.name) + '</strong><small>';
 					buf += Storage.getTeamIcons(team);
-					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil" aria-label="Edit" title="Edit (you can also just click on the team)"></i></button><button name="duplicate" value="' + i + '" title="Duplicate" aria-label="Duplicate"><i class="fa fa-clone"></i></button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i> Delete</button></li>';
+					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil" aria-label="Edit" title="Edit (you can also just click on the team)"></i></button><button name="duplicate" value="' + i + '" title="Duplicate" aria-label="Duplicate"><i class="fa fa-clone"></i></button><button name="favorite" value="' + i + '" class="team-favorite' + (team.favorite ? ' cur' : '') + '" title="' + (team.favorite ? 'Remove favorite' : 'Favorite') + '" aria-label="' + (team.favorite ? 'Remove favorite' : 'Favorite') + '"><i class="fa fa-star' + (team.favorite ? '' : '-o') + '"></i></button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i> Delete</button></li>';
 
 				}
 				if (!atLeastOne) {
@@ -783,6 +791,14 @@
 			app.user.trigger('saveteams');
 			this.updateTeamList();
 		},
+		favorite: function (i) {
+			var team = teams[+i];
+			if (!team) return;
+			team.favorite = !team.favorite;
+			Storage.saveTeams();
+			app.user.trigger('saveteams');
+			this.updateTeamList();
+		},
 		undoDelete: function () {
 			if (this.deletedTeamLoc >= 0) {
 				teams.splice(this.deletedTeamLoc, 0, this.deletedTeam);
@@ -805,9 +821,11 @@
 			}
 		},
 		saveBackup: function () {
+			var favorites = Storage.packTeamFavorites();
 			Storage.deleteAllTeams();
 			Storage.importTeam(this.$('.teamedit textarea').val(), true);
 			teams = Storage.teams;
+			Storage.loadTeamFavorites(favorites);
 			Storage.saveAllTeams();
 			for (var room in app.rooms) {
 				var selection = app.rooms[room].$('button.teamselect').val();
@@ -858,7 +876,8 @@
 					iconCache: ''
 				};
 			} else {
-				var format = this.curFolder || 'gen9';
+				var favorite = this.curFolder === FAVORITES_FOLDER;
+				var format = favorite ? 'gen9' : this.curFolder || 'gen9';
 				var folder = '';
 				if (format && format.charAt(format.length - 1) === '/') {
 					folder = format.slice(0, -1);
@@ -870,6 +889,7 @@
 					team: '',
 					capacity: isBox ? 24 : 6,
 					folder: folder,
+					favorite: favorite,
 					iconCache: ''
 				};
 			}
@@ -1023,7 +1043,9 @@
 					$plusOneFolder.text('+' + count);
 				}
 				var format = $folder.data('value');
-				if (format.slice(-1) === '/') {
+				if (format === FAVORITES_FOLDER) {
+					team.favorite = true;
+				} else if (format.slice(-1) === '/') {
 					team.folder = format.slice(0, -1);
 				} else {
 					team.format = format;
@@ -1108,7 +1130,7 @@
 			if (format === '+' || format === '++' || format === 'all' || format === this.curFolder) {
 				return;
 			}
-			if (parseInt(app.dragging.dataset.value, 10) >= Storage.teams.length && format.slice(-1) !== '/') {
+			if (parseInt(app.dragging.dataset.value, 10) >= Storage.teams.length && format.slice(-1) !== '/' && format !== FAVORITES_FOLDER) {
 				// dragging a team file, already has a known format
 				return;
 			}
@@ -1132,7 +1154,7 @@
 			if (dataTransfer.types.contains && !dataTransfer.types.contains('Files')) return;
 			if (dataTransfer.files[0] && dataTransfer.files[0].name.slice(-4) !== '.txt') return;
 			// We're dragging a file! It might be a team!
-			if (app.curFolder && app.curFolder.slice(-1) !== '/') {
+			if (app.curFolder && app.curFolder !== FAVORITES_FOLDER && app.curFolder.slice(-1) !== '/') {
 				this.selectFolder('all');
 			}
 			this.$('.teamlist').append('<li class="dragging"><div class="team" data-value="' + Storage.teams.length + '"></div></li>');
@@ -1185,6 +1207,7 @@
 						team: team,
 						capacity: capacity,
 						folder: '',
+						favorite: self.curFolder === FAVORITES_FOLDER,
 						iconCache: ''
 					});
 					self.finishDrop();

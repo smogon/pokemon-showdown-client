@@ -15,6 +15,7 @@ import { TeamEditorState } from "./battle-team-editor";
 
 const ADD_FORMAT_FOLDER_VALUE = '+';
 const ADD_FOLDER_VALUE = '++';
+const FAVORITES_FOLDER_VALUE = '++favorites';
 
 class TeambuilderRoom extends PSRoom {
 	readonly DEFAULT_FORMAT = Dex.modid;
@@ -25,6 +26,7 @@ class TeambuilderRoom extends PSRoom {
 	 * - `"gen[NUMBER]"` - uncategorized gen folder
 	 * - `"[ID]/"` - folder
 	 * - `"/"` - not in folder
+	 * - `"++favorites"` - favorite teams
 	 */
 	curFolder = '';
 	curFolderKeep = '';
@@ -62,6 +64,14 @@ class TeambuilderRoom extends PSRoom {
 			if (!team) return this.errorReply(TL`Team not found: ${target}`);
 
 			PS.teams.delete(team);
+			PS.teams.save();
+			this.update(null);
+		},
+		'favoriteteam'(target) {
+			const team = PS.teams.byKey[target];
+			if (!team) return this.errorReply(TL`Team not found: ${target}`);
+
+			team.favorite = !team.favorite;
 			PS.teams.save();
 			this.update(null);
 		},
@@ -211,12 +221,15 @@ class TeambuilderRoom extends PSRoom {
 				key: '',
 			};
 		} else {
-			const format = this.curFolder && !this.curFolder.endsWith('/') ? this.curFolder as ID : this.DEFAULT_FORMAT;
+			const favorite = this.curFolder === FAVORITES_FOLDER_VALUE;
+			const format = this.curFolder && !this.curFolder.endsWith('/') && !favorite ?
+				this.curFolder as ID : this.DEFAULT_FORMAT;
 			const folder = this.curFolder.endsWith('/') ? this.curFolder.slice(0, -1) : '';
 			return {
 				name: `${isBox ? "Box" : "Untitled"} ${PS.teams.list.length + 1}`,
 				format,
 				folder,
+				favorite,
 				packedTeam: '',
 				iconCache: null,
 				isBox,
@@ -455,7 +468,9 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			if (!team) {
 				return;
 			}
-			if (folder?.endsWith('/')) {
+			if (folder === FAVORITES_FOLDER_VALUE) {
+				team.favorite = true;
+			} else if (folder?.endsWith('/')) {
 				team.folder = folder.slice(0, -1);
 			} else if (folder) {
 				team.format = folder as ID;
@@ -481,7 +496,9 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			return;
 		}
 
-		if (value.endsWith('/')) {
+		if (value === FAVORITES_FOLDER_VALUE) {
+			team.favorite = true;
+		} else if (value.endsWith('/')) {
 			team.folder = value.slice(0, -1);
 		} else {
 			team.format = value as ID;
@@ -543,7 +560,12 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		const cur = room.curFolder === value;
 		let children;
 		const folderOpenIcon = cur ? 'fa-folder-open' : 'fa-folder';
-		if (value.endsWith('/')) {
+		if (value === FAVORITES_FOLDER_VALUE) {
+			children = [
+				<i class="fa fa-star" aria-hidden></i>,
+				TL`Favorites`,
+			];
+		} else if (value.endsWith('/')) {
 			// folder
 			children = [
 				<i class={`fa ${folderOpenIcon}${value === '/' ? '-o' : ''}`}></i>,
@@ -593,6 +615,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		if (!value) return alert('Textarea not found');
 		if (this.props.room.exportMode !== true) return alert('Wrong export mode');
 
+		const favorites = PS.teams.packFavorites();
 		const teams = PSTeambuilder.importTeamBackup(value);
 		const uploadedTeams: { [teamid: number]: Team | undefined } = {};
 		for (const team of PS.teams.list) {
@@ -614,6 +637,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			}
 			PS.teams.push(team);
 		}
+		PS.teams.unpackFavorites(favorites);
 		// TODO: say what changed
 
 		const room = this.props.room;
@@ -734,6 +758,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			<div class="folderlistbefore"></div>
 
 			{this.renderFolder('')}
+			{this.renderFolder(FAVORITES_FOLDER_VALUE)}
 			{renderedFolders}
 			<div class="foldersep"></div>
 			{this.renderFolder('++')}
@@ -767,6 +792,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		return <>
 			<select class="select teambuilder-folder-select" value={room.curFolder} onChange={this.changeMobileFolder}>
 				<option value="">{TL`All teams`}</option>
+				<option value={FAVORITES_FOLDER_VALUE}>{TL`Favorites`}</option>
 				{gens.map(gen => (
 					<optgroup label={TL`Gen ${gen}`}>
 						{formatGroups[gen]}
@@ -790,7 +816,9 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		const { room } = this.props;
 
 		if (room.curFolder) {
-			if (room.curFolder.endsWith('/')) {
+			if (room.curFolder === FAVORITES_FOLDER_VALUE) {
+				teams = teams.filter(team => !team || team.favorite);
+			} else if (room.curFolder.endsWith('/')) {
 				const filterFolder = room.curFolder.slice(0, -1);
 				teams = teams.filter(team => !team || team.folder === filterFolder);
 			} else {
@@ -825,9 +853,12 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 
 		let filterFolder: string | null = null;
 		let filterFormat: string | null = null;
+		let filterFavorites = false;
 		let newTeamLabel = TL`[New team]`;
 		if (room.curFolder) {
-			if (room.curFolder.endsWith('/')) {
+			if (room.curFolder === FAVORITES_FOLDER_VALUE) {
+				filterFavorites = true;
+			} else if (room.curFolder.endsWith('/')) {
 				filterFolder = room.curFolder.slice(0, -1);
 				newTeamLabel = TL`[New team in folder]`;
 			} else {
@@ -879,7 +910,17 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		const narrow = window.innerWidth < 650;
 		return <div class="teampane">
 			{window.TeamEditorState && TeamEditorState.renderClipboard(this.cancelClipboard)}
-			{filterFolder ? (
+			{filterFavorites ? (
+				<h2>
+					{narrow ? (
+						this.renderMobileFolderSelect()
+					) : (
+						<span class="teambuilder-folder-title">
+							<i class="fa fa-star" aria-hidden></i> {TL`Favorites`} <small>({filteredTeamCount})</small>
+						</span>
+					)}
+				</h2>
+			) : filterFolder ? (
 				<h2>
 					{narrow ? (
 						this.renderMobileFolderSelect()
@@ -974,6 +1015,14 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 								data-cmd={`/copyteam ${team.key}`} class="option" aria-label={TL`[Copy/Move]`} title={TL`[Copy/Move]`}
 							>
 								<i class="fa fa-copy" aria-hidden></i>
+							</button>} {}
+							{!clipboardTeams && <button
+								data-cmd={`/favoriteteam ${team.key}`}
+								class={`option team-favorite${team.favorite ? ' cur' : ''}`}
+								aria-label={team.favorite ? TL`[Remove favorite]` : TL`[Favorite]`}
+								title={team.favorite ? TL`[Remove favorite]` : TL`[Favorite]`}
+							>
+								<i class={`fa fa-star${team.favorite ? '' : '-o'}`} aria-hidden></i>
 							</button>} {}
 							{team.uploaded?.private ? (
 								<i class="fa fa-cloud gray" title={TL`Uploaded`}></i>
