@@ -421,7 +421,7 @@ Storage.onMessage = function ($e) {
 		Storage.whenPrefsLoaded.load();
 		break;
 	case 'f':
-		Storage.crossOriginTeamFavorites = data.substr(1);
+		Storage.crossOriginTeamFavorites = data === 'fnull' ? undefined : data.substr(1);
 		break;
 	case 't':
 		if (window.nodewebkit) return;
@@ -679,7 +679,7 @@ Storage.loadPackedTeams = function (buffer, favoritesBuffer) {
 	}
 };
 
-Storage.loadTeamFavorites = function (buffer) {
+Storage.loadTeamFavorites = function (buffer, normalize) {
 	for (var i = 0; i < this.teams.length; i++) delete this.teams[i].favorite;
 	if (buffer === undefined) {
 		try {
@@ -697,15 +697,27 @@ Storage.loadTeamFavorites = function (buffer) {
 	for (var i = 0; i < favorites.length; i++) {
 		if (!Array.isArray(favorites[i])) continue;
 		var index = favorites[i][0];
-		var team = this.teams[index];
-		if (!team || Storage.packTeamIdentity(team) !== favorites[i][1]) {
-			team = null;
-			for (var j = 0; j < this.teams.length; j++) {
-				if (!this.teams[j].favorite && Storage.packTeamIdentity(this.teams[j]) === favorites[i][1]) {
-					team = this.teams[j];
-					break;
+		if (typeof index !== 'number' || index < 0 || index % 1 || typeof favorites[i][1] !== 'string') continue;
+		var packedTeam = favorites[i][1];
+		var team = null;
+		// Readable backups can change packing; try the exact identity first.
+		for (var pass = 0; pass < (normalize ? 2 : 1); pass++) {
+			if (pass) {
+				var savedTeam = Storage.unpackLine(packedTeam);
+				if (!savedTeam) break;
+				packedTeam = Storage.packTeamIdentity(savedTeam, true);
+			}
+			team = this.teams[index];
+			if (!team || team.favorite || Storage.packTeamIdentity(team) !== packedTeam) {
+				team = null;
+				for (var j = 0; j < this.teams.length; j++) {
+					if (!this.teams[j].favorite && Storage.packTeamIdentity(this.teams[j]) === packedTeam) {
+						team = this.teams[j];
+						break;
+					}
 				}
 			}
+			if (team) break;
 		}
 		if (team) team.favorite = true;
 	}
@@ -724,7 +736,7 @@ Storage.saveTeamFavorites = function () {
 	try {
 		localStorage.setItem('showdown_teams_favorites', buffer);
 	} catch (e) {}
-	if (Storage.crossOriginFrame) Storage.postCrossOriginMessage('F' + buffer);
+	if (Storage.crossOriginFrame && !window.nodewebkit) Storage.postCrossOriginMessage('F' + buffer);
 };
 
 Storage.saveTeams = function () {
@@ -832,11 +844,22 @@ Storage.packAllTeams = function (teams) {
 	}).join('\n');
 };
 
-Storage.packTeamIdentity = function (team) {
+Storage.packTeamIdentity = function (team, normalize) {
+	var packedTeam = Storage.getPackedTeam(team);
+	var name = team.name;
+	var folder = team.folder;
+	if (normalize) {
+		try {
+			packedTeam = Storage.packTeam(Storage.importTeam(Storage.exportTeam(packedTeam)));
+		} catch (e) {}
+		if (window.nodewebkit) {
+			name = name.replace(/[\\\/]+/g, '').trim();
+			folder = folder.replace(/[\\\/]+/g, '');
+		}
+	}
 	return (
 		(team.format ? '' + team.format + (team.capacity === 24 ? '-box]' : ']') : '') +
-		(team.folder ? '' + team.folder + '/' : '') + team.name + '|' +
-		Storage.getPackedTeam(team)
+		(folder ? '' + folder + '/' : '') + name + '|' + packedTeam
 	);
 };
 
@@ -1760,7 +1783,7 @@ Storage.nwLoadTeamFile = function (filename, localApp) {
 
 Storage.nwFinishedLoadingTeams = function (app) {
 	this.teams.sort(this.teamCompare);
-	this.loadTeamFavorites();
+	this.loadTeamFavorites(undefined, true);
 	Storage.whenTeamsLoaded.load();
 };
 
@@ -1840,7 +1863,10 @@ Storage.nwSaveTeam = function (team) {
 };
 
 Storage.nwSaveTeams = function () {
-	this.saveTeamFavorites();
+	// should never happen
+	try {
+		console.log("nwSaveTeams called: " + new Error().stack);
+	} catch (e) {}
 };
 
 Storage.nwDeleteTeam = function (team) {

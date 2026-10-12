@@ -366,7 +366,7 @@ export class PSStorage {
 			PS.prefs.update(null);
 			break;
 		case 'f':
-			PSStorage.teamFavorites = data.substr(1);
+			PSStorage.teamFavorites = data === 'fnull' ? null : data.substr(1);
 			break;
 		case 't':
 			if (window.nodewebkit) return;
@@ -377,7 +377,13 @@ export class PSStorage {
 				oldTeams = PS.teams.list;
 			}
 			PS.teams.unpackAll(data.substr(1));
-			PS.teams.unpackFavorites(PSStorage.teamFavorites ?? localStorage.getItem('showdown_teams_favorites'));
+			let teamFavorites = PSStorage.teamFavorites;
+			if (teamFavorites === null) {
+				try {
+					teamFavorites = localStorage.getItem('showdown_teams_favorites');
+				} catch {}
+			}
+			PS.teams.unpackFavorites(teamFavorites);
 			PS.teams.save = function () {
 				const packedTeams = PS.teams.packAll(PS.teams.list);
 				const packedFavorites = PS.teams.packFavorites();

@@ -2214,6 +2214,17 @@ p.or:after {
 	width: 350px;
 	vertical-align: middle;
 }
+.teamlist .team-row {
+	display: flex;
+	align-items: center;
+}
+.teamlist .team-row > .team {
+	min-width: 0;
+}
+.teamlist .team-row > button {
+	flex-shrink: 0;
+	white-space: nowrap;
+}
 .teamlist .dragging button {
 	visibility: hidden;
 }

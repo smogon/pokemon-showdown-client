@@ -490,14 +490,20 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 			this.packTeamIdentity(team)
 		)).join('\n');
 	}
-	packTeamIdentity(team: Team) {
+	packTeamIdentity(team: Team, normalize = false) {
+		let packedTeam = team.packedTeam;
+		if (normalize) {
+			try {
+				packedTeam = Teams.pack(Teams.import(Teams.export(Teams.unpack(packedTeam))));
+			} catch {}
+		}
 		return (
 			(team.format || team.isBox ? `${team.format || ''}${team.isBox ? '-box' : ''}]` : ``) +
 			(team.folder ? `${team.folder}/` : ``) +
-			team.name + `|` + team.packedTeam
+			team.name + `|` + packedTeam
 		);
 	}
-	unpackFavorites(buffer: string | null) {
+	unpackFavorites(buffer: string | null, normalize = false) {
 		for (const team of this.list) delete team.favorite;
 		if (!buffer) return;
 		let favorites: unknown;
@@ -509,17 +515,28 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		if (!Array.isArray(favorites)) return;
 		for (const favorite of favorites) {
 			if (!Array.isArray(favorite)) continue;
-			const [index, packedTeam] = favorite;
-			if (typeof packedTeam !== 'string') continue;
-			let team: Team | undefined = this.list[index];
-			if (!team || this.packTeamIdentity(team) !== packedTeam) {
-				team = undefined;
-				for (const candidate of this.list) {
-					if (!candidate.favorite && this.packTeamIdentity(candidate) === packedTeam) {
-						team = candidate;
-						break;
+			const index = favorite[0];
+			let packedTeam = favorite[1];
+			if (typeof index !== 'number' || index < 0 || index % 1 || typeof packedTeam !== 'string') continue;
+			let team: Team | undefined;
+			// Readable backups can change packing; try the exact identity first.
+			for (let pass = 0; pass < (normalize ? 2 : 1); pass++) {
+				if (pass) {
+					const savedTeam = this.unpackLine(packedTeam);
+					if (!savedTeam) break;
+					packedTeam = this.packTeamIdentity(savedTeam, true);
+				}
+				team = this.list[index];
+				if (!team || team.favorite || this.packTeamIdentity(team) !== packedTeam) {
+					team = undefined;
+					for (const candidate of this.list) {
+						if (!candidate.favorite && this.packTeamIdentity(candidate) === packedTeam) {
+							team = candidate;
+							break;
+						}
 					}
 				}
+				if (team) break;
 			}
 			if (team) team.favorite = true;
 		}

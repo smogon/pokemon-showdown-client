@@ -637,7 +637,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			}
 			PS.teams.push(team);
 		}
-		PS.teams.unpackFavorites(favorites);
+		PS.teams.unpackFavorites(favorites, true);
 		// TODO: say what changed
 
 		const room = this.props.room;
@@ -680,7 +680,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		// (This is why folders you create will automatically disappear
 		// if you leave them without adding anything to them.)
 
-		const folderTable: { [folder: string]: 1 | undefined } = { '': 1 };
+		const folderTable: { [folder: string]: 1 | undefined } = { '': 1, [FAVORITES_FOLDER_VALUE]: 1 };
 		const folders: string[] = [];
 		for (const team of PS.teams.list) {
 			const folder = team.folder;

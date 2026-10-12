@@ -271,6 +271,7 @@
 			buf += '<div class="folder' + (!this.curFolder ? ' cur"><div class="folderhack3"><div class="folderhack1"></div><div class="folderhack2"></div>' : '">') + '<div class="selectFolder" data-value="all"><em>(all)</em></div></div>' + (!this.curFolder ? '</div>' : '');
 			buf += '<div class="folder' + (this.curFolder === FAVORITES_FOLDER ? ' cur"><div class="folderhack3"><div class="folderhack1"></div><div class="folderhack2"></div>' : '">') + '<div class="selectFolder" data-value="' + FAVORITES_FOLDER + '"><i class="fa fa-star"></i>Favorites</div></div>' + (this.curFolder === FAVORITES_FOLDER ? '</div>' : '');
 			var folderTable = {};
+			folderTable[FAVORITES_FOLDER] = 1;
 			var folders = [];
 			if (Storage.teams) for (var i = -2; i < Storage.teams.length; i++) {
 				if (i >= 0) {
@@ -503,7 +504,7 @@
 
 					// teams and boxes are <div>s rather than <button>s because Firefox doesn't
 					// support dragging and dropping buttons.
-					buf += '<li><div name="edit" data-value="' + i + '" class="team';
+					buf += '<li class="team-row"><div name="edit" data-value="' + i + '" class="team';
 					if (team.capacity === 24) buf += ' pc-box';
 					buf += '" draggable="true"><strong><span>' + BattleLog.escapeHTML(formatText) + '</span>' + BattleLog.escapeHTML(team.name) + '</strong><small>';
 					buf += Storage.getTeamIcons(team);
@@ -511,7 +512,9 @@
 
 				}
 				if (!atLeastOne) {
-					if (filterFolder) {
+					if (filterFavorites) {
+						buf += '<li><p><em>you don\'t have any favorite teams</em></p></li>';
+					} else if (filterFolder) {
 						buf += '<li><p><em>you don\'t have any teams in this folder lol</em></p></li>';
 					} else {
 						buf += '<li><p><em>you don\'t have any ' + this.curFolder + ' teams lol</em></p></li>';
@@ -795,7 +798,11 @@
 			var team = teams[+i];
 			if (!team) return;
 			team.favorite = !team.favorite;
-			Storage.saveTeams();
+			if (window.nodewebkit) {
+				Storage.saveTeamFavorites();
+			} else {
+				Storage.saveTeams();
+			}
 			app.user.trigger('saveteams');
 			this.updateTeamList();
 		},
@@ -825,7 +832,7 @@
 			Storage.deleteAllTeams();
 			Storage.importTeam(this.$('.teamedit textarea').val(), true);
 			teams = Storage.teams;
-			Storage.loadTeamFavorites(favorites);
+			Storage.loadTeamFavorites(favorites, true);
 			Storage.saveAllTeams();
 			for (var room in app.rooms) {
 				var selection = app.rooms[room].$('button.teamselect').val();
