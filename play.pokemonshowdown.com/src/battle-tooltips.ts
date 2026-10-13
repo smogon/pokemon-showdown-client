@@ -222,7 +222,8 @@ export class BattleTooltips {
 		$elem.on('click.battleTooltips', '.has-tooltip', this.clickTooltipEvent);
 		$elem.on('focus.battleTooltips', '.has-tooltip', this.showTooltipEvent);
 		$elem.on('mouseout.battleTooltips', '.has-tooltip', BattleTooltips.unshowTooltip);
-		$elem.on('mousedown.battleTooltips', '.has-tooltip', this.holdLockTooltipEvent);
+		const pressEvent = window.PointerEvent ? 'pointerdown' : 'mousedown';
+		$elem.on(`${pressEvent}.battleTooltips`, '.has-tooltip', this.holdLockTooltipEvent);
 		$elem.on('blur.battleTooltips', '.has-tooltip', BattleTooltips.unshowTooltip);
 		$elem.on('mouseup.battleTooltips', '.has-tooltip', BattleTooltips.unshowTooltip);
 
@@ -268,10 +269,13 @@ export class BattleTooltips {
 	 * (Namely, a long-tap or long-click)
 	 */
 	holdLockTooltipEvent = (e: JQuery.TriggeredEvent) => {
+		// Safari iOS simulates a mouse click (mousedown) after a touchend
+		// we need to ignore it so we don't hide the locked tooltip when this happens
+		if (e.type === 'pointerdown' && (e.originalEvent as PointerEvent).pointerType === 'touch') return;
 		if (BattleTooltips.isLocked) BattleTooltips.hideTooltip();
 		const target = e.currentTarget as HTMLElement;
 		this.showTooltip(target);
-		const isClick = (e.type === 'mousedown' && target.tagName === 'BUTTON');
+		const isClick = (e.type !== 'touchstart' && target.tagName === 'BUTTON');
 
 		BattleTooltips.longTapTimeout = setTimeout(() => {
 			BattleTooltips.longTapTimeout = null;
@@ -916,7 +920,7 @@ export class BattleTooltips {
 		let genderBuf = '';
 		const gender = pokemon.gender;
 		if (gender === 'M' || gender === 'F') {
-			const genderName = TL.gender[gender === 'M' ? 'male' : 'female'] || gender;
+			const genderName = TL.gender[gender] || gender;
 			genderBuf = ` <img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${BattleLog.escapeHTML(genderName)}" width="7" height="10" class="pixelated" /> `;
 		}
 
@@ -1053,7 +1057,7 @@ export class BattleTooltips {
 
 		// Only display when you don't also have stats
 		if (clientPokemon?.nature && !serverPokemon) {
-			const nature = TL.nature[toID(clientPokemon.nature)] || clientPokemon.nature;
+			const nature = TL.nature[clientPokemon.nature] || clientPokemon.nature;
 			let natureText = `<small>${TL.label(TL`Nature`)}</small>` + nature;
 			text += `<p>${natureText}</p>`;
 		}
@@ -2136,8 +2140,9 @@ export class BattleTooltips {
 	}
 	getMoveTypeText(move: Dex.Move, value: ModifiableValue, forMaxMove?: boolean | Dex.Move) {
 		const [moveType, category] = this.getMoveType(move, value, forMaxMove);
-
 		const pokemon = value.pokemon;
+		if (!pokemon) return [moveType, ''] as const;
+
 		let foeActive = [...pokemon.side.foe.active].reverse();
 		if (this.battle.gameType === 'freeforall') {
 			foeActive = [...foeActive, ...pokemon.side.active].filter(active => active !== pokemon);

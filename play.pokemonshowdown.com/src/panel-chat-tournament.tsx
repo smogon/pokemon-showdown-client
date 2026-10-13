@@ -494,6 +494,8 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 		}
 
 		// joined
+		const teamFormat = PS.teams.teambuilderFormat(info.teambuilderFormat || info.format || '');
+		const hasRandomTeam = !!window.BattleFormats?.[teamFormat]?.team;
 		const noMatches = !info.challenges?.length && !info.challengeBys?.length && !info.challenging && !info.challenged;
 		const challengeBys = info.challengeBys?.length ? TL.orList(info.challengeBys) : '';
 		return <div class="tournament-tools">
@@ -502,7 +504,9 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 				onSubmit={this.acceptChallenge} onValidate={this.validate}
 			>
 				{(info.isJoined && !info.challenging && !info.challenged && !info.challenges?.length) && (
-					<button name="validate" class="button"><i class="fa fa-check" aria-hidden></i> {TL`[Validate]`}</button>
+					<button name="validate" class="button" disabled={hasRandomTeam}>
+						<i class="fa fa-check" aria-hidden></i> {TL`[Validate]`}
+					</button>
 				)} {}
 				{!!(!info.isStarted && info.isJoined) && (
 					<button data-cmd="/tournament leave" class="button">{TL`[Leave]`}</button>

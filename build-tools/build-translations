@@ -12,6 +12,9 @@ const TEXT_DATA_PATH = path.resolve(ROOT_PATH, 'caches/pokemon-showdown/data/tex
 const UI_TRANSLATIONS_PATH = path.resolve(ROOT_PATH, 'translations');
 const OUTPUT_PATH = path.resolve(ROOT_PATH, 'play.pokemonshowdown.com/data/text');
 
+/** Mods the client ships data for (see build-indexes) */
+const CLIENT_MODS = ['gen3rs', 'gen3frlg', 'gen5bw1', 'gen7letsgo', 'gen8bdsp', 'gen9ssb', 'champions'];
+
 function es3stringify(obj) {
 	const buf = JSON.stringify(obj);
 	return buf.replace(/"([A-Za-z][A-Za-z0-9]*)":/g, (fullMatch, key) => (
@@ -32,12 +35,30 @@ function getLanguages() {
 	return [...languages];
 }
 
+function addModText(Dex, text) {
+	for (const mod of CLIENT_MODS) {
+		const modData = Dex.mod(mod).data;
+		for (const table of ['Moves', 'Abilities', 'Items']) {
+			for (const id in modData[table]) {
+				const { desc, shortDesc } = modData[table][id];
+				if (!desc && !shortDesc) continue;
+				text[table][id] = {
+					...text[table][id],
+					[mod]: { desc: desc || shortDesc, shortDesc: shortDesc || desc },
+				};
+			}
+		}
+	}
+	return text;
+}
+
 function buildTextFiles(Dex, selectedLanguages = null, options = {}) {
 	const uiCalls = updateTranslationFiles(options);
 	const languages = selectedLanguages || getLanguages();
 	fs.mkdirSync(OUTPUT_PATH, { recursive: true });
 	for (const lang of languages) {
-		const battleTranslations = Dex.loadTextData(lang);
+		let battleTranslations = Dex.loadTextData(lang);
+		if (lang === 'en') battleTranslations = addModText(Dex, JSON.parse(JSON.stringify(battleTranslations)));
 		const uiText = compileBattleUIText(loadTranslations(lang), uiCalls);
 		let output = 'exports.BattleText = exports.BattleText || {};\n' +
 			`exports.BattleText[${JSON.stringify(lang)}] = ${es3stringify(battleTranslations)};`;
@@ -50,6 +71,7 @@ function buildTextFiles(Dex, selectedLanguages = null, options = {}) {
 }
 
 exports.buildTextFiles = buildTextFiles;
+exports.CLIENT_MODS = CLIENT_MODS;
 
 if (require.main === module) {
 	const Dex = require('../caches/pokemon-showdown/dist/sim/dex').Dex;

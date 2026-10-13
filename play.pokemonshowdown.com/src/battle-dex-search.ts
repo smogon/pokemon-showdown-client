@@ -577,7 +577,7 @@ export class DexSearch {
 			switch (fType) {
 			case 'type':
 				let type = fId.charAt(0).toUpperCase() + fId.slice(1) as Dex.TypeName;
-				const typeName = TL.type[fId] || type;
+				const typeName = TL.type[type] || type;
 				buf.push(['header', TL`${typeName}-type Pokémon`]);
 				for (let id in BattlePokedex) {
 					if (!BattlePokedex[id].types) continue;
@@ -602,7 +602,7 @@ export class DexSearch {
 			switch (fType) {
 			case 'type':
 				let type = fId.charAt(0).toUpperCase() + fId.slice(1);
-				const typeName = TL.type[fId] || type;
+				const typeName = TL.type[type] || type;
 				buf.push(['header', TL`${typeName}-type moves`]);
 				for (let id in BattleMovedex) {
 					if (BattleMovedex[id].type === type) {

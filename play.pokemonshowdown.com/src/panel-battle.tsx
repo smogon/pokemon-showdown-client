@@ -164,6 +164,119 @@ export class BattleRoom extends ChatRoom {
 	rejoining: boolean | null = null;
 	overlayActive: 'move' | 'switch' | null = null;
 
+	private pendingLines: Args[] = [];
+	/** showdex compat */
+	onRequest: ((request: BattleRequest | null) => void) | null = null;
+
+	override receiveBatch(batch: Args[]) {
+		for (const args of batch) (this as any).receiveLine(args); // showdex compat
+		if (!this.battle) {
+			this.pendingLines.push(...batch);
+			this.update(null);
+			return;
+		}
+		if (this.pendingLines.length) {
+			batch = [...this.pendingLines, ...batch];
+			this.pendingLines = [];
+		}
+		if (!batch.length) {
+			this.update(null);
+			return;
+		}
+
+		const battleLines: string[] = [];
+		const controlLines: Args[] = [];
+		for (const args of batch) {
+			if (this.handleLine(args)) continue;
+			switch (args[0]) {
+			case 'request': case 'sentchoice': case 'initdone':
+				controlLines.push(args);
+				continue;
+			case 'win': case 'tie': case 'error':
+				controlLines.push(args);
+				break;
+			}
+			battleLines.push('|' + args.join('|'));
+		}
+		this.battle.addBatch(battleLines);
+		// delayed to after `battle.addBatch` because these can depend on battle state
+		for (const args of controlLines) this.handleLineAfterBattleUpdate(args);
+		if (PS.prefs.noanim || (this.rejoining && this.side)) {
+			this.battle.seekTurn(Infinity);
+		}
+		if (this.side) this.rejoining = false;
+		// A reconnect can send |sentchoice| immediately after |request|, so do this after the batch
+		this.updateChoiceNotification();
+		this.update(null);
+	}
+	override handleLine(args: Args): boolean {
+		if (super.handleLine(args)) return true;
+		switch (args[0]) {
+		case 'cantleave':
+			this.requireForfeit = true;
+			return true;
+		case 'allowleave':
+			this.requireForfeit = false;
+			return true;
+		}
+		return false;
+	}
+	handleLineAfterBattleUpdate(args: Args) {
+		switch (args[0]) {
+		case 'initdone':
+			if (!PS.prefs.spectatefromstart) this.battle.seekTurn(Infinity);
+			break;
+		case 'request': case 'win': case 'tie': {
+			const request = args[0] === 'request' && args[1] ? JSON.parse(args[1]) : null;
+			this.receiveRequest(request);
+			this.onRequest?.(request);
+			break;
+		}
+		case 'error':
+			if (args[1].startsWith('[Invalid choice]') && this.request) {
+				this.choices = new BattleChoiceBuilder(this.request);
+			}
+			break;
+		case 'sentchoice':
+			if (this.request) {
+				let choices = new BattleChoiceBuilder(this.request);
+				const possibleError = choices.addChoices(args[1]);
+				if (possibleError || !choices.isDone()) {
+					choices = new BattleChoiceBuilder(this.request);
+					choices.serializedChoice = args[1];
+				}
+				this.choices = choices;
+			}
+			break;
+		}
+	}
+	receiveRequest(request: BattleRequest | null) {
+		if (!request) {
+			this.request = null;
+			this.choices = null;
+			return;
+		}
+
+		if (PS.prefs.autotimer && !this.battle.kickingInactive && !this.autoTimerActivated) {
+			this.send('/timer on');
+			this.autoTimerActivated = true;
+		}
+
+		BattleChoiceBuilder.fixRequest(request, this.battle);
+
+		if (request.side) {
+			this.battle.myPokemon = request.side.pokemon;
+			this.battle.setViewpoint(request.side.id);
+			this.side = request.side;
+		}
+		if (request.ally) {
+			this.battle.myAllyPokemon = request.ally.pokemon;
+		}
+
+		this.request = request;
+		this.choices = new BattleChoiceBuilder(request);
+	}
+
 	override interruptClose(explicit?: boolean, elem?: HTMLElement | null) {
 		if (this.isPlaying() || this.requireForfeit) {
 			PS.join('forfeitbattle' as RoomID, { parentElem: elem, parentRoomid: this.id });
@@ -206,6 +319,7 @@ export class BattleRoom extends ChatRoom {
 	}
 
 	override handleReconnect(): boolean | void {
+		this.pendingLines = [];
 		if (this.battle) {
 			this.battle.stepQueue = [];
 			this.battle.preemptStepQueue = [];
@@ -475,22 +589,25 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			id: room.id as any,
 			$frame: $elem.find('.battle'),
 			$logFrame: $elem.find('.battle-log'),
-			log: room.backlog?.map(args => '|' + args.join('|')),
 		}));
 		const scene = battle.scene as BattleScene;
-		room.backlog = null;
-		room.log ||= scene.log;
+		room.log = scene.log;
 		room.log.getHighlight = room.handleHighlight;
+		room.log.isIgnored = room.isIgnored;
 		scene.tooltips.unlisten(scene.$frame);
 		scene.tooltips.listen(this.base!);
+		battle.subscribe(() => this.forceUpdate());
+		room.onRequest = request => (this as any).receiveRequest(request); // showdex compat
+		room.receiveBatch([]);
 		super.componentDidMount();
+		this.forceUpdate();
 		if (!PS.prefs.spectatefromstart) battle.seekTurn(Infinity);
 		if (PS.prefs.autohardcore) {
 			battle.setHardcoreMode(true);
 		}
-		battle.subscribe(() => this.forceUpdate());
 	}
 	override componentWillUnmount() {
+		this.props.room.onRequest = null;
 		const scene = this.props.room.battle?.scene as BattleScene | undefined;
 		if (this.base) scene?.tooltips.unlisten(this.base);
 		super.componentWillUnmount();
@@ -517,91 +634,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const room = this.props.room;
 		return PS.chooseBattleLayout(room.width, room.height, PS.prefs.battlelayout);
 	}
-	fastForwardIfRejoining() {
-		const room = this.props.room;
-		if (!room.rejoining || !room.side) return;
-		room.rejoining = false;
-		room.battle.seekTurn(Infinity);
-	}
-	override receiveLine(args: Args) {
-		const room = this.props.room;
-		switch (args[0]) {
-		case 'cantleave':
-			room.requireForfeit = true;
-			return;
-		case 'allowleave':
-			room.requireForfeit = false;
-			return;
-		case 'initdone':
-			if (!PS.prefs.spectatefromstart) room.battle.seekTurn(Infinity);
-			return;
-		case 'request':
-			this.receiveRequest(args[1] ? JSON.parse(args[1]) : null);
-			return;
-		case 'win': case 'tie':
-			this.receiveRequest(null);
-			break;
-		case 'c': case 'c:': case 'chat': case 'chatmsg': case 'inactive':
-			room.battle.instantAdd('|' + args.join('|'));
-			return;
-		case 'error':
-			if (args[1].startsWith('[Invalid choice]') && room.request) {
-				room.choices = new BattleChoiceBuilder(room.request);
-				room.updateChoiceNotification();
-				room.update(null);
-			}
-			break;
-		case 'sentchoice':
-			if (room.request) {
-				let choices = new BattleChoiceBuilder(room.request);
-				const possibleError = choices.addChoices(args[1]);
-				if (possibleError || !choices.isDone()) {
-					choices = new BattleChoiceBuilder(room.request);
-					choices.serializedChoice = args[1];
-				}
-				room.choices = choices;
-			}
-			room.updateChoiceNotification();
-			room.update(null);
-			return;
-		}
-		room.battle.add('|' + args.join('|'));
-		if (PS.prefs.noanim) this.props.room.battle.seekTurn(Infinity);
-	}
-	receiveRequest(request: BattleRequest | null) {
-		const room = this.props.room;
-		if (!request) {
-			room.request = null;
-			room.choices = null;
-			room.updateChoiceNotification();
-			return;
-		}
-
-		if (PS.prefs.autotimer && !room.battle.kickingInactive && !room.autoTimerActivated) {
-			this.send('/timer on');
-			room.autoTimerActivated = true;
-		}
-
-		BattleChoiceBuilder.fixRequest(request, room.battle);
-
-		if (request.side) {
-			const wasPlayer = !!room.side;
-			room.battle.myPokemon = request.side.pokemon;
-			room.battle.setViewpoint(request.side.id);
-			room.side = request.side;
-			if (!wasPlayer) this.fastForwardIfRejoining();
-		}
-		if (request.ally) {
-			room.battle.myAllyPokemon = request.ally.pokemon;
-		}
-
-		room.request = request;
-		room.choices = new BattleChoiceBuilder(request);
-		// A reconnect can send `|sentchoice|` immediately after `|request|`.
-		// Wait until the entire protocol message has been processed before notifying.
-		Promise.resolve().then(() => room.updateChoiceNotification());
-		room.update(null);
-	}
+	/** @deprecated ONLY FOR SHOWDEX */
+	private receiveRequest(request: BattleRequest | null) {}
 	renderConnectError() {
 		const room = this.props.room;
 		if (room.connectMode !== 'deleted' && room.connectMode !== 'not-found') {
@@ -727,9 +761,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const moveRequest = choices.currentMoveRequest()!;
 
 		const canDynamax = moveRequest.canDynamax && !choices.alreadyMax;
-		const canMegaEvo = moveRequest.canMegaEvo && !choices.alreadyMega;
-		const canMegaEvoX = moveRequest.canMegaEvoX && !choices.alreadyMega;
-		const canMegaEvoY = moveRequest.canMegaEvoY && !choices.alreadyMega;
+		const alreadyMega = choices.alreadyMega && !this.props.room.battle.format.allowMultipleMegas;
+		const canMegaEvo = moveRequest.canMegaEvo && !alreadyMega;
+		const canMegaEvoX = moveRequest.canMegaEvoX && !alreadyMega;
+		const canMegaEvoY = moveRequest.canMegaEvoY && !alreadyMega;
 		const canZMove = moveRequest.zMoves && !choices.alreadyZ;
 		const canUltraBurst = moveRequest.canUltraBurst;
 		const canTerastallize = moveRequest.canTerastallize;
@@ -811,7 +846,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					type: moveType,
 					tags,
 					tooltip,
-					moveData,
+					moveData: { ...moveData, disabled: active.maxMoves![i].disabled },
 				});
 			});
 		}

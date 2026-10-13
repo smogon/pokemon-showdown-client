@@ -22,7 +22,7 @@ import {
 import type { ChatRoom } from "./panel-chat";
 import { PSHeader, PSMiniHeader } from "./panel-topbar";
 
-export const EXTERNAL_REDIRECTS = /^(appeals?|rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|privacy|contact|dex|insecure)$/;
+export const EXTERNAL_REDIRECTS = /^(appeals?|rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|privacy|contact|dex|insecure|oldclient)$/;
 
 export class PSRouter {
 	roomid = '' as RoomID;
@@ -86,8 +86,8 @@ export class PSRouter {
 		let room = PS.room;
 		// some popups don't have URLs and don't generate history
 		// there's definitely a better way to do this but I'm lazy
-		if (room.noURL) room = PS.rooms[PS.popups[PS.popups.length - 2]] || PS.panel;
-		if (room.noURL) room = PS.panel;
+		if (room.noURL) room = PS.rooms[PS.popups[PS.popups.length - 2]] || PS.baseRoom;
+		if (room.noURL) room = PS.baseRoom;
 
 		// don't generate history when focusing things on things visible on the home screen
 		if (room.id === 'news' && room.location === 'mini-window') room = PS.mainmenu;
@@ -97,7 +97,7 @@ export class PSRouter {
 		if (room.id === 'rooms' && PS.leftPanelWidth) room = PS.leftPanel;
 
 		let roomid = room.id;
-		const panelState = (PS.leftPanelWidth && room === PS.panel ?
+		const panelState = (PS.leftPanelWidth && PS.baseRoom ?
 			PS.leftPanel.id + '..' + PS.rightPanel!.id :
 			room.id);
 		const newTitle = roomid === '' ? 'Showdown!' : `${room.getTitle()} - Showdown!`;
@@ -142,8 +142,14 @@ export class PSRouter {
 	}
 	subscribeHistory() {
 		const currentRoomid = location.pathname.slice(1);
+		if (currentRoomid === 'newclient' && !/(?:^|;\s*)preactalpha=/.test(document.cookie)) {
+			this.setDefaultClientCookie('new');
+		}
 		if (/^[a-z0-9-]+$/.test(currentRoomid)) {
-			if (currentRoomid !== 'preactalpha' && currentRoomid !== 'preactbeta' && currentRoomid !== 'beta') {
+			if (
+				currentRoomid !== 'preactalpha' && currentRoomid !== 'preactbeta' &&
+				currentRoomid !== 'beta' && currentRoomid !== 'newclient'
+			) {
 				PS.join(currentRoomid as RoomID);
 			}
 		}
@@ -184,6 +190,9 @@ export class PSRouter {
 			}
 		});
 	}
+	setDefaultClientCookie(client: 'old' | 'new') {
+		document.cookie = `preactalpha=${client === 'new' ? '1' : '0'}; expires=Thu, 1 Sep 2027 12:00:00 UTC; path=/`;
+	}
 }
 PS.router = new PSRouter();
 
@@ -198,7 +207,6 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		return subscription;
 	}
 	override componentDidMount() {
-		this.props.room.onRequestFocus = options => this.focus(options);
 		this.subscriptions.push(this.props.room.subscribe(args => {
 			if (!args) this.forceUpdate();
 			else this.receiveLine(args);
@@ -237,14 +245,13 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		const currentlyHidden = !room.width && room.parentElem && ['popup', 'modal-popup'].includes(room.location);
 		this.updateDimensions();
 		if (currentlyHidden) return;
-		if (room.focusNextUpdate) {
-			const focusOptions = room.focusNextUpdate === true ? undefined : room.focusNextUpdate;
-			room.focusNextUpdate = false;
-			this.focus(focusOptions);
+		if (PS.pendingFocus?.room === room) {
+			const { options } = PS.pendingFocus;
+			PS.pendingFocus = null;
+			this.focus(options);
 		}
 	}
 	override componentWillUnmount() {
-		this.props.room.onRequestFocus = null;
 		for (const subscription of this.subscriptions) {
 			subscription.unsubscribe();
 		}
@@ -275,11 +282,20 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		PS.closePopup();
 	}
 	focus(options?: PSRoomFocusOptions) {
-		if (!options?.preventScroll && !PS.isPopup(this.props.room)) PSView.scrollToRoom();
+		const room = this.props.room;
+		if (!options?.preventScroll && !PS.isPopup(room)) {
+			PSView.scrollToRoom();
+			if (room.location === 'mini-window') {
+				this.base?.closest<HTMLElement>('.mini-window')?.scrollIntoView({
+					block: 'nearest',
+					inline: 'nearest',
+				});
+			}
+		}
 		if (PSView.hasTapped) return;
 
 		const autofocus = this.base?.querySelector<HTMLElement>('.autofocus');
-		PSView.politeFocus(autofocus);
+		PSView.politeFocus(autofocus || (PS.isPopup(room) ? this.base! : null));
 		(autofocus as HTMLInputElement)?.select?.();
 	}
 	override render() {
@@ -326,7 +342,10 @@ export function PSPanelWrapper(props: {
 	}
 	if (PS.isPopup(room)) {
 		const style = PSView.getPopupStyle(room, props.width, props.fullSize);
-		return <div class="ps-popup" id={`room-${room.id}`} style={style} onDragEnter={props.onDragEnter}>
+		// tabIndex -1 makes it focusable but not tabbable, for use as a default focus
+		return <div
+			class="ps-popup" id={`room-${room.id}`} style={style} tabIndex={-1} onDragEnter={props.onDragEnter}
+		>
 			{contents}
 		</div>;
 	}
@@ -902,7 +921,7 @@ export class PSView extends preact.Component {
 		return null;
 	}
 	getCommandPreviewTextbox(elem: HTMLElement): HTMLElement | null {
-		const rooms = [PS.getRoom(elem), PS.room, PS.panel, PS.leftPanel, PS.rightPanel];
+		const rooms = [PS.getRoom(elem), PS.room, PS.baseRoom, PS.leftPanel, PS.rightPanel];
 		for (const room of rooms) {
 			if (!room || !(room.type === 'chat' || room.type === 'battle' || room.type === 'rooms')) {
 				continue;
@@ -1061,7 +1080,7 @@ export class PSView extends preact.Component {
 					let roomid = PS.router.extractRoomID(href);
 
 					// keep this in sync with .htaccess
-					const shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|forgotpassword|bugs?(reports?)?|formatsuggestions|rules?|faq|credits?|privacy|contact|dex|(damage)?calc|insecure|replays?|devdiscord|smogdex|smogcord|forums?|trustworthy-dlc-link)$/;
+					const shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|forgotpassword|bugs?(reports?)?|formatsuggestions|rules?|faq|credits?|privacy|contact|dex|(damage)?calc|insecure|replays?|devdiscord|smogdex|smogcord|forums?|trustworthy-dlc-link|oldclient|newclient)$/;
 					if (roomid === 'appeal' || roomid === 'appeals') roomid = 'view-help-request--appeal' as RoomID;
 					if (roomid === 'report') roomid = 'view-help-request--report' as RoomID;
 					if (roomid === 'requesthelp') roomid = 'view-help-request--other' as RoomID;
@@ -1128,7 +1147,10 @@ export class PSView extends preact.Component {
 				elem = elem.parentElement;
 			}
 			if (PS.room !== clickedRoom) {
-				if (clickedRoom) PS.room = clickedRoom;
+				if (clickedRoom) {
+					PS.room = clickedRoom;
+					if (!PS.isPopup(clickedRoom)) PS.baseRoom = clickedRoom;
+				}
 				PS.room.autoDismissNotifications();
 				PS.closePopupsAbove(clickedRoom);
 				PS.update();
@@ -1416,7 +1438,8 @@ Supported file types:
 
 		if (window.getSelection?.()?.type === 'Range') return;
 		room.autoDismissNotifications();
-		PS.setFocus(room);
+		PS.queueFocus(room);
+		room.update(null);
 	};
 	handleClickOverlay = (ev: MouseEvent) => {
 		// iOS Safari bug, no global click events when tapping
@@ -1534,13 +1557,13 @@ Supported file types:
 	static posStyle(room: PSRoom) {
 		if (PS.leftPanelWidth === null) {
 			// vertical mode
-			if (room === PS.panel) {
+			if (room === PS.getPanel()) {
 				// const minWidth = Math.min(500, Math.max(320, window.innerWidth - 9));
 				return { top: '30px', left: `${PSView.verticalHeaderWidth}px`, minWidth: `none` };
 			}
 		} else if (PS.leftPanelWidth === 0) {
 			// one panel visible
-			if (room === PS.panel) return {};
+			if (room === PS.getPanel()) return {};
 		} else {
 			// both panels visible
 			if (room === PS.leftPanel) return { width: `${PS.leftPanelWidth}px`, right: 'auto' };
@@ -1565,7 +1588,6 @@ Supported file types:
 			return { maxWidth: maxWidth || 480 };
 		}
 		if (!room.width || !room.height) {
-			room.focusNextUpdate = true;
 			// dimensions unknown; render hidden at top-left so width/height can be grabbed
 			// next render will be able to calculate position
 			return {
@@ -1666,8 +1688,9 @@ Supported file types:
 	renderDebugMenu() {
 		if (PSView.debugMenu === 'panels') {
 			return `room: ${JSON.stringify(PS.room?.id)} (connected: ${JSON.stringify(PS.room?.connected)}) (connectMode: ${JSON.stringify(PS.room?.connectMode)})\n` +
+				`baseRoom: ${JSON.stringify(PS.baseRoom?.id)}\n` +
 				`onepanel: ${JSON.stringify(PS.prefs.onepanel)}, leftPanelWidth: ${JSON.stringify(PS.leftPanelWidth)}\n` +
-				`panel: ${JSON.stringify(PS.panel?.id)}, left: ${JSON.stringify(PS.leftPanel?.id)}, right: ${JSON.stringify(PS.rightPanel?.id)}\n` +
+				`panel: ${JSON.stringify(PS.getPanel()?.id)}, left: ${JSON.stringify(PS.leftPanel?.id)}, right: ${JSON.stringify(PS.rightPanel?.id)}\n` +
 				`popups: ${JSON.stringify(PS.popups)}`;
 		}
 		return null;
@@ -1731,33 +1754,33 @@ export function PSIcon(
 		}
 		const sanitizedType = typeName.replace(/\?/g, '%3f');
 		return <img
-			src={`${Dex.resourcePrefix}sprites/types/${sanitizedType}.png`} alt={Dex.text.typeName(typeName)}
+			src={`${Dex.resourcePrefix}sprites/types/${sanitizedType}.png`} alt={TL.type[typeName] || typeName}
 			height="14" width="32" class={`pixelated${props.b ? ' b' : ''}`} style="vertical-align:middle"
 		/>;
 	}
 	if ('category' in props) {
 		const categoryID = toID(props.category);
-		let sanitizedCategory = '';
+		let categoryName = '';
 		switch (categoryID) {
 		case 'physical':
 		case 'special':
 		case 'status':
-			sanitizedCategory = categoryID.charAt(0).toUpperCase() + categoryID.slice(1);
+			categoryName = categoryID.charAt(0).toUpperCase() + categoryID.slice(1);
 			break;
 		default:
-			sanitizedCategory = 'undefined';
+			categoryName = 'undefined';
 			break;
 		}
 		return <img
-			src={`${Dex.resourcePrefix}sprites/categories/${sanitizedCategory}.png`}
-			alt={Dex.text.categoryName(sanitizedCategory)}
+			src={`${Dex.resourcePrefix}sprites/categories/${categoryName}.png`}
+			alt={TL.tag[categoryID] || categoryName}
 			height="14" width="32" class="pixelated" style="vertical-align:middle"
 		/>;
 	}
 	if ('gender' in props) {
 		return <img
 			src={`${Dex.resourcePrefix}sprites/misc/gender-${props.gender.toLowerCase()}.png`}
-			width={18} height={18} alt={Dex.text.genderName(props.gender)} style="margin-top: -1px; filter: grayscale(30%)"
+			width={18} height={18} alt={TL.gender[props.gender] || props.gender} style="margin-top: -1px; filter: grayscale(30%)"
 		/>;
 	}
 	return null!;

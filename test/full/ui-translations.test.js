@@ -5,8 +5,8 @@ const {describe, it} = require('node:test');
 
 const {
 	compileBattleUIText, loadTranslations, ParsedCatalog, updateTranslationFiles, TL_CALL_OPTIONS,
-} = require('../build-tools/translations.mts');
-const { TLCalls } = require('../build-tools/tl-calls.mts');
+} = require('../../build-tools/translations.mts');
+const { TLCalls } = require('../../build-tools/tl-calls.mts');
 
 describe('UI translation catalogs', () => {
 	it('discovers tagged strings and contextual calls without treating effects as UI text', () => {
@@ -100,7 +100,7 @@ describe('UI translation catalogs', () => {
 	});
 
 	it('synchronizes missing entries and shared comments while preserving locale comments', () => {
-		const template = `import type { TranslationCatalog } from '../build-tools/translations.mts';
+		const template = `import type { TranslationCatalog } from '../../build-tools/translations.mts';
 
 export const translations: TranslationCatalog = {
 	// #region Navigation
@@ -140,19 +140,60 @@ export const translations: TranslationCatalog = {
 
 	it('keeps checked-in calls, template, and locale catalogs synchronized', () => {
 		const calls = updateTranslationFiles();
-		// the shared catalog only exists on branches carrying translations
-		const sharedFile = path.resolve(__dirname, '../caches/pokemon-showdown/data/text/fr/ui.ts');
-		const shared = fs.existsSync(sharedFile) ? ParsedCatalog.evaluate(fs.readFileSync(sharedFile, 'utf8')) : {};
-		const client = ParsedCatalog.evaluate(fs.readFileSync(path.resolve(__dirname, '../translations/fr.ts'), 'utf8'));
-		const loaded = loadTranslations('fr');
-		assert.equal(JSON.stringify(loaded), JSON.stringify({ ...shared, ...client }));
-		const compiled = compileBattleUIText(loaded, calls);
-		// Shared placeholder names come from the shared template, not source expressions.
+		const translationsPath = path.resolve(__dirname, '../../translations');
+		for (const file of fs.readdirSync(translationsPath)) {
+			if (!file.endsWith('.ts') || file === 'en-template.ts') continue;
+			assert.doesNotThrow(() => compileBattleUIText(loadTranslations(file.slice(0, -3)), calls), file);
+		}
+	});
+
+	it('loads optional shared and client catalogs and compiles their placeholders and contexts', t => {
+		const sharedFile = path.resolve(__dirname, '../../caches/pokemon-showdown/data/text/test/ui.ts');
+		const clientFile = path.resolve(__dirname, '../../translations/test.ts');
+		const shared = {
+			'{LABEL}: ': '{LABEL} : ',
+			Type: {'': 'Shared type', kind: 'Shared kind'},
+			Shared: 'Shared text',
+		};
+		const client = {Type: {'': 'Client type', kind: 'Client kind'}, Client: 'Client text'};
+		const files = new Map();
+		const existsSync = fs.existsSync;
+		const readFileSync = fs.readFileSync;
+		t.mock.method(fs, 'existsSync', file =>
+			file === sharedFile || file === clientFile ? files.has(file) : existsSync(file)
+		);
+		t.mock.method(fs, 'readFileSync', (file, ...args) =>
+			files.has(file) ? `export const translations = ${JSON.stringify(files.get(file))};` : readFileSync(file, ...args)
+		);
+		// Catalog evaluation uses a VM; clone its objects for strict comparisons.
+		assert.deepEqual(structuredClone(loadTranslations('test')), {});
+		files.set(sharedFile, shared);
+		assert.deepEqual(structuredClone(loadTranslations('test')), shared);
+		files.delete(sharedFile);
+		files.set(clientFile, client);
+		assert.deepEqual(structuredClone(loadTranslations('test')), client);
+		files.set(sharedFile, shared);
+		const loaded = loadTranslations('test');
+		assert.deepEqual(structuredClone(loaded), {...shared, ...client});
+
+		const calls = TLCalls.fromSource('TL`${label}: `; TL("Type"); TL("Type", "kind"); TL`Shared`; TL`Client`;');
+		const template = new ParsedCatalog(`export const translations = {
+	"{LABEL}: ": null,
+	"Type": {
+		"": null,
+		"kind": null,
+	},
+	"Shared": null,
+	"Client": null,
+};`);
+		assert.deepEqual(template.resolveCalls(calls), []);
 		assert.deepEqual(calls.get('{0}: ').placeholders, ['LABEL']);
 		assert.deepEqual([...calls.get('Type').contexts].sort(), ['', 'kind']);
-		assert.deepEqual([...calls.get('User').contexts].sort(), ['', 'pokemon']);
-		if (!fs.existsSync(sharedFile)) return;
-		assert.equal(compiled['{0}: '], shared['{LABEL}: ']?.replace('{LABEL}', '{0}') ?? null);
-		assert.equal(JSON.stringify(compiled.Type), JSON.stringify(shared.Type));
+		assert.deepEqual(structuredClone(compileBattleUIText(loaded, calls)), {
+			'{0}: ': '{0} : ',
+			Type: client.Type,
+			Shared: 'Shared text',
+			Client: 'Client text',
+		});
 	});
 });

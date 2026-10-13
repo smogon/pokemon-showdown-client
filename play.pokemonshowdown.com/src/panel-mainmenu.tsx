@@ -9,7 +9,7 @@ import preact from "../js/lib/preact";
 import { PSLoginServer } from "./client-connection";
 import { PSBackground } from "./client-core";
 import {
-	Config, PS, PSRoom, type PSRoomFocusOptions, type RoomID, type RoomOptions, type Team,
+	Config, PS, PSRoom, type PSRoomFocusOptions, type RoomID, type Team,
 } from "./client-main";
 import { PSIcon, PSPanelErrorBoundary, PSPanelWrapper, PSRoomPanel, PSView, ReconnectTimer } from "./panels";
 import type { BattlesRoom } from "./panel-battle";
@@ -54,18 +54,6 @@ export class MainMenuRoom extends PSRoom {
 	search: { searching: string[], games: Record<RoomID, string> | null } = { searching: [], games: null };
 	disallowSpectators: boolean | null = PS.prefs.disallowspectators;
 	lastChallenged: number | null = null;
-	constructor(options: RoomOptions) {
-		super(options);
-		if (this.backlog) {
-			// these aren't set yet, but a lot of things could go wrong if we don't
-			PS.rooms[''] = this;
-			PS.mainmenu = this;
-			for (const args of this.backlog) {
-				this.receiveLine(args);
-			}
-			this.backlog = null;
-		}
-	}
 	adjustPrivacy() {
 		PS.prefs.set('disallowspectators', this.disallowSpectators);
 		if (this.disallowSpectators) return '/noreply /hidenext \n';
@@ -124,7 +112,8 @@ export class MainMenuRoom extends PSRoom {
 		PS.send(`/utm ${search.packedTeam}`);
 		PS.send(`${privacy}/search ${search.format}`);
 	};
-	override receiveLine(args: Args) {
+	override handleLine(args: Args): boolean {
+		if (super.handleLine(args)) return true;
 		const [cmd] = args;
 		switch (cmd) {
 		case 'challstr': {
@@ -144,7 +133,7 @@ export class MainMenuRoom extends PSRoom {
 				}
 				PS.user.handleAssertion(res.username, res.assertion);
 			});
-			return;
+			return true;
 		} case 'updateuser': {
 			const [, fullName, namedCode, avatar, settingsJSON] = args;
 			const named = namedCode === '1';
@@ -158,32 +147,32 @@ export class MainMenuRoom extends PSRoom {
 			void Dex.loadTextData().then(() => PS.updateTranslatedText());
 			PS.user.setName(fullName, named, avatar);
 			PS.teams.loadRemoteTeams();
-			return;
+			return true;
 		} case 'updatechallenges': {
 			const [, challengesBuf] = args;
 			this.receiveChallenges(challengesBuf);
-			return;
+			return true;
 		} case 'updatesearch': {
 			const [, searchBuf] = args;
 			this.receiveSearch(searchBuf);
-			return;
+			return true;
 		} case 'queryresponse': {
 			const [, queryId, responseJSON] = args;
 			this.handleQueryResponse(queryId as ID, JSON.parse(responseJSON));
-			return;
+			return true;
 		} case 'pm': {
 			const [, user1, user2, message] = args;
 			this.handlePM(user1, user2, message);
 			let sideRoom = PS.rightPanel as ChatRoom;
 			if (sideRoom?.type === "chat" && PS.prefs.inchatpm) sideRoom?.log?.add(args);
-			return;
+			return true;
 		} case 'customgroups': {
 			const [, groupsList] = args;
 			PS.server.parseGroups(groupsList);
-			return;
+			return true;
 		} case 'formats': {
 			this.parseFormats(args);
-			return;
+			return true;
 		} case 'popup': {
 			let [, message] = args;
 			for (const roomid in PS.rooms) {
@@ -200,11 +189,12 @@ export class MainMenuRoom extends PSRoom {
 				width = 960;
 			}
 			PS.alert(message.replace(/\|\|/g, '\n'), { width });
-			return;
+			return true;
 		}
 		}
 		const lobby = PS.rooms['lobby'];
-		if (lobby) lobby.receiveLine(args);
+		if (lobby) lobby.receiveBatch([args]);
+		return true;
 	}
 	receiveChallenges(dataBuf: string) {
 		let json;
@@ -376,6 +366,7 @@ export class MainMenuRoom extends PSRoom {
 				}
 			}
 		}
+		window.BattleFormats = Dex.formats.load(BattleFormats);
 		PS.teams.update('format');
 	}
 	handlePM(user1: string, user2: string, message?: string) {
@@ -396,7 +387,7 @@ export class MainMenuRoom extends PSRoom {
 		} else {
 			room.updateTarget(pmTarget);
 		}
-		if (message) room.receiveLine([`c`, user1, message]);
+		if (message) room.receiveBatch([[`c`, user1, message]]);
 		PS.update();
 	}
 	/**
@@ -481,7 +472,7 @@ export class MainMenuRoom extends PSRoom {
 				team.uploaded = {
 					teamid: response.teamid,
 					notLoaded: false,
-					private: response.private,
+					private: response.privacy,
 				};
 				PS.rooms[`team-${team.key}`]?.update(null);
 				PS.rooms.teambuilder?.update(null);
@@ -490,11 +481,11 @@ export class MainMenuRoom extends PSRoom {
 			break;
 		case 'teamupdate':
 			for (const team of PS.teams.list) {
-				if (team.teamid === response.teamid) {
+				if (team.teamid === Number(response.teamid)) {
 					team.uploaded = {
-						teamid: response.teamid,
+						teamid: team.teamid,
 						notLoaded: false,
-						private: response.private,
+						private: response.privacy,
 					};
 					PS.rooms[`team-${team.key}`]?.update(null);
 					PS.rooms.teambuilder?.update(null);
@@ -517,47 +508,42 @@ class NewsPanel extends PSRoomPanel {
 	static getTitle() {
 		return TL`News`;
 	}
-	change = (ev: Event) => {
-		const target = ev.currentTarget as HTMLInputElement;
-		this.setClient(target.value as '0' | '1' | 'leave');
-	};
-	setClient(setting: '0' | '1' | 'leave') {
-		if (setting === '1') {
-			document.cookie = "preactalpha=1; expires=Thu, 1 Dec 2026 12:00:00 UTC; path=/";
-		} else if (setting === '0') {
-			document.cookie = "preactalpha=0; expires=Thu, 1 Dec 2026 12:00:00 UTC; path=/";
-		} else {
-			document.cookie = "preactalpha=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-		}
-		if (setting === 'leave') {
-			document.location.href = `/`;
-		}
-	}
 	override componentDidMount() {
-		if (!document.cookie.includes('preactalpha=')) this.setClient('1');
+		super.componentDidMount();
+		this.startNewsMinimized();
 	}
+	startNewsMinimized() {
+		if (window.innerWidth < 628) {
+			// News is always minimized on mobile
+			this.props.room.minimized = true;
+			PS.mainmenu.update(null);
+			return;
+		}
+
+		const readNewsId = Number(PS.prefs.newsid);
+		if (!readNewsId) return;
+		let hasUnread = false;
+		for (const entry of this.base!.querySelectorAll('.newsentry')) {
+			const unread = Number(entry.getAttribute('data-newsid')) > readNewsId;
+			entry.classList.toggle('unread', unread);
+			if (unread) hasUnread = true;
+		}
+		if (!hasUnread) {
+			this.props.room.minimized = true;
+			PS.mainmenu.update(null);
+		}
+	}
+	markAsRead = (e: MouseEvent) => {
+		if (e.shiftKey || e.metaKey || e.ctrlKey || !window.getSelection()?.isCollapsed) return;
+		if (!PS.newsId) return;
+		PS.prefs.set('newsid', Number(PS.newsId));
+		for (const entry of this.base!.querySelectorAll('.unread')) {
+			entry.classList.remove('unread');
+		}
+	};
 	override render() {
-		const cookieSet = !document.cookie.includes('preactalpha=0');
 		return <PSPanelWrapper room={this.props.room} fullSize>
-			<div class="construction">
-				This is the client rewrite beta test.
-				<form>
-					<label class="checkbox">
-						<input type="radio" name="preactalpha" value="1" onChange={this.change} checked={cookieSet} /> {}
-						Use Rewrite always
-					</label>
-					<label class="checkbox">
-						<input type="radio" name="preactalpha" value="0" onChange={this.change} checked={!cookieSet} /> {}
-						Use Rewrite with URL
-					</label>
-					<label class="checkbox">
-						<input type="radio" name="preactalpha" value="leave" onChange={this.change} /> {}
-						Back to the old client
-					</label>
-				</form>
-				Provide feedback in <a href="development" style="color:black">the Dev chatroom</a>.
-			</div>
-			<div class="readable-bg" dangerouslySetInnerHTML={{ __html: PS.newsHTML }}></div>
+			<div class="readable-bg" onClick={this.markAsRead} dangerouslySetInnerHTML={{ __html: PS.newsHTML }}></div>
 		</PSPanelWrapper>;
 	}
 }
@@ -573,6 +559,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	override componentDidMount() {
 		super.componentDidMount();
 		this.subscribeTo(PSBackground);
+		Config.includes?.htmlDidMount?.();
 	}
 	override focus(options?: PSRoomFocusOptions) {
 		if (!options?.preventScroll) PSView.scrollToRoom();
@@ -629,6 +616,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		const room = PS.getRoom(e.currentTarget);
 		if (room) {
 			room.minimized = !room.minimized;
+			if (!room.minimized) PS.queueFocus(room);
 			this.forceUpdate();
 		}
 	};

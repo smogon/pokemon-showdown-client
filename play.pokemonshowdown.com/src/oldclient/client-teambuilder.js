@@ -917,7 +917,7 @@
 			$('label[name=editMessage]').hide();
 		},
 		pokepasteExport: function (type) {
-			var team = Storage.exportTeam(this.curSetList, type === 'openteamsheet');
+			var team = Storage.exportTeam(this.curSetList, type === 'openteamsheet', this.curTeam.format.includes('champions'));
 			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
 			document.getElementById("pasteData").value = team;
 			document.getElementById("pasteTitle").value = this.curTeam.name;
@@ -2292,6 +2292,10 @@
 				format = format.substr(4);
 			}
 			var generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm', 'ss', 'sv'][generationNumber - 1];
+			if (format.startsWith('champions')) {
+				generation = 'champions';
+				format = format.slice(9);
+			}
 			if (format === 'battlespotdoubles') {
 				smogdexid += '/vgc15';
 			} else if (format === 'doublesou' || format === 'doublesuu') {
