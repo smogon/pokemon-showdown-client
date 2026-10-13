@@ -61,6 +61,7 @@ export const users = loginDB.getTable<{
 	avatar: number,
 	logintime: number,
 	loginip: string | null,
+	account: string | null,
 }>('users', 'userid');
 
 export const ladder = ladderDB.getTable<
