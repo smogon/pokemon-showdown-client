@@ -13,7 +13,6 @@ type BattleTextData = {
 	Abilities: BattleTextTable,
 	Items: BattleTextTable,
 	Tags: { [id: string]: { name?: string, hint?: string, desc?: string } },
-	TermNames: { [id: string]: string },
 	TypeNames: { [id: string]: string },
 	NatureNames: { [id: string]: string },
 	GenderNames: { [id: string]: string },
@@ -28,7 +27,7 @@ type BattleTextData = {
 declare const BattleText: { [lang: string]: BattleTextData };
 type BattleUITextEntry = string | null | { [context: string]: string | null };
 declare const BattleUIText: { [lang: string]: { [english: string]: BattleUITextEntry } };
-declare const BattleFormats: { [id: string]: import('./panel-teamdropdown').FormatData };
+declare const BattleFormats: { [id: string]: import('./battle-dex-data').FormatData };
 declare const BattlePokedex: { [id: string]: AnyObject };
 declare const BattleMovedex: { [id: string]: AnyObject };
 declare const BattleAbilities: { [id: string]: AnyObject };

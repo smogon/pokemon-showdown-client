@@ -247,7 +247,7 @@ export class PSHeader extends preact.Component {
 			<div class="scrollable-part">
 				<img
 					class="logo"
-					src={`https://${Config.routes.client}/favicon-256.png`}
+					src={`https://${Config.routes.client}/iconbeta.png`}
 					alt="Pokémon Showdown! (beta)"
 					width="50" height="50"
 				/>
@@ -297,7 +297,7 @@ export class PSHeader extends preact.Component {
 				>
 					<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 				</button> {}
-				<button class="icon button" data-href="options" title={TL`[Options]`} aria-label={TL`[Options]`}>
+				<button class="icon button alt-notifying" data-href="options" title={TL`[Options]`} aria-label={TL`[Options]`}>
 					<i class="fa fa-cog" aria-hidden></i>
 				</button>
 			</div>
@@ -306,7 +306,7 @@ export class PSHeader extends preact.Component {
 					<li>
 						<img
 							class="logo"
-							src={`https://${Config.routes.client}/favicon-256.png`}
+							src={`https://${Config.routes.client}/iconbeta.png`}
 							alt="Pokémon Showdown! (beta)"
 							width="48" height="48"
 						/>
@@ -346,7 +346,7 @@ export class PSMiniHeader extends preact.Component {
 		const notificationsCount = Object.values(PS.rooms).filter(
 			room => room !== PS.room && room?.notifications.length
 		).length;
-		const { icon, title } = PSHeader.roomInfo(PS.panel);
+		const { icon, title } = PSHeader.roomInfo(PS.getPanel());
 		const userColor = window.BattleLog && `color:${PS.user.away ? '#888' : BattleLog.usernameColor(PS.user.userid)}`;
 		const showMenuButton = PSView.narrowMode;
 		const notifying = (
@@ -366,10 +366,10 @@ export class PSMiniHeader extends preact.Component {
 		);
 		return <div class="mini-header" style={`left:${PSView.verticalHeaderWidth + (PSView.narrowMode ? 0 : -1)}px;`}>
 			{menuButton}
-			{icon} {title}
 			<button data-href="options" class="mini-header-right" aria-label={TL`[Options]`}>
 				{PS.user.named ? <strong style={userColor}>{PS.user.name}</strong> : <i class="fa fa-cog" aria-hidden></i>}
 			</button>
+			{icon} {title}
 		</div>;
 	}
 }

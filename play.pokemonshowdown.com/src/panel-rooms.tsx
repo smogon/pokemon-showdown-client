@@ -10,6 +10,25 @@ import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { RoomInfo } from "./panel-mainmenu";
 import { Dex, TL, toID } from "./battle-dex";
 
+const ROOM_ALIASES: Record<string, string> = {
+	tmg: 'toursminigames',
+	tours: 'tournaments',
+};
+
+const LANGUAGE_ROOM_IDS: Record<string, readonly string[]> = {
+	it: ['italiano'],
+	es: ['espanol', 'espaol'],
+	'zh-cn': ['chinese'],
+	'zh-tw': ['chinese'],
+	hi: ['hindi'],
+	fr: ['franais', 'francais'],
+	pt: ['portugus', 'portugues'],
+	ja: ['japanese'],
+	nl: ['nederlands'],
+	de: ['deutsche'],
+	ko: ['korean'],
+};
+
 export class RoomsRoom extends PSRoom {
 	override readonly classType: string = 'rooms';
 	constructor(options: RoomOptions) {
@@ -41,6 +60,7 @@ class RoomsPanel extends PSRoomPanel {
 		this.subscriptions.push(PS.user.subscribe(update => {
 			if (!update && PS.user.named) PS.send(`/cmd rooms`);
 		}));
+		Config.includes?.htmlDidMount?.();
 	}
 	override componentDidUpdate() {
 		super.componentDidUpdate();
@@ -112,8 +132,10 @@ class RoomsPanel extends PSRoomPanel {
 			this.roomListFocusIndex = this.search ? 0 : -1;
 		}
 		this.roomList = this.getRoomList(forceNoAutocomplete);
-		for (const [, rooms] of this.roomList) {
-			rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
+		if (!this.search) {
+			for (const [, rooms] of this.roomList) {
+				rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
+			}
 		}
 	}
 	getRoomList(forceNoAutocomplete?: boolean): RoomsSection[] {
@@ -127,10 +149,16 @@ class RoomsPanel extends PSRoomPanel {
 		if (!searchid) {
 			const roomsCache = PS.mainmenu.roomsCache;
 			let spotLightLabel = '';
-			const officialRooms = [], chatRooms = [], hiddenRooms = [], spotLightRooms = [];
+			const languageRooms = [], officialRooms = [], chatRooms = [], hiddenRooms = [], spotLightRooms = [];
+			const languageRoomIDs = LANGUAGE_ROOM_IDS[Dex.text.getLanguage()] || [];
+			const languageRoom = languageRoomIDs.map(roomid =>
+				roomsCache.chat?.find(room => room.id === roomid || toID(room.title) === roomid)
+			).find(room => !!room && room.privacy !== 'hidden');
 			for (const room of roomsCache.chat || []) {
 				if (room.section !== this.section && this.section !== '') continue;
-				if (room.privacy === 'hidden') {
+				if (room === languageRoom) {
+					languageRooms.push(room);
+				} else if (room.privacy === 'hidden') {
 					hiddenRooms.push(room);
 				} else if (room.spotlight) {
 					spotLightLabel = room.spotlight;
@@ -142,14 +170,13 @@ class RoomsPanel extends PSRoomPanel {
 				}
 			}
 			return [
+				[TL`Language room`, languageRooms],
 				[TL`Official chat rooms`, officialRooms],
 				[spotLightLabel, spotLightRooms],
 				[TL`Chat rooms`, chatRooms],
 				[TL`Hidden rooms`, hiddenRooms],
 			];
 		}
-
-		let exactMatch = false;
 
 		const rooms = PS.mainmenu.roomsCache;
 		let roomList = [...(rooms.chat || [])];
@@ -163,15 +190,20 @@ class RoomsPanel extends PSRoomPanel {
 			}
 		}
 
-		let results = roomList.filter(room => {
-			const titleid = toID(room.title);
-			if (titleid === searchid) exactMatch = true;
-			return titleid.startsWith(searchid) ||
-				toID(room.title.replace(/^The /, '')).startsWith(searchid);
-		});
+		roomList.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
+		const exactMatch = roomList.some(room => toID(room.title) === searchid);
+
+		// exact alias match has priority
+		let results = roomList.filter(room =>
+			toID(room.title) === ROOM_ALIASES[searchid] ||
+			toID(room.title.toLowerCase().replace(/\b([a-z0-9])[a-z0-9]*\b/g, '$1')) === searchid ||
+			room.title.replace(/[^A-Z0-9]+/g, '').toLowerCase() === searchid
+		);
 		roomList = roomList.filter(room => !results.includes(room));
 
 		results = results.concat(roomList.filter(room =>
+			toID(room.title).startsWith(searchid) ||
+			toID(room.title.replace(/^The /, '')).startsWith(searchid) ||
 			toID(room.title.toLowerCase().replace(/\b([a-z0-9])[a-z0-9]*\b/g, '$1')).startsWith(searchid) ||
 			room.title.replace(/[^A-Z0-9]+/g, '').toLowerCase().startsWith(searchid)
 		));
@@ -181,7 +213,6 @@ class RoomsPanel extends PSRoomPanel {
 
 		const autoFill = this.lastKeyCode !== 127 && this.lastKeyCode >= 32;
 		if (autoFill && !forceNoAutocomplete) {
-			results.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
 			const firstTitle = (results[0] || hidden[0][1][0]).title;
 			let firstTitleOffset = 0;
 			while (
@@ -260,22 +291,20 @@ class RoomsPanel extends PSRoomPanel {
 	renderRoomList() {
 		const roomsCache = PS.mainmenu.roomsCache;
 		if (roomsCache.userCount === undefined) {
-			return <div class="roomlist"><h2>{TL`Official chat rooms`}</h2><p><em>Connecting...</em></p></div>;
+			return <div class="roomlist"><h2>{TL`Official chat rooms`}</h2><p><em>{TL`Connecting...`}</em></p></div>;
 		}
 		if (this.search) {
 			// do nothing
 		} else if (PS.isOffline) {
-			return <div class="roomlist"><h2>Offline</h2></div>;
+			return <div class="roomlist"><h2>{TL`Offline`}</h2></div>;
 		} else if (roomsCache.userCount === undefined) {
-			return <div class="roomlist"><h2>{TL`Official chat rooms`}</h2><p><em>Connecting...</em></p></div>;
+			return <div class="roomlist"><h2>{TL`Official chat rooms`}</h2><p><em>{TL`Connecting...`}</em></p></div>;
 		}
 
-		// Descending order
 		let nextOffset = 0;
 		return this.roomList.filter(([, rooms]) => rooms.length > 0).map(([title, rooms], sectionCount) => {
-			const sortedRooms = rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
 			const offset = nextOffset;
-			nextOffset += sortedRooms.length;
+			nextOffset += rooms.length;
 			this.roomListLength = nextOffset;
 
 			const index = this.roomListFocusIndex >= offset && this.roomListFocusIndex < nextOffset ?
@@ -284,7 +313,7 @@ class RoomsPanel extends PSRoomPanel {
 			return <>
 				<div class="roomlist">
 					<h2>{title}</h2>
-					{sortedRooms.map((roomInfo, i) => <div key={roomInfo.title}>
+					{rooms.map((roomInfo, i) => <div key={roomInfo.title}>
 						<a href={`/${roomInfo.id || toID(roomInfo.title)}`} class={`blocklink${i === index ? " cur" : ''}`}>
 							{roomInfo.userCount !== undefined && <small style="float:right">({TL`${roomInfo.userCount} users`})</small>}
 							<strong><i class="fa fa-comment-o" aria-hidden></i> {roomInfo.title}<br /></strong>

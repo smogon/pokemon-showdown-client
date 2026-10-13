@@ -170,7 +170,7 @@ export class ChatTournament extends PSModel {
 				if (notify) {
 					this.room.notify({
 						title: TL`Tournament created`,
-						body: `${TL.label(TL`Room`, this.room.title)}\n${TL.label(TL.term.format || 'Format', formatName)}\n${TL.label(TL`Type`, type)}`,
+						body: `${TL.label(TL`Room`, this.room.title)}\n${TL.label(TL`Format`, formatName)}\n${TL.label(TL('Type', 'kind'), type)}`,
 						id: 'tournament-create',
 					});
 				}
@@ -495,6 +495,8 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 		}
 
 		// joined
+		const teamFormat = PS.teams.teambuilderFormat(info.teambuilderFormat || info.format || '');
+		const hasRandomTeam = !!window.BattleFormats?.[teamFormat]?.team;
 		const noMatches = !info.challenges?.length && !info.challengeBys?.length && !info.challenging && !info.challenged;
 		const challengeBys = info.challengeBys?.length ? TL.orList(info.challengeBys) : '';
 		return <div class="tournament-tools">
@@ -503,7 +505,9 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 				onSubmit={this.acceptChallenge} onValidate={this.validate}
 			>
 				{(info.isJoined && !info.challenging && !info.challenged && !info.challenges?.length) && (
-					<button name="validate" class="button"><i class="fa fa-check" aria-hidden></i> {TL`[Validate]`}</button>
+					<button name="validate" class="button" disabled={hasRandomTeam}>
+						<i class="fa fa-check" aria-hidden></i> {TL`[Validate]`}
+					</button>
 				)} {}
 				{!!(!info.isStarted && info.isJoined) && (
 					<button data-cmd="/tournament leave" class="button">{TL`[Leave]`}</button>

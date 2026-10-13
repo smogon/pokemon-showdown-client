@@ -36,7 +36,9 @@ var full = '';
 
 switch (process.argv[2] || '') {
 case 'full':
-	execSync(`node ./build-tools/build-indexes`, options);
+	execFileSync(process.execPath, ['./build-tools/build-indexes'].concat(
+		process.argv.includes('--no-update') ? ['--no-update'] : []
+	), options);
 	execSync(`node ./build-tools/build-learnsets`, options);
 	execSync(`node ./build-tools/build-minidex`, options);
 	full = ' full';
@@ -73,8 +75,6 @@ default:
 	break;
 }
 
-execSync(`node ./build-tools/update` + full, options);
-
 if (full) {
 	try {
 		execSync(`node ./build-tools/build-commands`, options);
@@ -82,3 +82,5 @@ if (full) {
 		console.error(e);
 	}
 }
+
+execSync(`node ./build-tools/update` + full, options);

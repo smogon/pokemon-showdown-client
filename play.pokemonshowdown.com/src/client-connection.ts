@@ -66,7 +66,7 @@ export class PSConnection {
 	canReconnect() {
 		const uptime = Date.now() - PS.startTime;
 		if (uptime > 24 * 60 * 60 * 1000) {
-			PS.confirm(`It's been over a day since you first connected. Please refresh.`, {
+			PS.confirm(TL`It's been over a day since you first connected. Please refresh.`, {
 				okButton: TL`[Refresh]`,
 			}).then(confirmed => {
 				if (confirmed) PS.room?.send(`/refresh`);

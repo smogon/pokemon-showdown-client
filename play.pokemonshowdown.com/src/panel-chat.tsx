@@ -93,13 +93,14 @@ export class ChatRoom extends PSRoom {
 		}
 		return false;
 	}
-	override receiveLine(args: Args) {
+	override handleLine(args: Args): boolean {
+		if (super.handleLine(args)) return true;
 		switch (args[0]) {
 		case 'users':
 			const usernames = args[1].split(',');
 			const count = parseInt(usernames.shift()!, 10);
 			this.setUsers(count, usernames);
-			return;
+			return true;
 
 		case 'join': case 'j': case 'J':
 			this.addUser(args[1]);
@@ -120,7 +121,7 @@ export class ChatRoom extends PSRoom {
 		case 'tournament': case 'tournaments':
 			this.tour ||= new ChatTournament(this);
 			this.tour.receiveLine(args);
-			return;
+			return true;
 
 		case 'noinit':
 			if (this.connectMode === 'deleted') {
@@ -134,18 +135,18 @@ export class ChatRoom extends PSRoom {
 				this.connectError = args[2] || `Chatroom "${this.title}" not found`;
 			}
 			this.update(null);
-			return;
+			return true;
 		case 'expire':
 			this.connected = false;
 			this.connectMode = 'deleted';
 			this.connectError = args[1] || "This room has expired (you can't chat in it anymore)";
 			this.update(null);
-			return;
+			return true;
 
 		case 'chat': case 'c':
 			if (`${args[2]} `.startsWith('/challenge ')) {
 				this.updateChallenge(args[1], args[2].slice(11));
-				return;
+				return true;
 			} else if (args[2].startsWith('/warn ')) {
 				const reason = args[2].replace('/warn ', '');
 				PS.join(`rules-warn` as RoomID, {
@@ -155,7 +156,7 @@ export class ChatRoom extends PSRoom {
 					},
 					parentElem: null,
 				});
-				return;
+				return true;
 			}
 			// falls through
 		case 'c:':
@@ -176,9 +177,11 @@ export class ChatRoom extends PSRoom {
 		// 	this.joinLeave = null;
 		// 	break;
 		}
-		super.receiveLine(args);
+		return false;
 	}
 	override handleReconnect(msg: string): boolean | void {
+		this.tour = null;
+		this.dismissNotification('tournament-create');
 		let lines = msg.split('\n');
 
 		// cut off starting lines until we get to PS.lastMessage timestamp
@@ -212,9 +215,11 @@ export class ChatRoom extends PSRoom {
 
 		if (lines.length) {
 			const timestamp = BattleLog.renderTimestamp(cutOffTime, PS.prefs.timestamps?.chatrooms);
-			this.receiveLine([`raw`, `<div class="infobox">${timestamp}You disconnected.</div>`]);
-			for (const line of lines) this.receiveLine(BattleTextParser.parseLine(line));
-			this.receiveLine(BattleTextParser.parseLine(reconnectMessage));
+			this.receiveBatch([
+				[`raw`, `<div class="infobox">${timestamp}You disconnected.</div>`],
+				...lines.map(line => BattleTextParser.parseLine(line)),
+				BattleTextParser.parseLine(reconnectMessage),
+			]);
 		}
 		this.update(null);
 		return true;
@@ -319,6 +324,15 @@ export class ChatRoom extends PSRoom {
 		}
 		return '"' + message + '"';
 	}
+	isIgnored = (name: string) => {
+		if (!PS.prefs.ignore?.[toID(name)]) return false;
+		// can't ignore staff
+		if (!' +^\u2605\u2606'.includes(name.charAt(0))) return false;
+		if (this.pmTarget !== null) return true;
+		// can't ignore users in rooms you're staff in
+		const roomGroup = PS.server.getGroup(this.users[PS.user.userid]);
+		return roomGroup.order > PS.server.getGroup('%').order;
+	};
 	handleHighlight = (args: Args) => {
 		let name: string;
 		let message: string;
@@ -337,8 +351,7 @@ export class ChatRoom extends PSRoom {
 
 		const isDM = this.id.startsWith("dm-");
 		const highlightType = ChatRoom.isHighlightableChatMessage(message, isDM);
-		const isIgnored = PS.prefs.ignore?.[userid];
-		if (isIgnored || !highlightType) return false;
+		if (this.isIgnored(name) || !highlightType) return false;
 		if (highlightType === 'subtle') {
 			this.subtleNotify();
 			return false;
@@ -533,13 +546,9 @@ export class ChatRoom extends PSRoom {
 						buffer += `<td><em>${Math.round(row.rpr)} <small> &#177; ${Math.round(row.rprd)}</small></em></td>`;
 					}
 					const N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
-					const COIL_B = undefined;
 
-					// Uncomment this after LadderRoom logic is implemented
-					// COIL_B = LadderRoom?.COIL_B[formatId];
-
-					if (COIL_B) {
-						buffer += `<td>${Math.round(40.0 * parseFloat(row.gxe) * 2.0 ** (-COIL_B / N))}</td>`;
+					if (row.coil) {
+						buffer += `<td>${Math.round(row.coil)}</td>`;
 					} else {
 						buffer += '<td>&mdash;</td>';
 					}
@@ -597,7 +606,7 @@ export class ChatRoom extends PSRoom {
 		'ffto,fastfowardto'(target, cmd, parentElem) {
 			if (!this.battle) return this.errorReply(TL`You are not in a battle`);
 			if (!target) {
-				PS.prompt("Turn number?", {
+				PS.prompt(TL`Turn number?`, {
 					defaultValue: `${this.battle.turn}`,
 					type: 'numeric',
 					okButton: TL`[Go]`,
@@ -1101,7 +1110,7 @@ export class ChatTextEntry extends preact.Component<{
 			if (this.undoTabComplete()) {
 				return true;
 			}
-			if (PS.room !== PS.panel) { // only close if in mini-room mode
+			if (PS.room !== PS.getPanel()) { // only close if in mini-room mode
 				PS.leave(PS.room.id);
 				return true;
 			}
@@ -1585,6 +1594,11 @@ export class ChatLog extends preact.Component<{
 		if (!this.props.noSubscription) {
 			room.log ||= new BattleLog(elem, null, innerElem);
 			room.log.getHighlight = room.handleHighlight;
+			room.log.isIgnored = room.isIgnored;
+			room.log.canRevealMessages = () => {
+				const group = PS.server.getGroup(room.users[PS.user.userid]);
+				return group.type === 'staff' || group.type === 'leadership';
+			};
 			if (room.backlog) {
 				const backlog = room.backlog;
 				room.backlog = null;

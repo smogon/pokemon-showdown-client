@@ -56,6 +56,8 @@ export class BattleLog {
 	 */
 	perspective: -1 | 0 | 1 = -1;
 	getHighlight: ((line: Args) => boolean) | null = null;
+	isIgnored: ((name: string) => boolean) | null = null;
+	canRevealMessages: (() => boolean) | null = null;
 	constructor(elem: HTMLDivElement, scene?: BattleScene | null, innerElem?: HTMLDivElement) {
 		this.elem = elem;
 
@@ -185,8 +187,9 @@ export class BattleLog {
 					return;
 				}
 			}
-			const ignoreList = window.app?.ignore || window.PS?.prefs?.ignore;
-			if (ignoreList?.[toUserid(name)] && ' +^\u2605\u2606'.includes(rank)) return;
+			const isIgnored = this.isIgnored ? this.isIgnored(name) :
+				window.app?.ignore?.[toUserid(name)] && ' +^\u2605\u2606'.includes(rank);
+			if (isIgnored) return;
 			const timestampHtml = BattleLog.renderTimestamp(timestamp, showTimestamps);
 			const isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message) || this.getHighlight?.(args);
 			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, timestampHtml, isHighlighted);
@@ -320,7 +323,7 @@ export class BattleLog {
 			this.unlinkChatFrom(user);
 			if (args[1] !== 'unlink') {
 				const lineCount = parseInt(args[3], 10);
-				this.hideChatFrom(user, args[1] === 'hide', lineCount);
+				this.hideChatFrom(user, args[1] === 'hide' || !!this.canRevealMessages?.(), lineCount);
 			}
 			return;
 		}
@@ -398,7 +401,7 @@ export class BattleLog {
 			break;
 
 		case 'tier':
-			this.addDiv('', `<small>${TL.label(TL.term.format || 'Format')}</small><br /><strong>` + BattleLog.escapeHTML(args[1]) + '</strong>');
+			this.addDiv('', `<small>${TL.label(TL`Format`)}</small><br /><strong>` + BattleLog.escapeHTML(args[1]) + '</strong>');
 			break;
 
 		case 'turn':
@@ -958,7 +961,7 @@ export class BattleLog {
 	static parseLogMessage(message: string): [string, string] {
 		const messages = message.split('\n').map(line => {
 			line = BattleLog.escapeHTML(line);
-			line = line.replace(/\*\*(.*)\*\*/, '<strong>$1</strong>');
+			line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 			line = line.replace(/\|\|([^|]*)\|\|([^|]*)\|\|/, '<abbr title="$1">$2</abbr>');
 			if (line.startsWith('  ')) line = '<small>' + line.trim() + '</small>';
 			return line;

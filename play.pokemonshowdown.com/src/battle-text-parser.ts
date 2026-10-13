@@ -276,6 +276,12 @@ export class BattleTextParser {
 	}
 
 	private static uiParser: BattleTextParser | null = null;
+	/** Render a `Default.default` template, like `fullName`, in the current language */
+	static defaultText(field: string, values?: { [placeholder: string]: RenderValue | undefined }) {
+		const parser = (BattleTextParser.uiParser ||= new BattleTextParser());
+		parser.language = Dex.text.getLanguage();
+		return parser.render(parser.defaultText(field), values);
+	}
 	static ui(field: string, values?: { [placeholder: string]: RenderValue | undefined }) {
 		const parser = (BattleTextParser.uiParser ||= new BattleTextParser());
 		parser.language = Dex.text.getLanguage();
@@ -426,7 +432,13 @@ export class BattleTextParser {
 
 		if (language === 'fr') {
 			let article = '';
-			if (has('definite')) {
+			const lead = (has('a') || has('de')) && !has('definite') && !has('indefinite') &&
+				/^(\*\*)?(le |la |les |l’)/i.exec(value);
+			if (lead) {
+				// detect article for "de les" -> "des" etc
+				article = lead[2].toLowerCase();
+				value = (lead[1] || '') + value.slice(lead[0].length);
+			} else if (has('definite')) {
 				article = plural ? 'les ' : vowel ? 'l’' : feminine ? 'la ' : 'le ';
 			} else if (has('indefinite')) {
 				article = uncountable ? '' : plural ? 'des ' : feminine ? 'une ' : 'un ';
@@ -446,7 +458,13 @@ export class BattleTextParser {
 		} else if (language === 'es') {
 			const articleFeminine = feminine && articleRule !== 'stressed-a';
 			let article = '';
-			if (has('definite')) article = plural ? (feminine ? 'las ' : 'los ') : (articleFeminine ? 'la ' : 'el ');
+			const lead = (has('a') || has('de')) && !has('definite') && !has('indefinite') &&
+				/^(\*\*)?(el |la |los |las )/i.exec(value);
+			if (lead) {
+				// detect article for "de el" -> "del" etc
+				article = lead[2].toLowerCase();
+				value = (lead[1] || '') + value.slice(lead[0].length);
+			} else if (has('definite')) article = plural ? (feminine ? 'las ' : 'los ') : (articleFeminine ? 'la ' : 'el ');
 			else if (has('indefinite')) {
 				article = uncountable ? '' : plural ? (feminine ? 'unas ' : 'unos ') : (articleFeminine ? 'una ' : 'un ');
 			}
@@ -457,7 +475,15 @@ export class BattleTextParser {
 		} else if (language === 'it') {
 			const special = /^(?:s[^aeiouàèéìòù]|z|gn|ps|pn|x|y)/i.test(initial);
 			let article = '';
-			if (has('definite')) {
+			let hasDefinite = has('definite');
+			const lead = (has('a') || has('di') || has('su')) && !has('definite') && !has('indefinite') &&
+				/^(\*\*)?(il |lo |la |i |gli |le |l’)/i.exec(value);
+			if (lead) {
+				// detect article for "su la" -> "sulla" etc
+				article = lead[2].toLowerCase();
+				value = (lead[1] || '') + value.slice(lead[0].length);
+				hasDefinite = true;
+			} else if (has('definite')) {
 				if (plural) article = feminine ? 'le ' : (vowel || special ? 'gli ' : 'i ');
 				else if (vowel) article = 'l’';
 				else article = feminine ? 'la ' : (special ? 'lo ' : 'il ');
@@ -466,11 +492,11 @@ export class BattleTextParser {
 				else if (feminine) article = vowel ? 'un’' : 'una ';
 				else article = special ? 'uno ' : 'un ';
 			}
-			if (has('a') && has('definite')) {
+			if (has('a') && hasDefinite) {
 				prefix = this.italianContraction(article, ['al ', 'allo ', 'all’', 'alla ', 'ai ', 'agli ', 'alle ']);
-			} else if (has('di') && has('definite')) {
+			} else if (has('di') && hasDefinite) {
 				prefix = this.italianContraction(article, ['del ', 'dello ', 'dell’', 'della ', 'dei ', 'degli ', 'delle ']);
-			} else if (has('su') && has('definite')) {
+			} else if (has('su') && hasDefinite) {
 				prefix = this.italianContraction(article, ['sul ', 'sullo ', 'sull’', 'sulla ', 'sui ', 'sugli ', 'sulle ']);
 			} else if (has('a')) {
 				prefix = vowel ? 'ad ' : 'a ';
@@ -526,7 +552,7 @@ export class BattleTextParser {
 		if (!text) return 0;
 		const code = text.charCodeAt(text.length - 1);
 		if (code >= 0xAC00 && code <= 0xD7A3) return (code - 0xAC00) % 28;
-		if (code >= 0x30 && code <= 0x39) return [1, 0, 0, 8, 0, 0, 1, 8, 8, 0][code - 0x30];
+		if (code >= 0x30 && code <= 0x39) return [1, 8, 0, 1, 0, 0, 1, 8, 8, 0][code - 0x30];
 		return /[lmnr]$/i.test(text) ? 8 : 0;
 	}
 
@@ -554,8 +580,7 @@ export class BattleTextParser {
 		const species = details.split(',')[0];
 		const localizedSpecies = this.speciesName(species);
 		if (nickname === localizedSpecies) return [pokemon.slice(0, 2), `**${localizedSpecies}**`];
-		const template = BattleText[this.language]?.TermNames?.nicknamespecies ||
-			BattleText.en?.TermNames?.nicknamespecies || '{NICKNAME} ({SPECIES})';
+		const template = this.defaultText('fullName') || '{NICKNAME} ({SPECIES})';
 		return [pokemon.slice(0, 2), this.render(template, {
 			NICKNAME: nickname,
 			SPECIES: `**${localizedSpecies}**`,
@@ -753,7 +778,7 @@ export class BattleTextParser {
 		}
 		case '-activate': {
 			const id = BattleTextParser.effectId(args[2]);
-			if (id === 'confusion' || id === 'attract') return 'preMajor';
+			if (id === 'confusion' || id === 'attract' || id === 'pursuit') return 'preMajor';
 			return 'postMajor';
 		}
 		}
@@ -1374,10 +1399,12 @@ export class BattleTextParser {
 
 			if (!kwArgs.from) {
 				template = this.template(percentage ? 'damagePercentage' : 'damage');
-				percentage = percentage ? percentage.replace(/%$/, '') : '';
-				return line1 + this.render(template, {
+				percentage = percentage ? percentage.replace(/%(\|\|)?$/, '$1') : '';
+				const message = this.render(template, {
 					POKEMON: this.pokemon(pokemon), PERCENTAGE: percentage,
 				});
+				// move % sign inside <abbr>
+				return line1 + message.replace(/\|\|([%％])/, '$1||');
 			}
 			if (kwArgs.from.startsWith('item:')) {
 				template = this.template(kwArgs.of ? 'damageFromPokemon' : 'damageFromItem');

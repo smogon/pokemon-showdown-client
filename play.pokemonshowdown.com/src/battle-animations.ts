@@ -953,9 +953,10 @@ export class BattleScene implements BattleSceneStub {
 
 	turnsLeft(min: number, max = 0) {
 		if (max) {
-			return BattleTextParser.ui('turns', { NUMBER: TL.orList([`${min}`, `${max}`]) });
+			const range = TL.orList([`${min}`, `${max}`]);
+			return TL`(${range} turns)`;
 		}
-		return BattleTextParser.ui(min === 1 ? 'turn' : 'turns', { NUMBER: `${min}` });
+		return min === 1 ? TL`(${min} turn)` : TL`(${min} turns)`;
 	}
 	pseudoWeatherLeft(pWeather: WeatherState) {
 		let buf = `<br />${TL(Dex.moves.get(pWeather[0]))}`;
@@ -975,8 +976,7 @@ export class BattleScene implements BattleSceneStub {
 	sideConditionLeft(cond: Side['sideConditions'][string], isFoe: boolean, all?: boolean) {
 		if (!cond[2] && !cond[3] && !all) return '';
 		const condition = TL(Dex.moves.get(cond[0]));
-		const foeCondition = (TL.term.foescondition || "Foe's {CONDITION}")
-			.replace('{CONDITION}', () => condition);
+		const foeCondition = TL`Foe's ${condition}`;
 		let buf = `<br />${isFoe && !all ? foeCondition : condition}`;
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
 

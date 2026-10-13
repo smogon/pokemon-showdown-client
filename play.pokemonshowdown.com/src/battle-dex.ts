@@ -21,7 +21,7 @@
 import { Pokemon, type ServerPokemon } from "./battle";
 import {
 	BattleAvatarNumbers, BattleBaseSpeciesChart, BattlePokemonIconIndexes, BattlePokemonIconIndexesLeft,
-	Ability, Item, Move, Species, PureEffect, type ID, type NatureEffect, type Type,
+	Ability, Item, Move, Species, PureEffect, BattleFormat, type FormatData, type ID, type NatureEffect, type Type,
 } from "./battle-dex-data";
 import type * as DexData from "./battle-dex-data";
 import type { Teams } from "./battle-teams";
@@ -34,6 +34,7 @@ export declare namespace Dex {
 	export type Item = DexData.Item;
 	export type Move = DexData.Move;
 	export type Species = DexData.Species;
+	export type Format = DexData.BattleFormat;
 	export type Type = DexData.Type;
 	export type Nature = DexData.Nature;
 	export type PureEffect = DexData.PureEffect;
@@ -137,13 +138,6 @@ interface ClientDexText {
 	languages(): Language[];
 	findLanguage(lang: string): Language | null;
 	get(effect: TranslatableEffect, lang?: string): ClientEffectTextEntry;
-	termName(name: string, lang?: string): string;
-	typeName(name: string, lang?: string): string;
-	natureName(name: string, lang?: string): string;
-	categoryName(name: string, lang?: string): string;
-	genderName(name: string, lang?: string): string;
-	eggGroupName(name: string, lang?: string): string;
-	colorName(name: string, lang?: string): string;
 }
 
 function translate(strings: TemplateStringsArray, ...values: unknown[]): string;
@@ -154,7 +148,7 @@ function translate(strings: TemplateStringsArray | string | TranslatableEffect, 
 	}
 
 	let source: string;
-	let context = 'default';
+	let context = '';
 	if (typeof strings === 'string') {
 		source = strings;
 		if (values.length) context = values[0] as string;
@@ -185,14 +179,14 @@ function tagField(tags: BattleTextData['Tags'] | undefined, field: 'name' | 'hin
 }
 
 export const TL = Object.assign(translate, {
-	inLanguage(source: string, language: string, context = 'default') {
+	inLanguage(source: string, language: string, context = '') {
 		const translation = typeof BattleUIText === 'undefined' ? undefined : BattleUIText[language]?.[source];
 		const fallback = source.startsWith('[') && source.endsWith(']') ? source.slice(1, -1) : source;
 		return (typeof translation === 'string' ? translation : translation?.[context]) ?? fallback;
 	},
 	/** `TL.label("Ability", "Intimidate")` === `"Ability: Intimidate"` */
 	label(label: string, value?: unknown) {
-		const labelText = (TL.term.label || '{LABEL}: ').replace('{LABEL}', label);
+		const labelText = TL`${label}: `;
 		return value === undefined ? labelText : labelText + String(value as any);
 	},
 	orList(items: readonly string[]) {
@@ -225,7 +219,6 @@ export const TL = Object.assign(translate, {
 		}
 		return TL.andList(items);
 	},
-	term: initialText?.TermNames || {},
 	type: initialText?.TypeNames || {},
 	nature: initialText?.NatureNames || {},
 	gender: initialText?.GenderNames || {},
@@ -242,22 +235,22 @@ export const TL = Object.assign(translate, {
 
 function updateTranslatedNames(lang: string) {
 	if (lang !== Dex.text.getLanguage()) return;
-	const text = BattleText[lang];
-	if (!text) return;
+	if (typeof BattleText === 'undefined') return;
 	const english = BattleText.en;
-	TL.term = text.TermNames || english.TermNames;
-	TL.type = text.TypeNames || english.TypeNames;
-	TL.nature = text.NatureNames || english.NatureNames;
-	TL.gender = text.GenderNames || english.GenderNames;
-	TL.egggroup = text.EggGroupNames || english.EggGroupNames;
-	TL.tag = tagField(text.Tags || english.Tags, 'name');
-	TL.tagHint = tagField(text.Tags || english.Tags, 'hint');
-	TL.color = text.ColorNames || english.ColorNames;
-	TL.status = text.StatusNames || english.StatusNames;
-	TL.target = text.TargetNames || english.TargetNames;
-	TL.stat = text.StatNames || english.StatNames;
-	TL.statShort = text.StatShortNames || english.StatShortNames;
-	TL.statMedium = text.StatMediumNames || english.StatMediumNames;
+	const text = BattleText[lang] || english;
+	if (!text) return;
+	TL.type = text.TypeNames || english?.TypeNames || {};
+	TL.nature = text.NatureNames || english?.NatureNames || {};
+	TL.gender = text.GenderNames || english?.GenderNames || {};
+	TL.egggroup = text.EggGroupNames || english?.EggGroupNames || {};
+	TL.tag = tagField(text.Tags || english?.Tags, 'name');
+	TL.tagHint = tagField(text.Tags || english?.Tags, 'hint');
+	TL.color = text.ColorNames || english?.ColorNames || {};
+	TL.status = text.StatusNames || english?.StatusNames || {};
+	TL.target = text.TargetNames || english?.TargetNames || {};
+	TL.stat = text.StatNames || english?.StatNames || {};
+	TL.statShort = text.StatShortNames || english?.StatShortNames || {};
+	TL.statMedium = text.StatMediumNames || english?.StatMediumNames || {};
 }
 
 function assignTextFields(target: BattleTextEntry, source: BattleTextEntry) {
@@ -267,22 +260,18 @@ function assignTextFields(target: BattleTextEntry, source: BattleTextEntry) {
 }
 
 type OtherNameTable =
-	'TermNames' | 'TypeNames' | 'NatureNames' | 'GenderNames' |
+	'TypeNames' | 'NatureNames' | 'GenderNames' |
 	'EggGroupNames' | 'ColorNames' |
 	'StatNames' | 'StatMediumNames' | 'StatShortNames';
 
 function getOtherName(table: OtherNameTable, name: string, lang: string): string {
-	let id: string = toID(name);
-	if (table === 'GenderNames') {
-		id = ({ m: 'male', f: 'female', n: 'genderless' } as Record<string, string>)[id] || id;
-	}
-	return BattleText[lang]?.[table]?.[id] || BattleText.en?.[table]?.[id] || name;
+	return BattleText[lang]?.[table]?.[name] || BattleText.en?.[table]?.[name] || name;
 }
 
 /**
  * Does actually match ClientEffectTextEntry exactly.
  */
-function getTextEntry(effect: TranslatableEffect, gen: number, lang: string): ClientEffectTextEntry {
+function getTextEntry(effect: TranslatableEffect, modid: string, gen: number, lang: string): ClientEffectTextEntry {
 	if (effect.effectType === 'Species') {
 		const entry = BattleText[lang]?.Pokedex?.[effect.id] || BattleText.en?.Pokedex?.[effect.id];
 		return {
@@ -303,7 +292,7 @@ function getTextEntry(effect: TranslatableEffect, gen: number, lang: string): Cl
 	const entry = {} as ClientEffectTextEntry;
 	assignTextFields(entry, english);
 	assignTextFields(entry, localized);
-	for (let i = 1; i <= 8; i++) {
+	for (let i = 1; i < Dex.gen; i++) {
 		const genName = `gen${i}`;
 		const englishGen = english[genName];
 		const localizedGen = localized[genName];
@@ -314,22 +303,22 @@ function getTextEntry(effect: TranslatableEffect, gen: number, lang: string): Cl
 			entry[genName] = genEntry;
 		}
 	}
-	for (let i = 8; i >= gen; i--) {
+	for (let i = Dex.gen - 1; i >= gen; i--) {
 		const genName = `gen${i}`;
 		const englishGen = english[genName];
 		const localizedGen = localized[genName];
 		if (englishGen && typeof englishGen === 'object') assignTextFields(entry, englishGen);
 		if (localizedGen && typeof localizedGen === 'object') assignTextFields(entry, localizedGen);
 	}
-	const fallback = effect as unknown as { desc?: string, shortDesc?: string };
+	if (!/^gen\d+$/.test(modid)) {
+		const englishMod = english[modid];
+		const localizedMod = localized[modid];
+		if (englishMod && typeof englishMod === 'object') assignTextFields(entry, englishMod);
+		if (localizedMod && typeof localizedMod === 'object') assignTextFields(entry, localizedMod);
+	}
 	if (typeof entry.name !== 'string') entry.name = effect.name;
-	if (typeof entry.desc !== 'string') {
-		entry.desc = fallback.desc || fallback.shortDesc ||
-			(typeof entry.shortDesc === 'string' ? entry.shortDesc : '');
-	}
-	if (typeof entry.shortDesc !== 'string') {
-		entry.shortDesc = fallback.shortDesc || fallback.desc || entry.desc;
-	}
+	if (typeof entry.desc !== 'string') entry.desc = typeof entry.shortDesc === 'string' ? entry.shortDesc : '';
+	if (typeof entry.shortDesc !== 'string') entry.shortDesc = entry.desc;
 	return entry;
 }
 
@@ -525,26 +514,31 @@ export const Dex = new class implements ModdedDex {
 		if (!gen) return this;
 		return this.mod(`gen${gen}` as ID);
 	}
+	formats = {
+		cache: Object.create(null) as { [id: string]: BattleFormat },
+		get(name: string): BattleFormat {
+			const id = toID(name);
+			this.cache[id] ||= new BattleFormat(name, window.BattleFormats?.[id]);
+			return this.cache[id];
+		},
+		load(data: { [id: string]: FormatData }): { [id: string]: BattleFormat } {
+			// Update in-place so retained references get updated too
+			for (const id in this.cache) {
+				Object.assign(this.cache[id], new BattleFormat(this.cache[id].name, data[id]));
+			}
+			const formats: { [id: string]: BattleFormat } = {};
+			for (const id in data) {
+				const format = this.cache[id] ||= new BattleFormat(data[id].name, data[id]);
+				formats[id] = format;
+			}
+			return formats;
+		},
+	};
 	formatGen(format: string) {
-		const formatid = toID(format);
-		if (!formatid) return Dex.gen;
-		if (!formatid.startsWith('gen')) return 6;
-		return parseInt(formatid.charAt(3)) || Dex.gen;
+		return this.formats.get(format).gen;
 	}
 	forFormat(format: string) {
-		let dex = Dex.forGen(Dex.formatGen(format));
-
-		const formatid = toID(format).slice(4);
-		if (dex.gen === 7 && formatid.includes('letsgo')) {
-			dex = Dex.mod('gen7letsgo' as ID);
-		}
-		if (dex.gen === 8 && formatid.includes('bdsp')) {
-			dex = Dex.mod('gen8bdsp' as ID);
-		}
-		if (dex.gen === 9 && formatid.includes('champions')) {
-			dex = Dex.mod('champions' as ID);
-		}
-		return dex;
+		return this.mod(this.formats.get(format).mod);
 	}
 
 	resolveAvatar(avatar: string): string {
@@ -621,16 +615,8 @@ export const Dex = new class implements ModdedDex {
 			return TEXT_LANGUAGE_TABLE[lang.toLowerCase()] || TEXT_LANGUAGE_TABLE[toID(lang)] || null;
 		},
 		get: (effect: TranslatableEffect, lang = Dex.text.getLanguage()) => {
-			return getTextEntry(effect, 9, lang);
+			return getTextEntry(effect, 'gen9', 9, lang);
 		},
-		termName: (name, lang = Dex.text.getLanguage()) => getOtherName('TermNames', name, lang),
-		typeName: (name, lang = Dex.text.getLanguage()) => getOtherName('TypeNames', name, lang),
-		natureName: (name, lang = Dex.text.getLanguage()) => getOtherName('NatureNames', name, lang),
-		categoryName: (name, lang = Dex.text.getLanguage()) =>
-			BattleText[lang]?.Tags?.[toID(name)]?.name || BattleText.en?.Tags?.[toID(name)]?.name || name,
-		genderName: (name, lang = Dex.text.getLanguage()) => getOtherName('GenderNames', name, lang),
-		eggGroupName: (name, lang = Dex.text.getLanguage()) => getOtherName('EggGroupNames', name, lang),
-		colorName: (name, lang = Dex.text.getLanguage()) => getOtherName('ColorNames', name, lang),
 	};
 
 	getShortName(name: string) {
@@ -875,8 +861,8 @@ export const Dex = new class implements ModdedDex {
 	}
 	loadTextData(lang = this.text.getLanguage()): Promise<void> {
 		const text = typeof BattleText === 'undefined' ? undefined : BattleText;
+		updateTranslatedNames(lang);
 		if (text?.[lang]) {
-			updateTranslatedNames(lang);
 			return Promise.resolve();
 		}
 		// in case the initial English failed to load
@@ -892,12 +878,17 @@ export const Dex = new class implements ModdedDex {
 			el.onerror = () => reject(new Error(`Failed to load text data from ${src}`));
 			document.getElementsByTagName('body')[0].appendChild(el);
 		});
-		let loading = loadScript(Config.testclient ? `data/text/${lang}.js` : `${this.resourcePrefix}data/text/${lang}.js`);
+		const cachebuster = Config.translationCachebuster ? `?${Config.translationCachebuster}` : '';
+		const textURL = Config.testclient ? `data/text/${lang}.js` : `${this.resourcePrefix}data/text/${lang}.js`;
+		let loading = loadScript(textURL + cachebuster);
 		if (Config.testclient) {
-			loading = loading.catch(() => loadScript(`https://play.pokemonshowdown.com/data/text/${lang}.js`));
+			loading = loading.catch(() =>
+				loadScript(`https://play.pokemonshowdown.com/data/text/${lang}.js${cachebuster}`)
+			);
 		}
 		loading = loading.then(() => updateTranslatedNames(lang)).catch(() => {
 			delete this.loadedTextData[lang];
+			updateTranslatedNames(lang);
 		});
 		this.loadedTextData[lang] = loading;
 		return loading;
@@ -1250,7 +1241,7 @@ export const Dex = new class implements ModdedDex {
 		type = this.types.get(type).name;
 		if (!type) type = '???';
 		let sanitizedType = type.replace(/\?/g, '%3f');
-		const alt = BattleLog.escapeHTML(TL.type[toID(type)] || type);
+		const alt = BattleLog.escapeHTML(TL.type[type] || type);
 		return `<img src="${Dex.resourcePrefix}sprites/types/${sanitizedType}.png" alt="${alt}" height="14" width="32" class="pixelated${b ? ' b' : ''}" />`;
 	}
 
@@ -1307,16 +1298,8 @@ export class ModdedDex {
 		languages: () => Dex.text.languages(),
 		findLanguage: lang => Dex.text.findLanguage(lang),
 		get: (effect: TranslatableEffect, lang = Dex.text.getLanguage()) => {
-			return getTextEntry(effect, this.gen, lang);
+			return getTextEntry(effect, this.modid, this.gen, lang);
 		},
-		termName: (name, lang = Dex.text.getLanguage()) => getOtherName('TermNames', name, lang),
-		typeName: (name, lang = Dex.text.getLanguage()) => getOtherName('TypeNames', name, lang),
-		natureName: (name, lang = Dex.text.getLanguage()) => getOtherName('NatureNames', name, lang),
-		categoryName: (name, lang = Dex.text.getLanguage()) =>
-			BattleText[lang]?.Tags?.[toID(name)]?.name || BattleText.en?.Tags?.[toID(name)]?.name || name,
-		genderName: (name, lang = Dex.text.getLanguage()) => getOtherName('GenderNames', name, lang),
-		eggGroupName: (name, lang = Dex.text.getLanguage()) => getOtherName('EggGroupNames', name, lang),
-		colorName: (name, lang = Dex.text.getLanguage()) => getOtherName('ColorNames', name, lang),
 	};
 	moves = {
 		get: (name: string): Move => {
