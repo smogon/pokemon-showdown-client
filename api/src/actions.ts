@@ -1385,7 +1385,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!botData) {
 			throw new ActionError(`Bot account '${bot}' does not exist.`);
 		}
-		const ownerData = await tables.users.get(bot);
+		const ownerData = await tables.users.get(owner);
 		if (!ownerData) {
 			throw new ActionError(`Owner account '${owner}' does not exist.`);
 		}
