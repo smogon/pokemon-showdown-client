@@ -11,7 +11,7 @@ import {
 } from "./client-main";
 import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
 import { ChatLog, ChatRoom, ChatTextEntry, ChatUserList } from "./panel-chat";
-import { FormatDropdown } from "./panel-mainmenu";
+import { FormatDropdown, type BattleSearch } from "./panel-mainmenu";
 import { Battle, type Pokemon, type ServerPokemon } from "./battle";
 import { BattleScene } from "./battle-animations";
 import { Dex, TL, toID, type ID } from "./battle-dex";
@@ -163,6 +163,9 @@ export class BattleRoom extends ChatRoom {
 		* null = initializing, we don't know yet */
 	rejoining: boolean | null = null;
 	overlayActive: 'move' | 'switch' | null = null;
+	search: BattleSearch | null = null;
+	searchFormat = '';
+	searchRated: string | boolean = false;
 
 	private pendingLines: Args[] = [];
 	/** showdex compat */
@@ -210,6 +213,23 @@ export class BattleRoom extends ChatRoom {
 		this.update(null);
 	}
 	override handleLine(args: Args): boolean {
+
+		switch (args[0]) {
+		case 'tier':
+			this.searchFormat = args[1];
+			break;
+		case 'rated':
+			this.searchRated = args[1] || true;
+			break;
+		case 'teampreview': case 'start':
+			if (!this.search) {
+				this.search = PS.mainmenu.claimBattleSearch(this.id, {
+					tier: this.searchFormat,
+					rated: this.searchRated,
+				});
+			}
+			break;
+		}
 		if (super.handleLine(args)) return true;
 		switch (args[0]) {
 		case 'cantleave':
@@ -1374,11 +1394,17 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			{room.side ? (
 				<p>
 					<button class="button" data-cmd="/close">
-						<strong>{TL`[Main menu]`}</strong><br /><small>{TL`(closes this battle)`}</small>
+						<strong>{TL`[Main menu]`}</strong>
 					</button> {}
+					{room.search && <>
+						<button class="button" onClick={this.handleNewGame}>
+							<strong>{TL`[New Game]`}</strong>
+						</button> {}
+					</>}
 					<button class="button" data-cmd={`/closeand /challenge ${room.battle.farSide.id},${room.battle.tier}`}>
-						<strong>{TL`[Rematch]`}</strong><br /><small>{TL`(closes this battle)`}</small>
+						<strong>{TL`[Rematch]`}</strong>
 					</button>
+					<br /><small>{TL`(closes this battle)`}</small>
 				</p>
 			) : (
 				<p>
@@ -1392,6 +1418,17 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			)}
 		</div>;
 	}
+	handleNewGame = (e: MouseEvent) => {
+		const room = this.props.room;
+		if (!room.search) return;
+		if (!PS.user.named) {
+			PS.join('login' as RoomID, { parentElem: e.currentTarget as HTMLElement });
+			return;
+		}
+		PS.mainmenu.startSearchWithTeam(
+			room.search.format, room.search.packedTeam, e.currentTarget as HTMLElement, room.id
+		);
+	};
 
 	handleDownloadReplay = (e: MouseEvent) => {
 		let room = this.props.room;

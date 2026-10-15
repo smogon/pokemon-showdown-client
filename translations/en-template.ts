@@ -287,6 +287,7 @@ export const translations: TranslationCatalog = {
 	"Wait for this countdown to finish first...": null,
 	"You're already searching for a {FORMAT} battle...": null,
 	"You need to go into the Teambuilder and build a team for this format.": null,
+	"You are offline.": null,
 
 	// #endregion Main Menu
 
@@ -418,6 +419,7 @@ export const translations: TranslationCatalog = {
 	"Unrevealed Illusion user": null,
 	"Not revealed": null,
 	"Battle controls": null,
+	"[New Game]": null,
 
 	// #endregion Battle
 
