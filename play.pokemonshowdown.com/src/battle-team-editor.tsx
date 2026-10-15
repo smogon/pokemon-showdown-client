@@ -15,7 +15,7 @@ import { PSSearchResults } from "./battle-searchresults";
 import { BattleNatures, type StatName } from "./battle-dex-data";
 import { BattleStatGuesser, BattleStatOptimizer, BattleTooltips } from "./battle-tooltips";
 import { PSModel } from "./client-core";
-import { Net } from "./client-connection";
+import { Net, PSLoginServer } from "./client-connection";
 import { PSIcon, PSView } from "./panels";
 
 type InnerFocusType = 'pokemon' | 'ability' | 'item' | 'move' | 'stats' | 'details' | 'import';
@@ -1303,6 +1303,37 @@ class TeamTextbox extends preact.Component<{
 					this.editor.setFormat(formatid);
 				}
 				const title = paste["title"] as string;
+				if (title && !title.startsWith('Untitled')) {
+					this.editor.team.name = title.replace(/[|\\/]/g, '');
+				}
+				this.editor.fetching = false;
+				this.props.onUpdate?.();
+			});
+			return true;
+		}
+
+		const psTeams = /(teams\.pokemonshowdown\.com\/view\/|psim\.us\/t\/)(\d+)/.exec(value)?.[2];
+		if (psTeams) {
+			this.editor.fetching = true;
+			PSLoginServer.query('getteam', {
+				teamid: psTeams,
+				full: true,
+			}).then(json => {
+				const team = json?.team;
+				if (!json || !team) return;
+				if (this.textbox) {
+					// make sure it's still there:
+					const valueIndex = this.textbox.value.indexOf(value);
+					const str = Teams.export(Teams.import(json.team));
+					this.replace(str.replace(/\r\n/g, '\n'), valueIndex, valueIndex + value.length);
+				} else {
+					this.editor.import(json.team);
+					this.props.onChange?.();
+				}
+				if (json.format) {
+					this.editor.setFormat(toID(json.format));
+				}
+				const title = json.title as string;
 				if (title && !title.startsWith('Untitled')) {
 					this.editor.team.name = title.replace(/[|\\/]/g, '');
 				}
