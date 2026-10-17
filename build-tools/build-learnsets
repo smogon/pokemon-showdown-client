@@ -11,14 +11,14 @@
 
 "use strict";
 
-const path = require('path');
-const fs = require('fs');
+import fs from 'node:fs';
 
-const thisFile = __filename;
-const thisDir = __dirname;
-const rootDir = path.resolve(thisDir, '../play.pokemonshowdown.com');
+import dexModule from '../caches/pokemon-showdown/dist/sim/dex.js';
 
-const Dex = require('../caches/pokemon-showdown/dist/sim/dex').Dex;
+process.chdir(import.meta.dirname + '/..');
+
+const thisFile = 'build-tools/build-learnsets';
+const { Dex } = dexModule;
 const toID = Dex.toID;
 
 function updateLearnsets(callback) {
@@ -75,14 +75,14 @@ function updateLearnsets(callback) {
 		buf.push(speciesid + ':{learnset:' + lsetSerialized + '}');
 	}
 
-	const writeStream = fs.createWriteStream(path.join(rootDir, 'data', 'learnsets-g6.js')).on('error', callback);
+	const writeStream = fs.createWriteStream('play.pokemonshowdown.com/data/learnsets-g6.js').on('error', callback);
 	writeStream.write('exports.BattleLearnsets = {\n\t' + buf.join(',\n\t') + '\n};\n');
 	writeStream.end(callback);
 }
 
 let indexStats, updateStats, indexMTime, updateMTime;
 try {
-	indexStats = fs.statSync(path.join(rootDir, 'index.html'));
+	indexStats = fs.statSync('play.pokemonshowdown.com/index.html');
 	indexMTime = indexStats.mtime.getTime();
 } catch (err) {
 	if (err.code !== 'ENOENT') throw err;
@@ -102,7 +102,7 @@ let learnsetsG6Stats;
 let learnsetsG6ToUpdate = true;
 
 try {
-	learnsetsStats = fs.statSync(path.join(rootDir, 'data', 'learnsets.js'));
+	learnsetsStats = fs.statSync('play.pokemonshowdown.com/data/learnsets.js');
 } catch {
 	// Couldn't find learnsets.js, but that's not the end of the world: skip to next task.
 	console.error("Couldn't find `data/learnsets.js`. Task aborted.");
@@ -110,7 +110,7 @@ try {
 }
 if (learnsetsG6ToUpdate) {
 	try {
-		learnsetsG6Stats = fs.statSync(path.join(rootDir, 'data', 'learnsets-g6.js'));
+		learnsetsG6Stats = fs.statSync('play.pokemonshowdown.com/data/learnsets-g6.js');
 	} catch (err) {
 		if (err.code === 'ENOENT') {
 			// It doesn't exist currently, but it will by the end of the script execution.

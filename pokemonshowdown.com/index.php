@@ -43,7 +43,7 @@ include_once __DIR__ . '/../config/ads-landing.inc.php';
 		margin-left: 590px;
 	}
 	@media (max-width:880px) {
-		.left iframe {
+		.left iframe, .left .screenshot img {
 			width: 275px;
 			height: 144px;
 		}
@@ -375,7 +375,7 @@ foreach ($latestNewsCache as $topic_id) {
 
 <footer>
 	<p>
-		<small><a href="/rules">Rules</a> | <a href="/privacy">Privacy policy</a> | <a href="/credits">Credits</a> | <a href="/contact">Contact</a></small>
+		<small><a href="/rules">Rules</a> | <a href="/credits">Credits</a> | <a href="/privacy">Privacy</a> | <a href="/contact">Contact</a></small>
 	</p>
 </footer>
 

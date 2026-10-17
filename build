@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
-if (!require('assert').strict) {
-	console.error("We require Node.js version 10 or later; you're using " + process.version);
+if (!Set.prototype.union) {
+	// we actually are looking for TS support, but that's too hard to test for
+	console.error("We require Node.js version 22.18 or later; you're using " + process.version);
 	process.exit(1);
 }
 
 var execSync = require('child_process').execSync;
+var execFileSync = require('child_process').execFileSync;
 var fs = require('fs');
 
 process.chdir(__dirname);
@@ -34,7 +36,9 @@ var full = '';
 
 switch (process.argv[2] || '') {
 case 'full':
-	execSync(`node ./build-tools/build-indexes`, options);
+	execFileSync(process.execPath, ['./build-tools/build-indexes'].concat(
+		process.argv.includes('--no-update') ? ['--no-update'] : []
+	), options);
 	execSync(`node ./build-tools/build-learnsets`, options);
 	execSync(`node ./build-tools/build-minidex`, options);
 	full = ' full';
@@ -52,9 +56,13 @@ case 'sprites':
 case 'commands':
 	execSync(`node ./build-tools/build-commands`, options);
 	break;
-case 'replays':
-	execSync(`node ./build-tools/build-replays`, options);
-	process.exit();
+case 'translations':
+	try {
+		execFileSync(process.execPath, ['./build-tools/build-translations'].concat(process.argv.slice(3)), options);
+	} catch (error) {
+		if (typeof error.status === 'number') process.exit(error.status);
+		throw error;
+	}
 	break;
 case 'test-only':
 
@@ -67,13 +75,12 @@ default:
 	break;
 }
 
-execSync(`node ./build-tools/update` + full, options);
-
 if (full) {
 	try {
 		execSync(`node ./build-tools/build-commands`, options);
-		execSync(`node ./build-tools/build-replays`, options);
 	} catch (e) {
 		console.error(e);
 	}
 }
+
+execSync(`node ./build-tools/update` + full, options);
