@@ -1762,9 +1762,17 @@ class BattleOptionsPanel extends PSRoomPanel {
 				<p>
 					<label class="checkbox">
 						<input
-							checked={battleRoom.battle.hardcoreMode}
-							type="checkbox" onChange={this.handleHardcoreMode}
-						/> {TL`Hardcore mode (hide info not shown in-game)`}
+							checked={battleRoom.hideBattleToggled}
+							type="checkbox" onChange={this.handleBattleVisibility}
+						/> {TL`Hide current battle`}
+					</label>
+				</p>
+				<p>
+					<label class="checkbox">
+						<input
+							checked={battleRoom.battle?.ignoreNicks}
+							type="checkbox" onChange={this.handleIgnoreNicks}
+						/> {TL`Ignore nicknames`}
 					</label>
 				</p>
 				<p>
@@ -1786,9 +1794,9 @@ class BattleOptionsPanel extends PSRoomPanel {
 				<p>
 					<label class="checkbox">
 						<input
-							checked={battleRoom.battle?.ignoreNicks}
-							type="checkbox" onChange={this.handleIgnoreNicks}
-						/> {TL`Ignore nicknames`}
+							checked={battleRoom.battle.hardcoreMode}
+							type="checkbox" onChange={this.handleHardcoreMode}
+						/> {TL`Hardcore mode (hide info not shown in-game)`}
 					</label>
 				</p>
 			</>}
@@ -1829,6 +1837,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 					/> <abbr title={TL`You can still invite spectators by giving them the URL or using the /invite command`}>
 						{TL`Invite only (hide from Battles list)`}
 					</abbr>
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="autotimer" checked={PS.prefs.autotimer || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> {TL`Automatically start timer`}
 				</label>
 			</p>
 			<p>
