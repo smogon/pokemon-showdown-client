@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 256 256">
+  <title>Pokémon Showdown — exclamation layer</title>
+  <g fill="#66cdfd">
+    <path d="M 176 21 H 221 Q 236 21 231 36
+             L 188 152 Q 185 164 173 164
+             H 146 Q 134 164 138 150
+             L 164 32 Q 166 21 176 21 Z" />
+    <path d="M 137 174 H 182 Q 198 174 194 188
+             L 186 218 Q 184 226 174 226
+             H 127 Q 114 226 117 213
+             L 125 184 Q 127 174 137 174 Z" />
+  </g>
+</svg>

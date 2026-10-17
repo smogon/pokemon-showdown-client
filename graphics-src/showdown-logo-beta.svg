@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Pokémon Showdown logo, classic blue — BETA</title>
+  <defs>
+    <linearGradient id="ball" gradientUnits="userSpaceOnUse" x1="0" y1="45" x2="0" y2="195">
+      <stop stop-color="#5988c0" />
+      <stop offset="1" stop-color="#003265" />
+    </linearGradient>
+    <linearGradient id="mark" gradientUnits="userSpaceOnUse" x1="0" y1="21" x2="0" y2="226">
+      <stop stop-color="#66cdfd" />
+      <stop offset="1" stop-color="#0080c5" />
+    </linearGradient>
+
+    <filter id="innerShadows" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="softEdge" />
+
+      <!-- dark inner shadow -->
+      <feOffset in="softEdge" dx="-3" dy="-3" result="darkOffset" />
+      <feComposite in="SourceAlpha" in2="darkOffset" operator="out" result="darkMask" />
+      <feFlood flood-color="black" flood-opacity="0.65" result="darkColor" />
+      <feComposite in="darkColor" in2="darkMask" operator="in" result="darkShadow" />
+
+      <!-- light inner "shadow" highlight -->
+      <feOffset in="softEdge" dx="3" dy="3" result="lightOffset" />
+      <feComposite in="SourceAlpha" in2="lightOffset" operator="out" result="lightMask" />
+      <feFlood flood-color="white" flood-opacity="0.5" result="lightColor" />
+      <feComposite in="lightColor" in2="lightMask" operator="in" result="lightShadow" />
+      <feMerge>
+        <feMergeNode in="SourceGraphic" />
+        <feMergeNode in="darkShadow" />
+        <feMergeNode in="lightShadow" />
+      </feMerge>
+    </filter>
+
+    <filter id="dropShadow" filterUnits="userSpaceOnUse" x="0" y="0" width="256" height="256" color-interpolation-filters="sRGB">
+      <!-- outer shadow -->
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3.5" result="shadowBlur" />
+      <feOffset in="shadowBlur" dx="6" dy="6" result="shadowMask" />
+      <feFlood flood-color="black" flood-opacity="0.6" result="shadowColor" />
+      <feComposite in="shadowColor" in2="shadowMask" operator="in" result="shadow" />
+      <feMerge>
+        <feMergeNode in="shadow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- exclamation mark -->
+    <g id="markShape">
+      <path d="M 176 21 H 221 Q 236 21 231 36
+               L 188 152 Q 185 164 173 164
+               H 146 Q 134 164 138 150
+               L 164 32 Q 166 21 176 21 Z" />
+      <path d="M 137 174 H 182 Q 198 174 194 188
+               L 186 218 Q 184 226 174 226
+               H 127 Q 114 226 117 213
+               L 125 184 Q 127 174 137 174 Z" />
+    </g>
+
+    <!-- ball -->
+    <g id="ballShape">
+      <path d="M 30 114 C 33 75 64 45 104 45
+               C 144 45 175 75 178 114
+               H 126 A 23 23 0 0 0 82 114 Z" />
+      <path d="M 30 126 H 82 A 23 23 0 0 0 126 126
+               H 178 C 175 165 144 195 104 195
+               C 64 195 33 165 30 126 Z" />
+    </g>
+  </defs>
+
+  <!-- gradient and stroke -->
+  <g filter="url(#dropShadow)">
+    <use href="#markShape" fill="url(#mark)" filter="url(#innerShadows)" />
+    <use href="#markShape" fill="none" stroke="#cee4f5" stroke-width="5" stroke-linejoin="round" />
+  </g>
+  <g filter="url(#dropShadow)">
+    <use href="#ballShape" fill="url(#ball)" filter="url(#innerShadows)" />
+    <use href="#ballShape" fill="none" stroke="#cee4f5" stroke-width="5" stroke-linejoin="round" />
+  </g>
+
+  <!-- beta badge -->
+  <g id="betaBadge" filter="url(#dropShadow)">
+    <rect x="36" y="185" width="136" height="52" rx="26"
+          fill="#3b4d62" stroke="#e0ecf3" stroke-width="5" />
+    <!-- hardcoded lettering -->
+    <g fill="#e0ecf3" fill-rule="evenodd" transform="translate(50.625 195.25) scale(1.75)">
+      <!-- B -->
+      <path d="M 0 0 H 7 C 11 0 13 1.5 13 4.5
+               C 13 6.5 12 8 10 8.5
+               C 12.5 9 14 10.5 14 13
+               C 14 16.5 11.5 18 7.5 18 H 0 Z
+               M 4 3 V 7 H 7 C 8.5 7 9 6.5 9 5
+               S 8.5 3 7 3 Z
+               M 4 10 V 15 H 7.5 C 9.5 15 10 14.5 10 12.5
+               S 9.5 10 7.5 10 Z" />
+      <!-- E -->
+      <path transform="translate(17 0)"
+            d="M 0 0 H 12 V 3 H 4 V 7 H 11 V 10
+               H 4 V 15 H 12 V 18 H 0 Z" />
+      <!-- T -->
+      <path transform="translate(32 0)"
+            d="M 0 0 H 14 V 3.5 H 9 V 18 H 5 V 3.5 H 0 Z" />
+      <!-- A tucks under the T's overhang for even visual spacing. -->
+      <path transform="translate(45 0)"
+            d="M 0 18 L 6 0 H 10 L 16 18 H 12
+               L 11 14 H 5 L 4 18 Z
+               M 6 11 H 10 L 8 4 Z" />
+    </g>
+  </g>
+</svg>

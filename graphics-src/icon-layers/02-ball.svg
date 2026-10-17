@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 256 256">
+  <title>Pokémon Showdown — ball layer</title>
+  <g fill="#5988c0">
+    <path d="M 30 114 C 33 75 64 45 104 45
+             C 144 45 175 75 178 114
+             H 126 A 23 23 0 0 0 82 114 Z" />
+    <path d="M 30 126 H 82 A 23 23 0 0 0 126 126
+             H 178 C 175 165 144 195 104 195
+             C 64 195 33 165 30 126 Z" />
+  </g>
+</svg>
