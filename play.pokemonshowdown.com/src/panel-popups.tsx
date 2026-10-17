@@ -1759,11 +1759,15 @@ class BattleOptionsPanel extends PSRoomPanel {
 						{TL`[Offer tie]`} {!canOfferTie && TL`(turn 100+)`}
 					</button>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 9afdf8feea4e5b97daa27f0aca726770ed56cde4
 				</p>
 				<p>
 					<label class="checkbox">
 						<input
+<<<<<<< HEAD
 							checked={battleRoom.battle.hardcoreMode}
 							type="checkbox" onChange={this.handleHardcoreMode}
 						/> {TL`Hardcore mode (hide info not shown in-game)`}
@@ -1778,6 +1782,24 @@ class BattleOptionsPanel extends PSRoomPanel {
 							type="checkbox" onChange={this.handleBattleVisibility}
 						/> {TL`Hide current battle`}
 =======
+=======
+							checked={battleRoom.hideBattleToggled}
+							type="checkbox" onChange={this.handleBattleVisibility}
+						/> {TL`Hide current battle`}
+					</label>
+				</p>
+				<p>
+					<label class="checkbox">
+						<input
+							checked={battleRoom.battle?.ignoreNicks}
+							type="checkbox" onChange={this.handleIgnoreNicks}
+						/> {TL`Ignore nicknames`}
+					</label>
+				</p>
+				<p>
+					<label class="checkbox">
+						<input
+>>>>>>> 9afdf8feea4e5b97daa27f0aca726770ed56cde4
 							checked={battleRoom.battle.ignoreSpects}
 							type="checkbox" onChange={this.handleIgnoreSpectators}
 						/> {TL`Ignore spectators`}
@@ -1789,6 +1811,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 							checked={battleRoom.battle.ignoreOpponent}
 							type="checkbox" onChange={this.handleIgnoreOpponent}
 						/> {TL`Ignore opponent`}
+<<<<<<< HEAD
 >>>>>>> 74056bbbb55d6ce15f9dd254186b94a51fe94b14
 					</label>
 				</p>
@@ -1815,6 +1838,8 @@ class BattleOptionsPanel extends PSRoomPanel {
 							checked={battleRoom.battle.ignoreOpponent}
 							type="checkbox" onChange={this.handleIgnoreOpponent}
 						/> {TL`Ignore opponent`}
+=======
+>>>>>>> 9afdf8feea4e5b97daa27f0aca726770ed56cde4
 					</label>
 				</p>
 				<p>
@@ -1823,8 +1848,11 @@ class BattleOptionsPanel extends PSRoomPanel {
 							checked={battleRoom.battle.hardcoreMode}
 							type="checkbox" onChange={this.handleHardcoreMode}
 						/> {TL`Hardcore mode (hide info not shown in-game)`}
+<<<<<<< HEAD
 =======
 >>>>>>> 74056bbbb55d6ce15f9dd254186b94a51fe94b14
+=======
+>>>>>>> 9afdf8feea4e5b97daa27f0aca726770ed56cde4
 					</label>
 				</p>
 			</>}
@@ -1866,7 +1894,18 @@ class BattleOptionsPanel extends PSRoomPanel {
 						{TL`Invite only (hide from Battles list)`}
 					</abbr>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="autotimer" checked={PS.prefs.autotimer || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> {TL`Automatically start timer`}
+>>>>>>> 9afdf8feea4e5b97daa27f0aca726770ed56cde4
 				</label>
 			</p>
 			<p>
@@ -1891,6 +1930,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 						name="ignoreopp" checked={PS.prefs.ignoreopp || false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> {TL`Ignore opponent`}
+<<<<<<< HEAD
 >>>>>>> 74056bbbb55d6ce15f9dd254186b94a51fe94b14
 				</label>
 			</p>
@@ -1927,6 +1967,8 @@ class BattleOptionsPanel extends PSRoomPanel {
 					/> {TL`Ignore opponent`}
 =======
 >>>>>>> 74056bbbb55d6ce15f9dd254186b94a51fe94b14
+=======
+>>>>>>> 9afdf8feea4e5b97daa27f0aca726770ed56cde4
 				</label>
 			</p>
 			<p>
@@ -1935,6 +1977,9 @@ class BattleOptionsPanel extends PSRoomPanel {
 						name="autohardcore" checked={PS.prefs.autohardcore || false}
 						type="checkbox" onChange={this.handleAllSettings}
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 9afdf8feea4e5b97daa27f0aca726770ed56cde4
 					/> {TL`Automatically start timer`}
 				</label>
 			</p>
@@ -1943,8 +1988,11 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<input
 						name="autoTeamSheet" checked={PS.prefs.autoTeamSheet || false}
 						type="checkbox" onChange={this.handleAllSettings}
+<<<<<<< HEAD
 =======
 >>>>>>> 74056bbbb55d6ce15f9dd254186b94a51fe94b14
+=======
+>>>>>>> 9afdf8feea4e5b97daa27f0aca726770ed56cde4
 					/> {TL`Hardcore mode`}
 				</label>
 			</p>
