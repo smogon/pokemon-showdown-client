@@ -206,7 +206,7 @@
 			for (var i in app.rooms) {
 				if (app.rooms[i] !== app.curRoom && app.rooms[i].notificationClass === ' notifying') notificationClass = ' notifying';
 			}
-			var buf = '<ul><li><a class="button minilogo' + notificationClass + '" href="' + app.root + '"><img src="' + Dex.resourcePrefix + 'favicon-256.png" width="32" height="32" alt="Pok&eacute;mon Showdown! (beta)" /><i class="fa fa-caret-down" style="display:inline-block"></i></a></li></ul>';
+			var buf = '<ul><li><a class="button minilogo' + notificationClass + '" href="' + app.root + '"><img src="' + Dex.resourcePrefix + 'iconbeta.png" width="32" height="32" alt="Pok&eacute;mon Showdown! (beta)" /><i class="fa fa-caret-down" style="display:inline-block"></i></a></li></ul>';
 
 			buf += '<ul>' + this.renderRoomTab(app.curRoom) + '</ul>';
 
@@ -472,8 +472,10 @@
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
+			'change input[name=syncteams]': 'setSyncTeams',
 			'change select[name=onepanel]': 'setOnePanel',
 			'change select[name=theme]': 'setTheme',
+			'change select[name=defaultclient]': 'setDefaultClient',
 			'change input[name=logchat]': 'setLogChat',
 			'change input[name=selfhighlight]': 'setSelfHighlight',
 			'click img': 'avatars',
@@ -501,6 +503,19 @@
 					buf += '<p><button class="button" name="register">Register</button></p>';
 				}
 			}
+
+			buf += '<hr />';
+			var hasClientCookie = /(?:^|;\s*)preactalpha=/.test(document.cookie);
+			var defaultClient = /(?:^|;\s*)preactalpha=1(?:;|$)/.test(document.cookie) ? 'new' : 'old';
+			if (hasClientCookie) {
+				buf += '<p>This is the old client.</p>';
+				buf += '<label class="optlabel">Default: <select name="defaultclient" class="button"><option value="old"' + (defaultClient === 'old' ? ' selected="selected"' : '') + '>Old client</option><option value="new"' + (defaultClient === 'new' ? ' selected="selected"' : '') + '>New client</option></select></label>';
+			} else {
+				buf += '<p>We\'re working on a new client! Try it out!</p>';
+			}
+			var switchClientLabel = !hasClientCookie ? 'Try new client' :
+				(defaultClient === 'new' ? 'Back to new client' : 'Use new client temporarily');
+			buf += '<p><a class="button' + (hasClientCookie ? '' : ' alt-notifying') + '" href="/newclient">' + switchClientLabel + '</a></p>';
 
 			buf += '<hr />';
 			buf += '<p><strong>Graphics</strong></p>';
@@ -549,8 +564,9 @@
 				"Türkçe": 'turkish',
 				"हिंदी": 'hindi',
 				"日本語": 'japanese',
+				"한국어": 'korean',
 				"简体中文": 'simplifiedchinese',
-				"中文": 'traditionalchinese'
+				"繁體中文": 'traditionalchinese'
 			};
 			buf += '<p><label class="optlabel">Language: <select name="language" class="button">';
 			for (var name in possibleLanguages) {
@@ -564,7 +580,8 @@
 			buf += '<p><label class="optlabel">Timestamps in chat rooms: <select name="timestamps-lobby" class="button"><option value="off">Off</option><option value="minutes"' + (timestamps.lobby === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.lobby === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
 			buf += '<p><label class="optlabel">Timestamps in PMs: <select name="timestamps-pms" class="button"><option value="off">Off</option><option value="minutes"' + (timestamps.pms === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.pms === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
 			buf += '<p><label class="optlabel">Chat preferences: <button name="formatting" class="button">Text formatting</button></label></p>';
-
+			var syncTeams = !Storage.prefs('nosyncteams');
+			buf += '<p><label class="optlabel">Download teams from server: <input type="checkbox" name="syncteams" ' + (syncTeams ? 'checked ' : '') + '></input></p>';
 			if (window.nodewebkit) {
 				buf += '<hr />';
 				buf += '<p><strong>Desktop app</strong></p>';
@@ -615,6 +632,11 @@
 			}
 			$('html').toggleClass('dark', theme === 'dark');
 		},
+		setDefaultClient: function (e) {
+			document.cookie = 'preactalpha=' + (e.currentTarget.value === 'new' ? '1' : '0') +
+				'; expires=Thu, 1 Sep 2027 12:00:00 UTC; path=/';
+			this.update();
+		},
 		setBwgfx: function (e) {
 			var bwgfx = !!e.currentTarget.checked;
 			Storage.prefs('bwgfx', bwgfx);
@@ -629,7 +651,14 @@
 			Storage.prefs('tournaments', tournaments);
 		},
 		setLanguage: function (e) {
-			app.user.updateSetting('language', e.currentTarget.value);
+			var language = e.currentTarget.value;
+			app.user.updateSetting('language', language);
+			Dex.loadTextData().then(function () {
+				for (var roomid in app.rooms) {
+					var battle = app.rooms[roomid] && app.rooms[roomid].battle;
+					if (battle) battle.resetToCurrentTurn();
+				}
+			});
 		},
 		setBlockpms: function (e) {
 			app.user.updateSetting('blockPMs', !!e.currentTarget.checked);
@@ -672,6 +701,17 @@
 		setTimestampsPMs: function (e) {
 			this.timestamps.pms = e.currentTarget.value;
 			Storage.prefs('timestamps', this.timestamps);
+		},
+		setSyncTeams: function () {
+			Storage.prefs('nosyncteams', !Storage.prefs('nosyncteams'));
+			if (!Storage.prefs('nosyncteams')) {
+				Storage.loadRemoteTeams(function () {
+					if (app.rooms.teambuilder) {
+						// if they have it open, be sure to update so it doesn't show 'no teams'
+						app.rooms.teambuilder.update();
+					}
+				});
+			}
 		},
 		avatars: function () {
 			app.addPopup(AvatarsPopup);

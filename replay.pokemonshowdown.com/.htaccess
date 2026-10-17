@@ -1,14 +1,26 @@
 RewriteEngine on
 RewriteRule ^api(/.*)?$ http://localhost:9000/api$1 [P,L]
+DirectoryIndex index.php index.html /dirindex/dirindex.php
+ErrorDocument 404 /dirindex/404.html
+
+# cached index.php
+RewriteRule ^$ caches/index.php [L]
+RewriteRule ^index\.php$ caches/index.php [L,QSA]
+RewriteRule ^([A-Za-z0-9-]+)$ caches/index.php?name=$1 [L,QSA]
 
 RewriteRule ^search\.json$ /api/replays/search.json [L,QSA]
 RewriteRule ^recent\.json$ /api/replays/search.json [L,QSA]
 RewriteRule ^download$ download.html [L,QSA]
-RewriteRule ^([A-Za-z0-9-]+)$ index.php?name=$1 [L,QSA]
-RewriteRule ^([A-Za-z0-9-]+)/manage$ replay-manage.php?name=$1&manage [L,QSA]
-RewriteRule ^([A-Za-z0-9-]+)\.log$ replay.log.php?name=$1 [L,QSA]
-RewriteRule ^([A-Za-z0-9-]+)\.inputlog$ replay.log.php?inputlog&name=$1 [L,QSA]
-RewriteRule ^([A-Za-z0-9-]+)\.json$ replay.log.php?json&name=$1 [L,QSA]
+RewriteRule ^([A-Za-z0-9-]+)/manage$ /$1?manage [R=302,L,QSA]
 
-DirectoryIndex index.php index.html /dirindex/dirindex.php
-ErrorDocument 404 /dirindex/404.html
+# RewriteRule ^([A-Za-z0-9-]+)\.log$ replay.log.php?name=$1 [L,QSA]
+# RewriteRule ^([A-Za-z0-9-]+)\.inputlog$ replay.log.php?inputlog&name=$1 [L,QSA]
+# RewriteRule ^([A-Za-z0-9-]+)\.json$ replay.log.php?json&name=$1 [L,QSA]
+
+RewriteRule ^([A-Za-z0-9-]+)\.log$ /api/replays/get.log?id=$1 [L,QSA]
+RewriteRule ^([A-Za-z0-9-]+)\.inputlog$ /api/replays/get.inputlog?id=$1 [L,QSA]
+RewriteRule ^([A-Za-z0-9-]+)\.json$ /api/replays/get.json?id=$1 [L,QSA]
+
+# Disallow direct access to caches
+RewriteCond %{THE_REQUEST} \s/caches/
+RewriteRule ^caches/ - [F]

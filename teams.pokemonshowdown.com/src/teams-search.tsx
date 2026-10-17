@@ -96,7 +96,7 @@ export class TeamSearcher extends preact.Component<PageProps> {
 			return <div class="section" style={{ wordWrap: 'break-word' }}>Loading...</div>;
 		}
 		return <div class="section" style={{ wordWrap: 'break-word', textAlign: 'center' }}>
-			<small><a href={'//' + Config.routes.teams}><i style={{ float: 'left' }} class="fa fa-arrow-left"></i></a></small>
+			<a href={'//' + Config.routes.teams} class="button"><i class="fa fa-caret-left"></i> Back</a>
 			<h1>Search Teams</h1>
 			<br />
 			<div name="searchsection">
