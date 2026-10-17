@@ -1683,6 +1683,13 @@ class BattleOptionsPanel extends PSRoomPanel {
 			}
 			break;
 		}
+		case 'autoTeamSheet': {
+			PS.prefs.set('autoTeamSheet', value);
+			if (value) {
+				room?.send('/acceptopenteamsheets');
+			}
+			break;
+		}
 		case 'spectatefromstart': {
 			PS.prefs.set('spectatefromstart', value);
 			break;
@@ -1708,7 +1715,6 @@ class BattleOptionsPanel extends PSRoomPanel {
 		}
 		case 'disallowspectators': {
 			PS.prefs.set('disallowspectators', value);
-			PS.mainmenu.disallowSpectators = value;
 			break;
 		}
 		}
@@ -1722,6 +1728,15 @@ class BattleOptionsPanel extends PSRoomPanel {
 		const battleRoom = this.props.room.getParent() as BattleRoom | null;
 		return battleRoom?.battle ? battleRoom : null;
 	}
+	handleBattleVisibility = (ev: Event) => {
+		const room = this.getBattleRoom();
+		if (!room) return this.close();
+
+		const hidden = (ev.currentTarget as HTMLInputElement).checked;
+		room.hideBattleToggled = hidden;
+		room.update(null);
+		room.send(hidden ? '/hiddenroom' : '/publicroom');
+	};
 
 	override render() {
 		const room = this.props.room;
@@ -1747,9 +1762,17 @@ class BattleOptionsPanel extends PSRoomPanel {
 				<p>
 					<label class="checkbox">
 						<input
-							checked={battleRoom.battle.hardcoreMode}
-							type="checkbox" onChange={this.handleHardcoreMode}
-						/> {TL`Hardcore mode (hide info not shown in-game)`}
+							checked={battleRoom.hideBattleToggled}
+							type="checkbox" onChange={this.handleBattleVisibility}
+						/> {TL`Hide current battle`}
+					</label>
+				</p>
+				<p>
+					<label class="checkbox">
+						<input
+							checked={battleRoom.battle?.ignoreNicks}
+							type="checkbox" onChange={this.handleIgnoreNicks}
+						/> {TL`Ignore nicknames`}
 					</label>
 				</p>
 				<p>
@@ -1771,9 +1794,9 @@ class BattleOptionsPanel extends PSRoomPanel {
 				<p>
 					<label class="checkbox">
 						<input
-							checked={battleRoom.battle?.ignoreNicks}
-							type="checkbox" onChange={this.handleIgnoreNicks}
-						/> {TL`Ignore nicknames`}
+							checked={battleRoom.battle.hardcoreMode}
+							type="checkbox" onChange={this.handleHardcoreMode}
+						/> {TL`Hardcore mode (hide info not shown in-game)`}
 					</label>
 				</p>
 			</>}
@@ -1819,6 +1842,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="checkbox">
 					<input
+						name="autotimer" checked={PS.prefs.autotimer || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> {TL`Automatically start timer`}
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
 						name="ignorenicks" checked={PS.prefs.ignorenicks || false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> {TL`Ignore Pokémon nicknames`}
@@ -1843,7 +1874,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="checkbox">
 					<input
-						name="autotimer" checked={PS.prefs.autotimer || false}
+						name="autohardcore" checked={PS.prefs.autohardcore || false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> {TL`Automatically start timer`}
 				</label>
@@ -1851,9 +1882,9 @@ class BattleOptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="checkbox">
 					<input
-						name="autohardcore" checked={PS.prefs.autohardcore || false}
+						name="autoTeamSheet" checked={PS.prefs.autoTeamSheet || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> {TL`Hardcore mode`}
+					/> {TL`Automatically accept Open Team Sheets`}
 				</label>
 			</p>
 			<p>
