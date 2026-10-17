@@ -10,10 +10,10 @@
  * @license MIT
  */
 
-const babel = require('@babel/core');
-const fs = require('fs');
-const path = require('path');
-const sourceMap = require('source-map');
+import * as babel from '@babel/core';
+import fs from 'node:fs';
+import path from 'node:path';
+import sourceMap from 'source-map';
 
 const VERBOSE = false;
 
@@ -37,7 +37,6 @@ function outputFileSync(filePath, res, opts) {
 
 function slash(filePath) {
 	const isExtendedLengthPath = /^\\\\\?\\/.test(filePath);
-	// eslint-disable-next-line no-control-regex
 	const hasNonAscii = /[^\u0000-\u0080]+/.test(filePath);
 
 	if (isExtendedLengthPath || hasNonAscii) {
@@ -183,7 +182,7 @@ function compileToDir(srcDir, destDir, opts = {}) {
 	return total;
 }
 
-function compileToFile(srcFile, destFile, opts) {
+async function compileToFile(srcFile, destFile, opts) {
 	const incremental = opts.incremental;
 	delete opts.incremental;
 
@@ -206,18 +205,15 @@ function compileToFile(srcFile, destFile, opts) {
 		if (VERBOSE) console.log(src + " ->");
 	}
 
-	combineResults(results, {
+	const combined = await combineResults(results, {
 		file: path.basename(destFile),
 		sourceRoot: opts.sourceRoot,
-	}, opts).then(combined => {
-		outputFileSync(destFile, combined, opts);
-	});
+	}, opts);
+	outputFileSync(destFile, combined, opts);
 
 	if (VERBOSE) console.log("-> " + destFile);
 	if (incremental) opts.incremental = true; // incredibly dumb hack to preserve the option
 	return results.length;
 }
 
-exports.compileToDir = compileToDir;
-
-exports.compileToFile = compileToFile;
+export { compileToDir, compileToFile };

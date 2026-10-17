@@ -1,6 +1,6 @@
 /** @jsx preact.h */
 import preact from '../../play.pokemonshowdown.com/js/lib/preact';
-import { PSRouter } from "./replays";
+import { type PSReplays, PSRouter } from "./replays";
 import { Net } from './utils';
 
 type ID = Lowercase<string>;
@@ -37,7 +37,7 @@ function ReplayLink(props: {
 	</a>;
 }
 
-export class SearchPanel extends preact.Component<{ id: string }> {
+export class SearchPanel extends preact.Component<{ id: string, user: PSReplays['user'] }> {
 	results: ReplayResult[] | null = null;
 	resultError: string | null = null;
 	format = '';
@@ -45,17 +45,8 @@ export class SearchPanel extends preact.Component<{ id: string }> {
 	isPrivate = false;
 	byRating = false;
 	page = 1;
-	loggedInUser: string | null = null;
-	loggedInUserIsSysop = false;
 	sort = 'date';
 	override componentDidMount() {
-		if (!Net.defaultRoute) Net(`/api/replays/check-login`).get().then(result => {
-			if (!result.startsWith(']')) return;
-			const [userid, sysop] = result.slice(1).split(',');
-			this.loggedInUser = userid;
-			this.loggedInUserIsSysop = !!sysop;
-			this.forceUpdate();
-		});
 		this.updateSearch(Net.decodeQuery(this.props.id));
 	}
 	override componentDidUpdate(previousProps: this['props']) {
@@ -171,8 +162,8 @@ export class SearchPanel extends preact.Component<{ id: string }> {
 		this.search('', '');
 	};
 	searchLoggedIn = (e: Event) => {
-		if (!this.loggedInUser) return; // shouldn't happen
-		this.base!.querySelector<HTMLInputElement>('input[name=user]')!.value = this.loggedInUser;
+		if (!this.props.user) return; // shouldn't happen
+		this.base!.querySelector<HTMLInputElement>('input[name=user]')!.value = this.props.user.id;
 		this.submitForm(e);
 	};
 	url(replay: ReplayResult) {
@@ -214,8 +205,10 @@ export class SearchPanel extends preact.Component<{ id: string }> {
 						<label>
 							Username: <small class="gray">(separate multiple usernames by commas)</small><br />
 							<input type="search" class="textbox" name="user" placeholder="(blank = any user)" size={20} /> {}
-							{this.loggedInUser &&
-								<button type="button" class="button" onClick={this.searchLoggedIn}>{this.loggedInUser}'s replays</button>}
+							{this.props.user &&
+								<button type="button" class="button" onClick={this.searchLoggedIn}>
+									{this.props.user.id}'s replays
+								</button>}
 						</label>
 					</p>
 					<p>

@@ -1601,7 +1601,7 @@
 			var self = this;
 			app.addPopupPrompt("Replacement player's username", "Replace player", function (target) {
 				if (!target) return;
-				var side = (room.battle.mySide.id === room.battle.p1.id ? 'p1' : 'p2');
+				var side = room.battle.mySide.sideid;
 				room.leaveBattle();
 				room.send('/addplayer ' + target + ', ' + side);
 				self.close();

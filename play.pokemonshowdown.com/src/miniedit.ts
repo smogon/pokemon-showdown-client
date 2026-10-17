@@ -33,7 +33,35 @@ export class MiniEdit {
 	 */
 	_setContent: (text: string) => void;
 	pushHistory?: (text: string, selection: MiniEditSelection) => void;
+	composing = false;
+	lastSelection: MiniEditSelection = null;
+	selectionChangeTimeout: ReturnType<typeof setTimeout> | null = null;
+	pointerFocus = false;
+	pointerFocusTimeout: ReturnType<typeof setTimeout> | null = null;
+	onSelectionChange = () => {
+		if (this.selectionChangeTimeout) clearTimeout(this.selectionChangeTimeout);
+		// while blurring, selectionchange can fire after `getSelection()` is reset to 0,0
+		// but before `activeElement` is changed; setTimeout avoids recording this wrong selection
+		this.selectionChangeTimeout = setTimeout(() => {
+			this.selectionChangeTimeout = null;
+			if (document.activeElement !== this.element || !document.hasFocus()) return;
+			this.lastSelection = this.getSelection() || this.lastSelection;
+		}, 0);
+	};
+	onPointerDown = () => {
+		this.pointerFocus = true;
+		if (this.pointerFocusTimeout) clearTimeout(this.pointerFocusTimeout);
+		this.pointerFocusTimeout = setTimeout(() => {
+			this.pointerFocus = false;
+			this.pointerFocusTimeout = null;
+		}, 0);
+	};
+	onFocus = () => {
+		// Chrome bug: unlike textarea, contentEditable doesn't restore selection on focus
+		if (!this.pointerFocus) this.setSelection(this.lastSelection);
+	};
 	onKeyDown = (ev: KeyboardEvent) => {
+		if (ev.isComposing) return;
 		if (ev.keyCode === 13) { // enter
 			this.replaceSelection('\n');
 			ev.preventDefault();
@@ -51,12 +79,30 @@ export class MiniEdit {
 		this.element.setAttribute('contentEditable', 'true');
 		this.element.setAttribute('autoComplete', 'off');
 		this.element.setAttribute('spellCheck', 'false');
-		this.element.addEventListener('input', () => {
+		this.element.addEventListener('input', ev => {
+			if (this.composing || (ev as any).isComposing) return;
 			this.reformat();
 		});
+		this.element.addEventListener('compositionstart', () => {
+			this.composing = true;
+		});
+		this.element.addEventListener('compositionend', () => {
+			// browsers disagree on whether input or compositionend happens first,
+			// so run reformat on both
+			this.composing = false;
+			this.reformat();
+		});
+		this.element.addEventListener('pointerdown', this.onPointerDown);
+		this.element.addEventListener('focus', this.onFocus);
 		this.element.addEventListener('keydown', this.onKeyDown);
+		document.addEventListener('selectionchange', this.onSelectionChange);
 
 		for (const Plugin of MiniEdit.plugins) new Plugin(this);
+	}
+	destroy() {
+		document.removeEventListener('selectionchange', this.onSelectionChange);
+		if (this.selectionChangeTimeout) clearTimeout(this.selectionChangeTimeout);
+		if (this.pointerFocusTimeout) clearTimeout(this.pointerFocusTimeout);
 	}
 
 	/** return true from callback for an early return */
@@ -120,6 +166,7 @@ export class MiniEdit {
 
 	setSelection(sel: MiniEditSelection): void {
 		if (sel === null) return;
+		this.lastSelection = sel;
 
 		const range = document.createRange();
 		let offset = 0;
@@ -152,14 +199,67 @@ export class MiniEdit {
 	}
 }
 
+const HTML_BLOCK_TAGS = [
+	'ADDRESS', 'ARTICLE', 'ASIDE', 'BLOCKQUOTE', 'DD', 'DIV', 'DL', 'DT',
+	'FIGCAPTION', 'FIGURE', 'FOOTER', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
+	'HEADER', 'HR', 'LI', 'MAIN', 'NAV', 'OL', 'P', 'PRE', 'SECTION', 'TABLE',
+	'TBODY', 'TD', 'TFOOT', 'TH', 'THEAD', 'TR', 'UL',
+];
+// Pasting can disrupt newlines, so they get manually processed here.
+// Unfortunately, this is massively complicated by an Android Chrome bug.
 export class MiniEditPastePlugin {
 	constructor(editor: MiniEdit) {
 		editor.element.addEventListener('paste', e => {
 			// Manually insert plain-text contents so we keep newlines
-			const text = e.clipboardData!.getData('text/plain');
+			const text = this.getClipboardPlainText(e.clipboardData!);
 			editor.replaceSelection(text);
 			e.preventDefault();
 		});
+	}
+	getClipboardPlainText(data: DataTransfer): string {
+		const text = data.getData('text/plain');
+		// Android Chrome bug: getData('text/plain') doesn't include newlines
+		// no, putting it directly in and grabbing it from `element.textContent`
+		// doesn't work, either
+		const html = data.getData('text/html');
+		if (!html || text.includes('\n')) return text;
+
+		const htmlText = this.htmlToPlainText(html);
+		return htmlText.trim().includes('\n') ? htmlText : text;
+	}
+
+	htmlToPlainText(html: string): string {
+		// contenteditable is really janky so this is kind of just wild guessing
+		// this is really just a backup flow for the Android Chrome bug that should be
+		// avoided if at all possible
+		return html
+			// in theory the first two shouldn't show up in pasted HTML, but who knows?
+			.replace(/<!--[\s\S]*?-->/g, '')
+			.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, '')
+			// handle newlines
+			// .replace(/\n/g, '<br>') // in case they're in <pre>?
+			.replace(/\n/g, '') // Firefox bug: just adds random newlines for fun apparently???
+			.replace(new RegExp(`</?(?:${HTML_BLOCK_TAGS.join('|')})\\b[^>]*>`, 'gi'), '\n')
+			.replace(/\n{2,}/g, '\n')
+			.replace(/<br\b[^>]*>\n?/gi, '\n')
+			// everything else
+			.replace(/<[^>]*>/g, '')
+			.replace(/^\n+$/g, '')
+			.replace(/&(#(?:x[0-9a-f]+|\d+)|[a-z]+);/gi, (entity, value) => {
+				switch (value.toLowerCase()) {
+				case 'amp': return '&';
+				case 'gt': return '>';
+				case 'lt': return '<';
+				case 'nbsp': return ' ';
+				case 'quot': return '"';
+				case 'apos': return "'";
+				default:
+					if (!value.startsWith('#')) return entity;
+					const code = value.charAt(1).toLowerCase() === 'x' ?
+						parseInt(value.slice(2), 16) : parseInt(value.slice(1), 10);
+					return isNaN(code) ? entity : String.fromCharCode(code);
+				}
+			});
 	}
 }
 MiniEdit.plugins.push(MiniEditPastePlugin);
@@ -202,6 +302,7 @@ export class MiniEditUndoPlugin {
 	};
 
 	onKeyDown = (e: KeyboardEvent) => {
+		if (e.isComposing) return;
 		// ctrl+z or cmd+z
 		const undoPressed = (e.ctrlKey && e.keyCode === 90) || (e.metaKey && !e.shiftKey && e.keyCode === 90);
 		// ctrl+y or cmd+shift+z

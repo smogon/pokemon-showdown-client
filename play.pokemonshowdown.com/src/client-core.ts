@@ -31,7 +31,7 @@ export class PSSubscription<T = any> {
 		this.listener = listener;
 	}
 	unsubscribe() {
-		const index = this.observable.subscriptions.indexOf(this as any);
+		const index = this.observable.subscriptions.indexOf(this);
 		if (index >= 0) this.observable.subscriptions.splice(index, 1);
 	}
 }

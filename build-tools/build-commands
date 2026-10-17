@@ -3,7 +3,7 @@
  * Builds out a cache of commands from the server & their help commands
  */
 
-const fs = require('fs');
+const fs = require('node:fs');
 
 console.log('Building `data/commands.json` index...');
 
