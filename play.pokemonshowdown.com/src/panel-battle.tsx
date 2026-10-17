@@ -159,7 +159,10 @@ export class BattleRoom extends ChatRoom {
 	request: BattleRequest | null = null;
 	choices: BattleChoiceBuilder | null = null;
 	autoTimerActivated: boolean | null = null;
+<<<<<<< HEAD
 	autoTeamSheetAccepted: boolean | null = null;
+=======
+>>>>>>> 74056bbbb55d6ce15f9dd254186b94a51fe94b14
 	requireForfeit = false;
 	/** should be false if we joined right after accepting or challenging a battle,
 	  * and true if we refreshed and rejoined a battle.
@@ -167,6 +170,7 @@ export class BattleRoom extends ChatRoom {
 	rejoining: boolean | null = null;
 	overlayActive: 'move' | 'switch' | null = null;
 
+<<<<<<< HEAD
 	static checkHiddenBattle(id: RoomID) {
 		return /^battle-[a-z0-9]+-\d+-[^-]+$/.test(id);
 	}
@@ -176,6 +180,8 @@ export class BattleRoom extends ChatRoom {
 		this.hideBattleToggled = this.isHiddenBattle;
 	}
 
+=======
+>>>>>>> 74056bbbb55d6ce15f9dd254186b94a51fe94b14
 	private pendingLines: Args[] = [];
 	/** showdex compat */
 	onRequest: ((request: BattleRequest | null) => void) | null = null;
@@ -273,10 +279,13 @@ export class BattleRoom extends ChatRoom {
 			this.send('/timer on');
 			this.autoTimerActivated = true;
 		}
+<<<<<<< HEAD
 		if (PS.prefs.autoTeamSheet && !this.autoTeamSheetAccepted) {
 			this.send('/acceptopenteamsheets');
 			this.autoTeamSheetAccepted = true;
 		}
+=======
+>>>>>>> 74056bbbb55d6ce15f9dd254186b94a51fe94b14
 
 		BattleChoiceBuilder.fixRequest(request, this.battle);
 
