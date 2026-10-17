@@ -1884,7 +1884,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<input
 						name="autoTeamSheet" checked={PS.prefs.autoTeamSheet || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> {TL`Hardcore mode`}
+					/> {TL`Automatically accept Open Team Sheets`}
 				</label>
 			</p>
 			<p>
