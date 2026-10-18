@@ -84,7 +84,8 @@
 			'click .datasearch': 'clickDatasearchResults',
 			'click button.formatselect': 'selectFormat',
 			'click button.teamselect': 'selectTeam',
-			'click button[name=partnersubmit]': 'selectTeammate'
+			'click button[name=partnersubmit]': 'selectTeammate',
+			'change input[name=blockbotladder]': 'changeBlockBotLadder'
 		},
 		initialize: function () {
 			this.$el.addClass('scrollable');
@@ -112,6 +113,7 @@
 				buf += 'Partner:<br />';
 				buf += '<input class="partnerselect" /><button name="partnersubmit">Invite</button></label></p>';
 				buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
+				buf += '<p><label class="checkbox"><input type="checkbox" name="blockbotladder" ' + ((app.user.get('settings') || {}).blockBotLadder ? 'checked' : '') + ' /> <abbr title="You won\'t be matched against registered bots in ladder searches">Don\'t match me with bots</abbr></label></p>';
 				buf += '<p><button class="button mainmenu1 big" name="search"><strong>Battle!</strong><br /><small>Find a random opponent</small></button></p></form></div>';
 			}
 
@@ -156,6 +158,7 @@
 			this.updateFormats();
 
 			app.user.on('saveteams', this.updateTeams, this);
+			app.user.on('change:settings', this.updateBlockBotLadder, this);
 
 			// news
 			// (created during page load)
@@ -950,6 +953,13 @@
 		},
 		reconnect: function () {
 			document.location.reload();
+		},
+		changeBlockBotLadder: function (e) {
+			app.user.updateSetting('blockBotLadder', !!e.currentTarget.checked);
+		},
+		updateBlockBotLadder: function () {
+			var settings = app.user.get('settings') || {};
+			this.$('input[name=blockbotladder]').prop('checked', !!settings.blockBotLadder);
 		},
 		updateTeams: function () {
 			if (!window.BattleFormats) return;

@@ -200,6 +200,9 @@ function toId() {
 				case 'blockChallenges':
 					app.send(value ? '/blockchallenges' : '/unblockchallenges');
 					break;
+				case 'blockBotLadder':
+					app.send(value ? '/blockbotladder' : '/unblockbotladder');
+					break;
 				case 'language':
 					app.send('/language ' + value);
 					break;

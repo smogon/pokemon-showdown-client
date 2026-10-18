@@ -195,6 +195,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	serversettings: {
 		blockPMs?: boolean | string,
 		blockChallenges?: boolean,
+		blockBotLadder?: boolean,
 		language?: string,
 	} = {};
 
