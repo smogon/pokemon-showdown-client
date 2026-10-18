@@ -26,7 +26,7 @@ https://bulbapedia.bulbagarden.net/wiki/Pseudorandom_number_generation
 
 Außerdem dokumentieren zahlreiche Seiten, dass dieser Gebrauch des Zufallszahlengenerators dem Standard entspricht:
 
-https://en.wikipedia.org/wiki/Linear_congruential_generator
+https://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator
 
 Falls du glaubst, dass wir einen anderen Quellcode als den obrigen benutzen, kannst du es selbst überprüfen:
 
