@@ -26,7 +26,7 @@ https://bulbapedia.bulbagarden.net/wiki/Pseudorandom_number_generation
 
 And many pages documenting that this is a completely normal RNG to use:
 
-https://en.wikipedia.org/wiki/Linear_congruential_generator
+https://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator
 
 If you think we're using different source code than the code above, you can always test it yourself:
 
