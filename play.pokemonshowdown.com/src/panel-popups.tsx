@@ -1711,6 +1711,11 @@ class BattleOptionsPanel extends PSRoomPanel {
 			PS.mainmenu.disallowSpectators = value;
 			break;
 		}
+		case 'blockBotLadder': {
+			PS.prefs.set('serversettings', { ...PS.prefs.serversettings, blockBotLadder: value });
+			PS.send(value ? '/blockbotladder' : '/unblockbotladder');
+			break;
+		}
 		}
 	};
 	handleBattleLayout = (ev: Event) => {
@@ -1813,6 +1818,16 @@ class BattleOptionsPanel extends PSRoomPanel {
 						type="checkbox" onChange={this.handleAllSettings}
 					/> <abbr title={TL`You can still invite spectators by giving them the URL or using the /invite command`}>
 						{TL`Invite only (hide from Battles list)`}
+					</abbr>
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="blockBotLadder" checked={!!PS.prefs.serversettings.blockBotLadder}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> <abbr title={TL`You won't be matched against registered bots in ladder searches`}>
+						{TL`Don't match me with bots`}
 					</abbr>
 				</label>
 			</p>
