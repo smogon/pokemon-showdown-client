@@ -1840,22 +1840,6 @@ class BattleOptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="checkbox">
 					<input
-						name="ignorenicks" checked={PS.prefs.ignorenicks || false}
-						type="checkbox" onChange={this.handleAllSettings}
-					/> {TL`Ignore Pokémon nicknames`}
-				</label>
-			</p>
-			<p>
-				<label class="checkbox">
-					<input
-						name="ignorenicks" checked={PS.prefs.ignorenicks || false}
-						type="checkbox" onChange={this.handleAllSettings}
-					/> {TL`Ignore Pokémon nicknames`}
-				</label>
-			</p>
-			<p>
-				<label class="checkbox">
-					<input
 						name="ignorespects" checked={PS.prefs.ignorespects || false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> {TL`Ignore spectators`}
