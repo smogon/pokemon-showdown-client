@@ -1675,6 +1675,11 @@ class BattleOptionsPanel extends PSRoomPanel {
 			}
 			break;
 		}
+		case 'allowbots': {
+			PS.prefs.set('serversettings', { ...PS.prefs.serversettings, allowLadderBots: value });
+			PS.send(value ? `/noreply /allowbots` : `/noreply /blockbots`);
+			break;
+		}
 		case 'autohardcore': {
 			PS.prefs.set('autohardcore', value);
 			if (room?.battle) {
@@ -1814,6 +1819,30 @@ class BattleOptionsPanel extends PSRoomPanel {
 					/> <abbr title={TL`You can still invite spectators by giving them the URL or using the /invite command`}>
 						{TL`Invite only (hide from Battles list)`}
 					</abbr>
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="allowbots" checked={PS.prefs.serversettings.allowLadderBots || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> {TL`Allow matching into bots`}
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="ignorenicks" checked={PS.prefs.ignorenicks || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> {TL`Ignore Pokémon nicknames`}
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="ignorenicks" checked={PS.prefs.ignorenicks || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> {TL`Ignore Pokémon nicknames`}
 				</label>
 			</p>
 			<p>

@@ -157,6 +157,7 @@ export const translations: TranslationCatalog = {
 	"(MOBILE HORIZONTAL)": null,
 	"You can still invite spectators by giving them the URL or using the /invite command": null,
 	"Invite only (hide from Battles list)": null,
+	"Allow matching into bots": null,
 	"Ignore Pokémon nicknames": null,
 	"Automatically start timer": null,
 	// TRANSLATORS: this phrasing is because "forfeit" is an English word some people don't know

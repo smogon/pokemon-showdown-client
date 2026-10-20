@@ -196,6 +196,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 		blockPMs?: boolean | string,
 		blockChallenges?: boolean,
 		language?: string,
+		allowLadderBots?: boolean,
 	} = {};
 
 	// #endregion Prefs
@@ -2282,7 +2283,8 @@ export const PS = new class extends PSModel {
 		}
 		return null;
 	}
-	dragOnto(fromRoom: PSRoom, toLocation: 'left' | 'right' | 'mini-window', toIndex: number) {
+	dragOnto(fromRoom: PSRoom | undefined, toLocation: 'left' | 'right' | 'mini-window', toIndex: number) {
+		if (!fromRoom) return;
 		// one day you will be able to rearrange mainmenu and rooms, but not today
 		if (fromRoom.id === '' || fromRoom.id === 'rooms') return;
 
