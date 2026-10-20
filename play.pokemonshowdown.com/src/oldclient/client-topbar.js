@@ -296,6 +296,10 @@
 			if (!app.dragging || typeof app.dragging !== 'string') return;
 			var roomid = $(e.currentTarget).attr('href').slice(1);
 			if (app.dragging.slice(1) === roomid) return;
+			// rooms can be added or removed during a drag
+			app.draggingRoomList = app.roomList.map(this.roomidOf).concat('|').concat(app.sideRoomList.map(this.roomidOf));
+			app.draggingLoc = app.draggingRoomList.indexOf(app.dragging.slice(1));
+			if (app.draggingLoc < 0) return;
 			var i = app.draggingRoomList.indexOf(roomid);
 			var iPipe = app.draggingRoomList.indexOf('|');
 			if (iPipe < 0) return; // bug?
@@ -362,15 +366,15 @@
 			var room = app.rooms[app.dragging.slice(1)];
 			var iPipe = app.draggingRoomList.indexOf('|');
 
-			if (app.draggingLoc < iPipe && app.draggingSideRoom) {
+			if (room && app.draggingLoc < iPipe && app.draggingSideRoom) {
 				app.focusRoomLeft(room.id);
-			} else if (app.draggingLoc > iPipe && !app.draggingSideRoom) {
+			} else if (room && app.draggingLoc > iPipe && !app.draggingSideRoom) {
 				app.focusRoomRight(room.id);
 			} else {
 				this.updateTabbar();
 			}
 
-			if (room.type === 'chat') app.updateAutojoin();
+			if (room && room.type === 'chat') app.updateAutojoin();
 
 			app.dragging = null;
 			if (app.$dragging) app.$dragging.remove();

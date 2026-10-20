@@ -86,7 +86,7 @@ export const Teams = new class {
 			buf += `|${this.packName(set.item)}`;
 
 			// ability
-			buf += `|${this.packName(set.ability)}`;
+			buf += `|${this.packName(set.ability || 'No Ability')}`;
 
 			// moves
 			buf += '|' + set.moves.map(this.packName).join(',');
@@ -306,6 +306,7 @@ export const Teams = new class {
 	 */
 	exportSet(set: Teams.PokemonSet, dex: ModdedDex = Dex) {
 		const newFormat = false;
+		const ability = set.ability || 'No Ability';
 		let text = '';
 
 		// core
@@ -324,8 +325,8 @@ export const Teams = new class {
 			if (set.ability || dex.gen >= 3) text += `[${set.ability || '(select ability)'}]`;
 			if (set.item || dex.gen >= 2) text += ` @ ${set.item || "(no item)"}`;
 			text += `\n`;
-		} else if (set.ability && set.ability !== 'No Ability') {
-			text += `Ability: ${set.ability}\n`;
+		} else if (toID(ability) !== 'noability' || (dex.gen >= 3 && dex.modid !== 'gen7letsgo')) {
+			text += `Ability: ${ability}\n`;
 		}
 
 		if (newFormat) {

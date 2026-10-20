@@ -74,10 +74,10 @@ export class TeamEditorState extends PSModel {
 		super();
 		this.team = team;
 		this.updateTeam(false);
-		this.setFormat(team.format);
 		window.search = this.search;
 	}
 	updateTeam(readonly: boolean) {
+		if (this.team.format !== this.format.id) this.setFormat(this.team.format);
 		if (this.lastPackedTeam !== this.team.packedTeam) {
 			this.sets = Teams.unpack(this.team.packedTeam);
 			this.lastPackedTeam = this.team.packedTeam;
@@ -140,7 +140,7 @@ export class TeamEditorState extends PSModel {
 			return item.exists ? item.name : null;
 		}
 		case 'ability': {
-			if (toID(value) === 'noability') return '';
+			if (toID(value) === 'noability' && (this.gen < 3 || this.format.isLetsGo)) return '';
 			const ability = this.dex.abilities.get(value);
 			return ability.exists ? ability.name : null;
 		}
@@ -180,7 +180,7 @@ export class TeamEditorState extends PSModel {
 				break;
 			case 'ability':
 				if (toID(value) === 'selectability') value = '';
-				if (toID(value) === 'noability') value = '';
+				if (toID(value) === 'noability' && (this.gen < 3 || this.format.isLetsGo)) value = '';
 				if (this.dex.abilities.get(value).exists) {
 					this.search.prependResults = [['ability', toID(value)]];
 					value = '';
@@ -1074,9 +1074,6 @@ export class TeamEditor extends preact.Component<{
 		const narrow = this.props.narrow ?? window.innerWidth < 500;
 		editor.narrow = !useZoomedOutForms && narrow;
 		editor.narrowStats = useZoomedOutForms || narrow;
-		if (this.props.team.format !== editor.format.id) {
-			editor.setFormat(this.props.team.format);
-		}
 		const useSpaciousCSS = spacious && !mobileOptions || useZoomedOutForms;
 		const className = `teameditor${useSpaciousCSS ? ' teameditor-spacious' : ''}` +
 			`${useZoomedOutForms ? ' teameditor-zoom-out-forms' : ''}` +
