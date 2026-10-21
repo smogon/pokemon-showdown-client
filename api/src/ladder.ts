@@ -6,7 +6,7 @@
  */
 
 import { toID, time } from './utils.ts';
-import { ladder } from './tables.ts';
+import { ladder, users } from './tables.ts';
 
 /** length of a rating period in days (used for Glicko and Elo decay).
  *  Glickman recommends 5-10 games per rating period */
@@ -353,8 +353,12 @@ export class Ladder {
 		this.update(p1, p1M, p1Melo);
 		this.update(p2, p2M, p2Melo);
 
-		void this.saveRating(p1);
-		void this.saveRating(p2);
+		const p1IsBot = (await users.get(player1))?.group === 10;
+		const p2IsBot = (await users.get(player2))?.group === 10;
+
+		// Skip saving a human's rating only when they played against a bot
+		if (p1IsBot || !p2IsBot) void this.saveRating(p1);
+		if (p2IsBot || !p1IsBot) void this.saveRating(p2);
 		return [p1, p2];
 	}
 	static isValidPlayer(username: string | undefined): string | null {
