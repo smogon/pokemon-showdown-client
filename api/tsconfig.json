@@ -6,7 +6,7 @@
     "moduleResolution": "nodenext",
     "strict": true,
     "checkJs": true,
-    "noEmit": true,
+    "outDir": "./.dist",
     "rewriteRelativeImportExtensions": true,
     "erasableSyntaxOnly": true,
     "verbatimModuleSyntax": true,
