@@ -1392,7 +1392,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (ownerData.account) {
 			throw new ActionError(`Bot accounts cannot be marked as owners of other bot accounts.`);
 		}
-		if (botData.group > 0 && botData.group < 10) {
+		if (botData.group > 1 && botData.group < 10) {
 			throw new ActionError(`Cannot mark a staff account as a bot.`);
 		}
 		await tables.users.update(bot, {
