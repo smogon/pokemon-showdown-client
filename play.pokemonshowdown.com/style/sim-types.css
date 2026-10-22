@@ -508,156 +508,198 @@
 .typetile-Stellar {
 	background: linear-gradient(90deg, hsl(330, 66%, 58%), hsl(126, 79%, 45%) 40%, hsl(231, 98%, 65%));
 }
+:root {
+	--tint-Normal: #d3d7d8;
+	--tint-Fire: #ecc4c8;
+	--tint-Fighting: #f0cfad;
+	--tint-Water: #c1d4f2;
+	--tint-Flying: #c9dcf1;
+	--tint-Grass: #c4dcbd;
+	--tint-Poison: #d3c1e6;
+	--tint-Electric: #ece1ac;
+	--tint-Ground: #dbc7b7;
+	--tint-Psychic: #edc4d6;
+	--tint-Rock: #d8d4bd;
+	--tint-Ice: #c2e4ed;
+	--tint-Bug: #d2d9b1;
+	--tint-Dragon: #c5caee;
+	--tint-Ghost: #cec2d8;
+	--tint-Dark: #cac3c9;
+	--tint-Steel: #c5dbe3;
+	--tint-Fairy: #ebc7eb;
+	--tint-Stellar: #d7d0e8;
+}
+.dark {
+	--tint-Normal: #575d5c;
+	--tint-Fire: #66383d;
+	--tint-Fighting: #674a2f;
+	--tint-Water: #344f75;
+	--tint-Flying: #4d6070;
+	--tint-Grass: #365536;
+	--tint-Poison: #513d68;
+	--tint-Electric: #615838;
+	--tint-Ground: #5d4535;
+	--tint-Psychic: #653b50;
+	--tint-Rock: #5b5747;
+	--tint-Ice: #3f6470;
+	--tint-Bug: #555a34;
+	--tint-Dragon: #3f4771;
+	--tint-Ghost: #4c3a59;
+	--tint-Dark: #4a4148;
+	--tint-Steel: #3f5d66;
+	--tint-Fairy: #643f64;
+	--tint-Stellar: #514b62;
+}
 .tint-Normal.tint-Normal {
-	background-color: #d3d7d8;
+	background-color: var(--tint-Normal);
 	color: #535a58;
 }
 .tint-Fire.tint-Fire {
-	background-color: #ecc4c8;
+	background-color: var(--tint-Fire);
 	color: #8a2730;
 }
 .tint-Fighting.tint-Fighting {
-	background-color: #f0cfad;
+	background-color: var(--tint-Fighting);
 	color: #8a4f00;
 }
 .tint-Water.tint-Water {
-	background-color: #c1d4f2;
+	background-color: var(--tint-Water);
 	color: #1d4f9c;
 }
 .tint-Flying.tint-Flying {
-	background-color: #c9dcf1;
+	background-color: var(--tint-Flying);
 	color: #38618a;
 }
 .tint-Grass.tint-Grass {
-	background-color: #c4dcbd;
+	background-color: var(--tint-Grass);
 	color: #2a6b21;
 }
 .tint-Poison.tint-Poison {
-	background-color: #d3c1e6;
+	background-color: var(--tint-Poison);
 	color: #653090;
 }
 .tint-Electric.tint-Electric {
-	background-color: #ece1ac;
+	background-color: var(--tint-Electric);
 	color: #735800;
 }
 .tint-Ground.tint-Ground {
-	background-color: #dbc7b7;
+	background-color: var(--tint-Ground);
 	color: #704016;
 }
 .tint-Psychic.tint-Psychic {
-	background-color: #edc4d6;
+	background-color: var(--tint-Psychic);
 	color: #9b2f58;
 }
 .tint-Rock.tint-Rock {
-	background-color: #d8d4bd;
+	background-color: var(--tint-Rock);
 	color: #6b633c;
 }
 .tint-Ice.tint-Ice {
-	background-color: #c2e4ed;
+	background-color: var(--tint-Ice);
 	color: #247083;
 }
 .tint-Bug.tint-Bug {
-	background-color: #d2d9b1;
+	background-color: var(--tint-Bug);
 	color: #5b6615;
 }
 .tint-Dragon.tint-Dragon {
-	background-color: #c5caee;
+	background-color: var(--tint-Dragon);
 	color: #3544a2;
 }
 .tint-Ghost.tint-Ghost {
-	background-color: #cec2d8;
+	background-color: var(--tint-Ghost);
 	color: #4f2e5f;
 }
 .tint-Dark.tint-Dark {
-	background-color: #cac3c9;
+	background-color: var(--tint-Dark);
 	color: #49393a;
 }
 .tint-Steel.tint-Steel {
-	background-color: #c5dbe3;
+	background-color: var(--tint-Steel);
 	color: #2f6b7a;
 }
 .tint-Fairy.tint-Fairy {
-	background-color: #ebc7eb;
+	background-color: var(--tint-Fairy);
 	color: #9a409a;
 }
 .tint-Stellar.tint-Stellar {
-	background-color: #d7d0e8;
+	background-color: var(--tint-Stellar);
 	color: #594b83;
 }
 .dark .tint-Normal.tint-Normal {
-	background-color: #575d5c;
+	background-color: var(--tint-Normal);
 	color: #e4e8e8;
 }
 .dark .tint-Fire.tint-Fire {
-	background-color: #66383d;
+	background-color: var(--tint-Fire);
 	color: #ffd6da;
 }
 .dark .tint-Fighting.tint-Fighting {
-	background-color: #674a2f;
+	background-color: var(--tint-Fighting);
 	color: #ffe0bd;
 }
 .dark .tint-Water.tint-Water {
-	background-color: #344f75;
+	background-color: var(--tint-Water);
 	color: #d8e6ff;
 }
 .dark .tint-Flying.tint-Flying {
-	background-color: #4d6070;
+	background-color: var(--tint-Flying);
 	color: #deedff;
 }
 .dark .tint-Grass.tint-Grass {
-	background-color: #365536;
+	background-color: var(--tint-Grass);
 	color: #dcf0d6;
 }
 .dark .tint-Poison.tint-Poison {
-	background-color: #513d68;
+	background-color: var(--tint-Poison);
 	color: #eadcff;
 }
 .dark .tint-Electric.tint-Electric {
-	background-color: #615838;
+	background-color: var(--tint-Electric);
 	color: #fff0b8;
 }
 .dark .tint-Ground.tint-Ground {
-	background-color: #5d4535;
+	background-color: var(--tint-Ground);
 	color: #f0d8c7;
 }
 .dark .tint-Psychic.tint-Psychic {
-	background-color: #653b50;
+	background-color: var(--tint-Psychic);
 	color: #ffd9e8;
 }
 .dark .tint-Rock.tint-Rock {
-	background-color: #5b5747;
+	background-color: var(--tint-Rock);
 	color: #eee8cf;
 }
 .dark .tint-Ice.tint-Ice {
-	background-color: #3f6470;
+	background-color: var(--tint-Ice);
 	color: #d8f5ff;
 }
 .dark .tint-Bug.tint-Bug {
-	background-color: #555a34;
+	background-color: var(--tint-Bug);
 	color: #eef5c9;
 }
 .dark .tint-Dragon.tint-Dragon {
-	background-color: #3f4771;
+	background-color: var(--tint-Dragon);
 	color: #dce0ff;
 }
 .dark .tint-Ghost.tint-Ghost {
-	background-color: #4c3a59;
+	background-color: var(--tint-Ghost);
 	color: #eadcff;
 }
 .dark .tint-Dark.tint-Dark {
-	background-color: #4a4148;
+	background-color: var(--tint-Dark);
 	color: #eee2eb;
 }
 .dark .tint-Steel.tint-Steel {
-	background-color: #3f5d66;
+	background-color: var(--tint-Steel);
 	color: #dceff5;
 }
 .dark .tint-Fairy.tint-Fairy {
-	background-color: #643f64;
+	background-color: var(--tint-Fairy);
 	color: #ffdfff;
 }
 .dark .tint-Stellar.tint-Stellar {
-	background-color: #514b62;
+	background-color: var(--tint-Stellar);
 	color: #e7ddff;
 }
 .typeicon-Normal {
