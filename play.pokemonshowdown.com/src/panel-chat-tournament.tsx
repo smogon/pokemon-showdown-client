@@ -52,6 +52,27 @@ interface TournamentTableBracketData {
 	};
 	scores: number[];
 }
+interface TournamentSwissBracketData {
+	type: 'swiss',
+	roundLimit: number | null,
+	users: string[],
+	players: {
+		name: string,
+		score: number,
+		isDisqualified: boolean,
+	}[],
+	rounds: {
+		bye?: string,
+		matches: {
+			player1: string;
+			player2: string;
+			state: 'available' | 'challenging' | 'inprogress' | 'finished';
+			result?: 'win' | 'loss' | 'draw';
+			score?: number[];
+			room?: string;
+		}[],
+	}[],
+}
 type TournamentInfo = {
 	/** nickname will override this */
 	format?: string,
@@ -64,7 +85,7 @@ type TournamentInfo = {
 	challenged?: string | null,
 	challenges?: string[],
 	challengeBys?: string[],
-	bracketData?: TournamentTreeBracketData | TournamentTableBracketData,
+	bracketData?: TournamentTreeBracketData | TournamentTableBracketData | TournamentSwissBracketData,
 };
 export class ChatTournament extends PSModel {
 	info: TournamentInfo = {};
