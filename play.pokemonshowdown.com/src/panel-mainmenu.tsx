@@ -596,9 +596,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 
 		const index = PS.miniRoomList.indexOf(draggedOverRoom?.id as any);
 		if (index >= 0) {
-			PS.dragOnto(PS.rooms[draggingRoom]!, 'mini-window', index);
+			PS.dragOnto(PS.rooms[draggingRoom], 'mini-window', index);
 		} else if (PS.rooms[draggingRoom]?.location !== 'mini-window') {
-			PS.dragOnto(PS.rooms[draggingRoom]!, 'mini-window', 0);
+			PS.dragOnto(PS.rooms[draggingRoom], 'mini-window', 0);
 		}
 
 		// dropEffect !== 'none' prevents bounce-back animation in
