@@ -53,25 +53,25 @@ interface TournamentTableBracketData {
 	scores: number[];
 }
 interface TournamentSwissBracketData {
-	type: 'swiss',
-	roundLimit: number | null,
-	users: string[],
+	type: 'swiss';
+	roundLimit: number | null;
+	users: string[];
 	players: {
 		name: string,
 		score: number,
 		isDisqualified: boolean,
-	}[],
+	}[];
 	rounds: {
 		bye?: string,
 		matches: {
-			player1: string;
-			player2: string;
-			state: 'available' | 'challenging' | 'inprogress' | 'finished';
-			result?: 'win' | 'loss' | 'draw';
-			score?: number[];
-			room?: string;
+			player1: string,
+			player2: string,
+			state: 'available' | 'challenging' | 'inprogress' | 'finished',
+			result?: 'win' | 'loss' | 'draw',
+			score?: number[],
+			room?: string,
 		}[],
-	}[],
+	}[];
 }
 type TournamentInfo = {
 	/** nickname will override this */
@@ -639,6 +639,60 @@ export class TournamentBracket extends preact.Component<{
 			</tr>)}
 		</table></div>;
 	}
+	renderSwissBracket(data: TournamentSwissBracketData) {
+		const roundIndices = Array.from(
+			{
+				length: data.roundLimit || 0,
+			},
+			(_, i) => i
+		);
+		// There appears to be a prop named abbreviated that changes the
+		// output behavior. I'm not sure how it works, so I'll skip it for now.
+		return <div class="pad"><table class="tournament-bracket-table">
+			<tr>
+				<th>Player</th>
+				{roundIndices.map(i => <th>{`Round ${i + 1}`}</th>)}
+				<th>Score</th>
+			</tr>
+			{data.players.map(player => <tr>
+				<td>{player.name}</td>
+				{roundIndices.map(i => {
+					if (i >= data.rounds.length) {
+						return <td className="tournament-bracket-table-cell-unavailable">-</td>;
+					}
+					const round = data.rounds[i];
+					if (round.bye === player.name) {
+						return <td className="tournament-bracket-table-cell-unavailable">Bye</td>;
+					}
+					const cell = round.matches.find(match => match.player1 === player.name || match.player2 === player.name);
+					if (!cell) return <td className="tournament-bracket-table-cell-unavailable">-</td>;
+					const isPlayer1 = cell.player1 === player.name;
+					const opponent = isPlayer1 ? cell.player2 : cell.player1;
+					const result = isPlayer1 ? cell.result :
+						cell.result === 'win' ? 'loss' :
+						cell.result === 'loss' ? 'win' : cell.result;
+					const score = isPlayer1 ? cell.score : cell.score?.slice().reverse();
+					return <td
+						class={`tournament-bracket-table-cell-${cell.state}${cell.state === 'finished' && result ? (
+							` tournament-bracket-table-cell-result-${result}`
+						) : ''}`}
+					>
+						vs. {opponent}<br />
+						{cell.state === 'available' ? (
+							TL`Waiting`
+						) : cell.state === 'challenging' ? (
+							TL`Challenging`
+						) : cell.state === 'inprogress' ? (
+							<a href={cell.room && toRoomid(cell.room)} class="ilink">{TL`In progress`}</a>
+						) : cell.state === 'finished' ? (
+							score?.join(" - ")
+						) : null}
+					</td>;
+				})};
+				<td>{player.score}</td>
+			</tr>)}
+		</table></div>;
+	}
 	dragging: {
 		x: number,
 		y: number,
@@ -711,6 +765,7 @@ export class TournamentBracket extends preact.Component<{
 		>
 			{data?.type === 'table' ? this.renderTableBracket(data) :
 			data?.type === 'tree' ? <TournamentTreeBracket data={data} abbreviated={this.props.abbreviated} /> :
+			data?.type === 'swiss' ? this.renderSwissBracket(data) :
 			null}
 			{this.props.poppedOut ? (
 				<button class="tournament-close-link button" data-cmd="/close">
