@@ -688,7 +688,7 @@ export class TournamentBracket extends preact.Component<{
 							score?.join(" - ")
 						) : null}
 					</td>;
-				})};
+				})}
 				<td>{player.score}</td>
 			</tr>)}
 		</table></div>;
