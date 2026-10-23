@@ -33,9 +33,10 @@ export class User {
 		this.name = name;
 		this.id = toID(name);
 	}
-	login(name: string) {
+	async login(name: string) {
 		this.setName(name);
 		this.loggedIn = this.id;
+		this.group = (await users.get(this.id))?.group || 0;
 		return this;
 	}
 	logout() {
@@ -518,8 +519,7 @@ export class Session {
 
 		// okay, legit session ID - you're logged in now.
 		const user = new User();
-		user.login(cookieName);
-		user.group = (await users.get(user.id))?.group || 0;
+		await user.login(cookieName);
 
 		this.sidhash = sid;
 		this.session = session;

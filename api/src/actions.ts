@@ -758,7 +758,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		const owner = await OAuth.getTokenOwner(client, token);
 		if (!owner) return { success: false };
 		const user = await this.getUser();
-		user.login(owner);
+		await user.login(owner);
 		return this.session.getAssertion(
 			user.id, Config.challengekeyid, user, challstr
 		);
