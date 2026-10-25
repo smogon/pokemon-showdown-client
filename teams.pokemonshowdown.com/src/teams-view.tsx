@@ -457,7 +457,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 		if (conf !== 'yes') {
 			return;
 		}
-		void query('deleteteam', { query: { teamid: this.id } }).then(result => {
+		void query('deleteteam', { method: 'POST', body: { teamid: this.id } }).then(result => {
 			if (result.actionerror) {
 				alert(`Error deleting team: ${result.actionerror}`);
 			} else {
@@ -484,7 +484,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 	}
 
 	copyToBuilder() {
-		void query('copyteam', { query: { teamid: this.id, pw: this.pw } }).then(result => {
+		void query('copyteam', { method: 'POST', body: { teamid: this.id, password: this.pw } }).then(result => {
 			if (result.actionerror) {
 				this.setState({ copyError: result.actionerror, copied: null });
 			} else {
@@ -515,14 +515,12 @@ export class TeamViewer extends preact.Component<PageProps> {
 	commitEdit() {
 		if (!this.state.changesMade || !this.state.team) return;
 		void query('editteam', {
-			query: { teamid: this.id, ...this.state.teamEdits },
-		}).then(resultText => {
-			if (resultText.startsWith(']')) resultText = resultText.slice(1);
-			let result;
-			try {
-				result = JSON.parse(resultText);
-			} catch {
-				result = { actionerror: "Malformed response received. Try again later." };
+			method: 'POST',
+			body: { teamid: this.id, ...this.state.teamEdits },
+		}).then(result => {
+			if (result.actionerror) {
+				this.setState({ editError: result.actionerror, changesMade: false, teamEdits: null });
+				return;
 			}
 			if (result.team.private !== this.state.team?.private) {
 				history.pushState({}, '', new URL(
@@ -530,11 +528,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 					(result.team.private ? `-${result.team.private}` : '')
 				));
 			}
-			if (result.actionerror) {
-				this.setState({ editError: result.actionerror, changesMade: false, teamEdits: null });
-			} else {
-				this.setState({ team: result.team, changesMade: false, teamEdits: null });
-			}
+			this.setState({ team: result.team, changesMade: false, teamEdits: null });
 		});
 	}
 }
