@@ -1003,8 +1003,8 @@ export class TeamForm extends preact.Component<{
 			customRules.push('Item Clause = 1');
 		}
 		format = this.addCustomRules(format, customRules);
-		PS.teams.loadTeam(team).then(success => {
-			if (!success) return;
+		PS.teams.loadTeam(team).then(() => {
+			if (team?.uploaded?.notLoaded) return;
 			(validate === 'validate' ? this.props.onValidate : this.props.onSubmit)?.(ev, format, team);
 		});
 	};
