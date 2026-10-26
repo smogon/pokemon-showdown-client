@@ -831,7 +831,7 @@ export const actions: { [k: string]: QueryHandler } = {
 			const data = await tables.teams.selectOne(
 				full ? SQL`team, private, ownerid, format, title, views` : SQL`ownerid, team, private`
 			)`WHERE teamid = ${teamid}`;
-			const owns = data?.ownerid === user.id;
+			const owns = !!user.loggedIn && data?.ownerid === user.id;
 			if (!data || (owns ? false : (data.private && (password !== toID(data.private))))) {
 				return { team: null };
 			}
