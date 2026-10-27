@@ -1385,6 +1385,9 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!botData) {
 			throw new ActionError(`Bot account '${bot}' does not exist.`);
 		}
+		if (botData.group === 10) {
+			throw new ActionError(`User '${bot}' is already marked as a bot.`);
+		}
 		const ownerData = await tables.users.get(owner);
 		if (!ownerData) {
 			throw new ActionError(`Owner account '${owner}' does not exist.`);
