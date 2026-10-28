@@ -9,34 +9,45 @@ import { BattleSound } from '../../play.pokemonshowdown.com/src/battle-sound';
 import type { ID } from '../../play.pokemonshowdown.com/src/battle-dex';
 declare function toID(input: string): string;
 
-function showAd(id: string) {
-	// @ts-expect-error no clue how to declare this one
-	window.top.__vm_add = window.top.__vm_add || [];
+class ReplayAd extends preact.Component<{ replayId: string | null }> {
+	static shown = false;
+	hidden = ReplayAd.shown;
+	mountedAt: number | null = null;
+	lastReplayId: string | null = null;
 
-	// this is a x-browser way to make sure content has loaded.
-
-	(success => {
-		if (window.document.readyState !== "loading") {
-			success();
-		} else {
-			window.document.addEventListener("DOMContentLoaded", () => {
-				success();
-			});
+	override shouldComponentUpdate(nextProps: { replayId: string | null }) {
+		if (this.hidden || !nextProps.replayId) return false;
+		if (this.mountedAt === null) return true;
+		const changed = nextProps.replayId !== this.lastReplayId;
+		this.lastReplayId = nextProps.replayId;
+		if (changed && performance.now() - this.mountedAt >= 30_000) {
+			this.hidden = true;
+			return true;
 		}
-	})(() => {
-		const placement = document.createElement("div");
-		placement.setAttribute("class", "vm-placement");
-		if (window.innerWidth > 1000) {
-			// load desktop placement
-			placement.setAttribute("data-id", "6452680c0b35755a3f09b59b");
-		} else {
-			// load mobile placement
-			placement.setAttribute("data-id", "645268557bc7b571c2f06f62");
-		}
-		document.querySelector("#" + id)!.appendChild(placement);
-		// @ts-expect-error no clue how to declare this one
-		window.top.__vm_add.push(placement);
-	});
+		return false;
+	}
+	override componentDidMount() {
+		this.loadAd();
+	}
+	override componentDidUpdate() {
+		this.loadAd();
+	}
+	loadAd() {
+		if (ReplayAd.shown || this.hidden || !this.props.replayId || !this.base?.isConnected) return;
+		ReplayAd.shown = true;
+		this.mountedAt = performance.now();
+		this.lastReplayId = this.props.replayId;
+		window.ramp = window.ramp || {};
+		window.ramp.que = window.ramp.que || [];
+		const script = document.createElement('script');
+		script.setAttribute('data-cfasync', 'false');
+		script.async = true;
+		script.src = 'https://cdn.intergient.com/1025841/77767/ramp.js';
+		document.head.appendChild(script);
+	}
+	override render() {
+		return this.hidden || !this.props.replayId ? null : <div id="replay-undercontrols"></div>;
+	}
 }
 
 export class BattleDiv extends preact.Component {
@@ -79,7 +90,6 @@ export class BattlePanel extends preact.Component<{ id: string, user: PSReplays[
 	autofocusTurnView: 'select' | 'end' | null = null;
 	override componentDidMount() {
 		this.loadBattle(this.props.id);
-		showAd('LeaderboardBTF');
 		window.onkeydown = this.keyPressed;
 	}
 	override componentWillReceiveProps(nextProps: this['props']) {
@@ -654,7 +664,7 @@ export class BattlePanel extends preact.Component<{ id: string, user: PSReplays[
 				<BattleDiv />
 				<BattleLogDiv />
 				{this.renderControls()}
-				<div id="LeaderboardBTF"></div>
+				<ReplayAd replayId={this.result ? this.replayID(this.props.id) : null} />
 			</div>
 		</div>;
 	}

@@ -123,9 +123,6 @@ https://replay.pokemonshowdown.com/gen7randomdoublesbattle-865046831.log
   gtag('config', 'UA-26211653-1');
 </script>
 <!-- End Google Analytics -->
-<!-- Venatus Ad Manager - Install in <HEAD> of page -->
-	<script src="https://hb.vntsm.com/v3/live/ad-manager.min.js" type="text/javascript" data-site-id="642aba63ec9a7b11c3c9c1be" data-mode="scan" async></script>
-<!-- / Venatus Ad Manager -->
 
 <style>
 	@media (max-width:820px) {
