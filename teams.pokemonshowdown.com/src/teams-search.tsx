@@ -1,7 +1,7 @@
 /** @jsx preact.h */
 /** @jsxFrag preact.Fragment */
 import preact from '../../play.pokemonshowdown.com/js/lib/preact';
-import { type ServerTeam, MiniTeam, query } from './utils';
+import { type ServerTeam, MiniTeam, query, Page } from './utils';
 import type { PageProps } from './teams';
 import { Config } from '../../play.pokemonshowdown.com/src/client-main';
 
@@ -93,11 +93,13 @@ export class TeamSearcher extends preact.Component<PageProps> {
 
 	render() {
 		if (this.state.loading) {
-			return <div class="section" style={{ wordWrap: 'break-word' }}>Loading...</div>;
+			return <Page wrap>Loading...</Page>;
 		}
-		return <div class="section" style={{ wordWrap: 'break-word', textAlign: 'center' }}>
-			<a href={'//' + Config.routes.teams} class="button"><i class="fa fa-caret-left"></i> Back</a>
-			<h1>Search Teams</h1>
+		return <Page wrap center>
+			<div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+				<a href={'//' + Config.routes.teams} class="button"><i class="fa fa-caret-left"></i> Back</a>
+				<h1>Search Teams</h1>
+			</div>
 			<br />
 			<div name="searchsection">
 				<label>Format: </label>
@@ -121,6 +123,6 @@ export class TeamSearcher extends preact.Component<PageProps> {
 					<button class="button notifying" onClick={() => this.search(20)}>More</button> :
 					<></>
 			}
-		</div>;
+		</Page>;
 	}
 }
