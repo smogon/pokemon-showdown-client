@@ -59,6 +59,7 @@ interface TournamentSwissBracketData {
 	players: {
 		name: string,
 		score: number,
+		resistance?: number,
 		isDisqualified: boolean,
 	}[];
 	rounds: {
@@ -653,6 +654,7 @@ export class TournamentBracket extends preact.Component<{
 				<th>Player</th>
 				{roundIndices.map(i => <th>{`Round ${i + 1}`}</th>)}
 				<th>Score</th>
+				<th title="Average opponents' win percentage, excluding byes">Resistance</th>
 			</tr>
 			{data.players.map(player => <tr>
 				<td>{player.name}</td>
@@ -690,6 +692,7 @@ export class TournamentBracket extends preact.Component<{
 					</td>;
 				})}
 				<td>{player.score}</td>
+				<td>{player.resistance === undefined ? '-' : `${(player.resistance * 100).toFixed(2)}%`}</td>
 			</tr>)}
 		</table></div>;
 	}
