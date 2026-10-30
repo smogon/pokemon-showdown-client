@@ -150,6 +150,8 @@ export class BattleRoom extends ChatRoom {
 	declare challengeMenuOpen: false;
 	declare challengingFormat: null;
 	declare challengedFormat: null;
+	isHiddenBattle = false;
+	hideBattleToggled = false;
 
 	override battle: Battle = null!;
 	/** null if spectator, otherwise current player's info */
@@ -157,12 +159,22 @@ export class BattleRoom extends ChatRoom {
 	request: BattleRequest | null = null;
 	choices: BattleChoiceBuilder | null = null;
 	autoTimerActivated: boolean | null = null;
+	autoTeamSheetAccepted: boolean | null = null;
 	requireForfeit = false;
 	/** should be false if we joined right after accepting or challenging a battle,
 	  * and true if we refreshed and rejoined a battle.
 		* null = initializing, we don't know yet */
 	rejoining: boolean | null = null;
 	overlayActive: 'move' | 'switch' | null = null;
+
+	static checkHiddenBattle(id: RoomID) {
+		return /^battle-[a-z0-9]+-\d+-[^-]+$/.test(id);
+	}
+	constructor(options: RoomOptions) {
+		super(options);
+		this.isHiddenBattle = BattleRoom.checkHiddenBattle(this.id);
+		this.hideBattleToggled = this.isHiddenBattle;
+	}
 
 	private pendingLines: Args[] = [];
 	/** showdex compat */
@@ -260,6 +272,10 @@ export class BattleRoom extends ChatRoom {
 		if (PS.prefs.autotimer && !this.battle.kickingInactive && !this.autoTimerActivated) {
 			this.send('/timer on');
 			this.autoTimerActivated = true;
+		}
+		if (PS.prefs.autoTeamSheet && !this.autoTeamSheetAccepted) {
+			this.send('/acceptopenteamsheets');
+			this.autoTeamSheetAccepted = true;
 		}
 
 		BattleChoiceBuilder.fixRequest(request, this.battle);

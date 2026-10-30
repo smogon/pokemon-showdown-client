@@ -52,11 +52,9 @@ export class MainMenuRoom extends PSRoom {
 	/** used to track the moment between "search sent" and "server acknowledged search sent" */
 	teamSent: string | null = null;
 	search: { searching: string[], games: Record<RoomID, string> | null } = { searching: [], games: null };
-	disallowSpectators: boolean | null = PS.prefs.disallowspectators;
 	lastChallenged: number | null = null;
 	adjustPrivacy() {
-		PS.prefs.set('disallowspectators', this.disallowSpectators);
-		if (this.disallowSpectators) return '/noreply /hidenext \n';
+		if (PS.prefs.disallowspectators) return '/noreply /hidenext \n';
 		return '';
 	}
 	startSearch = (format: string, team?: Team, parentElem?: HTMLElement | null) => {
