@@ -486,6 +486,8 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			for (const volatile of volatilesToRemove) {
 				delete this.volatiles[volatile];
 			}
+		} else if (copySource === 'illusion' && this.volatiles.typechange?.[2]) {
+			delete this.volatiles.typechange;
 		}
 		// Shed Tail doesn't need special handling because the source already has
 		// its volatiles except Substitute cleared in switchOut.
@@ -2663,7 +2665,7 @@ export class Battle {
 						poke.moddedType = types.split('/') as Dex.TypeName[];
 					}
 					poke.removeVolatile('typeadd' as ID);
-					poke.addVolatile('typechange' as ID, types);
+					poke.addVolatile('typechange' as ID, types, !!kwArgs.silent && !kwArgs.from);
 					if (!kwArgs.silent) {
 						this.scene.typeAnim(poke, types);
 					}

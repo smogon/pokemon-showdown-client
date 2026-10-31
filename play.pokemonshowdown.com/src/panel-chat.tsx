@@ -325,13 +325,9 @@ export class ChatRoom extends PSRoom {
 		return '"' + message + '"';
 	}
 	isIgnored = (name: string) => {
-		if (!PS.prefs.ignore?.[toID(name)]) return false;
-		// can't ignore staff
-		if (!' +^\u2605\u2606'.includes(name.charAt(0))) return false;
-		if (this.pmTarget !== null) return true;
-		// can't ignore users in rooms you're staff in
-		const roomGroup = PS.server.getGroup(this.users[PS.user.userid]);
-		return roomGroup.order > PS.server.getGroup('%').order;
+		if (!PS.isIgnored(name, this)) return false;
+		PS.showIgnoreNotice(name, this);
+		return true;
 	};
 	handleHighlight = (args: Args) => {
 		let name: string;
@@ -351,7 +347,7 @@ export class ChatRoom extends PSRoom {
 
 		const isDM = this.id.startsWith("dm-");
 		const highlightType = ChatRoom.isHighlightableChatMessage(message, isDM);
-		if (this.isIgnored(name) || !highlightType) return false;
+		if (PS.isIgnored(name, this) || !highlightType) return false;
 		if (highlightType === 'subtle') {
 			this.subtleNotify();
 			return false;
@@ -649,7 +645,7 @@ export class ChatRoom extends PSRoom {
 			}
 			if (room.choices.isDone() || room.choices.isEmpty()) {
 				// we _could_ check choices.noCancel, but the server will check anyway
-				this.sendDirect('/undo');
+				this.sendDirect(`/undo |${room.choices.request.rqid}`);
 			}
 			if (cmd === 'cancel') {
 				room.choices = new BattleChoiceBuilder(room.request);
@@ -677,7 +673,7 @@ export class ChatRoom extends PSRoom {
 
 			room.choices = choices;
 			if (choices.isDone()) {
-				this.sendDirect(`/choose ${choices.toString()}`);
+				this.sendDirect(`/choose ${choices.toString()}|${choices.request.rqid}`);
 			}
 			room.updateChoiceNotification();
 			room.overlayActive = null;

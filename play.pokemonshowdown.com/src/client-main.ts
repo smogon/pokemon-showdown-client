@@ -1900,6 +1900,7 @@ type PSRoomPanelSubclass<T extends PSRoom = PSRoom> = (new () => PSRoomPanel<T>)
  */
 export const PS = new class extends PSModel {
 	down: string | boolean = false;
+	ignoreNotified = false;
 
 	prefs = new PSPrefs();
 	teams = new PSTeams();
@@ -2753,6 +2754,21 @@ export const PS = new class extends PSModel {
 				parentElem: opts.parentElem,
 			});
 		});
+	}
+	isIgnored(name: string, room?: ChatRoom) {
+		if (!this.prefs.ignore?.[toID(name)]) return false;
+		// can't ignore staff
+		if (!' +^\u2605\u2606'.includes(name.charAt(0))) return false;
+		if (!room || room.pmTarget) return true;
+		// can't ignore users in rooms you're staff in
+		const roomGroup = this.server.getGroup(room.users[this.user.userid]);
+		return roomGroup.order > this.server.getGroup('%').order;
+	}
+	showIgnoreNotice(name: string, room: PSRoom = this.getPanel()) {
+		if (this.ignoreNotified) return;
+		this.ignoreNotified = true;
+		// goes into chat room if it's a chat room message, or console if it's a DM
+		room.add(`||A message from ${name} was ignored. (to unignore use /unignore)`);
 	}
 	getPMRoom(userid: ID): ChatRoom {
 		const myUserid = PS.user.userid;

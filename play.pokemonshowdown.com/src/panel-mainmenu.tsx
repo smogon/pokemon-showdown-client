@@ -162,6 +162,10 @@ export class MainMenuRoom extends PSRoom {
 			return true;
 		} case 'pm': {
 			const [, user1, user2, message] = args;
+			if (PS.isIgnored(user1)) {
+				PS.showIgnoreNotice(user1);
+				return true;
+			}
 			this.handlePM(user1, user2, message);
 			let sideRoom = PS.rightPanel as ChatRoom;
 			if (sideRoom?.type === "chat" && PS.prefs.inchatpm) {
