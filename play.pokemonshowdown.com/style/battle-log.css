@@ -517,6 +517,16 @@ pre.textbox {
 	border-color: #444;
 	box-shadow: none;
 }
+.textbox[aria-invalid="true"] {
+	border-color: #CC3333;
+	background: #FFF0F0;
+	color: #992222;
+}
+.dark .textbox[aria-invalid="true"] {
+	border-color: #CC3333;
+	background: #442222;
+	color: #F4776E;
+}
 
 .textbox-subtle,
 .dark .textbox-subtle {
@@ -1250,7 +1260,7 @@ details[open] .expandbutton.fa-caret-right:before {
 	color: #992222;
 }
 .dark .message-error {
-	color: #EF4333;
+	color: #F4776E;
 }
 .message-warning {
 	color: #cb6619;

@@ -19,7 +19,7 @@ AddType application/x-web-app-manifest+json .webapp
 </filesMatch>
 
 <filesMatch "colors\.json$">
-    Header set Access-Control-Allow-Origin "*" 
+    Header set Access-Control-Allow-Origin "*"
     Header set Access-Control-Allow-Methods "GET,POST,OPTIONS"
 </filesMatch>
 

@@ -15,7 +15,7 @@ import { PSSearchResults } from "./battle-searchresults";
 import { BattleNatures, type StatName } from "./battle-dex-data";
 import { BattleStatGuesser, BattleStatOptimizer, BattleTooltips } from "./battle-tooltips";
 import { PSModel } from "./client-core";
-import { Net } from "./client-connection";
+import { Net, PSLoginServer } from "./client-connection";
 import { PSIcon, PSView } from "./panels";
 
 type InnerFocusType = 'pokemon' | 'ability' | 'item' | 'move' | 'stats' | 'details' | 'import';
@@ -74,10 +74,10 @@ export class TeamEditorState extends PSModel {
 		super();
 		this.team = team;
 		this.updateTeam(false);
-		this.setFormat(team.format);
 		window.search = this.search;
 	}
 	updateTeam(readonly: boolean) {
+		if (this.team.format !== this.format.id) this.setFormat(this.team.format);
 		if (this.lastPackedTeam !== this.team.packedTeam) {
 			this.sets = Teams.unpack(this.team.packedTeam);
 			this.lastPackedTeam = this.team.packedTeam;
@@ -140,7 +140,7 @@ export class TeamEditorState extends PSModel {
 			return item.exists ? item.name : null;
 		}
 		case 'ability': {
-			if (toID(value) === 'noability') return '';
+			if (toID(value) === 'noability' && (this.gen < 3 || this.format.isLetsGo)) return '';
 			const ability = this.dex.abilities.get(value);
 			return ability.exists ? ability.name : null;
 		}
@@ -180,7 +180,7 @@ export class TeamEditorState extends PSModel {
 				break;
 			case 'ability':
 				if (toID(value) === 'selectability') value = '';
-				if (toID(value) === 'noability') value = '';
+				if (toID(value) === 'noability' && (this.gen < 3 || this.format.isLetsGo)) value = '';
 				if (this.dex.abilities.get(value).exists) {
 					this.search.prependResults = [['ability', toID(value)]];
 					value = '';
@@ -1074,9 +1074,6 @@ export class TeamEditor extends preact.Component<{
 		const narrow = this.props.narrow ?? window.innerWidth < 500;
 		editor.narrow = !useZoomedOutForms && narrow;
 		editor.narrowStats = useZoomedOutForms || narrow;
-		if (this.props.team.format !== editor.format.id) {
-			editor.setFormat(this.props.team.format);
-		}
 		const useSpaciousCSS = spacious && !mobileOptions || useZoomedOutForms;
 		const className = `teameditor${useSpaciousCSS ? ' teameditor-spacious' : ''}` +
 			`${useZoomedOutForms ? ' teameditor-zoom-out-forms' : ''}` +
@@ -1303,6 +1300,37 @@ class TeamTextbox extends preact.Component<{
 					this.editor.setFormat(formatid);
 				}
 				const title = paste["title"] as string;
+				if (title && !title.startsWith('Untitled')) {
+					this.editor.team.name = title.replace(/[|\\/]/g, '');
+				}
+				this.editor.fetching = false;
+				this.props.onUpdate?.();
+			});
+			return true;
+		}
+
+		const psTeams = /(teams\.pokemonshowdown\.com\/view\/|psim\.us\/t\/)(\d+)/.exec(value)?.[2];
+		if (psTeams) {
+			this.editor.fetching = true;
+			PSLoginServer.query('getteam', {
+				teamid: psTeams,
+				full: true,
+			}).then(json => {
+				const team = json?.team;
+				if (!json || !team) return;
+				if (this.textbox) {
+					// make sure it's still there:
+					const valueIndex = this.textbox.value.indexOf(value);
+					const str = Teams.export(Teams.import(json.team));
+					this.replace(str.replace(/\r\n/g, '\n'), valueIndex, valueIndex + value.length);
+				} else {
+					this.editor.import(json.team);
+					this.props.onChange?.();
+				}
+				if (json.format) {
+					this.editor.setFormat(toID(json.format));
+				}
+				const title = json.title as string;
 				if (title && !title.startsWith('Untitled')) {
 					this.editor.team.name = title.replace(/[|\\/]/g, '');
 				}
@@ -2099,6 +2127,7 @@ class TeamEditorForm extends preact.Component<{
 			for (let i = 0; i < set.moves.length + 1; i++) {
 				if (!set.moves[i]) {
 					set.moves[i] = name;
+					if (name.startsWith('Hidden Power ')) set.hpType = name.slice(13);
 					break;
 				}
 			}
@@ -2441,6 +2470,7 @@ class TeamEditorForm extends preact.Component<{
 				if (focus.typeIndex >= set.moves.length && !canonical) return true;
 				while (set.moves.length <= focus.typeIndex) set.moves.push('');
 				set.moves[focus.typeIndex] = canonical;
+				if (canonical.startsWith('Hidden Power ')) set.hpType = canonical.slice(13);
 				target.value = canonical;
 				break;
 			}
@@ -3352,19 +3382,18 @@ class StatForm extends preact.Component<{
 			}
 		}
 
-		let generation: string;
+		let generationNumber = 9;
+		if (format.startsWith('gen')) {
+			let number = parseInt(format.charAt(3), 10);
+			if (1 <= number && number <= 8) {
+				generationNumber = number;
+			}
+			format = format.slice(4);
+		}
+		let generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm', 'ss', 'sv'][generationNumber - 1];
 		if (editor.format.isChampions) {
 			generation = 'champions';
-		} else {
-			let generationNumber = 9;
-			if (format.startsWith('gen')) {
-				let number = parseInt(format.charAt(3), 10);
-				if (1 <= number && number <= 8) {
-					generationNumber = number;
-				}
-				format = format.slice(4);
-			}
-			generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm', 'ss', 'sv'][generationNumber - 1];
+			format = format.slice(9);
 		}
 		if (format === 'battlespotdoubles') {
 			smogdexid += '/vgc15';
@@ -3960,7 +3989,7 @@ class DetailsForm extends preact.Component<{
 				{editor.gen > 1 && (<>
 					<p><div class="label">{TL.label(TL`Shiny`)}<div class="labeled">
 						<label class="checkbox inline"><input
-							type="checkbox" name="shiny" checked={set.shiny}
+							type="checkbox" name="shiny" checked={!!set.shiny}
 							onInput={this.changeShiny} onChange={this.changeShiny}
 						/> <img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="" /> {TL`Shiny`}</label>
 					</div></div></p>
@@ -4008,7 +4037,7 @@ class DetailsForm extends preact.Component<{
 						/></label> {}
 						{species.canGigantamax ? (
 							<label class="checkbox inline"><input
-								type="checkbox" name="gigantamax" value="true" checked={set.gigantamax}
+								type="checkbox" name="gigantamax" value="true" checked={!!set.gigantamax}
 								onInput={this.changeGigantamax} onChange={this.changeGigantamax}
 							/> Gigantamax</label>
 						) : species.forme === 'Gmax' && (

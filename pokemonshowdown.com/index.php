@@ -9,9 +9,11 @@
 
 <?php
 include_once __DIR__ . '/../config/config.inc.php';
-include_once __DIR__ . '/../config/ads-landing.inc.php';
-@insertAtHead();
 ?>
+<script>
+window.ramp = window.ramp || {};
+window.ramp.que = window.ramp.que || [];
+</script>
 
 <style>
 @font-face {
@@ -96,7 +98,7 @@ include_once __DIR__ . '/../config/ads-landing.inc.php';
 	</header>
 
 	<div class="main">
-		<div class="main-spacer"><?php @insertAboveIntro(); ?></div>
+		<div class="main-spacer" id="landing-aboveintro" style="text-align:center"></div>
 
 		<section class="section" style="max-width: 850px">
 			<div class="left">
@@ -250,7 +252,6 @@ if (BrowserDetect.OS === 'Mac') {
 
 			<div class="under-main" style="clear:both;padding-top:1px">
 
-				<div class="main-spacer"><?php @insertBelowIntro(); ?></div>
 				<div style="clear:both;padding-top:1px"></div>
 			</div>
 		</section>
@@ -361,7 +362,7 @@ foreach ($latestNewsCache as $topic_id) {
 <?php
 	if (++$count >= 2) break;
 	if ($count === 1) {
-		@insertBetweenNews();
+		echo '<div class="main-spacer" id="landing-betweennews" style="text-align:center"></div>';
 	}
 }
 
@@ -379,4 +380,4 @@ foreach ($latestNewsCache as $topic_id) {
 	</p>
 </footer>
 
-<?php @insertAtEnd(); ?>
+<script data-cfasync="false" defer src="https://cdn.intergient.com/1025841/77767/ramp.js"></script>

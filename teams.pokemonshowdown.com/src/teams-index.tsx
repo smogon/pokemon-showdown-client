@@ -1,7 +1,7 @@
 /** @jsx preact.h */
 /** @jsxFrag preact.Fragment */
 import preact from '../../play.pokemonshowdown.com/js/lib/preact';
-import { Net, MiniTeam, type ServerTeam } from './utils';
+import { Net, MiniTeam, type ServerTeam, Page } from './utils';
 import type { PageProps } from './teams';
 import { Config } from '../../play.pokemonshowdown.com/src/client-main';
 
@@ -46,7 +46,7 @@ export class TeamIndex extends preact.Component<PageProps> {
 	}
 	render() {
 		if (this.state.loading) {
-			return <div class="section" style={{ wordWrap: 'break-word' }}>Loading...</div>;
+			return <Page wrap>Loading...</Page>;
 		}
 		const teamsByFormat: Record<string, ServerTeam[]> = {};
 		let i = 0;
@@ -58,7 +58,7 @@ export class TeamIndex extends preact.Component<PageProps> {
 			teamsByFormat[team.format].push(team);
 			i++;
 		}
-		return <div class="section" style={{ wordWrap: 'break-word' }}>
+		return <Page wrap>
 			<h2>Hi, {this.state.loggedIn || "guest"}!</h2>
 			<label>Upload a new team: </label>
 			<a class="button" href={`//${Config.routes.client}/view-teams-upload`}>Go</a><br /><br />
@@ -75,6 +75,6 @@ export class TeamIndex extends preact.Component<PageProps> {
 						}</ul>
 						<hr /></>
 				))}
-		</div>;
+		</Page>;
 	}
 }

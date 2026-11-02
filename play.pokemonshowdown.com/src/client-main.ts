@@ -45,6 +45,7 @@ export interface PSConfig {
 		mainmenuHTML?: string,
 		roomlistTopHTML?: string,
 		roomlistAfterFirstHTML?: string,
+		htmlDidMount?: () => void,
 	} | null;
 	routes: {
 		root: string,
@@ -195,6 +196,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 		blockPMs?: boolean | string,
 		blockChallenges?: boolean,
 		language?: string,
+		allowLadderBots?: boolean,
 	} = {};
 
 	// #endregion Prefs
@@ -375,7 +377,7 @@ export interface Team {
 	uploaded?: {
 		teamid: number,
 		/** Promise = loading. */
-		notLoaded: boolean | Promise<void>,
+		notLoaded: boolean | Promise<boolean>,
 		/** password, if private. null = public, undefined = unknown, not loaded yet */
 		private?: string | null,
 	};
@@ -418,7 +420,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		return formatEntry?.teambuilderFormat || formatid;
 	}
 	getKey(name: string) {
-		const baseKey: string = toID(name) || '0';
+		const baseKey: string = toID(name).slice(0, 40) || '0';
 		let key = baseKey;
 		let i = 1;
 		while (key in this.byKey) {
@@ -533,7 +535,6 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 				teams[team.teamid] = team;
 			}
 
-			const NOT_LOADED_REGEX = /^[^|]*\|\|\|\|\|\|\|\|\|\|\|(?:\][^|]*\|\|\|\|\|\|\|\|\|\|\|)*$/;
 			// find exact teamid matches
 			for (const localTeam of this.list) {
 				if (localTeam.teamid) {
@@ -543,7 +544,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 					}
 					localTeam.uploaded = {
 						teamid: team.teamid,
-						notLoaded: NOT_LOADED_REGEX.test(localTeam.packedTeam),
+						notLoaded: this.isUnloadedTeam(localTeam.packedTeam),
 						private: team.private,
 					};
 					delete teams[localTeam.teamid];
@@ -566,7 +567,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 						localTeam.teamid = team.teamid;
 						localTeam.uploaded = {
 							teamid: team.teamid,
-							notLoaded: NOT_LOADED_REGEX.test(localTeam.packedTeam),
+							notLoaded: this.isUnloadedTeam(localTeam.packedTeam),
 							private: team.private,
 						};
 						break;
@@ -594,31 +595,49 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		});
 	}
 	unloadedPackedTeam(uploadedTeam: string) {
-		const mons = uploadedTeam.split(',').map((m: string) => ({ species: m, moves: [] }));
-		return Teams.pack(mons);
+		// skip Teams.pack which can add NoAbility
+		return uploadedTeam.split(',').map(species => `${species}|||||||||||`).join(']');
 	}
-	loadTeam(team: Team | undefined | null, ifNeeded: true): void | Promise<void>;
-	loadTeam(team: Team | undefined | null): Promise<void>;
-	loadTeam(team: Team | undefined | null, ifNeeded?: boolean): void | Promise<void> {
-		if (!team?.uploaded || team.uploadedPackedTeam) return ifNeeded ? undefined : Promise.resolve();
+	isUnloadedTeam(packedTeam: string) {
+		// bug in how Teams.pack worked means we gotta support `NoAbility` forever now...
+		return packedTeam.split(']').every(set => /^[^|]*\|{3}(?:NoAbility)?\|{8}$/.test(set));
+	}
+	/** @returns false on failure */
+	loadTeam(team: Team | undefined | null, ifNeeded: true): void | Promise<boolean>;
+	loadTeam(team: Team | undefined | null): Promise<boolean>;
+	loadTeam(team: Team | undefined | null, ifNeeded?: boolean): void | Promise<boolean> {
+		if (!team?.uploaded) return ifNeeded ? undefined : Promise.resolve(true);
+		if (team.uploadedPackedTeam) {
+			if (team.uploaded.notLoaded === true) {
+				team.packedTeam = team.uploadedPackedTeam;
+				team.iconCache = null;
+				team.uploaded.notLoaded = false;
+				this.save();
+				return Promise.resolve(true);
+			}
+			return ifNeeded ? undefined : Promise.resolve(true);
+		}
 		if (team.uploaded.notLoaded && team.uploaded.notLoaded !== true) return team.uploaded.notLoaded;
 
 		const notLoaded = team.uploaded.notLoaded;
 		return (team.uploaded.notLoaded = PSLoginServer.query('getteam', {
 			teamid: team.uploaded.teamid,
 		}).then(data => {
-			if (!team.uploaded) return;
+			if (!team.uploaded) return false;
 			if (!data?.team) {
+				team.uploaded.notLoaded = notLoaded;
 				const actionError = data?.actionerror as string || TL`Error unknown. Try again later.`;
 				PS.alert(TL`Failed to load team: ${actionError}`);
-				return;
+				return false;
 			}
 			team.uploaded.notLoaded = false;
 			team.uploadedPackedTeam = data.team;
 			if (notLoaded) {
 				team.packedTeam = data.team;
-				PS.teams.save();
+				team.iconCache = null;
+				this.save();
 			}
+			return true;
 		}));
 	}
 	compareTeams(serverTeam: UploadedTeam, localTeam: Team) {
@@ -2281,7 +2300,8 @@ export const PS = new class extends PSModel {
 		}
 		return null;
 	}
-	dragOnto(fromRoom: PSRoom, toLocation: 'left' | 'right' | 'mini-window', toIndex: number) {
+	dragOnto(fromRoom: PSRoom | undefined, toLocation: 'left' | 'right' | 'mini-window', toIndex: number) {
+		if (!fromRoom) return;
 		// one day you will be able to rearrange mainmenu and rooms, but not today
 		if (fromRoom.id === '' || fromRoom.id === 'rooms') return;
 

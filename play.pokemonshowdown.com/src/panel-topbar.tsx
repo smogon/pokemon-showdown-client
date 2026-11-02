@@ -54,11 +54,11 @@ export class PSHeader extends preact.Component {
 
 		const leftIndex = PS.leftRoomList.indexOf(draggedOverRoom);
 		if (leftIndex >= 0) {
-			PS.dragOnto(PS.rooms[draggingRoom]!, 'left', leftIndex);
+			PS.dragOnto(PS.rooms[draggingRoom], 'left', leftIndex);
 		} else {
 			const rightIndex = PS.rightRoomList.indexOf(draggedOverRoom);
 			if (rightIndex >= 0) {
-				PS.dragOnto(PS.rooms[draggingRoom]!, 'right', rightIndex);
+				PS.dragOnto(PS.rooms[draggingRoom], 'right', rightIndex);
 			} else {
 				// eslint-disable-next-line no-useless-return
 				return;
@@ -143,6 +143,10 @@ export class PSHeader extends preact.Component {
 		let { icon, title: roomTitle } = PSHeader.roomInfo(room);
 		if (room.type === 'rooms' && PS.leftPanelWidth !== null) roomTitle = '';
 		if (room.type === 'battle') className += ' roomtab-battle';
+		if (room.type === 'team' || room.type === 'viewteam') {
+			className += ' roomtab-team';
+			hoverTitle = roomTitle + (hoverTitle ? `\n${hoverTitle}` : '');
+		}
 
 		let closeButton = null;
 		if (closable) {

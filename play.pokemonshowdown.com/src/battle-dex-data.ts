@@ -42,7 +42,8 @@ export interface FormatData {
 	effectType: 'Format';
 }
 
-export class Format implements FormatData {
+// note: can't be called "Format" because it conflicts with some ad code
+export class BattleFormat implements FormatData {
 	id: ID;
 	name: string;
 	readonly effectType = 'Format';
@@ -1783,5 +1784,5 @@ if (typeof require === 'function') {
 	global.Ability = Ability;
 	global.Item = Item;
 	global.Move = Move;
-	global.Format = Format;
+	global.BattleFormat = BattleFormat;
 }

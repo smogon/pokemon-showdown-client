@@ -401,3 +401,17 @@ export function query(act: string, opts?: NetRequestOptions) {
 		return result;
 	});
 }
+
+export class Page extends preact.Component<{ wrap?: boolean, center?: boolean }> {
+	render() {
+		return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+			<div style={{
+				width: '90%',
+				height: '85%',
+				wordWrap: this.props.wrap ? 'break-word' : undefined,
+				textAlign: this.props.center ? 'center' : undefined,
+			}}
+			>{this.props.children}</div>
+		</div>;
+	}
+}

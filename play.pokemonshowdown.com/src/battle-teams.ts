@@ -57,6 +57,13 @@ export declare namespace Teams {
 }
 
 export const Teams = new class {
+	getFilename(team: Teams.Team) {
+		const name = `${team.format ? `[${team.format}] ` : ''}${team.name}`.trim().replace(/[\\/]+/g, '');
+		// Leave room for `.txt` and ` (copy)` in a 255-byte filename, a common limit.
+		// This is technically 244 UTF-16 code units, not bytes, but whatever.
+		const filename = name.slice(0, 244);
+		return `${filename || 'Untitled'}.txt`;
+	}
 	pack(team: Teams.PokemonSet[] | null): string {
 		if (!team) return '';
 
@@ -79,7 +86,7 @@ export const Teams = new class {
 			buf += `|${this.packName(set.item)}`;
 
 			// ability
-			buf += `|${this.packName(set.ability)}`;
+			buf += `|${this.packName(set.ability || 'No Ability')}`;
 
 			// moves
 			buf += '|' + set.moves.map(this.packName).join(',');
@@ -299,6 +306,7 @@ export const Teams = new class {
 	 */
 	exportSet(set: Teams.PokemonSet, dex: ModdedDex = Dex) {
 		const newFormat = false;
+		const ability = set.ability || 'No Ability';
 		let text = '';
 
 		// core
@@ -317,8 +325,8 @@ export const Teams = new class {
 			if (set.ability || dex.gen >= 3) text += `[${set.ability || '(select ability)'}]`;
 			if (set.item || dex.gen >= 2) text += ` @ ${set.item || "(no item)"}`;
 			text += `\n`;
-		} else if (set.ability && set.ability !== 'No Ability') {
-			text += `Ability: ${set.ability}\n`;
+		} else if (toID(ability) !== 'noability' || (dex.gen >= 3 && dex.modid !== 'gen7letsgo')) {
+			text += `Ability: ${ability}\n`;
 		}
 
 		if (newFormat) {

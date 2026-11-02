@@ -2283,19 +2283,18 @@
 				}
 			}
 
-			var generation;
-			if (this.curTeam.format.includes('champions')) {
-				generation = 'champions';
-			} else {
-				var generationNumber = 9;
-				if (format.substr(0, 3) === 'gen') {
-					var number = parseInt(format.charAt(3), 10);
-					if (1 <= number && number <= 8) {
-						generationNumber = number;
-					}
-					format = format.substr(4);
+			var generationNumber = 9;
+			if (format.substr(0, 3) === 'gen') {
+				var number = parseInt(format.charAt(3), 10);
+				if (1 <= number && number <= 8) {
+					generationNumber = number;
 				}
-				generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm', 'ss', 'sv'][generationNumber - 1];
+				format = format.substr(4);
+			}
+			var generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm', 'ss', 'sv'][generationNumber - 1];
+			if (format.startsWith('champions')) {
+				generation = 'champions';
+				format = format.slice(9);
 			}
 			if (format === 'battlespotdoubles') {
 				smogdexid += '/vgc15';

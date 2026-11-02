@@ -915,6 +915,8 @@ export class BattleTooltips {
 	showPokemonTooltip(
 		clientPokemon: Pokemon | null, serverPokemon?: ServerPokemon | null, isActive?: boolean, illusionIndex?: number
 	) {
+		// we're not at queue end, and serverPokemon is for a future state
+		if (clientPokemon && !this.battle.atQueueEnd) serverPokemon = null;
 		const pokemon = clientPokemon || serverPokemon!;
 		let text = '';
 		let genderBuf = '';
@@ -3012,7 +3014,8 @@ export class BattleTooltips {
 			}
 			text = '<small>' + TL.label(TL`Ability`) + '</small>' + TL`?` + TL` (${parenthetical})`;
 		}
-		return text;
+		// misbehaving ad (see 8c8b1175)
+		return text.replace(/Download/g, 'Down<!-- -->load');
 	}
 }
 

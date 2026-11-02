@@ -301,6 +301,26 @@ h1, h2, p {
   </div>
   <div class="clear"></div>
 
+  <p><code>.textbox[aria-invalid="true"]</code></p>
+
+  <p>
+    Set <code>aria-invalid="true"</code> to mark invalid input in red.
+  </p>
+
+  <div class="light-container">
+    <label class="label">Name: <input type="text" class="textbox" value="Invalid name" aria-invalid="true" aria-describedby="name-error" /></label>
+    <small class="message-error" id="name-error">Please enter a shorter name.</small>
+  </div>
+  <div class="dark-container dark">
+    <label class="label">Name: <input type="text" class="textbox" value="Invalid name" aria-invalid="true" aria-describedby="name-error-dark" /></label>
+    <small class="message-error" id="name-error-dark">Please enter a shorter name.</small>
+  </div>
+  <div class="dark-container code dark">
+    &lt;label class="label">Name: &lt;input type="text" class="textbox" value="Invalid name" aria-invalid="true" aria-describedby="name-error" />&lt;/label>
+    &lt;small class="message-error" id="name-error">Please enter a shorter name.&lt;/small>
+  </div>
+  <div class="clear"></div>
+
   <p><code>.option, .option.sel</code></p>
 
   <p>

@@ -125,9 +125,7 @@ export class PSTeambuilder {
 		if (dataTransfer) {
 			dataTransfer.effectAllowed = 'copyMove';
 			dataTransfer.setData("text/plain", "[Team] " + team.name);
-			let filename = team.name;
-			if (team.format) filename = '[' + team.format + '] ' + filename;
-			filename = $.trim(filename).replace(/[\\/]+/g, '') + '.txt';
+			const filename = Teams.getFilename(team);
 			const urlprefix = "data:text/plain;base64,";
 			const contents = PSTeambuilder.exportPackedTeam(team).replace(/\n/g, '\r\n');
 			const downloadurl = "text/plain:" + filename + ":" + urlprefix + encodeURIComponent(window.btoa(unescape(encodeURIComponent(contents))));

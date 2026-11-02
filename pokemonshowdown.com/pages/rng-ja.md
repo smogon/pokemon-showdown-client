@@ -22,7 +22,7 @@ Pokémon Showdownでは、Switchや3DSで発売されている実際のポケモ
 
 そして、これが完全に正常なRNGの使用であることを示す多くのページがあります。
 
-[線形合同法 - Wikipedia](https://ja.wikipedia.org/wiki/%E7%B7%9A%E5%BD%A2%E5%90%88%E5%90%8C%E6%B3%95)
+[暗号論的擬似乱数生成器 - Wikipedia](https://ja.wikipedia.org/wiki/%E6%9A%97%E5%8F%B7%E8%AB%96%E7%9A%84%E6%93%AC%E4%BC%BC%E4%B9%B1%E6%95%B0%E7%94%9F%E6%88%90%E5%99%A8)
 
 上記のコードとは異なるソースコードを使用していると思うのであれば、いつでも自分でテストすることができます。
 

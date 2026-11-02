@@ -1,7 +1,7 @@
 /** @jsx preact.h */
 /** @jsxFrag preact.Fragment */
 import preact from '../../play.pokemonshowdown.com/js/lib/preact';
-import { PSIcon, getShowdownUsername, unpackTeam, query } from './utils';
+import { PSIcon, getShowdownUsername, unpackTeam, query, Page } from './utils';
 import { BattleLog } from '../../play.pokemonshowdown.com/src/battle-log';
 import type { PageProps } from './teams';
 import { Dex } from '../../play.pokemonshowdown.com/src/battle-dex';
@@ -209,7 +209,7 @@ class SetBlock extends preact.Component<{
 			// home unsupported by this, hack it a bit
 			{ gen: gen as number, shiny: set.shiny, gender: set.gender as 'F' }
 		);
-		let forceResize = 100;
+		let forceResize = 150;
 		if (matchMedia("(max-width: 450px)").matches && this.props.mode === '2col') {
 			forceResize /= 2;
 		}
@@ -297,14 +297,14 @@ export class TeamViewer extends preact.Component<PageProps> {
 			return <div class="message-error">{this.state.error}</div>;
 		}
 		if (!this.state.team) {
-			return <div class="section" style={{ textAlign: 'center' }}>{
+			return <Page center>{
 				typeof this.state.team === 'undefined' ?
 					'Loading...' :
 					<>
 						<h2 class="message-error">Team not found.</h2><br />
 						<em>Either it doesn't exist or it's password protected. Check the link?</em>
 					</>
-			}</div>;
+			}</Page>;
 		}
 		const { team, title, ownerid, format, views } = this.state.team;
 		const teamData = unpackTeam(team);
@@ -312,67 +312,80 @@ export class TeamViewer extends preact.Component<PageProps> {
 		const mode = MODES[this.state.displayMode || '1col'];
 
 		const isDark = document.querySelector('html')?.classList[0] === 'dark';
-		const link = this.id + (this.state.team.private ? `-${this.state.team.private}` : '');
 		const loggedin = toID(getShowdownUsername());
 		const manageClass = this.state.manageOpen ? `button notifying` : `button`;
 
-		return <div class="section" style={{ wordWrap: 'break-word' }}>
+		return <Page wrap>
 			<div name="header" className="noselect">
-				<a href={'//' + Config.routes.teams} class="button"><i class="fa fa-caret-left"></i> Back</a>
-				<h1>{title}</h1>
-				Owner: <strong style={{ color: BattleLog.usernameColor(ownerid as any) }}>{ownerid}</strong><br />
-				Format: {format}<br />
-				Views: {views}<br />
-				<label>Shortlink: </label><a href={`https://psim.us/t/${link}`}>https://psim.us/t/{link}</a><br />
-				<hr />
-				<div name="manage" style={{ display: 'flex', gap: '5px' }}>
-					{loggedin === this.state.team.ownerid ?
-						<button class={manageClass} onClick={() => this.changeManage()}>Manage</button> :
-						loggedin && <button class="button" onClick={() => this.copyToBuilder()}>Copy to builder</button>}
-					<button
-						class={`button ${this.state.copyButtonUsed ? 'disabled' : ''}`}
-						disabled={!this.state.team}
-						onClick={() => this.copyTeam()}
-					>{this.state.copyButtonUsed ? 'Copied!' : 'Copy team'}</button>
-					<button class="button" onClick={() => this.changeDisplayMode()}>Display: {modeName}</button>
-					<button class="button" onClick={() => this.changeColorMode()}>Use {isDark ? 'light' : 'dark'} mode</button>
-					<select
-						onChange={ev => this.changeSpriteGen(ev)}
-						value={this.state.spriteGen}
-						class="button"
-					>
-						{SPRITE_OPTS.map(({ val, title: spriteTitle }) => <option value={val}>{spriteTitle} Sprites</option>)}
-					</select>
+
+				<div style={{ display: 'flex', alignItems: 'stretch', flexWrap: 'wrap', gap: '1rem' }}>
+					<div style={{ flex: '0 0 25%' }}>
+						<a href={'//' + Config.routes.teams} class="button">
+							<i class="fa fa-caret-left"></i> Back
+						</a>
+					</div>
+					<h1 style={{ flex: '0 0 50%', margin: 0 }}>{title}</h1>
+					<div name="buffer1" style={{ flex: '0 0 15%' }}></div>
+					<div name="buffer2" style={{ flex: '0 0 25%' }}></div>
+					<i style={{ flex: '0 0 70%', alignItems: 'center' }}>
+						By <strong style={{ color: BattleLog.usernameColor(ownerid as any) }}>{ownerid}</strong> [{format}]<br />
+						Views: {views}
+					</i>
+					<div name="buffer3" style={{ flex: '0 0 25%' }}></div>
+					<div name="managecontainer" style={{ flex: '0 0 70%' }}>
+						<div name="manage" style={{ display: 'flex', gap: '5px', padding: '3px' }}>
+							{loggedin === this.state.team.ownerid ?
+								<button class={manageClass} onClick={() => this.changeManage()}>Manage</button> :
+								loggedin && <button class="button" onClick={() => this.copyToBuilder()}>Copy to builder</button>}
+							<button
+								class={`button ${this.state.copyButtonUsed ? 'disabled' : ''}`}
+								disabled={!this.state.team}
+								onClick={() => this.copyTeam()}
+							>{this.state.copyButtonUsed ? 'Copied!' : 'Copy team'}</button>
+							<button class="button" onClick={() => this.changeDisplayMode()}>Display: {modeName}</button>
+							<button class="button" onClick={() => this.changeColorMode()}>Use {isDark ? 'light' : 'dark'} mode</button>
+							<select
+								onChange={ev => this.changeSpriteGen(ev)}
+								value={this.state.spriteGen}
+								class="button"
+							>
+								{SPRITE_OPTS.map(({ val, title: spriteTitle }) => <option value={val}>{spriteTitle} Sprites</option>)}
+							</select>
+						</div>
+					</div>
+					<div name="errors">
+						{(this.state.editError || this.state.copied || this.state.copyError || this.state.manageOpen) && <hr />}
+						{this.state.editError && <>
+							<div class="message-error">{this.state.editError}</div>
+							<hr />
+						</>}
+						{this.state.copied && <>
+							<br />Copied to your teambuilder! <a href={`/view/${this.state.copied}`}>View</a><hr />
+						</>}
+						{this.state.copyError && <>
+							<br /><div className="message-error">Error copying team: {this.state.copyError}</div><hr />
+						</>}
+						{this.state.manageOpen && <>
+							<label>Team visibility: </label>
+							<select
+								class="button"
+								value={this.state.teamEdits?.private || this.state.team.private ? 1 : 0}
+								onChange={ev => this.editTeamValue('private', ev)}
+							>
+								{[1, 0].map(n => <option value={n}>{n ? 'private' : 'public'}</option>)}
+							</select><br />
+							<label>Team format: </label><input onInput={ev => this.editTeamValue('format', ev)} />
+							{this.state.changesMade && <>
+								<br /><button class="button notifying" onClick={() => this.commitEdit()}>Save changes</button>
+							</>}
+							<br />
+							<button class="button" onClick={() => this.runDelete()}>Delete team</button>
+						</>}
+					</div>
 				</div>
-				<hr />
-				{this.state.editError && <>
-					<div class="message-error">{this.state.editError}</div>
-					<hr />
-				</>}
-				{this.state.copied && <>
-					<br />Copied to your teambuilder! <a href={`/view/${this.state.copied}`}>View</a><hr />
-				</>}
-				{this.state.copyError && <>
-					<br /><div className="message-error">Error copying team: {this.state.copyError}</div><hr />
-				</>}
-				{this.state.manageOpen && <>
-					<label>Team visibility: </label>
-					<select
-						class="button"
-						value={this.state.teamEdits?.private || this.state.team.private ? 1 : 0}
-						onChange={ev => this.editTeamValue('private', ev)}
-					>
-						{[1, 0].map(n => <option value={n}>{n ? 'private' : 'public'}</option>)}
-					</select><br />
-					<label>Team format: </label><input onInput={ev => this.editTeamValue('format', ev)} />
-					{this.state.changesMade && <>
-						<br /><button class="button notifying" onClick={() => this.commitEdit()}>Save changes</button>
-					</>}
-					<br />
-					<button class="button" onClick={() => this.runDelete()}>Delete team</button>
-					<hr />
-				</>}
+
 			</div>
+			<hr />
 			<div
 				name="sets"
 				style={{
@@ -393,8 +406,9 @@ export class TeamViewer extends preact.Component<PageProps> {
 					)
 				)}
 			</div>
-		</div>;
+		</Page>;
 	}
+
 	checkTeamID() {
 		if (this.id.includes('-')) {
 			[this.id, this.pw] = this.id.split('-');
@@ -457,7 +471,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 		if (conf !== 'yes') {
 			return;
 		}
-		void query('deleteteam', { query: { teamid: this.id } }).then(result => {
+		void query('deleteteam', { method: 'POST', body: { teamid: this.id } }).then(result => {
 			if (result.actionerror) {
 				alert(`Error deleting team: ${result.actionerror}`);
 			} else {
@@ -484,7 +498,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 	}
 
 	copyToBuilder() {
-		void query('copyteam', { query: { teamid: this.id, pw: this.pw } }).then(result => {
+		void query('copyteam', { method: 'POST', body: { teamid: this.id, password: this.pw } }).then(result => {
 			if (result.actionerror) {
 				this.setState({ copyError: result.actionerror, copied: null });
 			} else {
@@ -515,14 +529,12 @@ export class TeamViewer extends preact.Component<PageProps> {
 	commitEdit() {
 		if (!this.state.changesMade || !this.state.team) return;
 		void query('editteam', {
-			query: { teamid: this.id, ...this.state.teamEdits },
-		}).then(resultText => {
-			if (resultText.startsWith(']')) resultText = resultText.slice(1);
-			let result;
-			try {
-				result = JSON.parse(resultText);
-			} catch {
-				result = { actionerror: "Malformed response received. Try again later." };
+			method: 'POST',
+			body: { teamid: this.id, ...this.state.teamEdits },
+		}).then(result => {
+			if (result.actionerror) {
+				this.setState({ editError: result.actionerror, changesMade: false, teamEdits: null });
+				return;
 			}
 			if (result.team.private !== this.state.team?.private) {
 				history.pushState({}, '', new URL(
@@ -530,11 +542,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 					(result.team.private ? `-${result.team.private}` : '')
 				));
 			}
-			if (result.actionerror) {
-				this.setState({ editError: result.actionerror, changesMade: false, teamEdits: null });
-			} else {
-				this.setState({ team: result.team, changesMade: false, teamEdits: null });
-			}
+			this.setState({ team: result.team, changesMade: false, teamEdits: null });
 		});
 	}
 }

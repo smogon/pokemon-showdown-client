@@ -598,7 +598,6 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		for (const team of PS.teams.list) {
 			if (team.teamid) uploadedTeams[team.teamid] = team;
 		}
-		const notLoadedTeamRegex = /^[^|]*\|\|\|\|\|\|\|\|\|\|\|(?:\][^|]*\|\|\|\|\|\|\|\|\|\|\|)*$/;
 		// const visibleTeams = this.visibleTeams();
 		// alert(`${teams.length} teams imported, ${visibleTeams.length} teams visible now`);
 		PS.teams.list = [];
@@ -607,7 +606,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			const uploadedTeam = team.teamid ? uploadedTeams[team.teamid] : null;
 			if (uploadedTeam?.uploaded) {
 				team.uploaded = uploadedTeam.uploaded;
-				team.uploaded.notLoaded = notLoadedTeamRegex.test(team.packedTeam);
+				team.uploaded.notLoaded = PS.teams.isUnloadedTeam(team.packedTeam);
 			}
 			if (uploadedTeam?.uploadedPackedTeam !== undefined) {
 				team.uploadedPackedTeam = uploadedTeam.uploadedPackedTeam;

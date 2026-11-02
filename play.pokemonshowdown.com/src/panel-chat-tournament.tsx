@@ -10,6 +10,8 @@ import type { ChatRoom } from "./panel-chat";
 import * as d3 from 'd3';
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 
+const NEXT_AVAILABLE_PLAYER = '(next available player)';
+
 interface TreeNode {
 	children?: TreeNode[];
 }
@@ -282,16 +284,20 @@ export class ChatTournament extends PSModel {
 
 					if ('challenged' in this.updates) {
 						if (info.challenged) {
-							this.boxVisible = true;
-							if (!this.info.challenged) {
+							if (info.challenged !== this.info.challenged) {
+								this.boxVisible = true;
+								this.room.dismissNotification('tournament-challenged');
 								if (notify) {
 									this.room.notify({
-										title: TL`Tournament challenge from ${info.challenged}`,
+										title: info.challenged === NEXT_AVAILABLE_PLAYER ?
+											TL`Ready for your next tournament battle?` : TL`Tournament battle against ${info.challenged}`,
 										body: `${TL.label(TL`Room`, this.room.title)}`,
 										id: 'tournament-challenged',
 									});
 								}
 							}
+						} else {
+							this.room.dismissNotification('tournament-challenged');
 						}
 					}
 				}
@@ -531,11 +537,18 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 						TL`Waiting for ${challengeBys} to challenge you.`}
 				</div>}
 				{!!info.challenging && <div class="tournament-challenging">
-					<div class="tournament-challenging-message">{TL`Waiting for ${info.challenging}...`}</div>
-					<button data-cmd="/tournament cancelchallenge" class="button">{TL`[Cancel]`}</button>
+					<div class="tournament-challenging-message">
+						{info.challenging === NEXT_AVAILABLE_PLAYER ?
+							TL`Ready! Waiting for your next opponent...` : TL`Ready! Waiting for ${info.challenging}...`}
+					</div>
+					<button type="button" data-cmd="/tournament cancelchallenge" class="button">{TL`[Cancel]`}</button>
 				</div>}
 				{!!info.challenged && <div class="tournament-challenged">
-					<div class="tournament-challenged-message">{TL`vs. ${info.challenged}`}</div>
+					<div class="tournament-challenged-message">
+						{info.challenged === NEXT_AVAILABLE_PLAYER ?
+							TL`You can ready up now. Your opponent will be assigned when a match is available.` :
+							TL`vs. ${info.challenged}`}
+					</div>
 					<button type="submit" class="button"><strong>{TL`[Ready!]`}</strong></button>
 				</div>}
 			</TeamForm>

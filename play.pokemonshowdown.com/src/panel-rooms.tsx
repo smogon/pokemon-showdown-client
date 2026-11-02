@@ -60,6 +60,7 @@ class RoomsPanel extends PSRoomPanel {
 		this.subscriptions.push(PS.user.subscribe(update => {
 			if (!update && PS.user.named) PS.send(`/cmd rooms`);
 		}));
+		Config.includes?.htmlDidMount?.();
 	}
 	override componentDidUpdate() {
 		super.componentDidUpdate();

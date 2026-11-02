@@ -180,6 +180,8 @@ export class ChatRoom extends PSRoom {
 		return false;
 	}
 	override handleReconnect(msg: string): boolean | void {
+		this.tour = null;
+		this.dismissNotification('tournament-create');
 		let lines = msg.split('\n');
 
 		// cut off starting lines until we get to PS.lastMessage timestamp
