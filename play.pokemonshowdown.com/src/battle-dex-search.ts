@@ -746,7 +746,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			if (format.startsWith('natdex')) format = format.slice(6) as ID;
 			if (format.startsWith('nationaldex')) format = format.slice(11) as ID;
 			if (format.startsWith('vgc')) this.isDoubles = true;
-			if (this.formatType === 'champions' && format.includes('doubles') && !format.startsWith('4v4')) {
+			if (this.formatType === 'champions' && format.includes('doubles')) {
 				this.formatType = 'championsdoubles';
 				this.isDoubles = true;
 			}
@@ -913,7 +913,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	protected getLearnsetTable() {
 		// Doubles tables share learnsets with their singles counterparts
 		const key = this.getTableKey().replace(/doubles$/, '');
-		// Only some tables have their own learnsets; the rest use the main one
+		// Only some tables have their own learnsets
 		return BattleTeambuilderTable[key]?.learnsets ? BattleTeambuilderTable[key] : BattleTeambuilderTable;
 	}
 	protected getTableKey() {
