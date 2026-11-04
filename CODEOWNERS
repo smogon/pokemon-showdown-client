@@ -1,3 +1,4 @@
 play.pokemonshowdown.com/src/battle-animations-moves.ts @KrisXV
 play.pokemonshowdown.com/src/battle-animations.ts @KrisXV
+api/**/* @mia-pi-git
 teams.pokemonshowdown.com/**/* @mia-pi-git

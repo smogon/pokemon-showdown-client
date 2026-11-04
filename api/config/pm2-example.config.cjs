@@ -2,7 +2,7 @@
 module.exports = {
 	apps: [{
 		name: "loginserver",
-		script: "./src/index.ts",
+		script: "./api/src/index.js",
 		interpreter: "node",
 		exec_mode: "cluster",
 	}],
