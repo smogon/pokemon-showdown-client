@@ -12,7 +12,9 @@ import { Config } from './config-loader.ts';
 import { Ladder, type LadderEntry } from './ladder.ts';
 import { OAuth } from './oauth.ts';
 import { Replays } from './replays.ts';
-import { ActionError, type QueryHandler, Server, DISPATCH_PREFIX } from './server.ts';
+import {
+	ActionError, type ActionContext, type ActionRequest, type QueryHandler, Server, DISPATCH_PREFIX,
+} from './server.ts';
 import { Session } from './user.ts';
 import {
 	toID, updateserver, bash, time, signAsync, TimeSorter,
@@ -141,6 +143,13 @@ function exportTeam(team: string) {
 	const teamData = Teams.unpack(team);
 	if (!teamData) return team;
 	return Teams.export(teamData);
+}
+
+function requireTeamMutationRequest(context: ActionContext, params: ActionRequest) {
+	if (context.request.method !== 'POST' ||
+		(!params.sid && !OAuth.isSameOriginRequest(context))) {
+		throw new ActionError("Invalid team change request.");
+	}
 }
 
 export const actions: { [k: string]: QueryHandler } = {
@@ -720,7 +729,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (this.request.method !== 'POST') {
 			throw new ActionError("OAuth authorization requires POST.");
 		}
-		if (!OAuth.isSameOriginRequest(this.request.headers)) {
+		if (!OAuth.isSameOriginRequest(this)) {
 			throw new ActionError("OAuth authorization requires a same-origin request.");
 		}
 		const user = await this.getUser();
@@ -853,6 +862,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		}
 	},
 	async editteam(params) {
+		requireTeamMutationRequest(this, params);
 		const user = await this.getUser();
 		if (!user.loggedIn || user.id === 'guest') {
 			throw new ActionError("Must be logged in to edit teams.");
@@ -896,6 +906,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		return { success: true, team: await tables.teams.get(team.teamid) };
 	},
 	async deleteteam(params) {
+		requireTeamMutationRequest(this, params);
 		const user = await this.getUser();
 		if (!user.loggedIn || user.id === 'guest') {
 			throw new ActionError("Must be logged in to edit teams.");
@@ -915,6 +926,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		return { success: true };
 	},
 	async copyteam(params) {
+		requireTeamMutationRequest(this, params);
 		let { teamid, password } = params;
 		const user = await this.getUser();
 		if (!user.loggedIn) {

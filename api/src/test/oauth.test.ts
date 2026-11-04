@@ -230,12 +230,29 @@ void suite('OAuth', () => {
 		assert.equal((await tables.oauthTokens.get(result.success))?.client, CLIENT_A);
 		assert.equal(authorized.headers['access-control-allow-origin'], undefined);
 
+		for (const headers of [
+			{ origin: serverOrigin.replace('http:', 'https:') },
+			{ origin: serverOrigin, 'sec-fetch-site': 'cross-site' },
+			{ origin: serverOrigin, 'sec-fetch-site': 'same-site' },
+		]) {
+			const response = await httpRequest(server, '/api/oauth/api/authorize', {
+				method: 'POST',
+				headers: { cookie: sessionCookie, 'content-type': 'application/x-www-form-urlencoded', ...headers },
+				body: new URLSearchParams({ client_id: CLIENT_A }).toString(),
+			});
+			assert.equal(
+				parseResponse(response.body).actionerror,
+				'OAuth authorization requires a same-origin request.'
+			);
+		}
+
 		const defaultPort = await httpRequest(server, '/api/oauth/api/authorize', {
 			method: 'POST',
 			headers: {
 				cookie: sessionCookie,
 				host: 'login.example:443',
 				origin: 'https://login.example',
+				'x-forwarded-proto': 'https',
 				'content-type': 'application/x-www-form-urlencoded',
 			},
 			body: new URLSearchParams({ client_id: CLIENT_A }).toString(),

@@ -95,7 +95,7 @@ exports.autolockip = [];
 /** compromised private key indexes
  * @type {number[]} */
 exports.compromisedkeys = [];
-/** proxies to trust x-forwarded-for from
+/** proxies to trust x-forwarded-for, x-forwarded-proto, and x-forwarded-host from
  * @type {string[]} */
 exports.trustedproxies = [];
 /** @type {boolean} */

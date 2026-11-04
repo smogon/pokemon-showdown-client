@@ -5,10 +5,10 @@
  */
 import { readFileSync } from 'node:fs';
 import * as crypto from 'node:crypto';
-import type { IncomingHttpHeaders } from 'node:http';
+import { TLSSocket } from 'node:tls';
 import * as url from 'node:url';
 
-import { ActionError } from './server.ts';
+import { ActionError, type ActionContext } from './server.ts';
 import * as tables from './tables.ts';
 import { escapeHTML } from './utils.ts';
 
@@ -46,18 +46,36 @@ export const OAuth = new class {
 		return parsed;
 	}
 
-	isSameOriginRequest(headers: IncomingHttpHeaders) {
+	isSameOriginRequest(context: ActionContext) {
+		const { headers, socket } = context.request;
 		const rawOrigin = headers.origin;
 		if (!rawOrigin) return false;
-		if (headers['sec-fetch-site'] === 'same-origin') return true;
+		if (headers['sec-fetch-site'] !== undefined) {
+			return headers['sec-fetch-site'] === 'same-origin';
+		}
 
-		const rawHost = headers.host;
+		let rawHost = headers.host;
+		let protocol = socket instanceof TLSSocket && socket.encrypted ? 'https' : 'http';
+		if (socket.remoteAddress && context.isTrustedProxy(socket.remoteAddress)) {
+			const forwardedProtocol = headers['x-forwarded-proto'];
+			const forwardedHost = headers['x-forwarded-host'];
+			if (forwardedProtocol !== undefined) {
+				if (forwardedProtocol !== 'http' && forwardedProtocol !== 'https') return false;
+				protocol = forwardedProtocol;
+			}
+			if (forwardedHost !== undefined) {
+				if (typeof forwardedHost !== 'string' || forwardedHost.includes(',')) return false;
+				rawHost = forwardedHost;
+			}
+		}
 		if (!rawHost) return false;
-		const origin = this.parseURL(rawOrigin, 'request origin');
-		const host = rawHost.toLowerCase();
-		if (host === origin.host) return true;
-		const defaultPort = origin.protocol === 'https:' ? 443 : 80;
-		return !origin.port && host === `${origin.host}:${defaultPort}`;
+		try {
+			const origin = this.parseURL(rawOrigin, 'request origin');
+			const target = this.parseURL(`${protocol}://${rawHost}`, 'request host');
+			return origin.origin === target.origin;
+		} catch {
+			return false;
+		}
 	}
 
 	async getClient(clientId?: string, rawUrl?: string, label = 'request origin') {
