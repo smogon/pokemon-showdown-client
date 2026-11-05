@@ -486,6 +486,17 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			for (const volatile of volatilesToRemove) {
 				delete this.volatiles[volatile];
 			}
+		} else if (copySource === 'illusion') {
+			// Types the server revealed while the Illusion was up were the disguise's,
+			// so go back to the last type change the Illusion user actually received
+			const typechange = this.volatiles['typechange'];
+			if (typechange && typeof typechange[2] === 'string') {
+				if (typechange[2]) {
+					this.volatiles['typechange'] = ['typechange' as ID, typechange[2]];
+				} else {
+					delete this.volatiles['typechange'];
+				}
+			}
 		}
 		// Shed Tail doesn't need special handling because the source already has
 		// its volatiles except Substitute cleared in switchOut.
@@ -2663,7 +2674,16 @@ export class Battle {
 						poke.moddedType = types.split('/') as Dex.TypeName[];
 					}
 					poke.removeVolatile('typeadd' as ID);
-					poke.addVolatile('typechange' as ID, types);
+					if (kwArgs.silent && !kwArgs.from) {
+						// The server revealing the real types of the Pokemon shown in this slot. Under Illusion,
+						// those are the disguise's types, so also keep the last type change that actually
+						// happened to this Pokemon ('' if none), to restore when the Illusion ends.
+						const prevTypechange = poke.volatiles['typechange'];
+						const realTypechange = prevTypechange ? (prevTypechange[2] ?? prevTypechange[1]) : '';
+						poke.addVolatile('typechange' as ID, types, realTypechange);
+					} else {
+						poke.addVolatile('typechange' as ID, types);
+					}
 					if (!kwArgs.silent) {
 						this.scene.typeAnim(poke, types);
 					}
