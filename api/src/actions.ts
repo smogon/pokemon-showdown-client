@@ -66,7 +66,7 @@ const verify = (
 
 export let coil: Record<string, number> = loadData(COIL_PATH);
 
-if (Config.watchconfig) {
+if (!process.env.NODE_TEST_CONTEXT) {
 	watchFile(COIL_PATH, () => {
 		coil = loadData(COIL_PATH);
 	});

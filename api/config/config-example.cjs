@@ -153,12 +153,6 @@ exports.bindaddress = undefined;
 exports.port = 8080;
 
 /**
- * Whether or not to reload the config on edit.
- * @type {boolean}
- */
-exports.watchconfig = true;
-
-/**
  * An IP to allow restart requests from.
  * @type {null | string}
  */

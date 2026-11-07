@@ -283,7 +283,7 @@ export const SimServers = new class SimServersT {
 	servers: { [k: string]: RegisteredServer } = this.loadServers();
 	hostCache = new Map<string, string>();
 	constructor() {
-		if (Config.watchconfig) {
+		if (!process.env.NODE_TEST_CONTEXT) {
 			fs.watchFile(SERVER_LIST_PATH, (curr, prev) => {
 				if (curr.mtime > prev.mtime) {
 					this.servers = this.loadServers();

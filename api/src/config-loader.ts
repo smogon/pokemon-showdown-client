@@ -7,7 +7,6 @@
  * @author mia-pi-git, Zarel
  */
 
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { createRequire } from 'node:module';
 import type configDefaults from '../config/config-example.cjs';
@@ -16,16 +15,14 @@ const require = createRequire(import.meta.url);
 const defaults = require('../config/config-example.cjs') as typeof configDefaults;
 const configFile = process.argv[2] || process.env.CONFIG_PATH;
 const configPath = configFile ? path.resolve(import.meta.dirname, '..', configFile) : null;
-let resolvedConfigPath: string | null = null;
 
 export type Configuration = typeof defaults;
 
-export function load(invalidate = false): Configuration {
+export function load(): Configuration {
 	if (process.env.NODE_TEST_CONTEXT) {
 		const databasePath = path.resolve(import.meta.dirname, 'test/fixtures/database.sql');
 		return {
 			...defaults,
-			watchconfig: false,
 			loadprivaterelayips: false,
 			logindb: { driver: 'mock', path: databasePath },
 			friendsdb: null,
@@ -40,9 +37,7 @@ export function load(invalidate = false): Configuration {
 	}
 	let config = { ...defaults };
 	try {
-		resolvedConfigPath ||= require.resolve(configPath);
-		if (invalidate) delete require.cache[resolvedConfigPath];
-		config = { ...config, ...require(resolvedConfigPath) };
+		config = { ...config, ...require(configPath) };
 	} catch (err: any) {
 		if (err.code !== 'MODULE_NOT_FOUND') throw err; // Should never happen
 
@@ -52,9 +47,3 @@ export function load(invalidate = false): Configuration {
 	return { ...config };
 }
 export const Config: Configuration = load();
-
-if (Config.watchconfig && resolvedConfigPath) {
-	fs.watchFile(resolvedConfigPath, () => {
-		Object.assign(Config, { ...load(true) });
-	});
-}
