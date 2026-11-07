@@ -65,6 +65,7 @@ const verify = (
 };
 
 export let coil: Record<string, number> = loadData(COIL_PATH);
+let updating = false;
 
 if (!process.env.NODE_TEST_CONTEXT) {
 	watchFile(COIL_PATH, () => {
@@ -501,7 +502,14 @@ export const actions: { [k: string]: QueryHandler } = {
 		return rating?.elo || 1000;
 	},
 
-	async restart() {
+	async restart(params) {
+		const result = await actions.rebuildclient.call(this, params);
+		const [code, stdout, stderr] = await bash('npm run api:reload');
+		if (code) throw new ActionError(`API reload failed:\n${stderr || stdout}`);
+		return result;
+	},
+
+	async rebuildclient(params) {
 		await this.requireMainServer();
 
 		if (!Config.restartip) {
@@ -510,37 +518,25 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (this.getIp() !== Config.restartip) {
 			throw new ActionError(`Access denied for ${this.getIp()}.`);
 		}
-		const update = await updateserver();
-		let code, stdout, stderr;
-		[code, stdout, stderr] = await bash('npm run typecheck');
-		if (code) throw new ActionError(`Type checking failed:\n${stderr || stdout}`);
-		[code, stdout, stderr] = await bash('npm run api:reload');
-		if (code) throw new ActionError(stderr || stdout);
-		return { updated: update, success: true };
-	},
-
-	async rebuildclient(params) {
-		await this.requireMainServer();
-
-		if (!Config.restartip || !Config.clientpath) {
-			throw new ActionError(`This feature is disabled.`);
+		if (updating) {
+			throw new ActionError(`An update is already in progress.`);
 		}
-		if (this.getIp() !== Config.restartip) {
-			throw new ActionError(`Access denied for ${this.getIp()}.`);
-		}
-		let update;
+		updating = true;
 		try {
-			update = await bash('sudo -u www-data git pull', Config.clientpath);
-			if (update[0]) throw new Error(update.join(','));
-			update = true;
-		} catch (e: any) {
-			throw new ActionError(e.message as string);
+			if (!await updateserver()) throw new ActionError(`Git update failed.`);
+			for (const [command, error] of [
+				['npm install --include=dev --no-audit --no-fund', 'Dependency installation failed'],
+				[`node build${params.full ? ' full' : ''}`, 'Compilation failed'],
+				['npm run typecheck', 'Type checking failed'],
+			]) {
+				const [code, stdout, stderr] = await bash(command);
+				if (code) throw new ActionError(`${error}:\n${stderr || stdout}`);
+			}
+			return { updated: true, success: true };
+		} finally {
+			// eslint-disable-next-line require-atomic-updates -- Only the request holding the guard can release it.
+			updating = false;
 		}
-		update = await bash(
-			`sudo -u www-data node build${params.full ? ' full' : ''}`, Config.clientpath
-		);
-		if (update[0]) throw new ActionError(`Compilation failed:\n${update.join(',')}`);
-		return { updated: update, success: true };
 	},
 
 	async updatenamecolor(params) {

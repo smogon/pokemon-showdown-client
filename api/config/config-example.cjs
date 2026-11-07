@@ -170,12 +170,6 @@ exports.smogonip = null;
 exports.actions = null;
 
 /**
- * Path to the client root dir.
- * @type {string | null}
- */
-exports.clientpath = null;
-
-/**
  * @type {Record<string, string>}
  */
 exports.standings = {
