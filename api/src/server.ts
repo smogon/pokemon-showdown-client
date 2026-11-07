@@ -10,11 +10,19 @@ import * as dns from 'node:dns';
 import * as fs from 'node:fs';
 import * as net from 'node:net';
 import * as module from 'node:module';
+import * as pathModule from 'node:path';
 import { toID, md5 } from './utils.ts';
 import { Config } from './config-loader.ts';
 import { actions } from './actions.ts';
 import { type User, Session } from './user.ts';
 import IPTools from './ip-tools.ts';
+
+const SERVER_LIST_PATH = pathModule.resolve(
+	import.meta.dirname, process.env.NODE_TEST_CONTEXT ? 'test/fixtures/servers.php' : '../../config/servers.inc.php'
+);
+const CRASHLOGGER_PATH = pathModule.resolve(
+	import.meta.dirname, '../../caches/pokemon-showdown/dist/lib/crashlogger.js'
+);
 
 /**
  * API request output should not be valid JavaScript.
@@ -276,7 +284,7 @@ export const SimServers = new class SimServersT {
 	hostCache = new Map<string, string>();
 	constructor() {
 		if (Config.watchconfig) {
-			fs.watchFile(Config.serverlist, (curr, prev) => {
+			fs.watchFile(SERVER_LIST_PATH, (curr, prev) => {
 				if (curr.mtime > prev.mtime) {
 					this.servers = this.loadServers();
 				}
@@ -321,8 +329,8 @@ export const SimServers = new class SimServersT {
 		}
 		return server;
 	}
-	loadServers(path = Config.serverlist): { [k: string]: RegisteredServer } {
-		if (!path) return {};
+	loadServers(path = SERVER_LIST_PATH): { [k: string]: RegisteredServer } {
+		if (!fs.existsSync(path)) return {};
 		try {
 			const stdout = child.execFileSync(
 				`php`, ['-f', import.meta.dirname + '/lib/load-servers.php', path]
@@ -356,12 +364,9 @@ export class Server {
 		}
 	}
 	static crashlog(error: unknown, source = '', details = {}) {
-		if (!Config.pspath) {
-			return console.log(`${source} crashed`, error, details);
-		}
 		try {
 			const require = module.createRequire(import.meta.url);
-			const { crashlogger } = require(Config.pspath);
+			const { crashlogger } = require(CRASHLOGGER_PATH);
 			crashlogger(error, source, { ...details, date: new Date().toISOString() }, Config.crashguardemail);
 		} catch (e) {
 			// don't have data/pokemon-showdown built? something else went wrong? oh well

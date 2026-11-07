@@ -1,7 +1,10 @@
 /**
- * Config handling - here because of strange babel errors.
- * By Mia
- * @author mia-pi-git
+ * Config loader
+ *
+ * Normal use is to pass the config file in either argv or the
+ * `CONFIG_PATH` env variable.
+ *
+ * @author mia-pi-git, Zarel
  */
 
 import * as fs from 'node:fs';
@@ -24,8 +27,6 @@ export function load(invalidate = false): Configuration {
 			...defaults,
 			watchconfig: false,
 			loadprivaterelayips: false,
-			cssdir: path.resolve(import.meta.dirname, 'test/fixtures'),
-			serverlist: path.resolve(import.meta.dirname, 'test/fixtures/servers.php'),
 			logindb: { driver: 'mock', path: databasePath },
 			friendsdb: null,
 			replaysdb: null,

@@ -24,6 +24,13 @@ import { SQL } from './database.ts';
 import IPTools from './ip-tools.ts';
 
 const require = module.createRequire(import.meta.url);
+const CONFIG_DIR = pathModule.resolve(
+	import.meta.dirname, process.env.NODE_TEST_CONTEXT ? 'test/fixtures' : '../../config'
+);
+const COLORS_PATH = pathModule.join(CONFIG_DIR, 'colors.json');
+const COIL_PATH = pathModule.join(CONFIG_DIR, 'coil.json');
+const CUSTOM_CSS_DIR = pathModule.join(CONFIG_DIR, 'customcss');
+const TEAMS_PATH = pathModule.resolve(import.meta.dirname, '../../caches/pokemon-showdown/dist/sim/teams.js');
 
 export interface Suspect {
 	formatid: string;
@@ -33,9 +40,8 @@ export interface Suspect {
 	elo: number | null;
 }
 
-function loadData(path: string | null) {
+function loadData(path: string) {
 	try {
-		if (!path) throw new Error();
 		const data = readFileSync(path, 'utf-8');
 		return JSON.parse(data);
 	} catch {
@@ -58,11 +64,11 @@ const verify = (
 	return success;
 };
 
-export let coil: Record<string, number> = loadData(Config.coilpath);
+export let coil: Record<string, number> = loadData(COIL_PATH);
 
-if (Config.coilpath) {
-	watchFile(Config.coilpath, () => {
-		coil = loadData(Config.coilpath);
+if (Config.watchconfig) {
+	watchFile(COIL_PATH, () => {
+		coil = loadData(COIL_PATH);
 	});
 }
 
@@ -138,8 +144,7 @@ export function checkSuspectVerified(
 }
 
 function exportTeam(team: string) {
-	if (!Config.pspath) return team;
-	const { Teams } = require(Config.pspath);
+	const { Teams } = require(TEAMS_PATH);
 	const teamData = Teams.unpack(team);
 	if (!teamData) return team;
 	return Teams.export(teamData);
@@ -348,7 +353,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		const server = await this.requireServer();
 
 		// No need to sanitise server['id'] because it should be safe already.
-		const cssfile = pathModule.join(process.env.CSS_DIR || Config.cssdir, `/${server['id']}.css`);
+		const cssfile = pathModule.join(CUSTOM_CSS_DIR, `${server['id']}.css`);
 		try {
 			await fs.unlink(cssfile);
 			return { actionsuccess: true };
@@ -556,15 +561,14 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!by) {
 			throw new ActionError('Specify the action\'s actor.');
 		}
-		if (!Config.colorpath) {
-			throw new ActionError("Editing custom colors is disabled");
-		}
 		const colors = {} as Record<string, string>;
 		try {
-			const content = await fs.readFile(Config.colorpath, 'utf-8');
+			const content = await fs.readFile(COLORS_PATH, 'utf-8');
 			Object.assign(colors, JSON.parse(content));
 		} catch (err) {
-			throw new ActionError(`Could not read color file (${err as any})`);
+			if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
+				throw new ActionError(`Could not read color file (${err as any})`);
+			}
 		}
 		let entry: string;
 		if (!('source' in params)) {
@@ -581,7 +585,8 @@ export const actions: { [k: string]: QueryHandler } = {
 			colors[userid] = source;
 			entry = `Username color was set to "${source}"${params.reason ? ` (${params.reason})` : ``}`;
 		}
-		await fs.writeFile(Config.colorpath, JSON.stringify(colors));
+		await fs.mkdir(CONFIG_DIR, { recursive: true });
+		await fs.writeFile(COLORS_PATH, JSON.stringify(colors));
 
 		await tables.usermodlog.insert({
 			userid, actorid: by, date: time(), ip: this.getIp(), entry,
@@ -601,9 +606,6 @@ export const actions: { [k: string]: QueryHandler } = {
 		if ('coil_b' in params && (isNaN(source) || !source || source < 1)) {
 			throw new ActionError('No B value was specified.');
 		}
-		if (!Config.coilpath) {
-			throw new ActionError("Editing COIL is disabled");
-		}
 		if (!('coil_b' in params)) {
 			if (!coil[formatid]) {
 				throw new ActionError('That format does not have COIL set.');
@@ -613,7 +615,8 @@ export const actions: { [k: string]: QueryHandler } = {
 		} else {
 			coil[formatid] = source;
 		}
-		await fs.writeFile(Config.coilpath, JSON.stringify(coil));
+		await fs.mkdir(CONFIG_DIR, { recursive: true });
+		await fs.writeFile(COIL_PATH, JSON.stringify(coil));
 
 		return { success: true };
 	},

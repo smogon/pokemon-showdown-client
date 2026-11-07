@@ -2,6 +2,8 @@
 
 This is the PS loginserver.
 
+Requires a full client build before it can be used.
+
 From the repository root, run it in the foreground with `npm run api`, or under PM2 with
 `npm run api:start` and `npm run api:stop`.
 

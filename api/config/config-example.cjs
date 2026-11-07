@@ -69,19 +69,9 @@ exports.routes = {
 
 /** @type {string} */
 exports.mainserver = 'showdown';
-/** @type {string} */
-exports.serverlist = '/var/www/html/play.pokemonshowdown.com/config/servers.inc.php';
-/** @type {string | null} */
-exports.colorpath = null;
-/** @type {string | null} */
-exports.coilpath = null;
 
 /** @type {string | null} Password, whether to debug error stacks in request or not */
 exports.devmode = null;
-
-// absolute path to your PS instance. can use the checked-out client that the client clones in.
-/** @type {string} */
-exports.pspath = '/var/www/html/play.pokemonshowdown.com/data/pokemon-showdown';
 
 /**
  * Custom SID maker.
@@ -180,17 +170,11 @@ exports.restartip = null;
  */
 exports.smogonip = null;
 /**
- * Retain smogon temporary encryption key at this path
- * @type {null | string}
- */
-exports.smogonpath = null;
-/**
  * Custom actions for your loginserver.
  * @type {{[k: string]: import('../src/server.ts').QueryHandler} | null}
  */
 exports.actions = null;
 
-exports.cssdir = __dirname + "/customcss/";
 /**
  * Path to the client root dir.
  * @type {string | null}
@@ -214,12 +198,6 @@ exports.standings = {
  * @type {null | ((userid: string) => Promise<{[k: string]: {min: number, max: number, count: number}}>)}
  */
 exports.getuserips = null;
-
-/**
- * Index of suspect tests active
- * @type {string | null}
- */
-exports.suspectpath = null;
 
 /**
  * @type {string | null}
