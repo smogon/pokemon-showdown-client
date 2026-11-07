@@ -512,10 +512,10 @@ export const actions: { [k: string]: QueryHandler } = {
 	async rebuildclient(params) {
 		await this.requireMainServer();
 
-		if (!Config.restartip) {
+		if (!Config.mainserverip) {
 			throw new ActionError(`This feature is disabled.`);
 		}
-		if (this.getIp() !== Config.restartip) {
+		if (this.getIp() !== Config.mainserverip) {
 			throw new ActionError(`Access denied for ${this.getIp()}.`);
 		}
 		if (updating) {
@@ -1213,7 +1213,7 @@ export const actions: { [k: string]: QueryHandler } = {
 	// sent by ps server
 	async 'smogon/validate'(params) {
 		await this.requireMainServer();
-		if (this.getIp() !== Config.restartip) {
+		if (this.getIp() !== Config.mainserverip) {
 			throw new ActionError("Access denied.");
 		}
 		params.username = toID(params.username);
@@ -1264,7 +1264,7 @@ export const actions: { [k: string]: QueryHandler } = {
 
 	async 'suspects/add'(params) {
 		await this.requireMainServer();
-		if (this.getIp() !== Config.restartip) {
+		if (this.getIp() !== Config.mainserverip) {
 			throw new ActionError("Access denied.");
 		}
 		const id = toID(params.format);
@@ -1314,7 +1314,7 @@ export const actions: { [k: string]: QueryHandler } = {
 	},
 	async 'suspects/edit'(params) {
 		await this.requireMainServer();
-		if (this.getIp() !== Config.restartip) {
+		if (this.getIp() !== Config.mainserverip) {
 			throw new ActionError("Access denied.");
 		}
 		const id = toID(params.format);
@@ -1350,7 +1350,7 @@ export const actions: { [k: string]: QueryHandler } = {
 	},
 	async 'suspects/end'(params) {
 		await this.requireMainServer();
-		if (this.getIp() !== Config.restartip) {
+		if (this.getIp() !== Config.mainserverip) {
 			throw new ActionError("Access denied.");
 		}
 		const id = toID(params.format);
@@ -1366,7 +1366,7 @@ export const actions: { [k: string]: QueryHandler } = {
 	},
 	async 'suspects/verify'(params) {
 		await this.requireMainServer();
-		if (this.getIp() !== Config.restartip) {
+		if (this.getIp() !== Config.mainserverip) {
 			throw new ActionError("Access denied.");
 		}
 		const id = toID(params.format || params.formatid);
@@ -1383,7 +1383,7 @@ export const actions: { [k: string]: QueryHandler } = {
 	},
 	async setbot(params) {
 		await this.requireMainServer();
-		if (this.getIp() !== Config.restartip) {
+		if (this.getIp() !== Config.mainserverip) {
 			throw new ActionError("Access denied.");
 		}
 		const owner = toID(params.owner);

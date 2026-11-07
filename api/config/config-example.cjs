@@ -153,16 +153,11 @@ exports.bindaddress = undefined;
 exports.port = 8080;
 
 /**
- * An IP to allow restart requests from.
+ * The main server IP to allow privileged requests from.
  * @type {null | string}
  */
-exports.restartip = null;
+exports.mainserverip = null;
 
-/**
- * An IP to allow Smogon acc-linking requests from.
- * @type {null | string}
- */
-exports.smogonip = null;
 /**
  * Custom actions for your loginserver.
  * @type {{[k: string]: import('../src/server.ts').QueryHandler} | null}
