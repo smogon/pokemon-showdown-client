@@ -7,8 +7,8 @@ Requires a full client build before it can be used.
 From the repository root, run it in the foreground with `npm run api`, or under PM2 with
 `npm run api:start` and `npm run api:stop`.
 
-Pass a config path after `--`, for example `npm run api -- config/config.cjs`.
-Relative config paths are resolved from `api/`.
+Config goes in `config/apiserver.mjs`. See `config/apiserver-example.mjs` for
+example usage.
 
 Run `npm test` from the repository root to build the client, lint and typecheck both projects,
 and run their tests. `npm run typecheck` runs just the client and API typechecks.

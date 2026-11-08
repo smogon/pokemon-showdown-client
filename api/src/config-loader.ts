@@ -1,22 +1,19 @@
 /**
  * Config loader
  *
- * Normal use is to pass the config file in either argv or the
- * `CONFIG_PATH` env variable.
+ * Loads config/apiserver.mts or config/apiserver.mjs, with argv and CONFIG_PATH overrides.
  *
  * @author mia-pi-git, Zarel
  */
 
 import * as path from 'node:path';
+import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import type configDefaults from '../config/config-example.cjs';
+import { config as defaults, type Configuration } from '../../config/apiserver-example.mjs';
+
+export type { Configuration } from '../../config/apiserver-example.mjs';
 
 const require = createRequire(import.meta.url);
-const defaults = require('../config/config-example.cjs') as typeof configDefaults;
-const configFile = process.argv[2] || process.env.CONFIG_PATH;
-const configPath = configFile ? path.resolve(import.meta.dirname, '..', configFile) : null;
-
-export type Configuration = typeof defaults;
 
 export function load(): Configuration {
 	if (process.env.NODE_TEST_CONTEXT) {
@@ -31,19 +28,15 @@ export function load(): Configuration {
 		};
 	}
 
-	if (!configPath) {
-		console.log("No config specified in process.argv or process.env - loading default settings...");
-		return { ...defaults };
+	const configFile = process.argv[2] || process.env.CONFIG_PATH;
+	let configPath = path.resolve(import.meta.dirname, '../..', configFile || 'config/apiserver.mts');
+	if (!configFile && !existsSync(configPath)) {
+		configPath = path.resolve(import.meta.dirname, '../../config/apiserver.mjs');
 	}
-	let config = { ...defaults };
-	try {
-		config = { ...config, ...require(configPath) };
-	} catch (err: any) {
-		if (err.code !== 'MODULE_NOT_FOUND') throw err; // Should never happen
-
-		console.log("No config specified in process.argv or process.env - loading default settings...");
-		return { ...config };
+	const { default: config } = require(configPath) as { default?: Partial<Configuration> };
+	if (!config || typeof config !== 'object' || Array.isArray(config)) {
+		throw new Error(`Config ${configPath} must default-export a configuration object.`);
 	}
-	return { ...config };
+	return { ...defaults, ...config };
 }
 export const Config: Configuration = load();

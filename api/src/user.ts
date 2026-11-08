@@ -218,7 +218,7 @@ export class Session {
 			if (user.isSysop()) {
 				userType = '3';
 			} else {
-				const customType = (Config as any).getUserType?.call(
+				const customType = Config.getUserType?.call(
 					this, user, banstate, serverHost
 				);
 				if (forceUsertype) {
@@ -309,8 +309,8 @@ export class Session {
 			data = (challengeprefix || '') + challenge + ',' + data;
 		}
 
-		if ((Config as any).validateassertion) {
-			data = await (Config as any).validateassertion.call(
+		if (Config.validateassertion) {
+			data = await Config.validateassertion.call(
 				this, challengetoken, user, data, serverHost
 			);
 		}
@@ -453,8 +453,8 @@ export class Session {
 				return false;
 			}
 			// i don't know how often this is actually necessary. so let's make this configurable.
-			if ((Config as any).passwordNeedsRehash) {
-				rehash = await (Config as any).passwordNeedsRehash.call(
+			if (Config.passwordNeedsRehash) {
+				rehash = await Config.passwordNeedsRehash.call(
 					this, userid, userData['passwordhash']
 				);
 			}

@@ -17,9 +17,9 @@
     "build-full": "node build full",
     "typecheck": "tsc -p tsconfig.json && tsc -p api/tsconfig.json",
     "api": "node api/src/index.js",
-    "api:start": "pm2 start api/src/index.js --name loginserver --interpreter node",
-    "api:reload": "pm2 reload loginserver",
-    "api:stop": "pm2 stop loginserver"
+    "api:start": "pm2 start api/src/index.js --name apiserver --interpreter node",
+    "api:reload": "pm2 reload apiserver",
+    "api:stop": "pm2 stop apiserver"
   },
   "dependencies": {
     "@babel/core": "^7.26.10",

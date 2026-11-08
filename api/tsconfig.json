@@ -18,7 +18,8 @@
   "types": ["node"],
   "include": [
     "./src/**/*",
-    "./config/config*.cjs",
+    "../config/*.mts",
+    "../config/*.mjs",
   ],
   "exclude": ["./scripts/**/*"],
 }

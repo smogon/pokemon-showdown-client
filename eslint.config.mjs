@@ -126,7 +126,7 @@ export default configure([
 	},
 	{
 		name: "TypeScript for Node",
-		files: ['build-tools/*.{ts,mts}'],
+		files: ['build-tools/*.{ts,mts}', 'config/apiserver-example.mts'],
 		extends: [configs.ts],
 		languageOptions: {
 			parserOptions: {
@@ -150,6 +150,7 @@ export default configure([
 		name: "API JavaScript",
 		files: [
 			'api/**/*.{js,cjs,mjs}',
+			'config/apiserver-example.mjs',
 		],
 		extends: [configs.js],
 		languageOptions: {
