@@ -16,8 +16,8 @@
     "build": "node build",
     "build-full": "node build full",
     "typecheck": "tsc -p tsconfig.json && tsc -p api/tsconfig.json",
-    "api": "node api/src/index.js",
-    "api:start": "pm2 start api/src/index.js --name apiserver --interpreter node",
+    "api": "node api/src/index.ts",
+    "api:start": "pm2 start config/apiserver-pm2.config.cjs",
     "api:reload": "pm2 reload apiserver",
     "api:stop": "pm2 stop apiserver"
   },
@@ -33,7 +33,7 @@
     "image-size": "^0.7.5",
     "mysql2": "^3.23.0",
     "pg": "^8.22.0",
-    "pm2": "^7.0.3"
+    "pm2": "^7.1.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
