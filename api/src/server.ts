@@ -36,6 +36,15 @@ import IPTools from './ip-tools.ts';
  */
 export const DISPATCH_PREFIX = ']';
 
+let requestLog: fs.WriteStream | null = null;
+function logRequest(ip: string, start: number, body: any) {
+	if (Config.logrequests) {
+		if (!requestLog) {
+			requestLog = fs.createWriteStream(Config.logrequests, { flags: 'a' });
+		}
+		requestLog.write(`${Date.now()}|ip:${ip}|act:${body.act}|${Date.now() - start}ms\n`);
+	}
+}
 /**
  * Throw this to end a request with an `actionerror` message.
  */
@@ -364,8 +373,9 @@ export class Server {
 		this.activeRequests++;
 		res.setHeader('Content-Type', 'text/plain; charset=utf-8');
 		let useDispatchPrefix = true;
+		const startTime = Date.now();
+		const body = await ActionContext.getBody(req);
 		try {
-			const body = await ActionContext.getBody(req);
 			let result;
 			if (Array.isArray(body)) {
 				let context = new ActionContext(req, res, body[0]);
@@ -380,12 +390,14 @@ export class Server {
 				for (const curBody of body) {
 					if (context.body !== curBody) context = new ActionContext(req, res, curBody);
 					result.push(await context.executeActions());
+					logRequest(context.getIp(), startTime, body);
 				}
 				if (!context.useDispatchPrefix) useDispatchPrefix = false;
 			} else {
 				const context = new ActionContext(req, res, body);
 				// turn undefined into null so it can be JSON stringified
 				result = await context.executeActions() ?? null;
+				logRequest(context.getIp(), startTime, body);
 				if (!context.useDispatchPrefix) useDispatchPrefix = false;
 			}
 			this.ensureHeaders(res);

@@ -225,3 +225,8 @@ exports.suspectpath = null;
  * @type {string | null}
  */
 exports.smogonpublickey = null;
+
+/** Log IP, duration, and action of all requests.
+ * Set equal to a path to log to that path.
+ * @type {string | null} */
+exports.logrequests = null;

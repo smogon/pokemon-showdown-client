@@ -435,6 +435,8 @@ export const actions: { [k: string]: QueryHandler } = {
 		}
 
 		const formatid = toID(params.format);
+		params.p1 = toID(params.p1);
+		params.p2 = toID(params.p2);
 		if (!formatid) throw new ActionError("Invalid format.");
 		if (!params.score) throw new ActionError("Score required.");
 		const ladder = new Ladder(formatid);
@@ -442,7 +444,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!Ladder.isValidPlayer(params.p2)) return 0;
 
 		const out: { [k: string]: any } = {};
-		const [p1rating, p2rating] = await ladder.addMatch(params.p1!, params.p2!, parseFloat(params.score));
+		const [p1rating, p2rating] = await ladder.addMatch(params.p1, params.p2, parseFloat(params.score));
 
 		const suspect = await tables.suspects.get(formatid);
 		if (suspect) {
