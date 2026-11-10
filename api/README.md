@@ -1,6 +1,6 @@
-**Pokemon Showdown Loginserver.**
+**Pokemon Showdown API server**
 
-This is the PS loginserver.
+This is the PS API server, which serves `/api/` on all our subdomains.
 
 Requires a full client build before it can be used.
 

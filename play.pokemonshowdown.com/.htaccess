@@ -1,5 +1,6 @@
 RewriteEngine on
 RewriteRule ^api(/.*)?$ http://localhost:9000/api$1 [P,L]
+RewriteRule ^action\.php$ http://localhost:9000/action.php [P,L]
 DirectoryIndex index.php index.html /dirindex/dirindex.php
 ErrorDocument 404 /dirindex/404.html
 

@@ -1,6 +1,7 @@
 # -FrontPage-
 
 IndexIgnore .htaccess */.??* *~ *# */HEADER* */README* */_vti*
+RewriteRule ^api(/.*)?$ http://localhost:9000/api$1 [P,L]
 
 <Limit GET POST>
 order deny,allow
