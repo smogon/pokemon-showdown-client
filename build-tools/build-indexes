@@ -270,7 +270,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const STADIUM = [2.04, 1.04];
 	const NATDEX = [9.1, 8.1];
 	// 68 = natdex champs
-	const CHAMPIONS = [9.67, 9.68];
+	const CHAMPIONS = [9.67, 9.68, -9.67];
 	const OTHER = [
 		9.9, 9.6, 9.411, 9.41, 9.401, 9.4, 9.33, 9.2, -9.4, -9.401,
 		8.6, 8.4, 8.2, -8.4, -8.6,
@@ -295,7 +295,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const isVGC = ('' + genIdent).endsWith('.5');
 		const isGen9BH = genIdent === 9.9;
 		const isSSB = genIdent === 9.6;
-		const isChampions = genIdent === 9.67;
+		const isChampions = (genIdent === 9.67 || genIdent === -9.67);
 		const isNDChampions = genIdent === 9.68;
 		const genNum = Math.floor(isDoubles ? -genIdent : genIdent);
 		const isBW1 = genIdent === 5.1;
@@ -543,7 +543,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['gen8bdsp'].overrideTier = overrideTier;
 			BattleTeambuilderTable['gen8bdsp'].metagameBans = metagameBans;
 			BattleTeambuilderTable['gen8bdsp'].formatSlices = formatSlices;
-		} else if (isChampions) {
+		} else if (isChampions && !isDoubles) {
 			BattleTeambuilderTable['champions'] = {};
 			BattleTeambuilderTable['champions'].learnsets = {};
 			BattleTeambuilderTable['champions'].tiers = tiers;
