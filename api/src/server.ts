@@ -5,7 +5,6 @@
  */
 import * as http from 'node:http';
 import * as https from 'node:https';
-import * as child from 'node:child_process';
 import * as dns from 'node:dns';
 import * as fs from 'node:fs';
 import * as net from 'node:net';
@@ -18,7 +17,7 @@ import { type User, Session } from './user.ts';
 import IPTools from './ip-tools.ts';
 
 const SERVER_LIST_PATH = pathModule.resolve(
-	import.meta.dirname, process.env.NODE_TEST_CONTEXT ? 'test/fixtures/servers.php' : '../../config/servers.inc.php'
+	import.meta.dirname, process.env.NODE_TEST_CONTEXT ? 'test/fixtures/servers.json' : '../../config/servers.json'
 );
 const CRASHLOGGER_PATH = pathModule.resolve(
 	import.meta.dirname, '../../caches/pokemon-showdown/dist/lib/crashlogger.js'
@@ -332,10 +331,7 @@ export const SimServers = new class SimServersT {
 	loadServers(path = SERVER_LIST_PATH): { [k: string]: RegisteredServer } {
 		if (!fs.existsSync(path)) return {};
 		try {
-			const stdout = child.execFileSync(
-				`php`, ['-f', import.meta.dirname + '/lib/load-servers.php', path]
-			).toString();
-			return JSON.parse(stdout);
+			return JSON.parse(fs.readFileSync(path, 'utf8'));
 		} catch (e: any) {
 			if (!['ENOENT', 'ENOTDIR', 'ENAMETOOLONG'].includes(e.code)) throw e;
 		}

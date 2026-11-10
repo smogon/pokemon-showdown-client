@@ -1,6 +1,6 @@
 <?php
 
-include_once __DIR__ . '/../../config/servers.inc.php';
+include_once __DIR__ . '/../../lib/servers.lib.php';
 include_once '../../lib/ntbb-session.lib.php';
 
 function saveservers() {
