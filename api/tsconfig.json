@@ -17,6 +17,7 @@
   },
   "types": ["node"],
   "include": [
+    "./*.ts",
     "./src/**/*",
     "../config/*.mts",
     "../config/*.mjs",
