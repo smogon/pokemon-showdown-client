@@ -3391,7 +3391,7 @@ class StatForm extends preact.Component<{
 			format = format.slice(4);
 		}
 		let generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm', 'ss', 'sv'][generationNumber - 1];
-		if (format.startsWith('champions')) {
+		if (editor.format.isChampions) {
 			generation = 'champions';
 			format = format.slice(9);
 		}
