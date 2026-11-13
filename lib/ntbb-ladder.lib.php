@@ -206,10 +206,17 @@ class NTBBLadder {
 		return true;
 	}
 
-	function getTop($prefix = null) {
+	function getTop($prefix = null, $includeBots = false) {
 		global $ladderdb;
 		$needUpdate = true;
 		$top = array();
+
+		// Exclude users in group 10 (bots). Filtering inside the CTE means bots are removed
+		// *before* the LIMIT, so they never take up slots in the top results.
+		$botFilter = $includeBots ? '' : "AND NOT EXISTS (
+			SELECT 1 FROM `{$ladderdb->prefix}users` `u`
+			WHERE `u`.`userid` = `l`.`userid` AND `u`.`group` = 10
+		)";
 
 		$i = 0;
 		while ($needUpdate) {
@@ -230,17 +237,14 @@ class NTBBLadder {
 				// to return exactly $limit results, but should be 'good enough' in practice.
 				$overfetch = $limit * 2;
 				$res = $ladderdb->query(
-					"SELECT * FROM (SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = ? ORDER BY `elo` DESC LIMIT $overfetch) AS `unusedalias` WHERE `userid` LIKE ? LIMIT $limit",
-					[$this->formatid, "$prefix%"]
-				);
-				$res = $ladderdb->query(
 					"WITH `max_elo` AS (
 						SELECT MAX(elo) AS `max_elo` FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = ?
 					),
 					`rpr_filtered` AS (
-							SELECT * FROM `{$ladderdb->prefix}ladder` WHERE
-								((SELECT `max_elo` FROM `max_elo`) <= 1500 OR `rprd` <= 100)
-								AND `formatid` = ?
+							SELECT * FROM `{$ladderdb->prefix}ladder` `l` WHERE
+								((SELECT `max_elo` FROM `max_elo`) <= 1500 OR `l`.`rprd` <= 100)
+								AND `l`.`formatid` = ?
+								$botFilter
 					)
 					SELECT * FROM
 						(SELECT * FROM `rpr_filtered` WHERE `formatid` = ? ORDER BY `elo` DESC LIMIT {$overfetch})
@@ -249,13 +253,14 @@ class NTBBLadder {
 				);
 			} else {
 				$res = $ladderdb->query(
-					"WITH max_elo AS (
-						SELECT MAX(elo) AS max_elo FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = ?
+					"WITH `max_elo` AS (
+						SELECT MAX(elo) AS `max_elo` FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = ?
 					),
-					rpr_filtered AS (
-							SELECT * FROM `{$ladderdb->prefix}ladder` WHERE
-								((SELECT `max_elo` FROM `max_elo`) <= 1500 OR `rprd` <= 100)
-								AND `formatid` = ?
+					`rpr_filtered` AS (
+							SELECT * FROM `{$ladderdb->prefix}ladder` `l` WHERE
+								((SELECT `max_elo` FROM `max_elo`) <= 1500 OR `l`.`rprd` <= 100)
+								AND `l`.`formatid` = ?
+								$botFilter
 					)
 					SELECT * FROM `rpr_filtered` ORDER BY `elo` DESC LIMIT $limit",
 					[$this->formatid, $this->formatid]

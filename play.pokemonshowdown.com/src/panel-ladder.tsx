@@ -86,7 +86,7 @@ export class LadderFormatRoom extends PSRoom {
 		this.ladderHTML = ladderHTML;
 		this.update(null);
 	};
-	requestLadderData = (searchValue: string) => {
+	requestLadderData = (searchValue: string, showBots = false) => {
 		if (!this.format) return;
 		this.searchValue = searchValue;
 		this.loading = true;
@@ -97,7 +97,7 @@ export class LadderFormatRoom extends PSRoom {
 			const prefix = toID(this.searchValue);
 			PS.send(`/cmd laddertop ${this.format}${prefix ? ` ,${prefix}` : ''}`);
 		} else if (this.format !== undefined) {
-			Net(`//pokemonshowdown.com/ladder/${this.format}.json`)
+			Net(`//pokemonshowdown.com/ladder/${this.format}.json${showBots ? `?includebots` : ``}`)
 				.get({
 					query: {
 						prefix: toID(searchValue),
@@ -115,7 +115,6 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 	static readonly routes = ['ladder-*'];
 	static readonly Model = LadderFormatRoom;
 	static readonly icon = <i class="fa fa-list-ol" aria-hidden></i>;
-
 	override componentDidMount() {
 		const { room } = this.props;
 		room.requestLadderData('');
@@ -140,9 +139,18 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 			})
 		);
 	}
+	showBots = false;
 	changeSearch = (e: Event) => {
 		e.preventDefault();
-		this.props.room.requestLadderData(this.base!.querySelector<HTMLInputElement>('input[name=searchValue]')!.value);
+		this.props.room.requestLadderData(
+			this.base!.querySelector<HTMLInputElement>('input[name=searchValue]')!.value,
+			this.showBots
+		);
+	};
+	toggleBots = (e: Event) => {
+		this.showBots = !this.showBots;
+		this.forceUpdate();
+		this.changeSearch(e);
 	};
 	renderHeader() {
 		if (PS.teams.usesLocalLadder) return null;
@@ -168,6 +176,18 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 			/> {}
 			<button type="submit" class="button">{TL`[Search]`}</button>
 		</p></form>;
+	}
+	renderBotToggle() {
+		return <p>
+			<label>
+				<input
+					type="checkbox"
+					name="bot-toggle"
+					checked={this.showBots}
+					onChange={e => this.toggleBots(e)}
+				/> {TL`Show bots`}
+			</label>
+		</p>;
 	}
 	renderLocalLadder() {
 		const room = this.props.room;
@@ -255,6 +275,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 						<i class="fa fa-trophy" aria-hidden></i> {TL`[Seasonal rankings]`}
 					</a>
 					{this.renderSearch()}
+					{this.renderBotToggle()}
 				</p>
 				{this.renderHeader()}
 				{this.renderTable()}

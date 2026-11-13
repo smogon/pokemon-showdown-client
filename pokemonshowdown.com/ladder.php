@@ -71,7 +71,7 @@ if (isset($_REQUEST['json'])) {
 	if (!$formatid) die('null');
 	$ladder = new NTBBLadder($formatid);
 	$prefix = $_REQUEST['prefix'] ?? null;
-	$toplist = $ladder->getTop($prefix);
+	$toplist = $ladder->getTop($prefix, isset($_REQUEST['includebots']));
 	foreach ($toplist as &$row) {
 		unset($row['formatid']);
 		unset($row['entryid']);
