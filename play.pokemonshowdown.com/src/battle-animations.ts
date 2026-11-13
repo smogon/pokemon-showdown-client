@@ -455,6 +455,7 @@ export class BattleScene implements BattleSceneStub {
 
 	startAnimations() {
 		this.$fx.empty();
+		this.$bgEffect.empty();
 		this.activeAnimations = $();
 		this.timeOffset = 0;
 		this.minDelay = 0;
