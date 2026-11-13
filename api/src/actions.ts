@@ -1388,6 +1388,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		}
 		const owner = toID(params.owner);
 		const bot = toID(params.bot);
+		const remove = !!toID(params.remove);
 		if (!bot) {
 			throw new ActionError(`Missing 'bot' account name parameters.`);
 		}
@@ -1399,8 +1400,15 @@ export const actions: { [k: string]: QueryHandler } = {
 			throw new ActionError(`Bot account '${bot}' does not exist.`);
 		}
 		// allow changing if owner is set on this req and they don't have an owner
-		if (botData.group === 10 && !(owner && !botData.account)) {
+		if (!remove && botData.group === 10 && !(owner && !botData.account)) {
 			throw new ActionError(`User '${bot}' is already marked as a bot.`);
+		} else if (remove && botData.group !== 10) {
+			throw new ActionError(`User ${bot} is not marked as a bot.`);
+		} else if (remove && botData.account) {
+			throw new ActionError(
+				`User '${bot}' is confirmed through the bot registry. ` +
+				`Please ask an admin to undo this.`
+			);
 		}
 		if (owner) {
 			const ownerData = await tables.users.get(owner);
@@ -1416,7 +1424,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		}
 		await tables.users.update(bot, {
 			account: owner || null,
-			group: 10,
+			group: remove ? 1 : 10,
 		});
 		return { success: true };
 	},
