@@ -680,6 +680,7 @@ export const translations: TranslationCatalog = {
 	"user's percentage chance of winning a random battle (Glicko X-Act Estimate)": null,
 	"Glicko-1 rating system: rating±deviation (provisional if deviation>100)": null,
 	"No one has played any ranked games yet.": null,
+	"Show bots": null,
 
 	// #endregion Ladder
 

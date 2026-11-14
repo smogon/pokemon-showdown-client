@@ -42,7 +42,7 @@ export class LadderFormatRoom extends PSRoom {
 	override readonly classType: string = 'ladder';
 	readonly format?: string = this.id.split('-')[1];
 	notice?: string;
-	searchValue = '';
+	usernamePrefix = '';
 	loading = false;
 	error?: string;
 	ladderData?: LadderData;
@@ -57,8 +57,8 @@ export class LadderFormatRoom extends PSRoom {
 		this.notice = notice;
 		this.update(null);
 	};
-	setSearchValue = (searchValue: string) => {
-		this.searchValue = searchValue;
+	setUsernamePrefix = (usernamePrefix: string) => {
+		this.usernamePrefix = usernamePrefix;
 		this.update(null);
 	};
 	setError = (error: Error) => {
@@ -86,21 +86,21 @@ export class LadderFormatRoom extends PSRoom {
 		this.ladderHTML = ladderHTML;
 		this.update(null);
 	};
-	requestLadderData = (searchValue: string, showBots = false) => {
+	requestLadderData = (usernamePrefix: string, showBots = false) => {
 		if (!this.format) return;
-		this.searchValue = searchValue;
+		this.usernamePrefix = usernamePrefix;
 		this.loading = true;
 		this.error = undefined;
 		this.ladderData = undefined;
 		this.ladderHTML = undefined;
 		if (PS.teams.usesLocalLadder) {
-			const prefix = toID(this.searchValue);
+			const prefix = toID(this.usernamePrefix);
 			PS.send(`/cmd laddertop ${this.format}${prefix ? ` ,${prefix}` : ''}`);
 		} else if (this.format !== undefined) {
 			Net(`//pokemonshowdown.com/ladder/${this.format}.json${showBots ? `?includebots` : ``}`)
 				.get({
 					query: {
-						prefix: toID(searchValue),
+						prefix: toID(usernamePrefix),
 					},
 				})
 				.then(this.setLadderData)
@@ -143,7 +143,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 	changeSearch = (e: Event) => {
 		e.preventDefault();
 		this.props.room.requestLadderData(
-			this.base!.querySelector<HTMLInputElement>('input[name=searchValue]')!.value,
+			this.base!.querySelector<HTMLInputElement>('input[name=usernamePrefix]')!.value,
 			this.showBots
 		);
 	};
@@ -158,7 +158,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 		const room = this.props.room;
 		return <h3>
 			{BattleLog.formatName(room.format)} Top
-			{room.searchValue ? ` - '${room.searchValue}'` : " 500"}
+			{room.usernamePrefix ? ` - '${room.usernamePrefix}'` : " 500"}
 		</h3>;
 	}
 	renderSearch() {
@@ -168,9 +168,9 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 		return <form class="search" onSubmit={this.changeSearch}><p>
 			<input
 				type="text"
-				name="searchValue"
+				name="usernamePrefix"
 				class="textbox searchinput"
-				value={BattleLog.escapeHTML(room.searchValue)}
+				value={BattleLog.escapeHTML(room.usernamePrefix)}
 				placeholder="username prefix"
 				onChange={this.changeSearch}
 			/> {}
