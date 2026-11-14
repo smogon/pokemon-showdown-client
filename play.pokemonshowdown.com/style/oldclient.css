@@ -2214,6 +2214,17 @@ p.or:after {
 	width: 350px;
 	vertical-align: middle;
 }
+.teamlist .team-row {
+	display: flex;
+	align-items: center;
+}
+.teamlist .team-row > .team {
+	min-width: 0;
+}
+.teamlist .team-row > button {
+	flex-shrink: 0;
+	white-space: nowrap;
+}
 .teamlist .dragging button {
 	visibility: hidden;
 }
@@ -2351,6 +2362,12 @@ p.or:after {
 .setmenu button i,
 .teamlist button i {
 	margin-right: 2px;
+}
+.teamlist .team-favorite.cur {
+	color: #9a6700;
+}
+.dark .teamlist .team-favorite.cur {
+	color: #ffd33d;
 }
 .setmenu-left {
 	position: absolute;

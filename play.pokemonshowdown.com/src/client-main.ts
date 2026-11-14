@@ -362,6 +362,7 @@ export interface Team {
 	name: string;
 	format: ID;
 	folder: string;
+	favorite?: boolean;
 	/** Note that this can be wrong if `.uploaded?.notLoaded` */
 	packedTeam: string;
 	/** The icon cache must be cleared (to `null`) whenever `packedTeam` is modified */
@@ -409,6 +410,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		super();
 		try {
 			this.unpackAll(localStorage.getItem('showdown_teams'));
+			this.unpackFavorites(localStorage.getItem('showdown_teams_favorites'));
 		} catch {}
 	}
 	teambuilderFormat(format: string): ID {
@@ -486,14 +488,71 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 	packAll(teams: Team[]) {
 		return teams.map(team => (
 			(team.teamid ? `${team.teamid}[` : '') +
+			this.packTeamIdentity(team)
+		)).join('\n');
+	}
+	packTeamIdentity(team: Team, normalize = false) {
+		let packedTeam = team.packedTeam;
+		if (normalize) {
+			try {
+				packedTeam = Teams.pack(Teams.import(Teams.export(Teams.unpack(packedTeam))));
+			} catch {}
+		}
+		return (
 			(team.format || team.isBox ? `${team.format || ''}${team.isBox ? '-box' : ''}]` : ``) +
 			(team.folder ? `${team.folder}/` : ``) +
-			team.name + `|` + team.packedTeam
-		)).join('\n');
+			team.name + `|` + packedTeam
+		);
+	}
+	unpackFavorites(buffer: string | null, normalize = false) {
+		for (const team of this.list) delete team.favorite;
+		if (!buffer) return;
+		let favorites: unknown;
+		try {
+			favorites = JSON.parse(buffer);
+		} catch {
+			return;
+		}
+		if (!Array.isArray(favorites)) return;
+		for (const favorite of favorites) {
+			if (!Array.isArray(favorite)) continue;
+			const index = favorite[0];
+			let packedTeam = favorite[1];
+			if (typeof index !== 'number' || index < 0 || index % 1 || typeof packedTeam !== 'string') continue;
+			let team: Team | undefined;
+			// Readable backups can change packing; try the exact identity first.
+			for (let pass = 0; pass < (normalize ? 2 : 1); pass++) {
+				if (pass) {
+					const savedTeam = this.unpackLine(packedTeam);
+					if (!savedTeam) break;
+					packedTeam = this.packTeamIdentity(savedTeam, true);
+				}
+				team = this.list[index];
+				if (!team || team.favorite || this.packTeamIdentity(team) !== packedTeam) {
+					team = undefined;
+					for (const candidate of this.list) {
+						if (!candidate.favorite && this.packTeamIdentity(candidate) === packedTeam) {
+							team = candidate;
+							break;
+						}
+					}
+				}
+				if (team) break;
+			}
+			if (team) team.favorite = true;
+		}
+	}
+	packFavorites() {
+		const favorites: [number, string][] = [];
+		for (let i = 0; i < this.list.length; i++) {
+			if (this.list[i].favorite) favorites.push([i, this.packTeamIdentity(this.list[i])]);
+		}
+		return JSON.stringify(favorites);
 	}
 	save() {
 		try {
 			localStorage.setItem('showdown_teams', this.packAll(this.list));
+			localStorage.setItem('showdown_teams_favorites', this.packFavorites());
 		} catch {}
 		this.update('team');
 	}

@@ -268,6 +268,7 @@ export class PSConnection {
 
 export class PSStorage {
 	static frame: WindowProxy | null = null;
+	static teamFavorites: string | null = null;
 	static requests: Record<string, (data: any) => void> | null = null;
 	static requestCount = 0;
 	static readonly origin = `https://${Config.routes.client}`;
@@ -306,7 +307,7 @@ export class PSStorage {
 		} else {
 			Config.server ||= Config.defaultserver;
 			$(
-				`<iframe src="https://${Config.routes.client}/crossprotocol.html?v1.2" style="display: none;"></iframe>`
+				`<iframe src="https://${Config.routes.client}/crossprotocol.html?v1.3" style="display: none;"></iframe>`
 			).appendTo('body');
 			setTimeout(() => {
 				// HTTPS may be blocked
@@ -364,6 +365,9 @@ export class PSStorage {
 			};
 			PS.prefs.update(null);
 			break;
+		case 'f':
+			PSStorage.teamFavorites = data === 'fnull' ? null : data.substr(1);
+			break;
 		case 't':
 			if (window.nodewebkit) return;
 			let oldTeams;
@@ -373,9 +377,21 @@ export class PSStorage {
 				oldTeams = PS.teams.list;
 			}
 			PS.teams.unpackAll(data.substr(1));
+			let teamFavorites = PSStorage.teamFavorites;
+			if (teamFavorites === null) {
+				try {
+					teamFavorites = localStorage.getItem('showdown_teams_favorites');
+				} catch {}
+			}
+			PS.teams.unpackFavorites(teamFavorites);
 			PS.teams.save = function () {
 				const packedTeams = PS.teams.packAll(PS.teams.list);
+				const packedFavorites = PS.teams.packFavorites();
 				PSStorage.postCrossOriginMessage('T' + packedTeams);
+				PSStorage.postCrossOriginMessage('F' + packedFavorites);
+				try {
+					localStorage.setItem('showdown_teams_favorites', packedFavorites);
+				} catch {}
 
 				// in Safari, cross-origin local storage is apparently treated as session
 				// storage, so mirror the storage in the current origin just in case
@@ -393,6 +409,7 @@ export class PSStorage {
 			}
 			if (data === 'tnull' && !PS.teams.list.length) {
 				PS.teams.unpackAll(localStorage.getItem('showdown_teams_local'));
+				PS.teams.unpackFavorites(localStorage.getItem('showdown_teams_favorites'));
 			}
 			break;
 		case 'a':

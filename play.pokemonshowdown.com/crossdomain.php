@@ -133,6 +133,7 @@ function messageHandler(e) {
 
 	// data's first char:
 	// T: store teams
+	// F: store team favorites
 	// P: store prefs
 	// R: GET request
 	// S: POST request
@@ -141,6 +142,11 @@ function messageHandler(e) {
 	case 'T':
 		try {
 			localStorage.setItem('showdown_teams', data.substr(1));
+		} catch (e) {}
+		break;
+	case 'F':
+		try {
+			localStorage.setItem('showdown_teams_favorites', data.substr(1));
 		} catch (e) {}
 		break;
 	case 'P':
@@ -167,6 +173,7 @@ function messageHandler(e) {
 // Things we send:
 // c[config]
 // p[prefs]
+// f[team favorites]
 // t[teams]
 // a[1 = localStorage success, 0 = localstorage failed] (guaranteed to be last)
 
@@ -178,6 +185,7 @@ try {
 	localStorage.setItem('showdown_allow3p', testVal);
 	if (localStorage.getItem('showdown_allow3p') === testVal) {
 		postReply('p' + localStorage.getItem('showdown_prefs'));
+		postReply('f' + localStorage.getItem('showdown_teams_favorites'));
 		postReply('t' + localStorage.getItem('showdown_teams'));
 		postReply('a1');
 		storageAvailable = true;

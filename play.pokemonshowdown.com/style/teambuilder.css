@@ -219,9 +219,31 @@
 .teamlist .team {
 	width: 350px;
 }
+.teamlist li[data-teamkey] {
+	display: grid;
+	grid-template-columns: minmax(0, 350px) max-content;
+	align-items: center;
+	column-gap: 4px;
+}
+.teamlist li[data-teamkey] > .team {
+	width: 100%;
+	min-width: 0;
+}
+.teamlist li[data-teamkey] > div {
+	/* Clipboard paste/move prompts stay above the team and its controls. */
+	grid-column: 1 / -1;
+}
 .team-controls {
-	display: inline-block;
-	width: 118px;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	white-space: nowrap;
+}
+.team-controls .team-favorite.cur {
+	color: #9a6700;
+}
+.dark .team-controls .team-favorite.cur {
+	color: #ffd33d;
 }
 .teamlist li.cur .team {
 	opacity: 0.5;

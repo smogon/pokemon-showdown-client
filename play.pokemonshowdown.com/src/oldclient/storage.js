@@ -369,7 +369,7 @@ Storage.initPrefs = function () {
 	} else {
 		Config.server = Config.server || Config.defaultserver;
 		$(
-			'<iframe src="https://' + Config.routes.client + '/crossprotocol.html?v1.2" style="display: none;"></iframe>'
+			'<iframe src="https://' + Config.routes.client + '/crossprotocol.html?v1.3" style="display: none;"></iframe>'
 		).appendTo('body');
 		setTimeout(function () {
 			// HTTPS may be blocked
@@ -420,6 +420,9 @@ Storage.onMessage = function ($e) {
 		};
 		Storage.whenPrefsLoaded.load();
 		break;
+	case 'f':
+		Storage.crossOriginTeamFavorites = data === 'fnull' ? undefined : data.substr(1);
+		break;
 	case 't':
 		if (window.nodewebkit) return;
 		var oldTeams;
@@ -428,10 +431,11 @@ Storage.onMessage = function ($e) {
 			// new teams.
 			oldTeams = Storage.teams;
 		}
-		Storage.loadPackedTeams(data.substr(1));
+		Storage.loadPackedTeams(data.substr(1), Storage.crossOriginTeamFavorites);
 		Storage.saveTeams = function () {
 			var packedTeams = Storage.packAllTeams(Storage.teams);
 			Storage.postCrossOriginMessage('T' + packedTeams);
+			Storage.saveTeamFavorites();
 
 			// in Safari, cross-origin local storage is apparently treated as session
 			// storage, so mirror the storage in the current origin just in case
@@ -661,9 +665,10 @@ Storage.loadRemoteTeams = function (after) {
 	}));
 };
 
-Storage.loadPackedTeams = function (buffer) {
+Storage.loadPackedTeams = function (buffer, favoritesBuffer) {
 	try {
 		this.teams = Storage.unpackAllTeams(buffer);
+		Storage.loadTeamFavorites(favoritesBuffer);
 	} catch (e) {
 		Storage.whenAppLoaded(function (app) {
 			app.addPopup(Popup, {
@@ -674,10 +679,71 @@ Storage.loadPackedTeams = function (buffer) {
 	}
 };
 
+Storage.loadTeamFavorites = function (buffer, normalize) {
+	for (var i = 0; i < this.teams.length; i++) delete this.teams[i].favorite;
+	if (buffer === undefined) {
+		try {
+			buffer = localStorage.getItem('showdown_teams_favorites');
+		} catch (e) {}
+	}
+	if (!buffer) return;
+	var favorites;
+	try {
+		favorites = JSON.parse(buffer);
+	} catch (e) {
+		return;
+	}
+	if (!Array.isArray(favorites)) return;
+	for (var i = 0; i < favorites.length; i++) {
+		if (!Array.isArray(favorites[i])) continue;
+		var index = favorites[i][0];
+		if (typeof index !== 'number' || index < 0 || index % 1 || typeof favorites[i][1] !== 'string') continue;
+		var packedTeam = favorites[i][1];
+		var team = null;
+		// Readable backups can change packing; try the exact identity first.
+		for (var pass = 0; pass < (normalize ? 2 : 1); pass++) {
+			if (pass) {
+				var savedTeam = Storage.unpackLine(packedTeam);
+				if (!savedTeam) break;
+				packedTeam = Storage.packTeamIdentity(savedTeam, true);
+			}
+			team = this.teams[index];
+			if (!team || team.favorite || Storage.packTeamIdentity(team) !== packedTeam) {
+				team = null;
+				for (var j = 0; j < this.teams.length; j++) {
+					if (!this.teams[j].favorite && Storage.packTeamIdentity(this.teams[j]) === packedTeam) {
+						team = this.teams[j];
+						break;
+					}
+				}
+			}
+			if (team) break;
+		}
+		if (team) team.favorite = true;
+	}
+};
+
+Storage.packTeamFavorites = function () {
+	var favorites = [];
+	for (var i = 0; i < this.teams.length; i++) {
+		if (this.teams[i].favorite) favorites.push([i, Storage.packTeamIdentity(this.teams[i])]);
+	}
+	return JSON.stringify(favorites);
+};
+
+Storage.saveTeamFavorites = function () {
+	var buffer = this.packTeamFavorites();
+	try {
+		localStorage.setItem('showdown_teams_favorites', buffer);
+	} catch (e) {}
+	if (Storage.crossOriginFrame && !window.nodewebkit) Storage.postCrossOriginMessage('F' + buffer);
+};
+
 Storage.saveTeams = function () {
 	try {
 		if (window.localStorage) {
 			localStorage.setItem('showdown_teams', Storage.packAllTeams(this.teams));
+			Storage.saveTeamFavorites();
 			Storage.cantSave = false;
 		}
 	} catch (e) {
@@ -773,11 +839,28 @@ Storage.packAllTeams = function (teams) {
 	return teams.map(function (team) {
 		return (
 			(team.teamid ? '' + team.teamid + '[' : '') +
-			(team.format ? '' + team.format + (team.capacity === 24 ? '-box]' : ']') : '') +
-			(team.folder ? '' + team.folder + '/' : '') + team.name + '|' +
-			Storage.getPackedTeam(team)
+			Storage.packTeamIdentity(team)
 		);
 	}).join('\n');
+};
+
+Storage.packTeamIdentity = function (team, normalize) {
+	var packedTeam = Storage.getPackedTeam(team);
+	var name = team.name;
+	var folder = team.folder;
+	if (normalize) {
+		try {
+			packedTeam = Storage.packTeam(Storage.importTeam(Storage.exportTeam(packedTeam)));
+		} catch (e) {}
+		if (window.nodewebkit) {
+			name = name.replace(/[\\\/]+/g, '').trim();
+			folder = folder.replace(/[\\\/]+/g, '');
+		}
+	}
+	return (
+		(team.format ? '' + team.format + (team.capacity === 24 ? '-box]' : ']') : '') +
+		(folder ? '' + folder + '/' : '') + name + '|' + packedTeam
+	);
 };
 
 Storage.packTeam = function (team) {
@@ -1371,11 +1454,11 @@ Storage.exportAllTeams = function () {
 	}
 	return buf;
 };
-Storage.exportFolder = function (folder) {
+Storage.exportFolder = function (folder, favoritesOnly) {
 	var buf = '';
 	for (var i = 0, len = Storage.teams.length; i < len; i++) {
 		var team = Storage.teams[i];
-		if (team.folder + "/" === folder || team.format === folder) {
+		if (favoritesOnly ? team.favorite : team.folder + "/" === folder || team.format === folder) {
 			buf += '=== ' + (team.format ? '[' + team.format + (team.capacity === 24 ? '-box] ' : '] ') : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + ' ===\n\n';
 			buf += Storage.exportTeam(team.team);
 			buf += '\n';
@@ -1700,6 +1783,7 @@ Storage.nwLoadTeamFile = function (filename, localApp) {
 
 Storage.nwFinishedLoadingTeams = function (app) {
 	this.teams.sort(this.teamCompare);
+	this.loadTeamFavorites(undefined, true);
 	Storage.whenTeamsLoaded.load();
 };
 
@@ -1775,6 +1859,7 @@ Storage.nwSaveTeam = function (team) {
 	}
 	team.filename = filename;
 	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'), function () {});
+	this.saveTeamFavorites();
 };
 
 Storage.nwSaveTeams = function () {
@@ -1793,6 +1878,7 @@ Storage.nwDeleteTeam = function (team) {
 			if (oldDirectory) fs.rmdir(oldDirectory, function () {});
 		});
 	}
+	this.saveTeamFavorites();
 };
 
 Storage.nwSaveAllTeams = function () {
@@ -1812,6 +1898,7 @@ Storage.nwDoSaveAllTeams = function () {
 		team.filename = filename;
 		fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'), function () {});
 	}
+	this.saveTeamFavorites();
 };
 
 // logs
