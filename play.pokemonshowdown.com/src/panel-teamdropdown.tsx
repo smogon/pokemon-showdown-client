@@ -148,6 +148,7 @@ export class PSTeambuilder {
 
 export function TeamBox(props: {
 	team: Team | null,
+	id?: string,
 	noLink?: boolean,
 	button?: boolean,
 	onClick?: () => void,
@@ -178,17 +179,17 @@ export function TeamBox(props: {
 	}
 	const className = `team${team?.isBox ? ' pc-box' : ''}`;
 	if (props.button) {
-		return <button class={className} value={team ? team.key : ''}>
+		return <button id={props.id} class={className} value={team ? team.key : ''}>
 			{contents}
 		</button>;
 	}
 	if (props.noLink) {
-		return <div class={className}>
+		return <div id={props.id} class={className}>
 			{contents}
 		</div>;
 	}
 	return <a
-		href={`team-${team ? team.key : ''}`} class={className} draggable
+		id={props.id} href={`team-${team ? team.key : ''}`} class={className} draggable
 		onDragStart={PSTeambuilder.dragStart} onClick={props.onClick}
 	>
 		{contents}

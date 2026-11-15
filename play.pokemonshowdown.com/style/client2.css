@@ -2332,10 +2332,14 @@ pre.textbox.textbox-empty[placeholder]:before {
 	padding: 0 5px;
 	height: auto;
 }
-.team:focus {
+.team:focus, .teamlist li.keyboard-focus .team {
 	outline: 0 none;
 	border: 1px solid #004488;
 	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
+}
+.dark a.team:focus, .dark button.team:focus, .dark .teamlist li.keyboard-focus .team {
+	border-color: #88CCFF;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #88CCFF;
 }
 .select.teamselect {
 	height: 49px;

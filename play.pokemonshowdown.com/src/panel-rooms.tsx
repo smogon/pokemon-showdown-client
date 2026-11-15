@@ -279,16 +279,22 @@ class RoomsPanel extends PSRoomPanel {
 				<p><input
 					type="search" name="roomsearch" class="textbox autofocus" style="width: 100%; max-width: 480px"
 					placeholder={TL`Join or search for rooms`} autocomplete="off"
+					aria-label={TL`Join or search for rooms`} aria-controls="rooms-results"
+					aria-activedescendant={this.roomListFocusIndex >= 0 && this.roomListFocusIndex < this.roomListLength ?
+						`rooms-result-${this.roomListFocusIndex}` : undefined}
 					onInput={this.changeSearch} onKeyDown={this.keyDownSearch} onBlur={this.handleOnBlur}
 				/></p>
 			</div>
-			{this.renderRoomList()}
+			<div role="group" id="rooms-results">
+				{this.renderRoomList()}
+			</div>
 		</div></PSPanelWrapper>;
 	}
 	getRoomListFocusTitle(): string | undefined {
-		return this.roomList.map(([, rooms]) => rooms).reduce((a, b) => a.concat(b))[this.roomListFocusIndex]?.title;
+		return this.roomList.map(([, rooms]) => rooms).reduce((a, b) => a.concat(b), [])[this.roomListFocusIndex]?.title;
 	}
 	renderRoomList() {
+		this.roomListLength = 0;
 		const roomsCache = PS.mainmenu.roomsCache;
 		if (roomsCache.userCount === undefined) {
 			return <div class="roomlist"><h2>{TL`Official chat rooms`}</h2><p><em>{TL`Connecting...`}</em></p></div>;
@@ -301,11 +307,12 @@ class RoomsPanel extends PSRoomPanel {
 			return <div class="roomlist"><h2>{TL`Official chat rooms`}</h2><p><em>{TL`Connecting...`}</em></p></div>;
 		}
 
+		this.roomListLength = this.roomList.reduce((length, [, rooms]) => length + rooms.length, 0);
+		this.roomListFocusIndex = Math.min(this.roomListFocusIndex, this.roomListLength - 1);
 		let nextOffset = 0;
 		return this.roomList.filter(([, rooms]) => rooms.length > 0).map(([title, rooms], sectionCount) => {
 			const offset = nextOffset;
 			nextOffset += rooms.length;
-			this.roomListLength = nextOffset;
 
 			const index = this.roomListFocusIndex >= offset && this.roomListFocusIndex < nextOffset ?
 				this.roomListFocusIndex - offset : -1;
@@ -314,7 +321,10 @@ class RoomsPanel extends PSRoomPanel {
 				<div class="roomlist">
 					<h2>{title}</h2>
 					{rooms.map((roomInfo, i) => <div key={roomInfo.title}>
-						<a href={`/${roomInfo.id || toID(roomInfo.title)}`} class={`blocklink${i === index ? " cur" : ''}`}>
+						<a
+							id={`rooms-result-${offset + i}`} href={`/${roomInfo.id || toID(roomInfo.title)}`}
+							class={`blocklink${i === index ? " cur" : ''}`}
+						>
 							{roomInfo.userCount !== undefined && <small style="float:right">({TL`${roomInfo.userCount} users`})</small>}
 							<strong><i class="fa fa-comment-o" aria-hidden></i> {roomInfo.title}<br /></strong>
 							<small>{roomInfo.desc || ''}</small>

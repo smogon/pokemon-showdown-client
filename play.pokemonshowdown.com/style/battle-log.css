@@ -733,7 +733,8 @@ input[type=range]:active::-webkit-slider-thumb {
 	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45), inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
 	color: white;
 }
-.select:hover, .select:hover .team, a.team:hover, button.team:hover {
+.select:hover, .select:hover .team, a.team:hover, button.team:hover,
+.teamlist li.keyboard-focus .team {
 	border-color: #555555;
 	background: #FFFFFF;
 	background: linear-gradient(to bottom,  #dce4ec,  #c6d3e0);
@@ -744,7 +745,8 @@ input[type=range]:active::-webkit-slider-thumb {
 	box-shadow: none;
 	background: linear-gradient(to bottom,  #bbc4cd,  #e7edf2);
 }
-.dark .select:hover, .dark .select:hover .team, .dark a.team:hover, .dark button.team:hover {
+.dark .select:hover, .dark .select:hover .team, .dark a.team:hover, .dark button.team:hover,
+.dark .teamlist li.keyboard-focus .team {
 	border-color: #34373b;
 	background: #FFFFFF;
 	color: white;

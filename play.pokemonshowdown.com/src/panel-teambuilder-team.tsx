@@ -39,8 +39,9 @@ class TeamRoom extends PSRoom {
 		if (team) this.setFormat(team.format);
 		this.load();
 	}
-	override onParentKeyDown = (e?: Event) => {
-		return this.editor?.handleParentKeyDown?.(e as KeyboardEvent);
+	override onParentKeyDown = (ev: KeyboardEvent, isNonEmptyTextInput: boolean) => {
+		if (isNonEmptyTextInput) return;
+		return this.editor?.handleParentKeyDown?.(ev);
 	};
 	override getTitle() {
 		return `[${TL`Team`}] ${this.team?.name || (this.teamDeleted ? TL`Team deleted` : TL`Not found`)}`;

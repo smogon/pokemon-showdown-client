@@ -15,6 +15,8 @@ import { TeamEditorState } from "./battle-team-editor";
 
 const ADD_FORMAT_FOLDER_VALUE = '+';
 const ADD_FOLDER_VALUE = '++';
+const TEAM_RENDER_BATCH = 50;
+const TEAM_ROW_HEIGHT_ESTIMATE = 53;
 
 class TeambuilderRoom extends PSRoom {
 	readonly DEFAULT_FORMAT = Dex.modid;
@@ -228,15 +230,28 @@ class TeambuilderRoom extends PSRoom {
 		if (!value) {
 			this.searchTerms = [];
 		} else {
-			this.searchTerms = value.split(",").map(q => q.trim().toLowerCase());
+			this.searchTerms = value.split(",").map(q => q.trim().toLowerCase()).filter(Boolean);
 		}
 		this.resetExport();
 	};
-	matchesSearch = (team: Team) => {
-		if (this.searchTerms.length === 0) return true;
-		const normalized = team.packedTeam.toLowerCase();
-		return this.searchTerms.every(term => normalized.includes(term));
-	};
+	/** Title/format prefix: 0, title/format substring: 1, other matches: 2, no match: -1 */
+	getSearchRank(team: Team) {
+		const title = team.name.toLowerCase();
+		const formattedTitle = toID(team.format + team.name);
+		const packedTeam = team.packedTeam.toLowerCase();
+		let rank = 2;
+		for (const term of this.searchTerms) {
+			const termID = toID(term);
+			if (title.startsWith(term) || (termID && formattedTitle.startsWith(termID))) {
+				rank = 0;
+			} else if (title.includes(term) || (termID && formattedTitle.includes(termID))) {
+				rank = Math.min(rank, 1);
+			} else if (!packedTeam.includes(term)) {
+				return -1;
+			}
+		}
+		return rank;
+	}
 }
 
 class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
@@ -250,11 +265,37 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 	}
 	mobileFormatFolderButton: HTMLButtonElement | null = null;
 	backupCopiedTimeout: ReturnType<typeof setTimeout> | null = null;
+	teamList: Team[] = [];
+	teamListFocusIndex = -1;
+	/** number of rows actually rendered */
+	teamRenderLimit = TEAM_RENDER_BATCH;
+	teamRowCount = 0;
+	teamListFilter = '';
+	resetTeamScroll = false;
+	teamFocusScrollPending = false;
+	teamScrollFrame = 0;
+	override componentDidMount() {
+		super.componentDidMount();
+		this.props.room.onParentKeyDown = this.keyDownFind;
+	}
 	override componentDidUpdate() {
 		super.componentDidUpdate();
+		if (this.resetTeamScroll) {
+			this.resetTeamScroll = false;
+			const pane = this.base?.querySelector('.teampane');
+			if (pane) pane.scrollTop = 0;
+		}
+		this.handleTeamScroll();
+		const scrollFocus = this.teamFocusScrollPending;
+		this.teamFocusScrollPending = false;
 		const room = this.props.room;
 		const restore = room.pendingTeamScrollRestore;
-		if (!restore) return;
+		if (!restore) {
+			if (scrollFocus && this.teamListFocusIndex >= 0) {
+				this.base?.querySelector('.teamlist li.keyboard-focus .team')?.scrollIntoView({ block: 'nearest' });
+			}
+			return;
+		}
 		room.pendingTeamScrollRestore = null;
 
 		const teamElem = this.base!.querySelector<HTMLAnchorElement>(`a.team[href="team-${restore.key}"]`);
@@ -270,7 +311,59 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 	}
 	override componentWillUnmount() {
 		super.componentWillUnmount();
+		this.props.room.onParentKeyDown = null;
 		if (this.backupCopiedTimeout) clearTimeout(this.backupCopiedTimeout);
+		if (this.teamScrollFrame) cancelAnimationFrame(this.teamScrollFrame);
+	}
+	handleTeamScroll = () => {
+		if (this.teamScrollFrame) return;
+		this.teamScrollFrame = requestAnimationFrame(() => {
+			this.teamScrollFrame = 0;
+			this.extendTeamList();
+		});
+	};
+	extendTeamList() {
+		const pane = this.base?.querySelector<HTMLElement>('.teampane');
+		const spacer = pane?.querySelector<HTMLElement>('.teamlist-spacer');
+		if (!pane?.clientHeight || !spacer) return;
+
+		// we want to render up to one screenful below current visible area
+		/** distance from top of rendered area to one screenful below current visible area */
+		const remaining = pane.getBoundingClientRect().top + pane.clientHeight * 2 - spacer.getBoundingClientRect().top;
+		if (remaining < 0) return;
+		const extra = Math.max(TEAM_RENDER_BATCH, Math.ceil(remaining / TEAM_ROW_HEIGHT_ESTIMATE));
+		const limit = Math.min(this.teamRowCount, this.teamRenderLimit + extra);
+		if (limit <= this.teamRenderLimit) return;
+		this.teamRenderLimit = limit;
+		this.forceUpdate();
+	}
+	focusTeamList = (ev: FocusEvent) => {
+		const row = (ev.target as HTMLElement).closest<HTMLElement>('li[data-teamindex]');
+		if (!row || Number(row.dataset.teamindex) < this.teamRenderLimit - 10) return;
+
+		// focus has reached the last ten rows, render another 50
+		if (this.teamRenderLimit >= this.teamRowCount) return;
+		this.teamRenderLimit = Math.min(this.teamRowCount, this.teamRenderLimit + TEAM_RENDER_BATCH);
+		this.forceUpdate();
+	};
+	getTeamRenderLimit(teams: (Team | null)[]) {
+		const room = this.props.room;
+		const filter = JSON.stringify([room.curFolder, room.searchTerms]);
+		if (filter !== this.teamListFilter) {
+			this.teamListFilter = filter;
+			this.teamRenderLimit = TEAM_RENDER_BATCH;
+			this.resetTeamScroll = true;
+		}
+		this.teamRowCount = teams.length;
+		if (PS.dragging?.type === 'team') this.teamRenderLimit = teams.length;
+		const focusedTeam = this.teamList[this.teamListFocusIndex];
+		const restoreKey = room.pendingTeamScrollRestore?.key;
+		const requiredIndex = Math.max(
+			teams.indexOf(focusedTeam),
+			restoreKey ? teams.findIndex(team => team?.key === restoreKey) : -1
+		);
+		this.teamRenderLimit = Math.max(this.teamRenderLimit, requiredIndex + TEAM_RENDER_BATCH);
+		return Math.min(this.teamRenderLimit, teams.length);
 	}
 	clickFolder = (e: MouseEvent) => {
 		const room = this.props.room;
@@ -498,10 +591,46 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		}
 		return !!this.addDraggedTeam(ev, (PS.rooms['teambuilder'] as TeambuilderRoom)?.curFolder) || draggingTeam;
 	}
-	updateSearch = (ev: KeyboardEvent) => {
+	updateSearch = (ev: Event) => {
 		const target = ev.currentTarget as HTMLInputElement;
 		this.props.room.updateSearch(target.value);
+		this.teamListFocusIndex = this.props.room.searchTerms.length ? 0 : -1;
+		this.teamFocusScrollPending = true;
 		this.forceUpdate();
+	};
+	blurSearch = () => {
+		this.teamListFocusIndex = -1;
+		this.forceUpdate();
+	};
+	keyDownFind = (ev: KeyboardEvent) => {
+		if (ev.defaultPrevented || ev.isComposing) return;
+		if (!(ev.ctrlKey || ev.metaKey) || ev.altKey || ev.shiftKey || ev.keyCode !== 70) return;
+		const search = this.base?.querySelector<HTMLInputElement>('input[type="search"]');
+		if (!search || document.activeElement === search) return;
+		search.focus();
+		search.select();
+		return false;
+	};
+	keyDownSearch = (ev: KeyboardEvent) => {
+		if (ev.shiftKey || ev.ctrlKey || ev.altKey || ev.metaKey || ev.isComposing) return;
+		if (ev.keyCode === 38) { // up
+			const minIndex = this.props.room.searchTerms.length && this.teamList.length ? 0 : -1;
+			this.teamListFocusIndex = Math.max(this.teamListFocusIndex - 1, minIndex);
+			this.teamFocusScrollPending = true;
+			this.forceUpdate();
+			ev.preventDefault();
+		} else if (ev.keyCode === 40) { // down
+			this.teamListFocusIndex = Math.min(this.teamListFocusIndex + 1, this.teamList.length - 1);
+			this.teamFocusScrollPending = true;
+			this.forceUpdate();
+			ev.preventDefault();
+		} else if (ev.keyCode === 13) { // enter
+			ev.preventDefault();
+			ev.stopImmediatePropagation();
+			const team = this.teamList[this.teamListFocusIndex];
+			if (!team) return;
+			PS.join(`team-${team.key}` as RoomID);
+		}
 	};
 	changeExportReadable = (ev: Event) => {
 		const room = this.props.room;
@@ -531,12 +660,6 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			this.forceUpdate();
 		}, 3000);
 		this.forceUpdate();
-	};
-	clearSearch = () => {
-		const target = this.base!.querySelector<HTMLInputElement>('input[type="search"]');
-		if (!target) return;
-		target.value = '';
-		this.props.room.updateSearch('');
 	};
 	renderFolder(value: string) {
 		const { room } = this.props;
@@ -799,8 +922,12 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		}
 		if (!room.searchTerms.length) return teams;
 
-		const filteredTeams = teams.filter(team => !team || room.matchesSearch(team));
-		return filteredTeams;
+		const matches: (Team | null)[][] = [[], [], []];
+		for (const team of teams) {
+			const rank = team ? room.getSearchRank(team) : 2;
+			if (rank >= 0) matches[rank].push(team);
+		}
+		return matches[0].concat(matches[1], matches[2]);
 	}
 	cancelClipboard = () => {
 		TeamEditorState.clipboard = null;
@@ -836,7 +963,10 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		}
 
 		const filteredTeams = this.visibleTeams(teams);
-		const filteredTeamCount = filteredTeams.filter(Boolean).length;
+		this.teamList = filteredTeams.filter((team): team is Team => !!team);
+		this.teamListFocusIndex = Math.min(this.teamListFocusIndex, this.teamList.length - 1);
+		const focusedTeam = this.teamList[this.teamListFocusIndex];
+		const filteredTeamCount = this.teamList.length;
 
 		if (room.exportMode) {
 			const exportedTeams = filteredTeams.filter(Boolean) as Team[];
@@ -876,7 +1006,8 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		const clipboard = window.TeamEditorState ? TeamEditorState.clipboard : null;
 		const clipboardTeams = clipboard?.teams;
 		const narrow = window.innerWidth < 650;
-		return <div class="teampane">
+		const renderLimit = this.getTeamRenderLimit(filteredTeams);
+		return <div class="teampane" onScroll={this.handleTeamScroll}>
 			{window.TeamEditorState && TeamEditorState.renderClipboard(this.cancelClipboard)}
 			{filterFolder ? (
 				<h2>
@@ -932,11 +1063,14 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					<i class="fa fa-archive" aria-hidden></i> {TL`[New box]`}
 				</button>
 				<input
-					type="search" class="textbox" placeholder={TL`Search teams`}
-					style="margin-left:5px;" onKeyUp={this.updateSearch}
+					type="search" class="textbox autofocus" placeholder={TL`Search teams`}
+					aria-label={TL`Search teams`} aria-controls="teambuilder-teamlist"
+					aria-activedescendant={focusedTeam ? `teambuilder-team-${focusedTeam.key}` : undefined}
+					style="margin-left:5px;" onInput={this.updateSearch}
+					onKeyDown={this.keyDownSearch} onBlur={this.blurSearch}
 				></input>
 			</p>
-			<ul class="teamlist">
+			<div role="group" id="teambuilder-teamlist"><ul class="teamlist" onFocus={this.focusTeamList}>
 				{!teams.length ? (
 					<li><em>{TL`you have no teams lol`}</em></li>
 				) : !filteredTeams.length && room.searchTerms.length ? (
@@ -945,11 +1079,13 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					)}</em></li>
 				) : !filteredTeams.length ? (
 					<li><em>{TL`you have no teams in this folder`}</em></li>
-				) : filteredTeams.map(team => team ? (
+				) : filteredTeams.slice(0, renderLimit).map((team, index) => team ? (
 					<li
-						key={team.key} data-teamkey={team.key}
+						key={team.key} data-teamkey={team.key} data-teamindex={index}
+						aria-posinset={isDragging ? undefined : index + 1}
+						aria-setsize={isDragging ? undefined : filteredTeams.length + (clipboardTeams ? 1 : 0)}
 						onDragStart={this.dragStartTeam} onDragEnd={this.dragEndTeam} onDragEnter={this.dragEnterTeam}
-						class={`${clipboardTeams?.[team.key] ? 'cur ' : ''}${
+						class={`${team === focusedTeam ? 'keyboard-focus ' : ''}${clipboardTeams?.[team.key] ? 'cur ' : ''}${
 							PS.dragging?.type === 'team' && PS.dragging.team === team ? 'dragging' : ''
 						}`}
 					>
@@ -961,7 +1097,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 								<i class="fa fa-arrow-right" aria-hidden></i> {TL`[Move here]`}
 							</button>
 						</div>}
-						<TeamBox team={team} onClick={this.clearSearch} /> {}
+						<TeamBox id={`teambuilder-team-${team.key}`} team={team} /> {}
 						<span class="team-controls">
 							{clipboardTeams && !clipboardTeams[team.key] && <button data-cmd={`/copyteam ${team.key}`} class="option">
 								<i class="fa fa-copy" aria-hidden></i> {TL`[+ Clipboard]`}
@@ -992,25 +1128,35 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 						</span>
 					</li>
 				) : isDragging ? (
-					<li key="dragging">
+					<li key="dragging" role="presentation" aria-hidden="true">
 						<div class="team"></div>
 					</li>
 				) : (
-					<li key="undelete">
+					<li
+						key="undelete" data-teamindex={index}
+						aria-posinset={index + 1} aria-setsize={filteredTeams.length + (clipboardTeams ? 1 : 0)}
+					>
 						<button data-cmd="/undeleteteam" class="option">
 							<i class="fa fa-undo" aria-hidden></i> {TL`[Undo delete]`}
 						</button>
 					</li>
 				))}
-				{clipboardTeams && <div>
+				{renderLimit < filteredTeams.length && <li
+					key="spacer" class="teamlist-spacer" role="presentation" aria-hidden="true"
+					style={{ height: (filteredTeams.length - renderLimit) * TEAM_ROW_HEIGHT_ESTIMATE, margin: 0, overflowAnchor: 'none' }}
+				/>}
+				{clipboardTeams && <li
+					aria-posinset={isDragging ? undefined : filteredTeams.length + 1}
+					aria-setsize={isDragging ? undefined : filteredTeams.length + 1}
+				>
 					<button class="button notifying" data-cmd="/pasteteamabove -">
 						<i class="fa fa-clipboard" aria-hidden></i> {TL`[Paste copy here]`}
 					</button> {}
 					<button class="button notifying" data-cmd="/moveteamabove -" disabled={clipboard.readonly}>
 						<i class="fa fa-arrow-right" aria-hidden></i> {TL`[Move here]`}
 					</button>
-				</div>}
-			</ul>
+				</li>}
+			</ul></div>
 			<p>
 				<button data-cmd="/newteam bottom" class="button">
 					<i class="fa fa-plus-circle" aria-hidden></i> {}
