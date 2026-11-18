@@ -1733,9 +1733,8 @@ class BattleOptionsPanel extends PSRoomPanel {
 		if (!room) return this.close();
 
 		const hidden = (ev.currentTarget as HTMLInputElement).checked;
-		room.hideBattleToggled = hidden;
-		room.update(null);
 		room.send(hidden ? '/hiddenroom' : '/publicroom');
+		this.forceUpdate();
 	};
 
 	override render() {
@@ -1762,7 +1761,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 				<p>
 					<label class="checkbox">
 						<input
-							checked={battleRoom.hideBattleToggled}
+							checked={battleRoom.isHiddenBattle}
 							type="checkbox" onChange={this.handleBattleVisibility}
 						/> {TL`Hide current battle`}
 					</label>
@@ -1876,7 +1875,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<input
 						name="autohardcore" checked={PS.prefs.autohardcore || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> {TL`Automatically start timer`}
+					/> {TL`Automatically enable hardcore mode`}
 				</label>
 			</p>
 			<p>

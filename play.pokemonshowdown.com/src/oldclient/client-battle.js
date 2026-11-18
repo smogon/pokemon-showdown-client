@@ -16,7 +16,6 @@
 			this.autoHardcoreActivated = false;
 			this.autoTeamSheetAccepted = false;
 			this.isHiddenBattle = BattleRoom.checkHiddenBattle(this.id);
-			this.hideBattleToggled = this.isHiddenBattle;
 
 			this.isSideRoom = Dex.prefs('rightpanelbattles');
 
@@ -1631,7 +1630,7 @@
 				(this.battle.turn >= 100 && isPlayer) || (app.user.get('group') === '~')
 			);
 			var buf = '<p><strong>In this battle</strong></p>';
-			buf += '<p><label class="checkbox"><input type="checkbox" name="hidecurrentbattle"' + (this.room.hideBattleToggled ? ' checked' : '') + ' /> Hide current battle</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="hidecurrentbattle"' + (this.room.isHiddenBattle ? ' checked' : '') + ' /> Hide current battle</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="ignorenicks"' + (this.battle.ignoreNicks ? ' checked' : '') + ' /> Ignore Pok&eacute;mon nicknames</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="ignorespects"' + (this.battle.ignoreSpects ? ' checked' : '') + ' /> Ignore spectators</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="ignoreopp"' + (this.battle.ignoreOpponent ? ' checked' : '') + ' /> Ignore opponent</label></p>';
@@ -1642,10 +1641,10 @@
 			buf += '<p><label class="checkbox"><input type="checkbox" name="allignorenicks"' + (Dex.prefs('ignorenicks') ? ' checked' : '') + ' /> Ignore Pok&eacute;mon nicknames</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="allignorespects"' + (Dex.prefs('ignorespects') ? ' checked' : '') + ' /> Ignore spectators</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="allignoreopp"' + (Dex.prefs('ignoreopp') ? ' checked' : '') + ' /> Ignore opponent</label></p>';
-			buf += '<p><label class="checkbox"><input type="checkbox" name="autohardcore"' + (Dex.prefs('hardcoremode') ? ' checked' : '') + ' /> Automatically enable hardcore mode</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="autohardcore"' + (Dex.prefs('autohardcore') ? ' checked' : '') + ' /> Automatically enable hardcore mode</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="autoTeamSheet"' + (Dex.prefs('autoTeamSheet') ? ' checked' : '') + ' /> Automatically accept Open Team Sheets</label></p>';
-			buf += '<p><label class="checkbox"><input type="checkbox" name="spectatefromstart"' + (Dex.prefs('spectatefromstart') ? ' checked' : '') + ' /> Automatically accept Open Team Sheets</label></p>';
-			if (rightPanelBattlesPossible) buf += '<p><label class="checkbox"><input type="checkbox" name="rightpanelbattles"' + (Dex.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Start at turn 0 when spectating battles</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="spectatefromstart"' + (Dex.prefs('spectatefromstart') ? ' checked' : '') + ' /> Start at turn 0 when spectating battles</label></p>';
+			if (rightPanelBattlesPossible) buf += '<p><label class="checkbox"><input type="checkbox" name="rightpanelbattles"' + (Dex.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Open new battles in the right-side panel</label></p>';
 			buf += '<p class="buttonbar">';
 			buf += '<button name="close" class="button">Done</button> ';
 			if (this.room && this.room.battle) buf += '<button name="offertie" class="button"' + (canOfferTie ? '' : ' disabled') + '>Offer Tie</button>';
@@ -1670,8 +1669,9 @@
 			'click button[name=offertie]': 'offerTie'
 		},
 		toggleBattleVisibility: function (e) {
-			this.room.hideBattleToggled = !!e.currentTarget.checked;
-			this.room.send(e.currentTarget.checked ? '/hiddenroom' : '/publicroom');
+			var hidden = !!e.currentTarget.checked;
+			e.currentTarget.checked = this.room.isHiddenBattle;
+			this.room.send(hidden ? '/hiddenroom' : '/publicroom');
 		},
 		toggleIgnoreNicks: function (e) {
 			this.battle.ignoreNicks = !!e.currentTarget.checked;
@@ -1719,7 +1719,7 @@
 		},
 		toggleAutoHardcore: function (e) {
 			var hardcoreMode = !!e.currentTarget.checked;
-			Storage.prefs('hardcoremode', hardcoreMode);
+			Storage.prefs('autohardcore', hardcoreMode);
 			if (hardcoreMode && !this.battle.hardcoreMode) this.$el.find('input[name=hardcoremode]').click();
 		},
 		toggleDisallowSpectators: function (e) {

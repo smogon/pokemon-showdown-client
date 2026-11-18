@@ -151,7 +151,6 @@ export class BattleRoom extends ChatRoom {
 	declare challengingFormat: null;
 	declare challengedFormat: null;
 	isHiddenBattle = false;
-	hideBattleToggled = false;
 
 	override battle: Battle = null!;
 	/** null if spectator, otherwise current player's info */
@@ -173,7 +172,6 @@ export class BattleRoom extends ChatRoom {
 	constructor(options: RoomOptions) {
 		super(options);
 		this.isHiddenBattle = BattleRoom.checkHiddenBattle(this.id);
-		this.hideBattleToggled = this.isHiddenBattle;
 	}
 
 	private pendingLines: Args[] = [];
