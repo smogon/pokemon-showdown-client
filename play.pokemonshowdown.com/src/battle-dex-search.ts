@@ -698,7 +698,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 
 		this.baseResults = null;
 		this.baseIllegalResults = null;
-		this.terastalClause = !!BattleFormats[format]?.terastalClause;
+		this.terastalClause = !!window.BattleFormats?.[format]?.terastalClause;
 
 		if (format.startsWith('gen')) {
 			const gen = (Number(format.charAt(3)) || 6);
