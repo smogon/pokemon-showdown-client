@@ -159,6 +159,7 @@ export class BattleRoom extends ChatRoom {
 	choices: BattleChoiceBuilder | null = null;
 	autoTimerActivated: boolean | null = null;
 	autoTeamSheetAccepted: boolean | null = null;
+	autoHideReplayActivated: boolean | null = null;
 	requireForfeit = false;
 	/** should be false if we joined right after accepting or challenging a battle,
 	  * and true if we refreshed and rejoined a battle.
@@ -271,9 +272,13 @@ export class BattleRoom extends ChatRoom {
 			this.send('/timer on');
 			this.autoTimerActivated = true;
 		}
-		if (PS.prefs.autoTeamSheet && !this.autoTeamSheetAccepted) {
+		if (PS.prefs.autoteamsheet && !this.autoTeamSheetAccepted) {
 			this.send('/acceptopenteamsheets');
 			this.autoTeamSheetAccepted = true;
+		}
+		if (PS.prefs.autohidereplay && request.side && !this.autoHideReplayActivated) {
+			this.send('/hidereplay');
+			this.autoHideReplayActivated = true;
 		}
 
 		BattleChoiceBuilder.fixRequest(request, this.battle);

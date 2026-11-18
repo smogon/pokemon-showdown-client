@@ -132,7 +132,8 @@ class PSPrefs extends PSStreamModel<string | null> {
 	ignoreopp: boolean | null = null;
 	autotimer: boolean | null = null;
 	autohardcore: boolean | null = null;
-	autoTeamSheet: boolean | null = null;
+	autoteamsheet: boolean | null = null;
+	autohidereplay: boolean | null = null;
 	spectatefromstart: boolean | null = null;
 	battlelayout: BattleLayoutPreference | null = null;
 	rightpanelbattles: boolean | null = null;

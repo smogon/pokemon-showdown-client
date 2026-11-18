@@ -1668,6 +1668,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 		const room = this.getBattleRoom();
 
 		switch (setting) {
+		case 'autohidereplay': {
+			PS.prefs.set('autohidereplay', value);
+			if (value && room?.side && !room.autoHideReplayActivated) {
+				room.send('/hidereplay');
+				room.autoHideReplayActivated = true;
+			}
+			break;
+		}
 		case 'autotimer': {
 			PS.prefs.set('autotimer', value);
 			if (value) {
@@ -1683,10 +1691,11 @@ class BattleOptionsPanel extends PSRoomPanel {
 			}
 			break;
 		}
-		case 'autoTeamSheet': {
-			PS.prefs.set('autoTeamSheet', value);
-			if (value) {
-				room?.send('/acceptopenteamsheets');
+		case 'autoteamsheet': {
+			PS.prefs.set('autoteamsheet', value);
+			if (value && room?.side && !room.autoTeamSheetAccepted) {
+				room.send('/acceptopenteamsheets');
+				room.autoTeamSheetAccepted = true;
 			}
 			break;
 		}
@@ -1841,6 +1850,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="checkbox">
 					<input
+						name="autohidereplay" checked={PS.prefs.autohidereplay || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> {TL`Automatically hide replay`}
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
 						name="autotimer" checked={PS.prefs.autotimer || false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> {TL`Automatically start timer`}
@@ -1881,7 +1898,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="checkbox">
 					<input
-						name="autoTeamSheet" checked={PS.prefs.autoTeamSheet || false}
+						name="autoteamsheet" checked={PS.prefs.autoteamsheet || false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> {TL`Automatically accept Open Team Sheets`}
 				</label>

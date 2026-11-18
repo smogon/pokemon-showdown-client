@@ -164,6 +164,7 @@ export const translations: TranslationCatalog = {
 	"Automatically start timer": null,
 	"Automatically enable hardcore mode": null,
 	"Automatically accept Open Team Sheets": null,
+	"Automatically hide replay": null,
 	// TRANSLATORS: this phrasing is because "forfeit" is an English word some people don't know
 	// TRANSLATORS: if your language's word for "forfeit" is easily understandable, you may wish to skip the explanation
 	"Forfeiting makes you lose the battle. Are you sure?": null,

@@ -15,6 +15,7 @@
 			this.autoTimerActivated = false;
 			this.autoHardcoreActivated = false;
 			this.autoTeamSheetAccepted = false;
+			this.autoHideReplayActivated = false;
 			this.isHiddenBattle = BattleRoom.checkHiddenBattle(this.id);
 
 			this.isSideRoom = Dex.prefs('rightpanelbattles');
@@ -1119,9 +1120,13 @@
 				this.setHardcoreMode(true);
 				this.autoHardcoreActivated = true;
 			}
-			if (!this.autoTeamSheetAccepted && Storage.prefs('autoTeamSheet') && !this.battle.ended) {
+			if (!this.autoTeamSheetAccepted && Storage.prefs('autoteamsheet') && !this.battle.ended) {
 				this.send('/acceptopenteamsheets');
 				this.autoTeamSheetAccepted = true;
+			}
+			if (!this.autoHideReplayActivated && Storage.prefs('autohidereplay') && request.side && !this.battle.ended) {
+				this.send('/hidereplay');
+				this.autoHideReplayActivated = true;
 			}
 
 			request.requestType = 'move';
@@ -1637,12 +1642,13 @@
 			buf += '<p><label class="checkbox"><input type="checkbox" name="hardcoremode"' + (this.battle.hardcoreMode ? ' checked' : '') + ' /> Hardcore mode (hide info not shown in-game)</label></p>';
 			buf += '<p><strong>All battles</strong></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="disallowspectators"' + (Storage.prefs('disallowspectators') ? ' checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Invite only (hide from Battles list)</abbr></label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="autohidereplay"' + (Dex.prefs('autohidereplay') ? ' checked' : '') + ' /> Automatically hide replay</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="autotimer"' + (Dex.prefs('autotimer') ? ' checked' : '') + ' /> Automatically start timer</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="allignorenicks"' + (Dex.prefs('ignorenicks') ? ' checked' : '') + ' /> Ignore Pok&eacute;mon nicknames</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="allignorespects"' + (Dex.prefs('ignorespects') ? ' checked' : '') + ' /> Ignore spectators</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="allignoreopp"' + (Dex.prefs('ignoreopp') ? ' checked' : '') + ' /> Ignore opponent</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="autohardcore"' + (Dex.prefs('autohardcore') ? ' checked' : '') + ' /> Automatically enable hardcore mode</label></p>';
-			buf += '<p><label class="checkbox"><input type="checkbox" name="autoTeamSheet"' + (Dex.prefs('autoTeamSheet') ? ' checked' : '') + ' /> Automatically accept Open Team Sheets</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="autoteamsheet"' + (Dex.prefs('autoteamsheet') ? ' checked' : '') + ' /> Automatically accept Open Team Sheets</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="spectatefromstart"' + (Dex.prefs('spectatefromstart') ? ' checked' : '') + ' /> Start at turn 0 when spectating battles</label></p>';
 			if (rightPanelBattlesPossible) buf += '<p><label class="checkbox"><input type="checkbox" name="rightpanelbattles"' + (Dex.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Open new battles in the right-side panel</label></p>';
 			buf += '<p class="buttonbar">';
@@ -1658,12 +1664,13 @@
 			'change input[name=ignoreopp]': 'toggleIgnoreOpponent',
 			'change input[name=hardcoremode]': 'toggleHardcoreMode',
 			'change input[name=disallowspectators]': 'toggleDisallowSpectators',
+			'change input[name=autohidereplay]': 'toggleAutoHideReplay',
 			'change input[name=autotimer]': 'toggleAutoTimer',
 			'change input[name=allignorenicks]': 'toggleAllIgnoreNicks',
 			'change input[name=allignorespects]': 'toggleAllIgnoreSpects',
 			'change input[name=allignoreopp]': 'toggleAllIgnoreOpponent',
 			'change input[name=autohardcore]': 'toggleAutoHardcore',
-			'change input[name=autoTeamSheet]': 'toggleAutoTeamSheet',
+			'change input[name=autoteamsheet]': 'toggleAutoTeamSheet',
 			'change input[name=spectatefromstart]': 'togglespectatefromstart',
 			'change input[name=rightpanelbattles]': 'toggleRightPanelBattles',
 			'click button[name=offertie]': 'offerTie'
@@ -1672,6 +1679,14 @@
 			var hidden = !!e.currentTarget.checked;
 			e.currentTarget.checked = this.room.isHiddenBattle;
 			this.room.send(hidden ? '/hiddenroom' : '/publicroom');
+		},
+		toggleAutoHideReplay: function (e) {
+			var autohidereplay = !!e.currentTarget.checked;
+			Storage.prefs('autohidereplay', autohidereplay);
+			if (autohidereplay && this.room.side && !this.room.autoHideReplayActivated) {
+				this.room.send('/hidereplay');
+				this.room.autoHideReplayActivated = true;
+			}
 		},
 		toggleIgnoreNicks: function (e) {
 			this.battle.ignoreNicks = !!e.currentTarget.checked;
@@ -1734,9 +1749,9 @@
 			}
 		},
 		toggleAutoTeamSheet: function (e) {
-			var autoTeamSheet = !!e.currentTarget.checked;
-			Storage.prefs('autoTeamSheet', autoTeamSheet);
-			if (autoTeamSheet) {
+			var autoteamsheet = !!e.currentTarget.checked;
+			Storage.prefs('autoteamsheet', autoteamsheet);
+			if (autoteamsheet) {
 				this.room.send('/acceptopenteamsheets');
 				this.room.autoTeamSheetAccepted = true;
 			}
