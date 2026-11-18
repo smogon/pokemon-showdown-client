@@ -182,7 +182,7 @@ function compileToDir(srcDir, destDir, opts = {}) {
 	return total;
 }
 
-function compileToFile(srcFile, destFile, opts) {
+async function compileToFile(srcFile, destFile, opts) {
 	const incremental = opts.incremental;
 	delete opts.incremental;
 
@@ -205,12 +205,11 @@ function compileToFile(srcFile, destFile, opts) {
 		if (VERBOSE) console.log(src + " ->");
 	}
 
-	combineResults(results, {
+	const combined = await combineResults(results, {
 		file: path.basename(destFile),
 		sourceRoot: opts.sourceRoot,
-	}, opts).then(combined => {
-		outputFileSync(destFile, combined, opts);
-	});
+	}, opts);
+	outputFileSync(destFile, combined, opts);
 
 	if (VERBOSE) console.log("-> " + destFile);
 	if (incremental) opts.incremental = true; // incredibly dumb hack to preserve the option

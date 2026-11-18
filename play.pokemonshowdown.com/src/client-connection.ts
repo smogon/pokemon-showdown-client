@@ -6,6 +6,7 @@
  */
 
 import { Config, PS } from "./client-main";
+import { TL } from "./battle-dex";
 
 declare const SockJS: any;
 declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
@@ -14,6 +15,7 @@ const KEEPALIVE_RANGE = 20000;
 
 export class PSConnection {
 	socket: WebSocket | null = null;
+	/** true for either worker or direct connections. `.worker` or `.socket` will be truthy */
 	connected = false;
 	lastMessageTimeBeforeReconnect = 0;
 	queue: string[] = [];
@@ -64,8 +66,8 @@ export class PSConnection {
 	canReconnect() {
 		const uptime = Date.now() - PS.startTime;
 		if (uptime > 24 * 60 * 60 * 1000) {
-			PS.confirm(`It's been over a day since you first connected. Please refresh.`, {
-				okButton: 'Refresh',
+			PS.confirm(TL`It's been over a day since you first connected. Please refresh.`, {
+				okButton: TL`[Refresh]`,
 			}).then(confirmed => {
 				if (confirmed) PS.room?.send(`/refresh`);
 			});
@@ -157,15 +159,6 @@ export class PSConnection {
 		socket.onclose = () => {
 			console.log('\u274C (DISCONNECTED)');
 			this.handleDisconnect();
-			console.log('\u2705 (DISCONNECTED)');
-			this.connected = false;
-			PS.isOffline = true;
-			for (const roomid in PS.rooms) {
-				const room = PS.rooms[roomid]!;
-				if (room.connected === true) room.connected = 'autoreconnect';
-			}
-			this.socket = null;
-			PS.update();
 		};
 
 		socket.onerror = (ev: Event) => {
@@ -192,7 +185,9 @@ export class PSConnection {
 		this.socket = null;
 		for (const roomid in PS.rooms) {
 			const room = PS.rooms[roomid]!;
-			if (room.connected === true) room.connected = 'autoreconnect';
+			// other rooms also connect after reconnecting but this flag is for rooms that were already connected
+			if (room.connected === true) room.connectMode = 'pending-reconnect';
+			room.connected = false;
 		}
 		PS.update();
 	}
@@ -209,7 +204,7 @@ export class PSConnection {
 		this.nextRetryTime = 0;
 		this.lastReceiveTime = Date.now();
 
-		if (PS.prefs.avatar) this.send(`/avatar ${PS.prefs.avatar},1`);
+		if (PS.prefs.avatar) PS.send(`/avatar ${PS.prefs.avatar},1`);
 		const queue = this.queue;
 		this.queue = [];
 		for (const msg of queue) this.send(msg);
@@ -294,7 +289,7 @@ export class PSStorage {
 		// Cross-origin
 		if (!('postMessage' in window)) {
 			// browser does not support cross-document messaging
-			PS.alert("Sorry, psim connections are unsupported by your browser.");
+			PS.alert(TL`Sorry, psim connections are unsupported by your browser.`);
 			return;
 		}
 
@@ -328,8 +323,10 @@ export class PSStorage {
 	static onMessage = (e: MessageEvent) => {
 		if (e.origin !== PSStorage.origin) return;
 
-		this.frame = e.source as WindowProxy;
 		const data = e.data;
+		if (typeof data !== 'string') return; // we don't do this but external code can
+
+		this.frame = e.source as WindowProxy;
 		// console.log(`top recv: ${data}`);
 		switch (data.charAt(0)) {
 		case 'c':
@@ -400,7 +397,7 @@ export class PSStorage {
 			break;
 		case 'a':
 			if (data === 'a0') {
-				PS.alert("Your browser doesn't support third-party cookies. Some things might not work correctly.");
+				PS.alert(TL`Your browser doesn't support third-party cookies. Some things might not work correctly.`);
 			}
 			if (!window.nodewebkit) {
 				// for whatever reason, Node-Webkit doesn't let us make remote

@@ -6,11 +6,105 @@ window = global;
 require('../play.pokemonshowdown.com/js/battle-dex-data.js');
 require('../play.pokemonshowdown.com/js/battle-dex.js');
 require('../play.pokemonshowdown.com/js/battle-scene-stub.js');
-// global.BattleText = require('../play.pokemonshowdown.com/data/text.js').BattleText;
+// global.BattleText = require('../play.pokemonshowdown.com/data/text/en.js').BattleText;
 require('../play.pokemonshowdown.com/js/battle-text-parser.js');
 require('../play.pokemonshowdown.com/js/battle.js');
 
 describe('Battle', () => {
+
+	it('clears the disguise\'s displayed type when Illusion ends', () => {
+		const battle = new Battle({debug: true, log: [
+			'|gen|9',
+			'|start',
+			'|switch|p1a: Hydrapple|Hydrapple, L83, M|312/312',
+			'|turn|11',
+			'|-terastallize|p1a: Hydrapple|Steel',
+			'|switch|p1a: Hawlucha|Hawlucha, L78, M|256/256',
+			'|turn|20',
+			'|faint|p1a: Hawlucha',
+			'|switch|p1a: Hydrapple|Hydrapple, L83, M|235/235',
+			'|-damage|p1a: Hydrapple|206/235|[from] Stealth Rock',
+			'|-start|p1a: Hydrapple|typechange|Steel|[silent]',
+			'|turn|21',
+		]});
+		assert.deepEqual(battle.p1.active[0].getTypeList(), ['Steel']);
+		battle.addBatch([
+			'|-damage|p1a: Hydrapple|134/235',
+			'|replace|p1a: Zoroark|Zoroark, L83, M',
+			'|-end|p1a: Zoroark|Illusion',
+		]);
+		const zoroark = battle.p1.active[0];
+		assert.equal(zoroark.speciesForme, 'Zoroark');
+		assert.equal(zoroark.volatiles.typechange, undefined);
+		assert.equal(zoroark.terastallized, '');
+		assert.equal(zoroark.teraType, '');
+		assert.equal(battle.p1.pokemon[0].terastallized, 'Steel');
+	});
+
+	it('preserves a move-induced type change when Illusion ends', () => {
+		const battle = new Battle({debug: true, log: [
+			'|gen|9',
+			'|start',
+			'|switch|p1a: Hydrapple|Hydrapple, L83, M|235/235',
+			'|-start|p1a: Hydrapple|typechange|Steel|[silent]',
+			'|-start|p1a: Hydrapple|typechange|Water|[from] move: Soak',
+			'|replace|p1a: Zoroark|Zoroark, L83, M',
+			'|-end|p1a: Zoroark|Illusion',
+		]});
+		assert.deepEqual(battle.p1.active[0].getTypeList(), ['Water']);
+	});
+
+	it('preserves actual Terastallization when Illusion ends', () => {
+		const battle = new Battle({debug: true, log: [
+			'|gen|9',
+			'|start',
+			'|switch|p1a: Hydrapple|Hydrapple, L83, M|235/235',
+			'|-terastallize|p1a: Hydrapple|Ghost',
+			'|replace|p1a: Zoroark|Zoroark, L83, M',
+			'|-end|p1a: Zoroark|Illusion',
+		]});
+		const zoroark = battle.p1.active[0];
+		assert.equal(zoroark.terastallized, 'Ghost');
+		assert.equal(zoroark.teraType, 'Ghost');
+		assert.deepEqual(zoroark.getTypeList(), ['Ghost']);
+	});
+
+	it('preserves chat scrollback when changing viewpoint before catching up', () => {
+		const battle = new Battle({paused: true, debug: true});
+		const messages = [];
+		const pendingMessages = [];
+		battle.scene.log.add = (args, kwargs, preempt) => {
+			if (args[0] === 'c') (preempt ? pendingMessages : messages).push(args[2]);
+		};
+		battle.scene.reset = () => {
+			messages.length = 0;
+			pendingMessages.length = 0;
+		};
+		battle.scene.preemptCatchup = () => {
+			if (pendingMessages.length) messages.push(pendingMessages.shift());
+		};
+		battle.addBatch([
+			'|start',
+			'|turn|1',
+			'|c| Player|Earlier message',
+			'|turn|2',
+			'|c| Player|Latest message',
+		]);
+		assert.equal(battle.turn, 0);
+		assert.deepEqual(pendingMessages, ['Earlier message', 'Latest message']);
+
+		battle.setViewpoint('p2');
+		battle.seekTurn(Infinity);
+		assert.equal(battle.turn, 2);
+		assert.deepEqual(messages, ['Earlier message', 'Latest message']);
+		assert.deepEqual(pendingMessages, []);
+
+		battle.addBatch(['|c| Player|New message']);
+		assert.deepEqual(pendingMessages, ['New message']);
+		battle.play();
+		assert.deepEqual(messages, ['Earlier message', 'Latest message', 'New message']);
+		assert.deepEqual(pendingMessages, []);
+	});
 
 	it('should process a bunch of messages properly', () => {
 		let battle = new Battle({

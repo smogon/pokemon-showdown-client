@@ -5,6 +5,7 @@ import { configs, configure, globals } from './eslint-ps-standard.mjs';
 export default configure([
 	{
 		ignores: [
+			'api/.dist/',
 			'caches/',
 			'play.pokemonshowdown.com/config/',
 			'play.pokemonshowdown.com/src/battle-log-misc.js',
@@ -76,6 +77,7 @@ export default configure([
 			'build-tools/*.js',
 			'build-tools/update',
 			'build-tools/build-*',
+			'test/run',
 		],
 		extends: [configs.js],
 		languageOptions: {
@@ -120,6 +122,75 @@ export default configure([
 				],
 				allowBoolean: false, allowNever: false, allowNullish: false, allowRegExp: false,
 			}],
+		},
+	},
+	{
+		name: "TypeScript for Node",
+		files: ['build-tools/*.{ts,mts}', 'config/apiserver-example.mts'],
+		extends: [configs.ts],
+		languageOptions: {
+			parserOptions: {
+				projectService: true,
+				tsconfigRootDir: import.meta.dirname,
+			},
+			globals: {
+				...globals.builtin,
+				...globals.node,
+			},
+		},
+		rules: {
+			// Translation files are trusted code, and evaluating them keeps this tool independent of Babel.
+			"@typescript-eslint/no-implied-eval": "off",
+			// These regexes describe the catalog's source syntax more clearly than string primitives.
+			"@typescript-eslint/prefer-regexp-exec": "off",
+			"@typescript-eslint/prefer-string-starts-ends-with": "off",
+		},
+	},
+	{
+		name: "API JavaScript",
+		files: [
+			'api/**/*.{js,cjs,mjs}',
+			'config/apiserver-example.mjs',
+		],
+		extends: [configs.js],
+		languageOptions: {
+			globals: {
+				...globals.builtin,
+				...globals.node,
+				...globals.mocha,
+			},
+		},
+		rules: {
+			"no-shadow": "error",
+			"radix": "off",
+		},
+	},
+	{
+		name: "API TypeScript",
+		files: [
+			'api/**/*.ts',
+		],
+		extends: [configs.ts],
+		languageOptions: {
+			parserOptions: {
+				projectService: true,
+				tsconfigRootDir: import.meta.dirname,
+			},
+		},
+		rules: {
+			"@typescript-eslint/no-require-imports": "off",
+			"@typescript-eslint/no-redundant-type-constituents": "off",
+			"@typescript-eslint/no-shadow": "error",
+			"radix": "off",
+		},
+	},
+	{
+		name: "API TypeScript tests",
+		files: [
+			'api/**/*.test.ts',
+		],
+		rules: {
+			"@typescript-eslint/restrict-template-expressions": "off",
 		},
 	},
 ]);

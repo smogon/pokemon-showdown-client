@@ -9,34 +9,45 @@ import { BattleSound } from '../../play.pokemonshowdown.com/src/battle-sound';
 import type { ID } from '../../play.pokemonshowdown.com/src/battle-dex';
 declare function toID(input: string): string;
 
-function showAd(id: string) {
-	// @ts-expect-error no clue how to declare this one
-	window.top.__vm_add = window.top.__vm_add || [];
+class ReplayAd extends preact.Component<{ replayId: string | null }> {
+	static shown = false;
+	hidden = ReplayAd.shown;
+	mountedAt: number | null = null;
+	lastReplayId: string | null = null;
 
-	// this is a x-browser way to make sure content has loaded.
-
-	(success => {
-		if (window.document.readyState !== "loading") {
-			success();
-		} else {
-			window.document.addEventListener("DOMContentLoaded", () => {
-				success();
-			});
+	override shouldComponentUpdate(nextProps: { replayId: string | null }) {
+		if (this.hidden || !nextProps.replayId) return false;
+		if (this.mountedAt === null) return true;
+		const changed = nextProps.replayId !== this.lastReplayId;
+		this.lastReplayId = nextProps.replayId;
+		if (changed && performance.now() - this.mountedAt >= 30_000) {
+			this.hidden = true;
+			return true;
 		}
-	})(() => {
-		const placement = document.createElement("div");
-		placement.setAttribute("class", "vm-placement");
-		if (window.innerWidth > 1000) {
-			// load desktop placement
-			placement.setAttribute("data-id", "6452680c0b35755a3f09b59b");
-		} else {
-			// load mobile placement
-			placement.setAttribute("data-id", "645268557bc7b571c2f06f62");
-		}
-		document.querySelector("#" + id)!.appendChild(placement);
-		// @ts-expect-error no clue how to declare this one
-		window.top.__vm_add.push(placement);
-	});
+		return false;
+	}
+	override componentDidMount() {
+		this.loadAd();
+	}
+	override componentDidUpdate() {
+		this.loadAd();
+	}
+	loadAd() {
+		if (ReplayAd.shown || this.hidden || !this.props.replayId || !this.base?.isConnected) return;
+		ReplayAd.shown = true;
+		this.mountedAt = performance.now();
+		this.lastReplayId = this.props.replayId;
+		window.ramp = window.ramp || {};
+		window.ramp.que = window.ramp.que || [];
+		const script = document.createElement('script');
+		script.setAttribute('data-cfasync', 'false');
+		script.async = true;
+		script.src = 'https://cdn.intergient.com/1025841/77767/ramp.js';
+		document.head.appendChild(script);
+	}
+	override render() {
+		return this.hidden || !this.props.replayId ? null : <div id="replay-undercontrols"></div>;
+	}
 }
 
 export class BattleDiv extends preact.Component {
@@ -56,7 +67,7 @@ class BattleLogDiv extends preact.Component {
 	}
 }
 
-export class BattlePanel extends preact.Component<{ id: string }> {
+export class BattlePanel extends preact.Component<{ id: string, user: PSReplays['user'] }> {
 	result: {
 		uploadtime: number,
 		id: string,
@@ -66,9 +77,12 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 		views: number,
 		rating: number,
 		private: number,
-		password: string,
+		password: string | null,
 	} | null | undefined = undefined;
 	resultError = '';
+	privacySaving: number | null = null;
+	manageError = '';
+	manageOpen = false;
 	battle!: Battle | null;
 	/** debug purposes */
 	lastUsedKeyCode = '0';
@@ -76,22 +90,32 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 	autofocusTurnView: 'select' | 'end' | null = null;
 	override componentDidMount() {
 		this.loadBattle(this.props.id);
-		showAd('LeaderboardBTF');
 		window.onkeydown = this.keyPressed;
 	}
 	override componentWillReceiveProps(nextProps: this['props']) {
 		if (this.stripQuery(this.props.id) !== this.stripQuery(nextProps.id)) {
+			if (this.replayID(this.props.id) !== this.replayID(nextProps.id)) {
+				this.manageOpen = false;
+			}
 			this.loadBattle(nextProps.id);
 		}
 	}
 	stripQuery(id: string) {
 		return id.includes('?') ? id.slice(0, id.indexOf('?')) : id;
 	}
+	replayID(id: string) {
+		const fullid = this.stripQuery(id);
+		if (!fullid.endsWith('pw')) return fullid;
+		const passwordIndex = fullid.lastIndexOf('-');
+		return passwordIndex > 0 ? fullid.slice(0, passwordIndex) : fullid;
+	}
 	loadBattle(id: string) {
 		if (this.battle) this.battle.destroy();
 		this.battle = null;
 		this.result = undefined;
 		this.resultError = '';
+		this.privacySaving = null;
+		this.manageError = '';
 		this.forceUpdate();
 
 		const elem = document.getElementById(`replaydata-${id}`);
@@ -103,7 +127,7 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 			return;
 		}
 
-		Net(`/${this.stripQuery(id)}.json`).get().then(result => {
+		Net(`/${this.stripQuery(id)}.json?countview`).get().then(result => {
 			this.loadResult(result, id);
 		}).catch(err => {
 			this.loadResult(err.statusCode === 404 ? '' : String(err?.body || ''), id);
@@ -367,9 +391,97 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 		e?.preventDefault();
 		this.forceUpdate();
 	};
-	renderError(position: any) {
+	manageURL(extension: 'json' | 'log' | 'inputlog') {
+		return `${Net.defaultRoute}/${this.stripQuery(this.props.id)}.${extension}?manage`;
+	}
+	toggleManage = () => {
+		this.manageOpen = !this.manageOpen;
+		this.forceUpdate();
+	};
+	currentPrivacy() {
+		if (!this.result) return 0;
+		if (this.result.private === 1 && !this.result.password) return 2;
+		return this.result.private;
+	}
+	shareURL() {
+		if (!this.result) return '';
+		const fullid = this.result.id + (this.result.password ? `-${this.result.password}pw` : '');
+		return `https://psim.us/r/${fullid}`;
+	}
+	selectShareURL = (e: Event) => {
+		(e.currentTarget as HTMLInputElement).select();
+	};
+	changePrivacy = (e: Event) => {
+		const privateValue = Number((e.target as HTMLSelectElement).value);
+		if (!this.result || this.privacySaving !== null) return;
+		if (privateValue === 3 && !confirm("Delete this replay?")) return;
+
+		const replay = this.result;
+		this.privacySaving = privateValue;
+		this.manageError = '';
+		this.forceUpdate();
+
+		Net(`/api/replays/edit`).post({}, {
+			id: replay.id,
+			private: privateValue,
+		}).then(resultText => {
+			if (resultText.startsWith(']')) resultText = resultText.slice(1);
+			const result = JSON.parse(resultText);
+			if (result.actionerror) throw new Error(result.actionerror);
+			if (this.result !== replay) return;
+
+			replay.private = privateValue;
+			replay.password = result.password || null;
+			this.privacySaving = null;
+
+			const fullid = replay.id + (replay.password ? `-${replay.password}pw` : '');
+			PSRouter.replace(fullid);
+			PSRouter.update();
+		}).catch(error => {
+			if (this.result !== replay) return;
+			this.privacySaving = null;
+			this.manageError = error instanceof Error ? error.message : String(error);
+			this.forceUpdate();
+		});
+	};
+	renderManagement() {
+		if (!this.manageOpen) return null;
+		if (!this.props.user?.isLeader) {
+			return <p class="section message-error">You do not have permission to manage this replay.</p>;
+		}
+		const privacy = this.currentPrivacy();
+		return <section class="section" style={{ clear: 'right', marginTop: '12px', marginRight: '0', maxWidth: '500px' }}>
+			<button type="button" class="button" style="float:right" onClick={this.toggleManage}>
+				<i class="fa fa-times"></i> Close
+			</button>
+			<h2 style="margin-top:0">Manage replay</h2>
+			<p>
+				Privacy: {}
+				<button class="button button-first" disabled={privacy === 0} value={0} onClick={this.changePrivacy}>
+					Public
+				</button>
+				<button class="button button-middle" disabled={privacy === 1} value={1} onClick={this.changePrivacy}>
+					Private
+				</button>
+				<button class="button button-middle" disabled={privacy === 2} value={2} onClick={this.changePrivacy}>
+					Private (no password)
+				</button>
+				<button class="button button-last" disabled={privacy === 3} value={3} onClick={this.changePrivacy}>
+					Deleted
+				</button> {}
+				{this.privacySaving !== null && <em class="button cur">Saving...</em>}
+			</p>
+			{this.manageError && <p class="message-error">{this.manageError}</p>}
+			<p>
+				<a class="button" href={this.manageURL('json')}>JSON</a> {}
+				<a class="button" href={this.manageURL('log')}>Log</a> {}
+				<a class="button" href={this.manageURL('inputlog')}>Input log</a>
+			</p>
+		</section>;
+	}
+	renderError() {
 		if (this.resultError) {
-			return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'} style={position}>
+			return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'}>
 				<section class="section">
 					<h1>Error</h1>
 					<p>
@@ -383,7 +495,7 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 		// never link to a nonexistent replay, but this might happen if e.g.
 		// a replay gets deleted or made private after you searched for it
 		// but before you clicked it.
-		return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'} style={position}>
+		return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'}>
 			<section class="section" style={{ maxWidth: '200px' }}>
 				<div style={{ textAlign: 'center' }}>
 					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-n.gif" alt="" style={{ imageRendering: 'pixelated' }} />
@@ -506,41 +618,53 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 				</label>
 			</p>
 			{this.result ? <h1>
-				<strong>{this.result.format}</strong>: {this.result.players.join(' vs. ')}
+				<strong>{this.result.format}</strong>: {}
+				{!!this.result.private && <i class="fa fa-lock" aria-hidden></i>} {this.result.players.join(' vs. ')}
 			</h1> : <h1>
 				<em>Loading...</em>
 			</h1>}
+			{!!this.result?.private && <p>
+				<strong><i class="fa fa-lock" aria-hidden></i> PRIVATE</strong> - make sure you have the owner's permission to share
+			</p>}
+			<p>
+				<label>
+					Short URL: <input
+						name="shareurl" type="text" class="textbox" readOnly size={60}
+						style="max-width:99%;box-sizing:border-box;field-sizing:content;padding-right:20px"
+						value={this.shareURL()} onFocus={this.selectShareURL}
+					/>
+				</label>
+			</p>
 			{this.result ? <p>
-				<a class="button" href="/download" onClick={this.clickDownload} style={{ float: 'right' }}>
-					<i class="fa fa-download" aria-hidden></i> Download
-				</a>
+				<span style={{ float: 'right' }}>
+					{this.props.user?.isLeader && <button
+						type="button" class={`button${this.manageOpen ? ' cur' : ''}`} onClick={this.toggleManage}
+					>
+						<i class="fa fa-wrench" aria-hidden></i> Manage
+					</button>} {}
+					<a class="button" href="/download" onClick={this.clickDownload}>
+						<i class="fa fa-download" aria-hidden></i> Download
+					</a>
+				</span>
 				{this.result.uploadtime ? new Date(this.result.uploadtime * 1000).toDateString() : "Unknown upload date"}
 				{this.result.rating ? [` | `, <em>Rating:</em>, ` ${this.result.rating}`] : ''}
 				{/* {} <code>{this.keyCode}</code> */}
 			</p> : <p>&nbsp;</p>}
+			{this.renderManagement()}
 			{!PSRouter.showingLeft() && <p>
 				<a href={PSRouter.href(PSRouter.leftLoc)} class="button"><i class="fa fa-caret-left" aria-hidden></i> More replays</a>
 			</p>}
 		</div>;
 	}
 	override render() {
-		let position: any = {};
-		if (PSRouter.showingLeft()) {
-			if (PSRouter.stickyRight) {
-				position = { position: 'sticky', top: '0' };
-			} else {
-				position = { position: 'sticky', bottom: '0' };
-			}
-		}
+		if (this.result === null) return this.renderError();
 
-		if (this.result === null) return this.renderError(position);
-
-		return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'} style={position}>
+		return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'}>
 			<div style={{ position: 'relative' }}>
 				<BattleDiv />
 				<BattleLogDiv />
 				{this.renderControls()}
-				<div id="LeaderboardBTF"></div>
+				<ReplayAd replayId={this.result ? this.replayID(this.props.id) : null} />
 			</div>
 		</div>;
 	}

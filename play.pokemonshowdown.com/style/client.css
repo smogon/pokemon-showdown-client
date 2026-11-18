@@ -1144,6 +1144,7 @@ p.or:after {
 }
 .chatbox textarea {
 	display: block;
+	box-sizing: content-box;
 	height: 1.1em;
 	width: 100%;
 	resize: none;

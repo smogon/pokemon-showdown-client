@@ -78,7 +78,7 @@ if (@$_POST['act'] === 'editserver') {
 			}
 		}
 
-		if (strpos($server, '.') === false) {
+		if (strpos($server, '.') === false || !filter_var($server, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
 			die("invalid server location");
 		}
 
@@ -109,9 +109,10 @@ if (@$_POST['act'] === 'banserver') {
 	if (!$users->csrfCheck()) die('invalid data, please retry');
 	$id = $entry['id'];
 
-	$message = @$_POST['message'];
+	$message = $_POST['message'] ?? '';
+	if (!is_string($message)) die('invalid message');
 	if (!$message) $message = 'banned';
-	$PokemonServers[$id]['banned'] = $_POST['message'];
+	$PokemonServers[$id]['banned'] = $message;
 	saveservers();
 	$success = 'banserver';
 	$entry = $PokemonServers[$id];
@@ -166,7 +167,7 @@ exports.servertoken = '<?= $token ?>';</textarea></p>
 <?php } ?>
 <?php if (@$entry['banned']) { ?>
 			<p style="color:red">
-				<strong>Banned</strong><br />Reason: <?= $entry['banned'] ?>
+				<strong>Banned</strong><br />Reason: <?= htmlspecialchars($entry['banned']) ?>
 			</p>
 <?php } ?>
 			<p>
@@ -184,7 +185,7 @@ exports.servertoken = '<?= $token ?>';</textarea></p>
 			<div id="editserver" style="display:none"><form method="post"><?php $users->csrfData(); ?>
 				<h1>Edit server</h1>
 				<div class="formrow">
-					<p><label class="label">Location: <input class="textbox" type="text" name="loc" placeholder="http://<?php echo $entry['server']; if ($entry['port'] != 8000) echo '-',$entry['port']; ?>.psim.us/" size="60" /><em>(you can leave off http:// etc if you want)</em></label></p>
+					<p><label class="label">Location: <input class="textbox" type="text" name="loc" placeholder="http://<?php echo htmlspecialchars($entry['server']); if ($entry['port'] != 8000) echo '-',intval($entry['port']); ?>.psim.us/" size="60" /><em>(you can leave off http:// etc if you want)</em></label></p>
 					<p><label class="label">Owner: <input class="textbox" type="text" name="owner" value="<?php echo $entry['owner'] ?? '(none)'; ?>" size="60" /><em>(separate multiple owners by commas)</em></label></p>
 					<label class="label">Configuration:</label><?php
 

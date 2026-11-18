@@ -1,6 +1,7 @@
 # -FrontPage-
 
 IndexIgnore .htaccess */.??* *~ *# */HEADER* */README* */_vti*
+RewriteRule ^api(/.*)?$ http://localhost:9000/api$1 [P,L]
 
 <Limit GET POST>
 order deny,allow
@@ -102,6 +103,8 @@ RewriteRule ^topsekritsim\.php$ /lobby [R=301,L]
 RewriteRule ^topsekrit3\.php$ /lobby [R=301,L]
 RewriteRule ^temporary508\.php$ /lobby [R=301,L]
 RewriteRule ^temporary508\.php$ /lobby [R=301,L]
+
+RewriteRule ^ads\.txt$ https://config.playwire.com/dyn_ads/1025841/77767/ads.txt [R=302,L]
 
 RewriteRule ^standalone\-teambuilder/?$ teambuilder.php [L,QSA]
 

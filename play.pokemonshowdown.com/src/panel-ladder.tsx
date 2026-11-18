@@ -11,7 +11,7 @@ import { Config, PS, PSRoom } from "./client-main";
 import { Net } from "./client-connection";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { BattleLog } from "./battle-log";
-import { toID, type ID } from "./battle-dex";
+import { TL, toID, type ID } from "./battle-dex";
 import { SanitizedHTML } from "./panel-page";
 
 type LadderData = {
@@ -42,7 +42,7 @@ export class LadderFormatRoom extends PSRoom {
 	override readonly classType: string = 'ladder';
 	readonly format?: string = this.id.split('-')[1];
 	notice?: string;
-	searchValue = '';
+	usernamePrefix = '';
 	loading = false;
 	error?: string;
 	ladderData?: LadderData;
@@ -57,8 +57,8 @@ export class LadderFormatRoom extends PSRoom {
 		this.notice = notice;
 		this.update(null);
 	};
-	setSearchValue = (searchValue: string) => {
-		this.searchValue = searchValue;
+	setUsernamePrefix = (usernamePrefix: string) => {
+		this.usernamePrefix = usernamePrefix;
 		this.update(null);
 	};
 	setError = (error: Error) => {
@@ -86,21 +86,21 @@ export class LadderFormatRoom extends PSRoom {
 		this.ladderHTML = ladderHTML;
 		this.update(null);
 	};
-	requestLadderData = (searchValue: string) => {
+	requestLadderData = (usernamePrefix: string, showBots = false) => {
 		if (!this.format) return;
-		this.searchValue = searchValue;
+		this.usernamePrefix = usernamePrefix;
 		this.loading = true;
 		this.error = undefined;
 		this.ladderData = undefined;
 		this.ladderHTML = undefined;
 		if (PS.teams.usesLocalLadder) {
-			const prefix = toID(this.searchValue);
+			const prefix = toID(this.usernamePrefix);
 			PS.send(`/cmd laddertop ${this.format}${prefix ? ` ,${prefix}` : ''}`);
 		} else if (this.format !== undefined) {
-			Net(`//pokemonshowdown.com/ladder/${this.format}.json`)
+			Net(`//pokemonshowdown.com/ladder/${this.format}.json${showBots ? `?includebots` : ``}`)
 				.get({
 					query: {
-						prefix: toID(searchValue),
+						prefix: toID(usernamePrefix),
 					},
 				})
 				.then(this.setLadderData)
@@ -115,7 +115,6 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 	static readonly routes = ['ladder-*'];
 	static readonly Model = LadderFormatRoom;
 	static readonly icon = <i class="fa fa-list-ol" aria-hidden></i>;
-
 	override componentDidMount() {
 		const { room } = this.props;
 		room.requestLadderData('');
@@ -140,9 +139,18 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 			})
 		);
 	}
+	showBots = false;
 	changeSearch = (e: Event) => {
 		e.preventDefault();
-		this.props.room.requestLadderData(this.base!.querySelector<HTMLInputElement>('input[name=searchValue]')!.value);
+		this.props.room.requestLadderData(
+			this.base!.querySelector<HTMLInputElement>('input[name=usernamePrefix]')!.value,
+			this.showBots
+		);
+	};
+	toggleBots = (e: Event) => {
+		this.showBots = !this.showBots;
+		this.forceUpdate();
+		this.changeSearch(e);
 	};
 	renderHeader() {
 		if (PS.teams.usesLocalLadder) return null;
@@ -150,7 +158,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 		const room = this.props.room;
 		return <h3>
 			{BattleLog.formatName(room.format)} Top
-			{room.searchValue ? ` - '${room.searchValue}'` : " 500"}
+			{room.usernamePrefix ? ` - '${room.usernamePrefix}'` : " 500"}
 		</h3>;
 	}
 	renderSearch() {
@@ -160,20 +168,32 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 		return <form class="search" onSubmit={this.changeSearch}><p>
 			<input
 				type="text"
-				name="searchValue"
+				name="usernamePrefix"
 				class="textbox searchinput"
-				value={BattleLog.escapeHTML(room.searchValue)}
+				value={BattleLog.escapeHTML(room.usernamePrefix)}
 				placeholder="username prefix"
 				onChange={this.changeSearch}
 			/> {}
-			<button type="submit" class="button">Search</button>
+			<button type="submit" class="button">{TL`[Search]`}</button>
 		</p></form>;
+	}
+	renderBotToggle() {
+		return <p>
+			<label>
+				<input
+					type="checkbox"
+					name="bot-toggle"
+					checked={this.showBots}
+					onChange={e => this.toggleBots(e)}
+				/> {TL`Show bots`}
+			</label>
+		</p>;
 	}
 	renderLocalLadder() {
 		const room = this.props.room;
 
 		if (room.loading || !BattleFormats) {
-			return <p><i class="fa fa-refresh fa-spin" aria-hidden></i> <em>Loading...</em></p>;
+			return <p><i class="fa fa-refresh fa-spin" aria-hidden></i> <em>{TL`Loading...`}</em></p>;
 		} else if (room.error !== undefined) {
 			return <p>Error: {room.error}</p>;
 		} else if (!room.ladderHTML) {
@@ -185,7 +205,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 		const room = this.props.room;
 
 		if (room.loading || !BattleFormats) {
-			return <p><i class="fa fa-refresh fa-spin" aria-hidden></i> <em>Loading...</em></p>;
+			return <p><i class="fa fa-refresh fa-spin" aria-hidden></i> <em>{TL`Loading...`}</em></p>;
 		} else if (room.error !== undefined) {
 			return <p>Error: {room.error}</p>;
 		} else if (!room.ladderData) {
@@ -196,13 +216,13 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 		return <table class="table readable-bg">
 			<tr class="table-header">
 				<th></th>
-				<th>Name</th>
-				<th style={{ textAlign: 'center' }}><abbr title="Elo rating">Elo</abbr></th>
+				<th>{TL`Name`}</th>
+				<th style={{ textAlign: 'center' }}><abbr title={TL`Elo rating`}>Elo</abbr></th>
 				<th style={{ textAlign: 'center' }}>
-					<abbr title="user's percentage chance of winning a random battle (Glicko X-Act Estimate)">GXE</abbr>
+					<abbr title={TL`user's percentage chance of winning a random battle (Glicko X-Act Estimate)`}>GXE</abbr>
 				</th>
 				<th style={{ textAlign: 'center' }}>
-					<abbr title="Glicko-1 rating system: rating&plusmn;deviation (provisional if deviation>100)">Glicko-1</abbr>
+					<abbr title={TL`Glicko-1 rating system: rating±deviation (provisional if deviation>100)`}>Glicko-1</abbr>
 				</th>
 				{showCOIL && <th style={{ textAlign: 'center' }}>COIL</th>}
 			</tr>
@@ -223,7 +243,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 				{showCOIL && <td style={{ textAlign: 'center' }}>{row.coil?.toFixed(0)}</td>}
 			</tr>)}
 			{!room.ladderData.toplist.length && <tr><td colSpan={5}>
-				<em>No one has played any ranked games yet.</em>
+				<em>{TL`No one has played any ranked games yet.`}</em>
 			</td></tr>}
 		</table>;
 	}
@@ -234,7 +254,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 				<div class="ladder pad">
 					<p>
 						<button class="button" data-href="ladder" data-target="replace">
-							<i class="fa fa-chevron-left" aria-hidden></i> Format List
+							<i class="fa fa-chevron-left" aria-hidden></i> {TL`[All formats]`}
 						</button>
 					</p>
 					{this.renderLocalLadder()}
@@ -245,16 +265,17 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 			<div class="ladder pad">
 				<p>
 					<button class="button" data-href="ladder" data-target="replace">
-						<i class="fa fa-chevron-left" aria-hidden></i> Format List
+						<i class="fa fa-chevron-left" aria-hidden></i> {TL`[All formats]`}
 					</button>
 				</p>
 				<p>
 					<button class="button" data-href="ladder" data-target="replace">
-						<i class="fa fa-refresh" aria-hidden></i> Refresh
+						<i class="fa fa-refresh" aria-hidden></i> {TL`[Refresh]`}
 					</button> <a class="button" href="/view-seasonladder-gen9randombattle">
-						<i class="fa fa-trophy" aria-hidden></i> Seasonal rankings
+						<i class="fa fa-trophy" aria-hidden></i> {TL`[Seasonal rankings]`}
 					</a>
 					{this.renderSearch()}
+					{this.renderBotToggle()}
 				</p>
 				{this.renderHeader()}
 				{this.renderTable()}
@@ -268,13 +289,16 @@ class LadderListPanel extends PSRoomPanel {
 	static readonly routes = ['ladder'];
 	static readonly icon = <i class="fa fa-list-ol" aria-hidden></i>;
 	static readonly title = 'Ladder';
+	static getTitle() {
+		return TL`Ladder`;
+	}
 
 	override componentDidMount() {
 		this.subscribeTo(PS.teams);
 	}
 	renderList() {
 		if (!window.BattleFormats) {
-			return <p>Loading...</p>;
+			return <p>{TL`Loading...`}</p>;
 		}
 		let currentSection = "";
 		const buf: JSX.Element[] = [];
@@ -298,12 +322,12 @@ class LadderListPanel extends PSRoomPanel {
 			<div class="ladder pad">
 				<p>
 					<a class="button" href={`//${Config.routes.users}/`} target="_blank">
-						Look up a specific user's rating
+						{TL`[Look up a specific user's rating]`}
 					</a>
 				</p>
 				<p>
 					<button data-href="view-ladderhelp" class="button">
-						<i class="fa fa-info-circle" aria-hidden></i> How the ladder works
+						<i class="fa fa-info-circle" aria-hidden></i> {TL`[How the ladder works]`}
 					</button>
 				</p>
 				{this.renderList()}

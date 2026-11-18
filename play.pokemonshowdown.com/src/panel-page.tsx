@@ -11,6 +11,7 @@ import preact from "../js/lib/preact";
 import { PS, PSRoom, type RoomOptions } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { BattleLog } from "./battle-log";
+import { TL } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
 
 export class SanitizedHTML extends preact.Component<{ children: string }> {
@@ -32,7 +33,7 @@ export class SanitizedHTML extends preact.Component<{ children: string }> {
 class PageRoom extends PSRoom {
 	override readonly classType: string = 'html';
 	readonly page?: string = this.id.split("-")[1];
-	override readonly canConnect = true;
+	override connectMode: PSRoom['connectMode'] = 'normal';
 
 	loading = true;
 	htmlData?: string;
@@ -45,14 +46,19 @@ class PageRoom extends PSRoom {
 
 	constructor(options: RoomOptions) {
 		super(options);
+		if (options.connectMode !== undefined) this.connectMode = options.connectMode;
 		this.connect();
 		this.title = this.id.split('-')[1];
 	}
 	override connect() {
-		if (!this.connected && !PagePanel.clientRooms.hasOwnProperty(this.id.split('-')[1])) {
+		if (PagePanel.clientRooms.hasOwnProperty(this.id.split('-')[1])) {
+			this.connectMode = null;
+		} else if (!this.connected && (
+			this.connectMode === 'normal' || this.connectMode === 'pending-reconnect' ||
+			this.connectMode === 'pending-login'
+		)) {
 			PS.send(`/join ${this.id}`);
-			this.connected = true;
-			this.connectWhenLoggedIn = false;
+			this.connected = 'pending';
 		}
 	}
 }
@@ -61,7 +67,7 @@ function PageLadderHelp() {
 	return <div class="ladder pad">
 		<p>
 			<button class="button" data-href="/ladder" data-target="replace">
-				<i class="fa fa-chevron-left" aria-hidden></i> Format List
+				<i class="fa fa-chevron-left" aria-hidden></i> {TL`[All formats]`}
 			</button>
 		</p>
 		<h3>How the ladder works</h3>
@@ -150,7 +156,7 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 			renderPage = PagePanel.clientRooms[room.page];
 		} else {
 			if (room.loading) {
-				renderPage = <p>Loading...</p>;
+				renderPage = <p>{TL`Loading...`}</p>;
 			} else {
 				renderPage = <div class="page-html-container">
 					<SanitizedHTML>{room.htmlData || ''}</SanitizedHTML>

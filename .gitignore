@@ -2,9 +2,21 @@ node_modules/
 .DS_Store
 Thumbs.db
 npm-debug.log
-/config/
+/config/*
+!/config/apiserver-example.mjs
+!/config/apiserver-pm2-example.config.cjs
+!/config/config-example.inc.php
+!/config/config-example.js
+!/config/head-custom-example.html
+!/config/replay-config.example.inc.php
+!/config/servers-example.inc.php
+!/config/servers-example.json
+!/config/tsconfig.json
 /vendor/
 /caches/
+
+/api/.dist/
+/api/.eslintcache
 
 /play.pokemonshowdown.com/dirindex/webfonts/
 /play.pokemonshowdown.com/dirindex/fontawesome5*
@@ -14,7 +26,6 @@ npm-debug.log
 
 # built from other sources
 /play.pokemonshowdown.com/caches/
-/play.pokemonshowdown.com/crossprotocol.html
 /play.pokemonshowdown.com/data/
 /play.pokemonshowdown.com/js/
 /play.pokemonshowdown.com/ads.txt
@@ -25,7 +36,6 @@ npm-debug.log
 /pokemonshowdown.com/images/
 /pokemonshowdown.com/ads.txt
 
-/replay.pokemonshowdown.com/index.php
 /replay.pokemonshowdown.com/js/
 /replay.pokemonshowdown.com/caches/
 /replay.pokemonshowdown.com/theme/wrapper.inc.php
@@ -33,5 +43,4 @@ npm-debug.log
 
 /teams.pokemonshowdown.com/js/
 /teams.pokemonshowdown.com/caches/
-/teams.pokemonshowdown.com/index.html
 /teams.pokemonshowdown.com/ads.txt
