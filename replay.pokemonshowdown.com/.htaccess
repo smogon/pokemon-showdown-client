@@ -21,6 +21,8 @@ RewriteRule ^([A-Za-z0-9-]+)\.log$ /api/replays/get.log?id=$1 [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)\.inputlog$ /api/replays/get.inputlog?id=$1 [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)\.json$ /api/replays/get.json?id=$1 [L,QSA]
 
+RewriteRule ^ads\.txt$ https://config.playwire.com/dyn_ads/1025841/77767/ads.txt [R=302,L]
+
 # Disallow direct access to caches
 RewriteCond %{THE_REQUEST} \s/caches/
 RewriteRule ^caches/ - [F]

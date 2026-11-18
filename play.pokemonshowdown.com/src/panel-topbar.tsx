@@ -54,11 +54,11 @@ export class PSHeader extends preact.Component {
 
 		const leftIndex = PS.leftRoomList.indexOf(draggedOverRoom);
 		if (leftIndex >= 0) {
-			PS.dragOnto(PS.rooms[draggingRoom]!, 'left', leftIndex);
+			PS.dragOnto(PS.rooms[draggingRoom], 'left', leftIndex);
 		} else {
 			const rightIndex = PS.rightRoomList.indexOf(draggedOverRoom);
 			if (rightIndex >= 0) {
-				PS.dragOnto(PS.rooms[draggingRoom]!, 'right', rightIndex);
+				PS.dragOnto(PS.rooms[draggingRoom], 'right', rightIndex);
 			} else {
 				// eslint-disable-next-line no-useless-return
 				return;

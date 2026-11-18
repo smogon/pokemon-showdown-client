@@ -72,3 +72,14 @@ PSRouter.setRoutes({
 	'/browse': TeamSearcher,
 });
 PSRouter.go();
+
+const updateFontSize = () => {
+	const zoom = (window.outerWidth / window.innerWidth);
+	document.documentElement.style.setProperty(
+		'font-size',
+		`${14.666667 / zoom}px`
+	);
+};
+
+window.addEventListener('resize', updateFontSize);
+updateFontSize();

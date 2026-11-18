@@ -21,6 +21,7 @@ class TeamRoom extends PSRoom {
 	teamDeleted = false;
 	forceReload = false;
 	editor?: TeamEditorState;
+	private loadAttempt?: { team: Team, uploaded: Team['uploaded'] };
 	override clientCommands = this.parseClientCommands({
 		'validate'(target) {
 			if (this.team.format.length <= 4) {
@@ -56,8 +57,11 @@ class TeamRoom extends PSRoom {
 		team.format = toID(format);
 	}
 	load() {
-		PS.teams.loadTeam(this.team, true)?.then(() => {
-			this.update(null);
+		const uploaded = this.team?.uploaded;
+		if (!uploaded || (this.loadAttempt?.team === this.team && this.loadAttempt.uploaded === uploaded)) return;
+		this.loadAttempt = { team: this.team, uploaded };
+		PS.teams.loadTeam(this.team, true)?.then(success => {
+			if (success) this.update(null);
 		});
 	}
 	upload(isPrivate: boolean) {

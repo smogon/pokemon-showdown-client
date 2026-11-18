@@ -198,6 +198,7 @@ export class BattleTextParser {
 
 		case 'move': {
 			if (kwArgs.from === 'Magic Bounce') kwArgs.from = 'ability:Magic Bounce';
+			if (kwArgs.from === 'move: Pursuit') kwArgs.from = 'Pursuit';
 			break;
 		}
 

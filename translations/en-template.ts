@@ -158,6 +158,8 @@ export const translations: TranslationCatalog = {
 	"(MOBILE HORIZONTAL)": null,
 	"You can still invite spectators by giving them the URL or using the /invite command": null,
 	"Invite only (hide from Battles list)": null,
+	"Allow matching into bots": null,
+	"Battles against bots will be unrated.": null,
 	"Ignore Pokémon nicknames": null,
 	"Automatically start timer": null,
 	"Automatically accept Open Team Sheets": null,
@@ -492,7 +494,9 @@ export const translations: TranslationCatalog = {
 	"Scouting is now allowed (Tournament players can watch other tournament battles)": null,
 	"Scouting is now banned (Tournament players can't watch other tournament battles)": null,
 	"Tournament challenges available": null,
-	"Tournament challenge from {PLAYER}": null,
+	"Ready for your next tournament battle?": null,
+	"Tournament battle against {PLAYER}": null,
+	"You can ready up now. Your opponent will be assigned when a match is available.": null,
 	"Tournament battle between {PLAYER1} and {PLAYER2} started.": null,
 	"{PLAYER1} has won the match {SCORE} against {PLAYER2}": null,
 	"{PLAYER1} has lost the match {SCORE} against {PLAYER2}": null,
@@ -521,7 +525,8 @@ export const translations: TranslationCatalog = {
 	"vs. {PLAYER}": null,
 	"Or wait for {PLAYERS} to challenge you.": null,
 	"Waiting for {PLAYERS} to challenge you.": null,
-	"Waiting for {PLAYER}...": null,
+	"Ready! Waiting for your next opponent...": null,
+	"Ready! Waiting for {PLAYER}...": null,
 	"Unavailable": null,
 	"Waiting": null,
 	"Challenging": null,
@@ -677,6 +682,7 @@ export const translations: TranslationCatalog = {
 	"user's percentage chance of winning a random battle (Glicko X-Act Estimate)": null,
 	"Glicko-1 rating system: rating±deviation (provisional if deviation>100)": null,
 	"No one has played any ranked games yet.": null,
+	"Show bots": null,
 
 	// #endregion Ladder
 

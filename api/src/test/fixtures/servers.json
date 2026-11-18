@@ -1,0 +1,17 @@
+{
+	"showdown": {
+		"name": "Smogon University",
+		"id": "showdown",
+		"server": "sim.psim.us",
+		"port": 8000,
+		"owner": "mia"
+	},
+	"etheria": {
+		"name": "Etheria",
+		"id": "etheria",
+		"server": "despondos.psim.us",
+		"port": 8000,
+		"owner": "mia",
+		"token": "cf6d0b07054d4118fa1bc4762f77ec1d"
+	}
+}

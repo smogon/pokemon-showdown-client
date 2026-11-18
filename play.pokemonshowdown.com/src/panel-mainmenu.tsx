@@ -160,6 +160,10 @@ export class MainMenuRoom extends PSRoom {
 			return true;
 		} case 'pm': {
 			const [, user1, user2, message] = args;
+			if (PS.isIgnored(user1)) {
+				PS.showIgnoreNotice(user1);
+				return true;
+			}
 			this.handlePM(user1, user2, message);
 			let sideRoom = PS.rightPanel as ChatRoom;
 			if (sideRoom?.type === "chat" && PS.prefs.inchatpm) {
@@ -594,9 +598,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 
 		const index = PS.miniRoomList.indexOf(draggedOverRoom?.id as any);
 		if (index >= 0) {
-			PS.dragOnto(PS.rooms[draggingRoom]!, 'mini-window', index);
+			PS.dragOnto(PS.rooms[draggingRoom], 'mini-window', index);
 		} else if (PS.rooms[draggingRoom]?.location !== 'mini-window') {
-			PS.dragOnto(PS.rooms[draggingRoom]!, 'mini-window', 0);
+			PS.dragOnto(PS.rooms[draggingRoom], 'mini-window', 0);
 		}
 
 		// dropEffect !== 'none' prevents bounce-back animation in
@@ -619,6 +623,12 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			if (!room.minimized) PS.queueFocus(room);
 			this.forceUpdate();
 		}
+	};
+	handleSearchPrefs = (ev: Event) => {
+		// const setting = (ev.currentTarget as HTMLInputElement).name;
+		const value = (ev.currentTarget as HTMLInputElement).checked;
+		PS.prefs.set('serversettings', { ...PS.prefs.serversettings, allowLadderBots: value });
+		PS.send(value ? `/noreply /allowbots` : `/noreply /blockbots`);
 	};
 	renderMiniRooms() {
 		return PS.miniRoomList.map(roomid => {
@@ -697,6 +707,12 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			selectType="search" onSubmit={this.submitSearch}
 		>
 			<p>
+				<label class="checkbox" title={TL`Battles against bots will be unrated.`}>
+					<input
+						name="allowbots" checked={PS.prefs.serversettings.allowLadderBots || false}
+						type="checkbox" onChange={this.handleSearchPrefs}
+					/> {TL`Allow matching into bots`}
+				</label>
 				<button class="button small" data-href="battleoptions">
 					{TL`[Battle options]`} <i class="fa fa-caret-down" aria-hidden></i>
 				</button></p>
@@ -989,7 +1005,8 @@ export class TeamForm extends preact.Component<{
 			customRules.push('Item Clause = 1');
 		}
 		format = this.addCustomRules(format, customRules);
-		PS.teams.loadTeam(team).then(() => {
+		PS.teams.loadTeam(team).then(success => {
+			if (!success) return;
 			(validate === 'validate' ? this.props.onValidate : this.props.onSubmit)?.(ev, format, team);
 		});
 	};

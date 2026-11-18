@@ -1,12 +1,13 @@
 <?php
 
 /**
- * One-time migration: generates config/news.json and config/servers.json from
- * their .inc.php equivalents.
+ * Usage: `php build-tools/config-to-json.php`
  *
- * From here on, saveNews() in pokemonshowdown.com/news/manage.php and
- * saveservers() in pokemonshowdown.com/servers/servers.lib.php write both
- * formats, so this only needs to be run once (but it's safe to re-run).
+ * Converts:
+ * - config/news.inc.php -> config/news.json
+ * - config/servers.inc.php -> config/servers.json
+ *
+ * Only needs to be run once.
  */
 
 $configdir = __DIR__ . '/../config';

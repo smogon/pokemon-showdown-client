@@ -1,5 +1,6 @@
 RewriteEngine on
 RewriteRule ^api(/.*)?$ http://localhost:9000/api$1 [P,L]
+RewriteRule ^action\.php$ http://localhost:9000/action.php [P,L]
 DirectoryIndex index.php index.html /dirindex/dirindex.php
 ErrorDocument 404 /dirindex/404.html
 
@@ -171,6 +172,7 @@ RewriteRule ^~~([^/]*)(?:/(.*))?$ redirect-server.php?host=$1&roomid=$2 [L,QSA]
 RewriteRule ^backup/ - [F]
 RewriteRule ^\.git/ - [F]
 RewriteRule ^lib/ - [F]
+RewriteRule ^ads\.txt$ https://config.playwire.com/dyn_ads/1025841/77767/ads.txt [R=302,L]
 
 # Disallow direct access to caches
 RewriteCond %{THE_REQUEST} \s/caches/

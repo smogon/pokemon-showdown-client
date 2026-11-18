@@ -2,9 +2,21 @@ node_modules/
 .DS_Store
 Thumbs.db
 npm-debug.log
-/config/
+/config/*
+!/config/apiserver-example.mjs
+!/config/apiserver-pm2-example.config.cjs
+!/config/config-example.inc.php
+!/config/config-example.js
+!/config/head-custom-example.html
+!/config/replay-config.example.inc.php
+!/config/servers-example.inc.php
+!/config/servers-example.json
+!/config/tsconfig.json
 /vendor/
 /caches/
+
+/api/.dist/
+/api/.eslintcache
 
 /play.pokemonshowdown.com/dirindex/webfonts/
 /play.pokemonshowdown.com/dirindex/fontawesome5*
