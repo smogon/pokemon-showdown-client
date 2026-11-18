@@ -167,7 +167,7 @@ export const translations: TranslationCatalog = {
 	// TRANSLATORS: if your language's word for "forfeit" is easily understandable, you may wish to skip the explanation
 	"Forfeiting makes you lose the battle. Are you sure?": null,
 	"Replacement player's name:": null,
-	"Hardcore mode": null,
+	"Hardcore mode": null, // NOT USED
 	"Start at turn 0 when spectating battles": null,
 	"Open new battles in the right-side panel": null,
 
