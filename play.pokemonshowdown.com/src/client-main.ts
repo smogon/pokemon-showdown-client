@@ -167,9 +167,9 @@ class PSPrefs extends PSStreamModel<string | null> {
 	 */
 	tournaments: 'hide' | 'notify' | 'nonotify' | null = null;
 	/**
-	 * true = one panel, false = two panels, left and right
+	 * false = automatic, true = one panel, horizontal
 	 */
-	onepanel: boolean | 'vertical' = false;
+	onepanel: boolean | 'vertical' | 'vertical-two-panel' = false;
 	timestamps: { chatrooms?: TimestampOptions, pms?: TimestampOptions } = {};
 
 	mute = false;
@@ -2045,13 +2045,13 @@ export const PS = new class extends PSModel {
 	 * panels to display if PS is resized to two-panel mode.
 	 */
 	rightPanel: PSRoom | null = null;
+	verticalTabs = false;
 	/**
 	 * * 0 = only one panel visible
-	 * * null = vertical nav layout
 	 * n.b. Resizes only trigger a re-render if the panel layout or a
 	 * width/height-dependent layout breakpoint changes.
 	 */
-	leftPanelWidth: number | null = 0;
+	leftPanelWidth = 0;
 	mainmenu: MainMenuRoom = null!;
 	layoutViewportWidth = 0;
 
@@ -2238,38 +2238,39 @@ export const PS = new class extends PSModel {
 	/** @returns changed */
 	updateLayout(): boolean {
 		const panel = this.getPanel();
-		const leftPanelWidth = this.calculateLeftPanelWidth();
 		// `window.inner*` subtracts on-screen keyboards, but `document.body.offset*` doesn't
 		// we don't want the layout to jump around wildly when we open an OSK, so...
 		// `document.body.offset*` is the scrollable area, though, we want
 		// `document.documentElement.client*` for the viewport dimensions before OSK
 		const viewportWidth = document.documentElement.clientWidth;
 		const viewportHeight = document.documentElement.clientHeight;
-		const roomHeight = viewportHeight - 56;
-		let needsUpdate = this.leftPanelWidth !== leftPanelWidth;
-		if (leftPanelWidth === null) {
-			const headerWidthOffset = viewportWidth <= 700 ? 0 : VERTICAL_HEADER_WIDTH;
-			const roomWidth = viewportWidth + 1 - headerWidthOffset;
-			needsUpdate ||= this.roomLayoutBreakpointPassed(panel, roomWidth, viewportHeight - 30);
-			panel.width = roomWidth;
-			panel.height = viewportHeight - 30;
-		} else if (leftPanelWidth) {
-			const rightPanelWidth = viewportWidth + 1 - leftPanelWidth;
-			needsUpdate ||= this.roomLayoutBreakpointPassed(this.leftPanel, leftPanelWidth, roomHeight);
+		const layout = this.prefs.onepanel;
+		const verticalTabs = layout === 'vertical' || layout === 'vertical-two-panel' ||
+			(!layout && (viewportWidth < 700 || viewportHeight < 430));
+		const availableWidth = viewportWidth - (verticalTabs && viewportWidth > 700 ? VERTICAL_HEADER_WIDTH : 0);
+		const roomHeight = viewportHeight - (verticalTabs ? 30 : 56);
+		const allowTwoPanels = layout === 'vertical-two-panel' || (!layout && !verticalTabs);
+		const leftPanelWidth = allowTwoPanels ? this.calculateLeftPanelWidth(availableWidth) : 0;
+		let needsUpdate = this.verticalTabs !== verticalTabs || this.leftPanelWidth !== leftPanelWidth;
+		this.verticalTabs = verticalTabs;
+		this.leftPanelWidth = leftPanelWidth;
+		// Match offsetWidth: the first room's 1px left border extends into the margin.
+		if (leftPanelWidth) {
+			const leftRoomWidth = leftPanelWidth + 1;
+			const rightPanelWidth = availableWidth - leftPanelWidth;
+			needsUpdate ||= this.roomLayoutBreakpointPassed(this.leftPanel, leftRoomWidth, roomHeight);
 			needsUpdate ||= this.roomLayoutBreakpointPassed(this.rightPanel!, rightPanelWidth, roomHeight);
-			this.leftPanel.width = leftPanelWidth;
+			this.leftPanel.width = leftRoomWidth;
 			this.leftPanel.height = roomHeight;
 			this.rightPanel!.width = rightPanelWidth;
 			this.rightPanel!.height = roomHeight;
 		} else {
-			needsUpdate ||= this.roomLayoutBreakpointPassed(panel, viewportWidth, roomHeight);
-			panel.width = viewportWidth;
+			const roomWidth = availableWidth + 1;
+			needsUpdate ||= this.roomLayoutBreakpointPassed(panel, roomWidth, roomHeight);
+			panel.width = roomWidth;
 			panel.height = roomHeight;
 		}
 
-		if (this.leftPanelWidth !== leftPanelWidth) {
-			this.leftPanelWidth = leftPanelWidth;
-		}
 		this.layoutViewportWidth = viewportWidth;
 		(panel as ChatRoom).log?.updateScroll();
 		if (this.leftPanelWidth) {
@@ -2475,22 +2476,18 @@ export const PS = new class extends PSModel {
 	/**
 	 * @see {@link leftPanelWidth} for return value meaning
 	 */
-	calculateLeftPanelWidth() {
-		if (this.prefs.onepanel === 'vertical') return null;
-		if (!this.prefs.onepanel && document.documentElement.clientWidth < 700) return null;
-		if (!this.prefs.onepanel && document.documentElement.clientHeight < 430) return null;
+	calculateLeftPanelWidth(available: number, rightPanel = this.rightPanel) {
 		// If we don't have both a left room and a right room, obviously
 		// just show one room
-		if (!this.leftPanel || !this.rightPanel || this.prefs.onepanel) {
+		if (!this.leftPanel || !rightPanel) {
 			return 0;
 		}
 
 		// The rest of this code can assume we have both a left room and a
 		// right room, and also want to show both if they fit
 
-		const available = document.documentElement.clientWidth;
 		const left = this.getWidthFor(this.leftPanel);
-		const right = this.getWidthFor(this.rightPanel);
+		const right = this.getWidthFor(rightPanel);
 
 		let excess = available - (left.width + right.width);
 		if (excess >= 0) {
@@ -2643,7 +2640,7 @@ export const PS = new class extends PSModel {
 		return true;
 	}
 	horizontalNav(room = this.room) {
-		if (this.leftPanelWidth === null) {
+		if (this.verticalTabs) {
 			return { rooms: [], index: -1 };
 		}
 		const rooms = this.leftRoomList.concat(this.rightRoomList);
@@ -2656,7 +2653,7 @@ export const PS = new class extends PSModel {
 		return { rooms, index };
 	}
 	verticalNav(room = this.room) {
-		if (this.leftPanelWidth === null) {
+		if (this.verticalTabs) {
 			return this.fullNav(room);
 		}
 		if (room.location !== 'mini-window') {

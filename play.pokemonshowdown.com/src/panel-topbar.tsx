@@ -141,7 +141,7 @@ export class PSHeader extends preact.Component {
 		let className = `roomtab button${notifying}${closable}${cur}`;
 
 		let { icon, title: roomTitle } = PSHeader.roomInfo(room);
-		if (room.type === 'rooms' && PS.leftPanelWidth !== null) roomTitle = '';
+		if (room.type === 'rooms' && !PS.verticalTabs) roomTitle = '';
 		if (room.type === 'battle') className += ' roomtab-battle';
 		if (room.type === 'team' || room.type === 'viewteam') {
 			className += ' roomtab-team';
@@ -175,7 +175,7 @@ export class PSHeader extends preact.Component {
 	handleResize = () => {
 		if (!this.base) return;
 
-		if (PS.leftPanelWidth === null) {
+		if (PS.verticalTabs) {
 			const width = document.documentElement.clientWidth;
 			const oldNarrowMode = PSView.narrowMode;
 			PSView.narrowMode = width <= 700;
@@ -287,7 +287,7 @@ export class PSHeader extends preact.Component {
 		</div>;
 	}
 	override render() {
-		if (PS.leftPanelWidth === null) {
+		if (PS.verticalTabs) {
 			return this.renderVertical();
 		}
 		return <div id="header" class="header" role="navigation">
@@ -342,16 +342,33 @@ export class PSMiniHeader extends preact.Component {
 	handleScroll = () => {
 		if (this.menuOpen !== !PSView.getScrollX()) this.forceUpdate();
 	};
+	renderPanelTitle(room: PSRoom, width?: number) {
+		const { icon, title } = PSHeader.roomInfo(room);
+		return <span class="mini-header-room" style={{ width }} title={title}>
+			{icon} {title}
+		</span>;
+	}
 	override render() {
 		this.menuOpen = !PSView.getScrollX();
 
-		if (PS.leftPanelWidth !== null) return null;
+		if (!PS.verticalTabs) return null;
 
+		const userColor = window.BattleLog && `color:${PS.user.away ? '#888' : BattleLog.usernameColor(PS.user.userid)}`;
+		const optionsButton = <button data-href="options" class="mini-header-right" aria-label={TL`[Options]`}>
+			{PS.user.named ? <strong style={userColor}>{PS.user.name}</strong> : <i class="fa fa-cog" aria-hidden></i>}
+		</button>;
+		const left = PSView.verticalHeaderWidth + (PSView.narrowMode ? 0 : -1);
+		if (PS.leftPanelWidth && PS.rightPanel) {
+			return <div class="mini-header mini-header-split" style={{ left }}>
+				{this.renderPanelTitle(PS.leftPanel, PS.leftPanelWidth + 1)}
+				{this.renderPanelTitle(PS.rightPanel)}
+				{optionsButton}
+			</div>;
+		}
+		const { icon, title } = PSHeader.roomInfo(PS.getPanel());
 		const notificationsCount = Object.values(PS.rooms).filter(
 			room => room !== PS.room && room?.notifications.length
 		).length;
-		const { icon, title } = PSHeader.roomInfo(PS.getPanel());
-		const userColor = window.BattleLog && `color:${PS.user.away ? '#888' : BattleLog.usernameColor(PS.user.userid)}`;
 		const showMenuButton = PSView.narrowMode;
 		const notifying = (
 			!showMenuButton && this.menuOpen && Object.values(PS.rooms).some(room => room!.notifications.length)
@@ -368,11 +385,9 @@ export class PSMiniHeader extends preact.Component {
 				<i class="fa fa-arrow-right" aria-hidden></i>
 			</button>
 		);
-		return <div class="mini-header" style={`left:${PSView.verticalHeaderWidth + (PSView.narrowMode ? 0 : -1)}px;`}>
+		return <div class="mini-header" style={{ left }}>
 			{menuButton}
-			<button data-href="options" class="mini-header-right" aria-label={TL`[Options]`}>
-				{PS.user.named ? <strong style={userColor}>{PS.user.name}</strong> : <i class="fa fa-cog" aria-hidden></i>}
-			</button>
+			{optionsButton}
 			{icon} {title}
 		</div>;
 	}

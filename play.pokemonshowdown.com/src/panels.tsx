@@ -1231,7 +1231,7 @@ export class PSView extends preact.Component {
 				PS.arrowKeysUsed = true;
 				PS.focusRightRoom();
 			} else if (shiftKey && kc === 37) { // shift + left
-				if (PS.leftPanelWidth === null) return;
+				if (PS.verticalTabs) return;
 				const curLoc = PS.room.location;
 				let newLoc = curLoc;
 				let newIndex: number | null = null;
@@ -1267,7 +1267,7 @@ export class PSView extends preact.Component {
 					PS.update();
 				}
 			} else if (shiftKey && kc === 39) { // shift + right
-				if (PS.leftPanelWidth === null) return;
+				if (PS.verticalTabs) return;
 				const curLoc = PS.room.location;
 				let newLoc = curLoc;
 				let newIndex: number | null = null;
@@ -1304,13 +1304,13 @@ export class PSView extends preact.Component {
 					PS.update();
 				}
 			} else if (shiftKey && kc === 38) { // shift + up
-				if (PS.prefs.onepanel !== 'vertical') return;
+				if (!PS.verticalTabs) return;
 				let newIndex = PS.rightRoomList.indexOf(PS.room.id) - 1;
 				if (newIndex < 0) newIndex = PS.rightRoomList.length - 1;
 				PS.moveRoom(PS.room, 'right', false, newIndex);
 				PS.update();
 			} else if (shiftKey && kc === 40) { // shift + down
-				if (PS.prefs.onepanel !== 'vertical') return;
+				if (!PS.verticalTabs) return;
 				let newIndex = PS.rightRoomList.indexOf(PS.room.id) + 1;
 				if (newIndex >= PS.rightRoomList.length - 1) newIndex = 0;
 				PS.moveRoom(PS.room, 'right', false, newIndex);
@@ -1554,19 +1554,14 @@ Supported file types:
 		BattleTooltips.hideTooltip();
 	}
 	static posStyle(room: PSRoom) {
-		if (PS.leftPanelWidth === null) {
-			// vertical mode
-			if (room === PS.getPanel()) {
-				// const minWidth = Math.min(500, Math.max(320, window.innerWidth - 9));
-				return { top: '30px', left: `${PSView.verticalHeaderWidth}px`, minWidth: `none` };
-			}
-		} else if (PS.leftPanelWidth === 0) {
-			// one panel visible
-			if (room === PS.getPanel()) return {};
-		} else {
-			// both panels visible
-			if (room === PS.leftPanel) return { width: `${PS.leftPanelWidth}px`, right: 'auto' };
-			if (room === PS.rightPanel) return { top: `56px`, left: `${PS.leftPanelWidth + 1}px` };
+		const left = PS.verticalTabs ? PSView.verticalHeaderWidth : 0;
+		const top = PS.verticalTabs ? '30px' : undefined;
+		if (!PS.leftPanelWidth) {
+			if (room === PS.getPanel()) return { top, left };
+		} else if (room === PS.leftPanel) {
+			return { top, left, width: PS.leftPanelWidth, right: 'auto' };
+		} else if (room === PS.rightPanel) {
+			return { top, left: left + PS.leftPanelWidth + 1 };
 		}
 
 		return { display: 'none' };

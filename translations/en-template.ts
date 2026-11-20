@@ -180,6 +180,7 @@ export const translations: TranslationCatalog = {
 	"Two panels (if wide enough)": null,
 	"Single panel": null,
 	"Vertical tabs": null,
+	"Vertical tabs, two panels": null,
 	"Background": null,
 	"Disable animations": null,
 	"Use 2D sprites instead of 3D models": null,

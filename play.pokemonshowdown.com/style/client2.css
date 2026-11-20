@@ -243,6 +243,25 @@ li::marker {
 	display: inline-block;
 	line-height: 12px;
 }
+.mini-header-split {
+	display: flex;
+}
+.mini-header-room {
+	flex: none;
+	box-sizing: border-box;
+	padding: 0 5px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.mini-header-room + .mini-header-room {
+	flex: 1;
+	border-left: 1px solid;
+	border-color: inherit;
+}
+.mini-header-split .mini-header-right {
+	position: static;
+	flex: none;
+}
 .tablist .roomtab-battle i.text {
 	display: block;
 	border: 0;
