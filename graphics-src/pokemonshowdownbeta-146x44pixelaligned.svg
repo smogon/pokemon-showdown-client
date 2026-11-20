@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="584" height="176" viewBox="0 0 146 44">
+  <title>Pokémon Showdown! (beta)</title>
+  <defs>
+    <style>
+      @font-face { font-family: "Verdana Pro"; src: local("VerdanaPro-SemiBold"), local("Verdana Pro SemiBold"); font-weight: 600; }
+      @font-face { font-family: "Verdana Pro"; src: local("VerdanaPro-Bold"), local("Verdana Pro Bold"); font-weight: 700; }
+    </style>
+    <linearGradient id="ball" gradientUnits="userSpaceOnUse" x1="0" y1="18" x2="0" y2="32">
+      <stop stop-color="#5988c0" />
+      <stop offset="1" stop-color="#003265" />
+    </linearGradient>
+    <linearGradient id="mark" gradientUnits="userSpaceOnUse" x1="0" y1="2" x2="0" y2="39">
+      <stop stop-color="#66cdfd" />
+      <stop offset="1" stop-color="#0080c5" />
+    </linearGradient>
+
+    <filter id="innerShadows" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation=".72" result="softEdge" />
+
+      <!-- dark inner shadow -->
+      <feOffset in="softEdge" dx="-.54" dy="-.54" result="darkOffset" />
+      <feComposite in="SourceAlpha" in2="darkOffset" operator="out" result="darkMask" />
+      <feFlood flood-color="black" flood-opacity="0.65" result="darkColor" />
+      <feComposite in="darkColor" in2="darkMask" operator="in" result="darkShadow" />
+
+      <!-- light inner "shadow" highlight -->
+      <feOffset in="softEdge" dx=".54" dy=".54" result="lightOffset" />
+      <feComposite in="SourceAlpha" in2="lightOffset" operator="out" result="lightMask" />
+      <feFlood flood-color="white" flood-opacity="0.5" result="lightColor" />
+      <feComposite in="lightColor" in2="lightMask" operator="in" result="lightShadow" />
+      <feMerge>
+        <feMergeNode in="SourceGraphic" />
+        <feMergeNode in="darkShadow" />
+        <feMergeNode in="lightShadow" />
+      </feMerge>
+    </filter>
+
+    <filter id="textInnerShadows" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation=".54" result="softEdge" />
+
+      <!-- dark inner shadow -->
+      <feOffset in="softEdge" dx="-.36" dy="-.36" result="darkOffset" />
+      <feComposite in="SourceAlpha" in2="darkOffset" operator="out" result="darkMask" />
+      <feFlood flood-color="black" flood-opacity="0.65" result="darkColor" />
+      <feComposite in="darkColor" in2="darkMask" operator="in" result="darkShadow" />
+
+      <!-- light inner "shadow" highlight -->
+      <feOffset in="softEdge" dx=".36" dy=".36" result="lightOffset" />
+      <feComposite in="SourceAlpha" in2="lightOffset" operator="out" result="lightMask" />
+      <feFlood flood-color="white" flood-opacity="0.5" result="lightColor" />
+      <feComposite in="lightColor" in2="lightMask" operator="in" result="lightShadow" />
+      <feMerge>
+        <feMergeNode in="SourceGraphic" />
+        <feMergeNode in="darkShadow" />
+        <feMergeNode in="lightShadow" />
+      </feMerge>
+    </filter>
+
+    <filter id="dropShadow" x="-20%" y="-25%" width="145%" height="165%" color-interpolation-filters="sRGB">
+      <!-- outer shadow -->
+      <feGaussianBlur in="SourceAlpha" stdDeviation=".63" result="shadowBlur" />
+      <feOffset in="shadowBlur" dx="1" dy="1" result="shadowMask" />
+      <feFlood flood-color="black" flood-opacity="0.6" result="shadowColor" />
+      <feComposite in="shadowColor" in2="shadowMask" operator="in" result="shadow" />
+      <feMerge>
+        <feMergeNode in="shadow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Geometry is in 1× pixels. Half-pixel centerlines give the 1px outlines crisp edges. -->
+    <g id="markShape">
+      <path d="M 133.5 1.5 H 141.5 Q 144.2 1.5 143.3 4.2
+               L 135.5 25.3 Q 135 27.5 133 27.5
+               H 128 Q 125.8 27.5 126.5 25
+               L 131.2 3.5 Q 131.6 1.5 133.5 1.5 Z" />
+      <path d="M 125.3 29.5 H 133.4 Q 136.3 29.5 135.5 32
+               L 134.1 37 Q 133.7 38.5 132 38.5
+               H 123.5 Q 121.1 38.5 121.7 36.2
+               L 123.1 31.3 Q 123.5 29.5 125.3 29.5 Z" />
+    </g>
+
+    <linearGradient id="pokemon" href="#mark" y1="1" y2="15" />
+    <linearGradient id="showdown" href="#ball" y1="-14" y2="0" />
+    <g id="lettering">
+      <text id="pokemonText" x="20.375" y="16" font-size="16.875" textLength="86.8" lengthAdjust="spacingAndGlyphs">Pokémon</text>
+      <text id="showdownText" font-weight="700" transform="translate(1.9 32) skewX(-11)" font-size="23.75"
+            textLength="130" lengthAdjust="spacingAndGlyphs" font-variant="small-caps">Showdown</text>
+    </g>
+  </defs>
+
+  <g filter="url(#dropShadow)">
+    <use href="#markShape" fill="url(#mark)" filter="url(#innerShadows)" />
+    <use href="#markShape" fill="none" stroke="#cee4f5" stroke-width="1" stroke-linejoin="round" />
+  </g>
+  <g filter="url(#dropShadow)" font-family="Verdana Pro, Verdana, sans-serif" font-weight="600">
+    <!-- The fills cover half the stroke, leaving a 1px outer outline. -->
+    <use href="#lettering" fill="none" stroke="#cee4f5" stroke-width="2" stroke-linejoin="round" />
+    <g filter="url(#textInnerShadows)">
+      <use href="#pokemonText" fill="url(#pokemon)" />
+      <use href="#showdownText" fill="url(#showdown)" />
+    </g>
+  </g>
+  <g id="betaBadge" filter="url(#dropShadow)">
+    <rect x="95.5" y="31.5" width="26" height="9" rx="4.5"
+          fill="#3b4d62" stroke="#e0ecf3" stroke-width="1" />
+    <!-- Six-pixel capitals with one-pixel stems and open counters. -->
+    <g fill="#e0ecf3" fill-rule="evenodd" transform="translate(99 33)">
+      <!-- B -->
+      <path d="M 0 0 H 2.3 Q 4 0 4 1.6 Q 4 2.4 3.2 2.8
+               Q 4.25 3.2 4.25 4.25 Q 4.25 6 2.4 6 H 0 Z
+               M 1 1 V 2 H 2.3 Q 3 2 3 1.5 T 2.3 1 Z
+               M 1 3 V 5 H 2.4 Q 3.25 5 3.25 4 T 2.4 3 Z" />
+      <!-- E -->
+      <path transform="translate(5 0)" d="M 0 0 H 4 V 1 H 1 V 2 H 3 V 3 H 1 V 5 H 4 V 6 H 0 Z" />
+      <!-- T -->
+      <path transform="translate(10 0)" d="M 0 0 H 5 V 1 H 3 V 6 H 2 V 1 H 0 Z" />
+      <!-- A -->
+      <path transform="translate(15 0)" d="M 0 6 L 2 0 H 3 L 5 6 H 4 L 3.65 5 H 1.35 L 1 6 Z
+                                           M 1.7 4 H 3.3 L 2.5 1.5 Z" />
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,44 @@
+{
+  "fill" : {
+    "solid" : "srgb:0.74517,0.86354,0.93008,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "fill" : {
+            "linear-gradient" : [
+              "display-p3:0.34902,0.53333,0.75294,1.00000",
+              "srgb:0.00000,0.19608,0.39608,1.00000"
+            ]
+          },
+          "image-name" : "02-ball.svg",
+          "name" : "02-ball",
+          "opacity" : 0.75
+        },
+        {
+          "fill" : {
+            "automatic-gradient" : "srgb:0.00000,0.50196,0.77255,1.00000"
+          },
+          "image-name" : "01-exclamation.svg",
+          "name" : "01-exclamation",
+          "opacity" : 0.75
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}

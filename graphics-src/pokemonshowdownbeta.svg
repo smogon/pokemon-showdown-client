@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="584" height="176" viewBox="0 0 292 88">
+  <title>Pokémon Showdown! (beta)</title>
+  <defs>
+    <linearGradient id="ball" gradientUnits="userSpaceOnUse" x1="0" y1="35" x2="0" y2="63">
+      <stop stop-color="#5988c0" />
+      <stop offset="1" stop-color="#003265" />
+    </linearGradient>
+    <linearGradient id="mark" gradientUnits="userSpaceOnUse" x1="0" y1="3" x2="0" y2="77">
+      <stop stop-color="#66cdfd" />
+      <stop offset="1" stop-color="#0080c5" />
+    </linearGradient>
+
+    <filter id="innerShadows" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.44" result="softEdge" />
+
+      <!-- dark inner shadow -->
+      <feOffset in="softEdge" dx="-1.08" dy="-1.08" result="darkOffset" />
+      <feComposite in="SourceAlpha" in2="darkOffset" operator="out" result="darkMask" />
+      <feFlood flood-color="black" flood-opacity="0.65" result="darkColor" />
+      <feComposite in="darkColor" in2="darkMask" operator="in" result="darkShadow" />
+
+      <!-- light inner "shadow" highlight -->
+      <feOffset in="softEdge" dx="1.08" dy="1.08" result="lightOffset" />
+      <feComposite in="SourceAlpha" in2="lightOffset" operator="out" result="lightMask" />
+      <feFlood flood-color="white" flood-opacity="0.5" result="lightColor" />
+      <feComposite in="lightColor" in2="lightMask" operator="in" result="lightShadow" />
+      <feMerge>
+        <feMergeNode in="SourceGraphic" />
+        <feMergeNode in="darkShadow" />
+        <feMergeNode in="lightShadow" />
+      </feMerge>
+    </filter>
+
+    <filter id="textInnerShadows" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.08" result="softEdge" />
+
+      <!-- dark inner shadow -->
+      <feOffset in="softEdge" dx="-.72" dy="-.72" result="darkOffset" />
+      <feComposite in="SourceAlpha" in2="darkOffset" operator="out" result="darkMask" />
+      <feFlood flood-color="black" flood-opacity="0.65" result="darkColor" />
+      <feComposite in="darkColor" in2="darkMask" operator="in" result="darkShadow" />
+
+      <!-- light inner "shadow" highlight -->
+      <feOffset in="softEdge" dx=".72" dy=".72" result="lightOffset" />
+      <feComposite in="SourceAlpha" in2="lightOffset" operator="out" result="lightMask" />
+      <feFlood flood-color="white" flood-opacity="0.5" result="lightColor" />
+      <feComposite in="lightColor" in2="lightMask" operator="in" result="lightShadow" />
+      <feMerge>
+        <feMergeNode in="SourceGraphic" />
+        <feMergeNode in="darkShadow" />
+        <feMergeNode in="lightShadow" />
+      </feMerge>
+    </filter>
+
+    <filter id="dropShadow" x="-20%" y="-25%" width="145%" height="165%" color-interpolation-filters="sRGB">
+      <!-- outer shadow -->
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.26" result="shadowBlur" />
+      <feOffset in="shadowBlur" dx="2" dy="2" result="shadowMask" />
+      <feFlood flood-color="black" flood-opacity="0.6" result="shadowColor" />
+      <feComposite in="shadowColor" in2="shadowMask" operator="in" result="shadow" />
+      <feMerge>
+        <feMergeNode in="shadow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- At 292 × 88, one viewBox unit is one output pixel. -->
+    <g id="markShape">
+      <path d="M 267 3 H 283 Q 288.5 3 286.6 8.5
+               L 271.2 50.5 Q 270 55 266 55
+               H 256 Q 251.6 55 253.1 49.5
+               L 262.5 7 Q 263.2 3 267 3 Z" />
+      <path d="M 251 58 H 267 Q 272.6 58 271 63
+               L 268.2 74 Q 267.5 77 264 77
+               H 247 Q 242.3 77 243.4 72.3
+               L 246.3 61.5 Q 247 58 251 58 Z" />
+    </g>
+
+    <linearGradient id="pokemon" href="#mark" y1="3" y2="29" />
+    <linearGradient id="showdown" href="#ball" y1="-28" y2="0" />
+    <g id="lettering">
+      <!-- pokemonshowdownbeta-src.svg has the version with the original text - you'll need Verdana Pro installed, though -->
+      <path id="pokemonText" transform="scale(1.0540177 1)"
+            d="M 58.908 15.125 C 58.908 10.029 55.364 7.464 48.277 7.464 L 40.852 7.464 L 40.852 32 L 45.914 32 L 45.914 23.427 L 49.154 23.427 C 54.959 23.427 58.908 20.187 58.908 15.125 Z M 53.879 15.294 C 53.879 18.331 52.124 19.816 48.108 19.816 L 45.813 19.816 L 45.813 11.176 L 48.513 11.176 C 52.023 11.176 53.879 12.594 53.879 15.294 Z
+               M 79.999 22.786 C 79.999 16.711 76.388 13.066 70.38 13.066 C 64.913 13.066 61.166 17.184 61.166 22.786 C 61.166 28.76 64.71 32.473 70.583 32.473 C 76.455 32.473 79.999 28.692 79.999 22.786 Z M 65.959 22.854 C 65.959 18.77 67.579 16.677 70.583 16.677 C 73.553 16.677 75.173 18.871 75.173 22.854 C 75.173 26.802 73.553 28.996 70.583 28.996 C 67.579 28.996 65.959 26.802 65.959 22.854 Z
+               M 94.371 21.537 L 101.493 13.539 L 96.261 13.539 L 89.039 21.571 L 89.039 6.35 L 84.213 6.35 L 84.213 32 L 89.039 32 L 89.039 25.959 L 90.794 24.204 L 97.173 32 L 102.775 32 L 94.371 21.537 Z
+               M 122.121 23.562 L 122.121 21.605 C 122.121 16.171 119.083 13.032 113.717 13.032 C 107.811 13.032 103.997 16.846 103.997 22.887 C 103.997 28.895 107.912 32.439 114.223 32.439 C 116.923 32.439 119.151 32.034 121.783 30.92 L 121.783 27.241 L 121.277 27.241 C 119.758 28.389 116.889 29.232 114.966 29.232 C 111.186 29.232 108.891 27.072 108.789 23.562 L 122.121 23.562 Z M 108.823 20.694 C 108.992 18.027 110.679 16.205 113.413 16.205 C 115.911 16.205 117.328 17.825 117.396 20.694 L 108.823 20.694 Z M 113.953 4.392 L 110.376 10.737 L 113.582 10.737 L 118.577 4.629 L 118.577 4.392 L 113.953 4.392 Z
+               M 143.314 20.12 C 143.314 19.749 143.28 19.31 143.213 18.837 C 144.394 17.791 146.048 17.15 147.432 17.15 C 149.659 17.15 150.57 18.432 150.57 21.774 L 150.57 32 L 155.43 32 L 155.43 19.749 C 155.43 15.395 153.203 13.032 149.254 13.032 C 146.858 13.032 144.664 14.146 142.707 16.34 C 141.762 14.146 139.905 13.032 137.172 13.032 C 134.944 13.032 132.514 14.214 131.198 15.699 L 131.198 13.539 L 126.439 13.539 L 126.439 32 L 131.198 32 L 131.198 18.804 C 132.278 17.791 133.965 17.15 135.315 17.15 C 137.543 17.15 138.488 18.432 138.488 21.774 L 138.488 32 L 143.314 32 L 143.314 20.12 Z
+               M 178.413 22.786 C 178.413 16.711 174.802 13.066 168.794 13.066 C 163.327 13.066 159.58 17.184 159.58 22.786 C 159.58 28.76 163.124 32.473 168.997 32.473 C 174.869 32.473 178.413 28.692 178.413 22.786 Z M 164.373 22.854 C 164.373 18.77 165.993 16.677 168.997 16.677 C 171.967 16.677 173.587 18.871 173.587 22.854 C 173.587 26.802 171.967 28.996 168.997 28.996 C 165.993 28.996 164.373 26.802 164.373 22.854 Z
+               M 199.847 19.749 C 199.847 15.462 197.586 13.032 193.569 13.032 C 191.443 13.032 188.912 14.18 187.461 15.699 L 187.461 13.539 L 182.634 13.539 L 182.634 32 L 187.461 32 L 187.461 18.804 C 188.439 17.859 190.296 17.15 191.747 17.15 C 194.008 17.15 194.987 18.399 194.987 21.774 L 194.987 32 L 199.847 32 L 199.847 19.749 Z" />
+      <path id="showdownText" transform="translate(2.8 64) skewX(-11) scale(0.8833028 1)"
+            d="M 2.517 -2.042 C 6.84 -0.237 11.305 0.617 15.959 0.617 C 25.839 0.617 32.061 -4.085 32.061 -10.877 C 32.061 -13.68 31.111 -15.912 29.259 -17.574 C 27.407 -19.237 23.892 -20.614 18.762 -21.612 C 15.627 -22.229 13.68 -22.752 12.967 -23.274 C 12.255 -23.797 11.875 -24.509 11.875 -25.412 C 11.875 -27.454 14.345 -28.784 18.429 -28.784 C 22.562 -28.784 26.314 -27.502 29.734 -24.889 L 30.684 -24.889 L 30.684 -32.821 C 26.742 -34.389 22.609 -35.149 18.192 -35.149 C 13.68 -35.149 9.975 -34.151 7.077 -32.109 C 4.18 -30.067 2.755 -27.454 2.755 -24.224 C 2.755 -19.617 5.225 -16.482 9.072 -15.01 C 10.972 -14.297 13.68 -13.585 17.099 -12.92 C 19.759 -12.397 21.374 -11.827 21.992 -11.162 C 22.609 -10.545 22.894 -9.927 22.894 -9.262 C 22.894 -6.935 20.709 -5.747 16.244 -5.747 C 11.637 -5.747 7.362 -7.267 3.515 -10.307 L 2.517 -10.307 L 2.517 -2.042 Z
+               M 63.409 -26.029 L 54.906 -26.029 L 54.906 -17.242 L 46.072 -17.242 L 46.072 -26.029 L 37.522 -26.029 L 37.522 0 L 46.072 0 L 46.072 -10.497 L 54.906 -10.497 L 54.906 0 L 63.409 0 L 63.409 -26.029 Z
+               M 99.549 -13.015 C 99.549 -16.909 98.125 -20.139 95.37 -22.752 C 92.567 -25.317 89.005 -26.599 84.682 -26.599 C 80.265 -26.599 76.703 -25.317 73.948 -22.752 C 71.193 -20.187 69.863 -16.957 69.863 -13.015 C 69.863 -4.987 75.468 0.522 84.682 0.522 C 89.242 0.522 92.852 -0.712 95.512 -3.23 C 98.172 -5.795 99.549 -9.025 99.549 -13.015 Z M 84.682 -20.329 C 88.72 -20.329 90.715 -17.859 90.715 -12.92 C 90.715 -7.932 88.72 -5.462 84.682 -5.462 C 80.788 -5.462 78.65 -8.265 78.65 -12.92 C 78.65 -17.859 80.693 -20.329 84.682 -20.329 Z
+               M 137.313 -26.029 L 133.18 -9.547 L 128.383 -26.029 L 120.403 -26.029 L 115.321 -9.452 L 111.379 -26.029 L 103.019 -26.029 L 110.524 0 L 119.453 0 L 124.203 -15.247 L 129.095 0 L 137.93 0 L 145.53 -26.029 L 137.313 -26.029 Z
+               M 160.924 0 C 171.754 0 178.024 -4.417 178.024 -13.015 C 178.024 -21.707 172.229 -26.029 160.639 -26.029 L 150.855 -26.029 L 150.855 0 L 160.924 0 Z M 161.114 -19.664 C 166.434 -19.664 169.094 -17.479 169.094 -13.062 C 169.094 -8.597 166.434 -6.365 161.067 -6.365 L 159.167 -6.365 L 159.167 -19.664 L 161.114 -19.664 Z
+               M 212.929 -13.015 C 212.929 -16.909 211.504 -20.139 208.749 -22.752 C 205.947 -25.317 202.384 -26.599 198.062 -26.599 C 193.644 -26.599 190.082 -25.317 187.327 -22.752 C 184.572 -20.187 183.242 -16.957 183.242 -13.015 C 183.242 -4.987 188.847 0.522 198.062 0.522 C 202.622 0.522 206.232 -0.712 208.891 -3.23 C 211.551 -5.795 212.929 -9.025 212.929 -13.015 Z M 198.062 -20.329 C 202.099 -20.329 204.094 -17.859 204.094 -12.92 C 204.094 -7.932 202.099 -5.462 198.062 -5.462 C 194.167 -5.462 192.03 -8.265 192.03 -12.92 C 192.03 -17.859 194.072 -20.329 198.062 -20.329 Z
+               M 250.692 -26.029 L 246.56 -9.547 L 241.762 -26.029 L 233.783 -26.029 L 228.7 -9.452 L 224.758 -26.029 L 216.398 -26.029 L 223.903 0 L 232.833 0 L 237.582 -15.247 L 242.475 0 L 251.309 0 L 258.909 -26.029 L 250.692 -26.029 Z
+               M 290.493 -26.029 L 282.893 -26.029 L 282.893 -12.492 L 272.681 -26.029 L 264.274 -26.029 L 264.274 0 L 271.826 0 L 271.826 -13.965 L 282.418 0 L 290.493 0 L 290.493 -26.029 Z" />
+    </g>
+  </defs>
+
+  <g filter="url(#dropShadow)">
+    <use href="#markShape" fill="url(#mark)" filter="url(#innerShadows)" />
+    <use href="#markShape" fill="none" stroke="#cee4f5" stroke-width="2" stroke-linejoin="round" />
+  </g>
+  <g filter="url(#dropShadow)">
+    <!-- The fills cover half the stroke, leaving a 2px outer outline. -->
+    <use href="#lettering" fill="none" stroke="#cee4f5" stroke-width="4" stroke-linejoin="round" />
+    <g filter="url(#textInnerShadows)">
+      <use href="#pokemonText" fill="url(#pokemon)" />
+      <use href="#showdownText" fill="url(#showdown)" />
+    </g>
+  </g>
+  <g id="betaBadge" filter="url(#dropShadow)">
+    <rect x="191" y="62" width="51" height="19" rx="9.5"
+          fill="#3b4d62" stroke="#e0ecf3" stroke-width="2" />
+    <!-- Eleven-pixel capitals, fitted independently of the six-pixel 1× badge. -->
+    <g fill="#e0ecf3" fill-rule="evenodd" transform="translate(198 66)">
+      <!-- B -->
+      <path d="M 0 0 H 4.5 Q 8.5 0 8.5 3 Q 8.5 4.4 6.6 5
+               Q 9 5.5 9 8 Q 9 11 4.8 11 H 0 Z
+               M 2 2 V 4 H 4.6 Q 6 4 6 3 T 4.6 2 Z
+               M 2 6 V 9 H 4.8 Q 6.5 9 6.5 7.5 T 4.8 6 Z" />
+      <!-- E -->
+      <path transform="translate(11 0)" d="M 0 0 H 8 V 2 H 2 V 4 H 7 V 6 H 2 V 9 H 8 V 11 H 0 Z" />
+      <!-- T -->
+      <path transform="translate(20 0)" d="M 0 0 H 9 V 2 H 6 V 11 H 3 V 2 H 0 Z" />
+      <!-- A -->
+      <path transform="translate(28 0)" d="M 0 11 L 4 0 H 6 L 10 11 H 7.5 L 6.8 9 H 3.2 L 2.5 11 Z
+                                           M 3.8 7 H 6.2 L 5 3 Z" />
+    </g>
+  </g>
+</svg>

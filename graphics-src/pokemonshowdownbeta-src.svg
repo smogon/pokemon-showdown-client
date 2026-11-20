@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="584" height="176" viewBox="0 0 292 88">
+  <title>Pokémon Showdown! (beta)</title>
+  <defs>
+    <style>
+      @font-face { font-family: "Verdana Pro"; src: local("VerdanaPro-SemiBold"), local("Verdana Pro SemiBold"); font-weight: 600; }
+      @font-face { font-family: "Verdana Pro"; src: local("VerdanaPro-Bold"), local("Verdana Pro Bold"); font-weight: 700; }
+    </style>
+    <linearGradient id="ball" gradientUnits="userSpaceOnUse" x1="0" y1="35" x2="0" y2="63">
+      <stop stop-color="#5988c0" />
+      <stop offset="1" stop-color="#003265" />
+    </linearGradient>
+    <linearGradient id="mark" gradientUnits="userSpaceOnUse" x1="0" y1="3" x2="0" y2="77">
+      <stop stop-color="#66cdfd" />
+      <stop offset="1" stop-color="#0080c5" />
+    </linearGradient>
+
+    <filter id="innerShadows" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.44" result="softEdge" />
+
+      <!-- dark inner shadow -->
+      <feOffset in="softEdge" dx="-1.08" dy="-1.08" result="darkOffset" />
+      <feComposite in="SourceAlpha" in2="darkOffset" operator="out" result="darkMask" />
+      <feFlood flood-color="black" flood-opacity="0.65" result="darkColor" />
+      <feComposite in="darkColor" in2="darkMask" operator="in" result="darkShadow" />
+
+      <!-- light inner "shadow" highlight -->
+      <feOffset in="softEdge" dx="1.08" dy="1.08" result="lightOffset" />
+      <feComposite in="SourceAlpha" in2="lightOffset" operator="out" result="lightMask" />
+      <feFlood flood-color="white" flood-opacity="0.5" result="lightColor" />
+      <feComposite in="lightColor" in2="lightMask" operator="in" result="lightShadow" />
+      <feMerge>
+        <feMergeNode in="SourceGraphic" />
+        <feMergeNode in="darkShadow" />
+        <feMergeNode in="lightShadow" />
+      </feMerge>
+    </filter>
+
+    <filter id="textInnerShadows" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.08" result="softEdge" />
+
+      <!-- dark inner shadow -->
+      <feOffset in="softEdge" dx="-.72" dy="-.72" result="darkOffset" />
+      <feComposite in="SourceAlpha" in2="darkOffset" operator="out" result="darkMask" />
+      <feFlood flood-color="black" flood-opacity="0.65" result="darkColor" />
+      <feComposite in="darkColor" in2="darkMask" operator="in" result="darkShadow" />
+
+      <!-- light inner "shadow" highlight -->
+      <feOffset in="softEdge" dx=".72" dy=".72" result="lightOffset" />
+      <feComposite in="SourceAlpha" in2="lightOffset" operator="out" result="lightMask" />
+      <feFlood flood-color="white" flood-opacity="0.5" result="lightColor" />
+      <feComposite in="lightColor" in2="lightMask" operator="in" result="lightShadow" />
+      <feMerge>
+        <feMergeNode in="SourceGraphic" />
+        <feMergeNode in="darkShadow" />
+        <feMergeNode in="lightShadow" />
+      </feMerge>
+    </filter>
+
+    <filter id="dropShadow" x="-20%" y="-25%" width="145%" height="165%" color-interpolation-filters="sRGB">
+      <!-- outer shadow -->
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.26" result="shadowBlur" />
+      <feOffset in="shadowBlur" dx="2" dy="2" result="shadowMask" />
+      <feFlood flood-color="black" flood-opacity="0.6" result="shadowColor" />
+      <feComposite in="shadowColor" in2="shadowMask" operator="in" result="shadow" />
+      <feMerge>
+        <feMergeNode in="shadow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- At 292 × 88, one viewBox unit is one output pixel. -->
+    <g id="markShape">
+      <path d="M 267 3 H 283 Q 288.5 3 286.6 8.5
+               L 271.2 50.5 Q 270 55 266 55
+               H 256 Q 251.6 55 253.1 49.5
+               L 262.5 7 Q 263.2 3 267 3 Z" />
+      <path d="M 251 58 H 267 Q 272.6 58 271 63
+               L 268.2 74 Q 267.5 77 264 77
+               H 247 Q 242.3 77 243.4 72.3
+               L 246.3 61.5 Q 247 58 251 58 Z" />
+    </g>
+
+    <linearGradient id="pokemon" href="#mark" y1="3" y2="29" />
+    <linearGradient id="showdown" href="#ball" y1="-28" y2="0" />
+    <g id="lettering">
+      <text id="pokemonText" x="39.75" y="32" font-size="33.75" textLength="173.6" lengthAdjust="spacingAndGlyphs">Pokémon</text>
+      <text id="showdownText" font-weight="700" transform="translate(2.8 64) skewX(-11)" font-size="47.5"
+            textLength="260" lengthAdjust="spacingAndGlyphs" font-variant="small-caps">Showdown</text>
+    </g>
+  </defs>
+
+  <g filter="url(#dropShadow)">
+    <use href="#markShape" fill="url(#mark)" filter="url(#innerShadows)" />
+    <use href="#markShape" fill="none" stroke="#cee4f5" stroke-width="2" stroke-linejoin="round" />
+  </g>
+  <g filter="url(#dropShadow)" font-family="Verdana Pro, Verdana, sans-serif" font-weight="600">
+    <!-- The fills cover half the stroke, leaving a 2px outer outline. -->
+    <use href="#lettering" fill="none" stroke="#cee4f5" stroke-width="4" stroke-linejoin="round" />
+    <g filter="url(#textInnerShadows)">
+      <use href="#pokemonText" fill="url(#pokemon)" />
+      <use href="#showdownText" fill="url(#showdown)" />
+    </g>
+  </g>
+  <g id="betaBadge" filter="url(#dropShadow)">
+    <rect x="191" y="62" width="51" height="19" rx="9.5"
+          fill="#3b4d62" stroke="#e0ecf3" stroke-width="2" />
+    <!-- Eleven-pixel capitals, fitted independently of the six-pixel 1× badge. -->
+    <g fill="#e0ecf3" fill-rule="evenodd" transform="translate(198 66)">
+      <!-- B -->
+      <path d="M 0 0 H 4.5 Q 8.5 0 8.5 3 Q 8.5 4.4 6.6 5
+               Q 9 5.5 9 8 Q 9 11 4.8 11 H 0 Z
+               M 2 2 V 4 H 4.6 Q 6 4 6 3 T 4.6 2 Z
+               M 2 6 V 9 H 4.8 Q 6.5 9 6.5 7.5 T 4.8 6 Z" />
+      <!-- E -->
+      <path transform="translate(11 0)" d="M 0 0 H 8 V 2 H 2 V 4 H 7 V 6 H 2 V 9 H 8 V 11 H 0 Z" />
+      <!-- T -->
+      <path transform="translate(20 0)" d="M 0 0 H 9 V 2 H 6 V 11 H 3 V 2 H 0 Z" />
+      <!-- A -->
+      <path transform="translate(28 0)" d="M 0 11 L 4 0 H 6 L 10 11 H 7.5 L 6.8 9 H 3.2 L 2.5 11 Z
+                                           M 3.8 7 H 6.2 L 5 3 Z" />
+    </g>
+  </g>
+</svg>
