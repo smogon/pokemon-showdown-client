@@ -768,6 +768,10 @@ p.or:after {
 	padding: 25px 0 51px 0;
 	width: 300px;
 }
+.mainmenu-logo {
+	display: block;
+	margin: 0 auto 8px;
+}
 .mainmenu-right {
 	position: absolute;
 	top: 25px;

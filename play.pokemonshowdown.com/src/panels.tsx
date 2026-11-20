@@ -429,6 +429,7 @@ export class PSView extends preact.Component {
 			document.documentElement.style.height = '100%';
 		}
 		PSView.updateScrollSnap();
+		if (PSView.narrowMode) PSView.jumpToRoom();
 	}
 	override componentWillUnmount() {
 		PSView.scrollFrame?.removeEventListener('scroll', PSView.handleFrameScroll);

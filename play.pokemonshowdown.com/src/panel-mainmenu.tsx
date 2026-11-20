@@ -754,8 +754,13 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	override render() {
 		const onlineButton = ' button' + (PS.isOffline ? ' disabled' : '');
 		const tinyLayout = this.props.room.width < 620 ? ' tiny-layout' : '';
+		const logo = PSView.narrowMode && <img
+			class="mainmenu-logo" src={`${Config.testclient ? '' : Dex.resourcePrefix}pokemonshowdownbeta@2x.png`}
+			width="146" height="44" alt="Pokémon Showdown! (beta)"
+		/>;
 		return <PSPanelWrapper room={this.props.room} onDragEnter={this.handleDragEnter}>
 			<div class={`mainmenu-mini-windows${tinyLayout}`}>
+				{tinyLayout && logo}
 				{!PS.leftPanelWidth && Config.includes?.mainmenuHTML && (
 					<div dangerouslySetInnerHTML={{ __html: Config.includes.mainmenuHTML }} />
 				)}
@@ -763,6 +768,8 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			</div>
 			<div class={`mainmenu${tinyLayout}`}>
 				<div class="mainmenu-left">
+					{!tinyLayout && logo}
+
 					{this.renderGames()}
 
 					{this.renderSearchButton()}
