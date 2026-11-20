@@ -1,28 +1,35 @@
 {
   "fill" : {
-    "solid" : "srgb:0.74517,0.86354,0.93008,1.00000"
+    "linear-gradient" : [
+      "srgb:0.81961,0.91765,0.96863,1.00000",
+      "srgb:0.67059,0.81176,0.89020,1.00000"
+    ]
   },
   "groups" : [
     {
       "layers" : [
         {
+          "blend-mode" : "normal",
           "fill" : {
             "linear-gradient" : [
-              "display-p3:0.34902,0.53333,0.75294,1.00000",
-              "srgb:0.00000,0.19608,0.39608,1.00000"
+              "srgb:0.25882,0.42745,0.61961,1.00000",
+              "srgb:0.00000,0.10196,0.25098,1.00000"
             ]
           },
           "image-name" : "02-ball.svg",
           "name" : "02-ball",
-          "opacity" : 0.75
+          "opacity" : 0.8
         },
         {
           "fill" : {
-            "automatic-gradient" : "srgb:0.00000,0.50196,0.77255,1.00000"
+            "linear-gradient" : [
+              "srgb:0.27059,0.74118,0.96078,1.00000",
+              "srgb:0.00000,0.32157,0.55294,1.00000"
+            ]
           },
           "image-name" : "01-exclamation.svg",
           "name" : "01-exclamation",
-          "opacity" : 0.75
+          "opacity" : 0.8
         }
       ],
       "shadow" : {
