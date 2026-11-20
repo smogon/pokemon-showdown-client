@@ -1895,6 +1895,11 @@
 			if (!sampleSet) return;
 
 			var curSet = $.extend({}, this.curSet, sampleSet);
+			// don't keep IVs auto-set for the old moves, recalculate them for the new ones
+			if (!sampleSet.ivs) {
+				delete curSet.ivs;
+				this.chooseMove('', false, curSet);
+			}
 
 			// smogon samples don't usually have sample names, box samples usually do; either way, don't use them
 			curSet.name = this.curSet.name || undefined;
@@ -3481,8 +3486,8 @@
 			}
 			return false;
 		},
-		chooseMove: function (moveName, resetSpeed) {
-			var set = this.curSet;
+		chooseMove: function (moveName, resetSpeed, set) {
+			if (!set) set = this.curSet;
 			if (!set) return;
 			var gen = this.curTeam.gen;
 
