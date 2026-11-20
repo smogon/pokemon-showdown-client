@@ -268,6 +268,7 @@ export class MainMenuRoom extends PSRoom {
 				let bestOfDefault = false;
 				let teraPreviewDefault = false;
 				let itemClauseDefault = false;
+				let terastalClause = false;
 				let team: 'preset' | null = null;
 				let teambuilderLevel: number | null = null;
 				let lastCommaIndex = name.lastIndexOf(',');
@@ -283,6 +284,7 @@ export class MainMenuRoom extends PSRoom {
 					if (code & 64) bestOfDefault = true;
 					if (code & 128) teraPreviewDefault = true;
 					if (code & 256) itemClauseDefault = true;
+					if (code & 512) terastalClause = true;
 				} else {
 					// Backwards compatibility: late 0.9.0 -> 0.10.0
 					if (name.substr(name.length - 2) === ',#') { // preset teams
@@ -347,6 +349,7 @@ export class MainMenuRoom extends PSRoom {
 					bestOfDefault,
 					teraPreviewDefault,
 					itemClauseDefault,
+					terastalClause,
 					rated: searchShow && id.substr(4, 7) !== 'unrated',
 					teambuilderLevel,
 					partner,
