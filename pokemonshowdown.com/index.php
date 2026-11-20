@@ -5,7 +5,7 @@
 
 <title>Pok&eacute;mon Showdown! battle simulator</title>
 
-<link rel="stylesheet" href="/style/global.css?v16" />
+<link rel="stylesheet" href="/style/global.css?v17" />
 
 <?php
 include_once __DIR__ . '/../config/config.inc.php';

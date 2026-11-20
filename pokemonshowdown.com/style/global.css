@@ -18,6 +18,10 @@ html {
 }
 .body {
 	background: transparent url(/images/bg-horizon-fade@2x.jpg) no-repeat bottom right;
+	background-image: image-set(
+		url(/images/bg-horizon-fade.webp) type("image/webp"),
+		url(/images/bg-horizon-fade@2x.jpg) type("image/jpeg")
+	);
 	background-size: 100% auto;
 	padding-bottom: 30vw;
 }
