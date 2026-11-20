@@ -1668,6 +1668,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 		const room = this.getBattleRoom();
 
 		switch (setting) {
+		case 'autohidereplay': {
+			PS.prefs.set('autohidereplay', value);
+			if (value && room?.side && !room.autoHideReplayActivated) {
+				room.send('/hidereplay');
+				room.autoHideReplayActivated = true;
+			}
+			break;
+		}
 		case 'autotimer': {
 			PS.prefs.set('autotimer', value);
 			if (value) {
@@ -1680,6 +1688,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 			if (room?.battle) {
 				room.battle.setHardcoreMode(value);
 				room.update(null);
+			}
+			break;
+		}
+		case 'autoteamsheet': {
+			PS.prefs.set('autoteamsheet', value);
+			if (value && room?.side && !room.autoTeamSheetAccepted) {
+				room.send('/acceptopenteamsheets');
+				room.autoTeamSheetAccepted = true;
 			}
 			break;
 		}
@@ -1708,7 +1724,6 @@ class BattleOptionsPanel extends PSRoomPanel {
 		}
 		case 'disallowspectators': {
 			PS.prefs.set('disallowspectators', value);
-			PS.mainmenu.disallowSpectators = value;
 			break;
 		}
 		}
@@ -1722,6 +1737,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 		const battleRoom = this.props.room.getParent() as BattleRoom | null;
 		return battleRoom?.battle ? battleRoom : null;
 	}
+	handleBattleVisibility = (ev: Event) => {
+		const room = this.getBattleRoom();
+		if (!room) return this.close();
+
+		const hidden = (ev.currentTarget as HTMLInputElement).checked;
+		room.send(hidden ? '/hiddenroom' : '/publicroom');
+		this.forceUpdate();
+	};
 
 	override render() {
 		const room = this.props.room;
@@ -1747,9 +1770,17 @@ class BattleOptionsPanel extends PSRoomPanel {
 				<p>
 					<label class="checkbox">
 						<input
-							checked={battleRoom.battle.hardcoreMode}
-							type="checkbox" onChange={this.handleHardcoreMode}
-						/> {TL`Hardcore mode (hide info not shown in-game)`}
+							checked={battleRoom.isHiddenBattle}
+							type="checkbox" onChange={this.handleBattleVisibility}
+						/> {TL`Hide current battle`}
+					</label>
+				</p>
+				<p>
+					<label class="checkbox">
+						<input
+							checked={battleRoom.battle?.ignoreNicks}
+							type="checkbox" onChange={this.handleIgnoreNicks}
+						/> {TL`Ignore nicknames`}
 					</label>
 				</p>
 				<p>
@@ -1771,9 +1802,9 @@ class BattleOptionsPanel extends PSRoomPanel {
 				<p>
 					<label class="checkbox">
 						<input
-							checked={battleRoom.battle?.ignoreNicks}
-							type="checkbox" onChange={this.handleIgnoreNicks}
-						/> {TL`Ignore nicknames`}
+							checked={battleRoom.battle.hardcoreMode}
+							type="checkbox" onChange={this.handleHardcoreMode}
+						/> {TL`Hardcore mode (hide info not shown in-game)`}
 					</label>
 				</p>
 			</>}
@@ -1819,6 +1850,22 @@ class BattleOptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="checkbox">
 					<input
+						name="autohidereplay" checked={PS.prefs.autohidereplay || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> {TL`Automatically hide replay`}
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="autotimer" checked={PS.prefs.autotimer || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> {TL`Automatically start timer`}
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
 						name="ignorenicks" checked={PS.prefs.ignorenicks || false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> {TL`Ignore Pokémon nicknames`}
@@ -1843,17 +1890,17 @@ class BattleOptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="checkbox">
 					<input
-						name="autotimer" checked={PS.prefs.autotimer || false}
+						name="autohardcore" checked={PS.prefs.autohardcore || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> {TL`Automatically start timer`}
+					/> {TL`Automatically enable hardcore mode`}
 				</label>
 			</p>
 			<p>
 				<label class="checkbox">
 					<input
-						name="autohardcore" checked={PS.prefs.autohardcore || false}
+						name="autoteamsheet" checked={PS.prefs.autoteamsheet || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> {TL`Hardcore mode`}
+					/> {TL`Automatically accept Open Team Sheets`}
 				</label>
 			</p>
 			<p>

@@ -144,6 +144,7 @@ export const translations: TranslationCatalog = {
 	"Spectators ignored.": null,
 	"Spectators no longer ignored.": null,
 	"In this battle": null,
+	"Hide current battle": null,
 	"Hardcore mode (hide info not shown in-game)": null,
 	"Ignore spectators": null,
 	"Ignore opponent": null,
@@ -161,11 +162,13 @@ export const translations: TranslationCatalog = {
 	"Battles against bots will be unrated.": null,
 	"Ignore Pokémon nicknames": null,
 	"Automatically start timer": null,
+	"Automatically enable hardcore mode": null,
+	"Automatically accept Open Team Sheets": null,
+	"Automatically hide replay": null,
 	// TRANSLATORS: this phrasing is because "forfeit" is an English word some people don't know
 	// TRANSLATORS: if your language's word for "forfeit" is easily understandable, you may wish to skip the explanation
 	"Forfeiting makes you lose the battle. Are you sure?": null,
 	"Replacement player's name:": null,
-	"Hardcore mode": null,
 	"Start at turn 0 when spectating battles": null,
 	"Open new battles in the right-side panel": null,
 
