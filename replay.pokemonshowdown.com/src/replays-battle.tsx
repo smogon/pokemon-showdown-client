@@ -321,6 +321,8 @@ export class BattlePanel extends preact.Component<{ id: string, user: PSReplays[
 			return 'slow';
 		} else if (this.battle.messageFadeTime >= 1000) {
 			return 'reallyslow';
+		} else if (this.battle.realtime) {
+			return 'realtime';
 		}
 		return 'normal';
 	}
@@ -341,6 +343,12 @@ export class BattlePanel extends preact.Component<{ id: string, user: PSReplays[
 			reallyslow: 3000,
 		};
 		if (!this.battle) return;
+		if (speed === 'realtime') {
+			this.battle.realtime = true;
+			this.battle.resetToCurrentTurn();
+			return;
+		}
+		this.battle.realtime = false;
 		this.battle.messageShownTime = delayTable[speed as 'fast'];
 		this.battle.messageFadeTime = fadeTable[speed as 'fast'];
 		this.battle.scene.updateAcceleration();
@@ -348,7 +356,7 @@ export class BattlePanel extends preact.Component<{ id: string, user: PSReplays[
 	stepSpeed(delta: number) {
 		const target = this.base?.querySelector<HTMLSelectElement>('select[name=speed]');
 		if (!target) return; // should never happen
-		const values = ['reallyslow', 'slow', 'normal', 'fast', 'hyperfast'];
+		const values = ['realtime', 'reallyslow', 'slow', 'normal', 'fast', 'hyperfast'];
 		const newValue = values[values.indexOf(target.value) + delta];
 		if (newValue) {
 			target.value = newValue;
@@ -584,6 +592,7 @@ export class BattlePanel extends preact.Component<{ id: string, user: PSReplays[
 						<option value="normal">Normal</option>
 						<option value="slow">Slow</option>
 						<option value="reallyslow">Really slow</option>
+						<option value="realtime">Real-time</option>
 					</select>
 				</label> {}
 				<label class="optgroup">
