@@ -1,4 +1,6 @@
-# Zasady
+---
+title: Zasady
+---
 
 # Pokémon Showdown Zasady
 

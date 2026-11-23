@@ -1,3 +1,7 @@
+---
+title: Contact
+---
+
 # Contact
 
 Our forums are hosted by our affiliate, [Smogon University](http://smogon.com/):

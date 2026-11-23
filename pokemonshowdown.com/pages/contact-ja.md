@@ -1,3 +1,7 @@
+---
+title: Contact
+---
+
 # Contact
 
 このサイトは、[Smogon University](https://smogon.com/)によって運営されています。

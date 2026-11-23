@@ -1,3 +1,7 @@
+---
+title: Sugerencias de formatos
+---
+
 # Sugerencias de formatos
 
 La lista de formatos de Pokémon Showdown (modos jugables) proviene de estos 4 sitios:

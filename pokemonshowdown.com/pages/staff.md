@@ -1,3 +1,7 @@
+---
+title: Staff FAQ
+---
+
 # Staff FAQ
 
 ### Who are the staff?
@@ -24,7 +28,7 @@ Room staff have permissions tied specifically to the room they were promoted in,
 
 ###  How do I become a staff member?
 
-***You do not join the staff by asking for it;*** staff are appointed with internal nominations and without an application process.
+***You do not join the staff by asking for it;*** staff are appointed with internal nominations and without an application process.\
 If you are determined to be promoted, there are ways to display your aptitude:
 
 - Be both active and positive everywhere on the sim. We select staff from the pool of Global Voices, so being a positive presence on the server is essential.

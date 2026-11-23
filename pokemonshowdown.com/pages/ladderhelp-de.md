@@ -1,4 +1,6 @@
-# Ladder-Hilfe
+---
+title: Ladder-Hilfe
+---
 
 # Wie die Ladder funktioniert
 

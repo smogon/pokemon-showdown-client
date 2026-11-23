@@ -1,0 +1,116 @@
+---
+title: Version 0.9
+---
+
+<div class="main" style="max-width:8in">
+
+Pokémon Showdown 0.9 has been released!
+
+We have a ton of changes waiting, but here's a few of the more notable ones:
+
+# Completely redesigned main menu
+
+![](/files/0.9screenshots/mainmenu.png)
+
+The main menu's been redesigned from scratch. Buttons for everything you'd want to do on the left, and a beautiful background by Yilx (you can turn it off in the settings if you really want to, but it's seriously an amazing background).
+
+# Faster
+
+It's not really something I can screenshot, but the new PS is faster, especially on tablets. Most people who've used it have commented that it's faster, so the speed increase is noticeable.
+
+As always, you can close the lobby chat for even more speed.
+
+# New PM and challenge system
+
+![](/files/0.9screenshots/pm.png)
+
+You can now challenge and PM from the same window! And PMs now show up side-by-side, so you can PM with lots of people at the same time.
+
+Switch between PM windows with Tab and Shift+Tab, and close PM windows with Esc.
+
+# Small user menus
+
+![](/files/0.9screenshots/usermenu.png)
+
+You don't have to be in the lobby to interact with users anymore. You can now click on any username: in the user list, in chat, in battles, in PMs... and it'll pop up this mini-menu.
+
+# Filter "Watch Battles" by format
+
+![](/files/0.9screenshots/watchbattles.png)
+
+# Teambuilder EV sliders and base stats
+
+![](/files/0.9screenshots/sliders.png)
+
+The long-requested sliders for EVs are now finally here.
+
+Base stats are now displayed in the teambuilder, too.
+
+# Effect and music volume
+
+![](/files/0.9screenshots/volume.png)
+
+You can now control volume, and effects and music are controlled separately, so you can turn off music (and listen to your own music) while still hearing cries.
+
+# More room
+
+![](/files/0.9screenshots/multicolumn.png)
+
+Without the left sidebar, we can fit lobby chat next to battle chat on screens as small as 1280 pixels wide, which includes most laptops that aren't considered netbooks.
+
+# PP in teambuilder and !data
+
+![](/files/0.9screenshots/teambuilder-pp.png)
+
+I managed to fit PP into the move list and !data.
+
+# Move and delete pokemon in teams
+
+![](/files/0.9screenshots/teambuilder-move.png)
+
+You can move and delete pokemon in teams in the teambuilder now.
+
+# Much more
+
+There are a lot of small things that are improved. Feel free to look around.
+
+# Credits
+
+![](/files/0.9screenshots/credits.png)
+
+<p class="mainbutton">
+	<a class="button greenbutton" href="//play.pokemonshowdown.com/" target="_self">Play online</a>
+</p>
+
+</div>
+
+<script src="/js/jquery-1.9.1.min.js"></script>
+<script src="/js/jquery.browser.min.js"></script>
+<script src="/js/jquery.zoomooz.min.js"></script>
+<script>{`
+var zoomed = false;
+$('.screenshot').css('cursor','pointer').click(function(e){
+	if (zoomed) {
+		return;
+	}
+	e.stopPropagation();
+	$('#ad-div').hide();
+	$('#ad-div2').hide();
+	$(this).zoomTo({
+		targetsize: 0.95,
+		closeclick: true,
+		animationendcallback: function() {
+			zoomed = true;
+			$(document.body).click(function(e){
+				e.stopPropagation();
+				e.preventDefault();
+				$('#ad-div').show();
+				$('#ad-div2').show();
+				$(document.body).zoomTo();
+				zoomed = false;
+				$(document.body).off('click');
+			});
+		}
+	});
+});
+`}</script>

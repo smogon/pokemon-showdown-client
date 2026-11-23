@@ -1,3 +1,7 @@
+---
+title: Staff FAQ
+---
+
 # Staff FAQ
 ### ¿Quién es el staff?
 
@@ -23,7 +27,7 @@ El room staff tiene poderes limitados a la sala en la que fueron ascendidos, mie
 
 ###  ¿Cómo me hago un miembro del Staff?
 
-***No te unes al staff global pidiéndolo;*** el staff es asignado mediante nominaciones internas y sin aplicaciones previas.
+***No te unes al staff global pidiéndolo;*** el staff es asignado mediante nominaciones internas y sin aplicaciones previas.\
 Si estás decidido a ser ascendido, hay maneras de mostrar tus capacidades:
 
 - Sé activo y una buena presencia en todo el simulador. Seleccionamos al staff de la lista de Global Voices, por lo que ser una buena presencia en el servidor es esencial.

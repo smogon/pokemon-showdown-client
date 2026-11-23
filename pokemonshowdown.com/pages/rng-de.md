@@ -1,4 +1,6 @@
-# RNG
+---
+title: RNG
+---
 
 # Warum die korrekte Anwendung eines Zufallszahlengenerators (RNG) oftmals falsch wahrgenommen wird
 

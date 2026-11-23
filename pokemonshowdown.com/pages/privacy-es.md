@@ -1,4 +1,6 @@
-# Política de Privacidad
+---
+title: Política de Privacidad
+---
 
 # Política de Privacidad de Pokémon Showdown
 
@@ -28,5 +30,5 @@ Nos reservamos el derecho (pero no la obligación) de mantener los registros del
 
 ## Otros servicios
 
-Usamos muchas APIs de Google para mejorar la experiencia de chat.
+Usamos muchas APIs de Google para mejorar la experiencia de chat.\
 [Revisa la política de privacidad de Google](https://policies.google.com/privacy).

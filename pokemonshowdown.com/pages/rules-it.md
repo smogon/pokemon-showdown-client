@@ -1,4 +1,6 @@
-# Regole
+---
+title: Regole
+---
 
 # Regolamento di Pokémon Showdown
 
@@ -12,7 +14,7 @@
 
 4. **Niente trucchi**. Non abusare dei bug per ottenere un vantaggio illegittimo. Non cercare di aggirare il sistema (ad esempio perdendo contro te stesso o amici nella ladder, convincendo l'avversario al forfeit, etc.). Non fingerti membro dello staff se non lo sei.
 
-5. **I moderatori possono punire a loro discrezione**. I moderatori possono punire tutto ciò che ritengonoinappropriato, sia in questo elenco oppure no. Se non sei d'accordo con una loro decisione, puoi fare appello nel [forum specifico] (https://play.pokemonshowdown.com/view-help-request--appeal).
+5. **I moderatori possono punire a loro discrezione**. I moderatori possono punire tutto ciò che ritengonoinappropriato, sia in questo elenco oppure no. Se non sei d'accordo con una loro decisione, puoi fare appello nel [forum specifico](https://play.pokemonshowdown.com/view-help-request--appeal).
 
 (Nota: Il Primo Emendamento non si applica a PS, dato che PS non è un'organizzazione governativa.)
 

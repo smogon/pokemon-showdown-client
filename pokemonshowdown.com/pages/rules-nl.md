@@ -1,4 +1,6 @@
-# Regels
+---
+title: Regels
+---
 
 # Pokémon Showdown Regels
 

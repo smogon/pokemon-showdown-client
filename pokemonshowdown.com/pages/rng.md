@@ -1,4 +1,6 @@
-# RNG
+---
+title: RNG
+---
 
 # Why correct RNGs seem "wrong"
 

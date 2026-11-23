@@ -1,3 +1,7 @@
+---
+title: Proxy Lock Help
+---
+
 # Proxy Lock Help
 
 >Your IP (123.456.78.910) is currently locked due to being a proxy. We automatically lock these connections since they are used to spam, hack, or otherwise attack our server. Disable any proxies you are using to connect to PS.

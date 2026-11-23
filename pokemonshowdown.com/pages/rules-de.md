@@ -1,4 +1,6 @@
-# Regeln
+---
+title: Regeln
+---
 
 # Regeln auf Pokémon Showdown
 
@@ -6,7 +8,7 @@
 
 1. **Sei nett zu den Leuten**. Respektiere sie. Sei nicht unhöflich oder gemein zu ihnen.
 
-2. **Befolge die Gesetze der USA ** (PS ist ansässig in den USA). Das schließt ein: Kein pornographisches Material (Minderjährige nutzen PS), verbreite kein raubkopiertes Material und verleumde keine anderen Nutzer.
+2. **Befolge die Gesetze der USA** (PS ist ansässig in den USA). Das schließt ein: Kein pornographisches Material (Minderjährige nutzen PS), verbreite kein raubkopiertes Material und verleumde keine anderen Nutzer.
 
 3. **Keine sexuellen Inhalte**. Greife keine Themen mit sexuellem Bezug auf, auch nicht in privaten Nachrichten. Dies gilt auch, wenn ihr beide erwachsen seid.
 

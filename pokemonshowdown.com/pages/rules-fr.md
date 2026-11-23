@@ -1,4 +1,6 @@
-# Règles
+---
+title: Règles
+---
 
 # Règles de Pokémon Showdown
 

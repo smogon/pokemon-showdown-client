@@ -1,3 +1,7 @@
+---
+title: Domande più frequenti (FAQ)
+---
+
 # Domande più frequenti (FAQ)
 
 ## Staff e regole disciplinari
@@ -58,7 +62,7 @@ Solamente i Global Driver o superiori (`%`, `@` e `&`), contributor di PS! (ad e
 
 ### Come posso creare una room?
 
-Se vuoi richiedere una room privata dovrai farlo nelle richieste per Room/Server [qui](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/)! Prima di postare, leggi attentamente i requisiti! Devi essere Global Voice oppure Driver o superiore in una room pubblica.
+Se vuoi richiedere una room privata dovrai farlo nelle richieste per Room/Server [qui](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/)! Prima di postare, leggi attentamente i requisiti! Devi essere Global Voice oppure Driver o superiore in una room pubblica.\
 **NON RICHIEDERE UNA ROOM SE NON DISPONI DEI REQUISITI!**
 
 ### Come posso aprire due room in una volta?

@@ -1,3 +1,7 @@
+---
+title: よくある質問
+---
+
 # よくある質問
 
 ## スタッフとルール
@@ -58,7 +62,7 @@ Smogonの[フォーラムガイドライン](http://www.smogon.com/forums/thread
 
 ### チャットルームを作るには?
 
-プライベートルームを作成するには[Room/Server Request](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/)で申請してください。投稿する前に、あなたが申請要件を満たしているか確認してください。グローバルボイス以上かパブリックルームでドライバー以上である必要があります。
+プライベートルームを作成するには[Room/Server Request](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/)で申請してください。投稿する前に、あなたが申請要件を満たしているか確認してください。グローバルボイス以上かパブリックルームでドライバー以上である必要があります。\
 **要件を満たしていない場合はリクエストを送信しないでください！**
 
 ### 2つのチャットルームを同時に開くには?

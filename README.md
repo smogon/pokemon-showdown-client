@@ -98,6 +98,15 @@ Even with a test key, the following things will fail in `testclient`:
 
 Everything else can be tested.
 
+Building static pages
+------------------------------------------------------------------------
+
+```sh
+npx astralhp build
+```
+
+We're trying to migrate from PHP to [AstralHP](https://github.com/Zarel/astralhp) (Node). Maybe I'll add more documentation about it later but for now I guess just read the AstralHP docs.
+
 Warning
 ------------------------------------------------------------------------
 

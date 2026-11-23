@@ -1,4 +1,6 @@
-# Ladder help
+---
+title: Ladder help
+---
 
 # How the ladder works
 

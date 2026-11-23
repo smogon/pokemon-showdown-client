@@ -1,4 +1,6 @@
-# Pravila
+---
+title: Pravila
+---
 
 # Pokémon Showdown Pravila
 
@@ -34,7 +36,7 @@ Vashe imya pol'zovatelya mozhet byt' vybrano i izmeneno v lyuboye vremya (izmeni
 
 1. **Imena pol'zovateley ne mogut olitsetvoryat' priznannogo** pol'zovatelya (pol'zovatelya s %, @, #, Ili ~ ryadom s ikh imenem pol'zovatelya.) ili izvestnym chelovekom/organizatsiyey, kotoraya ispol'zuyet PS ili svyazana s Pokémon.
 
-2. **Imena ne mogut oskorblyat' cheloveka ili gruppu. ** Oskorblyat' sebya mozhno, yesli eto ne slishkom ser'yezno.
+2. **Imena ne mogut oskorblyat' cheloveka ili gruppu.** Oskorblyat' sebya mozhno, yesli eto ne slishkom ser'yezno.
 
 3. **Imena pol'zovateley ne mogut napryamuyu ssylat'sya na seksual'nuyu aktivnost'** ili byt' chrezmerno otvratitel'nymi.
 

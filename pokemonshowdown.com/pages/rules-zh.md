@@ -1,4 +1,6 @@
-# 规则
+---
+title: 规则
+---
 
 # Pokémon Showdown 规则
 

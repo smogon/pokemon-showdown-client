@@ -1,4 +1,6 @@
-# Privacy policy
+---
+title: Privacy policy
+---
 
 # Pokémon Showdown プライバシーポリシー
 

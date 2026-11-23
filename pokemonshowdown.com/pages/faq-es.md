@@ -1,3 +1,7 @@
+---
+title: Preguntas frecuentes
+---
+
 # Preguntas frecuentes
 
 ## Staff y Medidas disciplinarias
@@ -58,7 +62,7 @@ Solo los Drivers globales y superiores (`%`, `@` y `&`), contribuidores a PS! (p
 
 ### ¿Cómo hago una sala?
 
-Si quieres pedir una sala privada, ¡debes hacerlo en las Solicitudes de una sala / servidor [aquí](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/)! Antes de publicar, ¡por favor lea los requisitos! Debes ser Global Voice o Driver o superior en una sala pública.
+Si quieres pedir una sala privada, ¡debes hacerlo en las Solicitudes de una sala / servidor [aquí](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/)! Antes de publicar, ¡por favor lea los requisitos! Debes ser Global Voice o Driver o superior en una sala pública.\
 **¡NO PIDAS UNA SALA SI NO CUMPLES CON LOS REQUISITOS!**
 
 ### ¿Cómo puedo tener dos salas abiertas al mismo tiempo?
@@ -154,7 +158,7 @@ Los equipos son rechazados por movimientos / habilidades ilegales o por romper l
 
 ### ¿Por qué este Pokémon se muestra como "illegal" en el creador de equipos?
 
-Puede ser imposible comenzar una batalla con la forma alternativa de un Pokémon. Un ejemplo es Meloetta-Pirouette; debes usar su forma estándar (Meloetta-Aria) y utilizar el movimiento Relic Song en la batalla. El Pokémon también podría ser un Pokémon CAP, creado por el proyecto Create-A-Pokemon de Smogon. ¡Puede escribir `/cap` o unirte a la sala [CAP] (https://psim.us/cap) en PS! para aprender más sobre ellos.
+Puede ser imposible comenzar una batalla con la forma alternativa de un Pokémon. Un ejemplo es Meloetta-Pirouette; debes usar su forma estándar (Meloetta-Aria) y utilizar el movimiento Relic Song en la batalla. El Pokémon también podría ser un Pokémon CAP, creado por el proyecto Create-A-Pokemon de Smogon. ¡Puede escribir `/cap` o unirte a la sala [CAP](https://psim.us/cap) en PS! para aprender más sobre ellos.
 
 ### ¿Por qué no puedo usar a mi Pokémon legendario shiny?
 

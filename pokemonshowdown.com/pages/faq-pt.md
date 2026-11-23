@@ -1,3 +1,7 @@
+---
+title: Perguntas Frequentes
+---
+
 # Perguntas Frequentes
 
 ## Staff e Disciplinas
@@ -58,7 +62,7 @@ Apenas Global Drivers e acima ('%', '@', e '&'), contribuidores do PS! (programa
 
 ### Como eu crio uma sala?
 
-Se você deseja fazer o requerimento para uma sala privada, você pode ir em Room/Server Requests clicando [aqui](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/)! Antes de postar, por favor leia os requerimentos! É necessário que você tenha o cargo de Global Voice ou Driver ou acima em uma sala pública.
+Se você deseja fazer o requerimento para uma sala privada, você pode ir em Room/Server Requests clicando [aqui](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/)! Antes de postar, por favor leia os requerimentos! É necessário que você tenha o cargo de Global Voice ou Driver ou acima em uma sala pública.\
 **NÃO PEÇA POR UMA SALA SE VOCÊ NÃO CUMPRE TODAS AS EXIGÊNCIAS**
 
 ### Como posso abrir duas salas de uma vez?
