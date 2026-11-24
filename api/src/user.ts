@@ -2,9 +2,8 @@
  * Users and sessions
  *
  * Handles authentication, renaming, etc.
- * By Mia.
  *
- * @author mia-pi-git
+ * @author mia-pi-git, Zarel
  */
 
 import * as bcrypt from 'bcrypt';
@@ -12,7 +11,7 @@ import { Config } from './config-loader.ts';
 import * as crypto from 'node:crypto';
 import * as gal from 'google-auth-library';
 import { SQL } from './database.ts';
-import { ActionError, type ActionContext } from './server.ts';
+import type { ActionContext } from './server.ts';
 import { toID, time, signAsync } from './utils.ts';
 import {
 	ladder, loginthrottle, loginattempts, sessions, users, usermodlog,
@@ -21,6 +20,19 @@ import {
 const SID_DURATION = 2 * 7 * 24 * 60 * 60;
 const LOGINTIME_INTERVAL = 24 * 60 * 60;
 
+/**
+ * Throw this to end a request with an `actionerror` message.
+ */
+export class ActionError extends Error {
+	httpStatus: number;
+	constructor(message: string, httpStatus = 200) {
+		super(message);
+		this.httpStatus = httpStatus;
+		this.name = 'ActionError';
+		Error.captureStackTrace(this, ActionError);
+	}
+}
+
 export class User {
 	name = 'Guest';
 	id = 'guest';
@@ -28,6 +40,31 @@ export class User {
 	group = 0;
 	constructor(name?: string) {
 		if (name) this.setName(name);
+	}
+	static async fromSid(cookie?: string, session?: Session) {
+		const parts = cookie?.split(',').filter(Boolean);
+		if (parts?.length !== 3) return null;
+		const [name, id, secret] = parts;
+		const sessionId = parseInt(id);
+		if (session) session.sidhash = secret;
+		if (!sessionId) return null;
+
+		const now = time();
+		const row = await sessions.get(sessionId, SQL`sid, timeout, userid`);
+		if (!row || !(await bcrypt.compare(secret, row.sid))) {
+			session?.deleteCookie();
+			return null;
+		}
+		if (row.userid !== toID(name)) return null;
+		if (row.timeout < now) {
+			await sessions.deleteAll()`WHERE timeout = ${now}`;
+			session?.deleteCookie();
+			return null;
+		}
+
+		const user = await new User().login(name);
+		if (session) session.session = sessionId;
+		return user;
 	}
 	setName(name: string) {
 		this.name = name;
@@ -477,53 +514,9 @@ export class Session {
 			new User(this.cookies.get('showdown_username'));
 	}
 	async checkLoggedIn() {
-		const ctime = time();
-		const body = this.context.body;
-
-		// see if we're logged in
-		const scookie = body.sid || this.cookies.get('sid');
-		if (body.sid) {
-			this.context.response.setHeader('Access-Control-Allow-Origin', '*');
-		}
-		if (!scookie) {
-			// nope, not logged in
-			return null;
-		}
-		let sid = '';
-		let session = 0;
-		const scsplit = scookie.split(',').filter(Boolean);
-		let cookieName = '';
-		if (scsplit.length === 3) {
-			cookieName = scsplit[0];
-			session = parseInt(scsplit[1]);
-			sid = scsplit[2];
-			this.sidhash = sid;
-		}
-		if (!session) {
-			return null;
-		}
-		const res = await sessions.get(session, SQL`sid, timeout, userid`);
-		if (!res || !(await bcrypt.compare(sid, res.sid))) {
-			// invalid session ID
-			this.deleteCookie();
-			return null;
-		}
-		// invalid username
-		if (res.userid !== toID(cookieName)) return null;
-		if (res.timeout < ctime) {
-			// session expired
-			await sessions.deleteAll()`WHERE timeout = ${ctime}`;
-			this.deleteCookie();
-			return null;
-		}
-
-		// okay, legit session ID - you're logged in now.
-		const user = new User();
-		await user.login(cookieName);
-
-		this.sidhash = sid;
-		this.session = session;
-		return user;
+		const { sid } = this.context.body;
+		if (sid) this.context.response.setHeader('Access-Control-Allow-Origin', '*');
+		return User.fromSid(sid || this.cookies.get('sid'), this);
 	}
 	static sanitizeHash(pass: string) {
 		// https://youtu.be/rnzMkJocw6Q?t=9

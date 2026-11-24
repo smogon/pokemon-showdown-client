@@ -9,7 +9,6 @@ npm-debug.log
 !/config/config-example.js
 !/config/head-custom-example.html
 !/config/replay-config.example.inc.php
-!/config/servers-example.inc.php
 !/config/servers-example.json
 !/config/tsconfig.json
 /vendor/

@@ -1,0 +1,20 @@
+<script is:inline>
+	(function () {
+		if (!window.matchMedia) return;
+		var scheme = window.matchMedia('(prefers-color-scheme: dark)');
+		function updateTheme() {
+			var classes = document.documentElement.classList;
+			if (scheme.matches) {
+				classes.add('dark');
+			} else {
+				classes.remove('dark');
+			}
+		}
+		updateTheme();
+		if (scheme.addEventListener) {
+			scheme.addEventListener('change', updateTheme);
+		} else if (scheme.addListener) {
+			scheme.addListener(updateTheme);
+		}
+	})();
+</script>

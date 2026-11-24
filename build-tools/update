@@ -9,6 +9,7 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import child_process from 'node:child_process';
+import { News } from '../lib/news.ts';
 import * as compiler from './compiler.mjs';
 
 process.chdir(import.meta.dirname + '/..');
@@ -246,38 +247,28 @@ crossprotocolContents = cachebust(crossprotocolContents, 'play.pokemonshowdown.c
 let replayEmbedContents = fs.readFileSync('play.pokemonshowdown.com/js/replay-embed.js', UTF8);
 replayEmbedContents = replayEmbedContents.replace(/play\.pokemonshowdown\.com/g, routes.client);
 
-// add news, only if it's actually likely to exist
 process.stdout.write("and news... ");
-let stdout = '';
 let newsid = 0;
 let news = '[failed to retrieve news]';
 try {
-	stdout = child_process.execSync('php build-tools/news-embed.php', {
-		stdio: 'pipe',
-	});
-} catch (e) {
-	console.log("git hook failed to retrieve news (exec command failed):\n" + (e.error + e.stderr + e.stdout));
-}
-try {
-	if (stdout) [newsid, news] = JSON.parse(stdout);
-} catch (e) {
-	if (stdout.includes("config/news.json): Failed to open stream: No such file or directory")) {
-		console.log("news.json unavailable");
-	} else {
-		console.log("git hook failed to retrieve news (parsing JSON failed):\n\n" + e.message + '\n\n' + stdout);
-	}
+	const data = await News.read();
+	news = data.latest.slice(0, 2).map(id => News.renderEmbed(data.news[id])).join('');
+	newsid = data.latest[0] || 0;
+} catch (error) {
+	console.error('Failed to retrieve news:', error);
 }
 
-indexOldContents = indexOldContents.replace(/<!-- newsid -->/g, newsid);
-indexOldContents = indexOldContents.replace(/<!-- build-tools\/news-embed\.php -->/g, news);
-indexNewContents = indexNewContents.replace(/<!-- newsid -->/g, newsid);
-indexNewContents = indexNewContents.replace(/<!-- build-tools\/news-embed\.php -->/g, news);
+function insertNews(html) {
+	return html.replace('<!-- newsid -->', newsid).replace('<!-- news -->', () => news);
+}
+
+indexOldContents = insertNews(indexOldContents);
+indexNewContents = insertNews(indexNewContents);
 
 const customHead = readOptionalFile('config/head-custom.html');
 if (indexTestContents) {
 	const customTestHead = hasTestHead ? readOptionalFile('config/head-custom-test.html') : customHead;
-	indexTestContents = indexTestContents.replace(/<!-- newsid -->/g, newsid);
-	indexTestContents = indexTestContents.replace(/<!-- build-tools\/news-embed\.php -->/g, () => news);
+	indexTestContents = insertNews(indexTestContents);
 	indexTestContents = indexTestContents.replace(/<!-- config\/head-custom\.html -->/g, () => customTestHead);
 }
 indexOldContents = indexOldContents.replace(/<!-- config\/head-custom\.html -->/g, () => customHead);

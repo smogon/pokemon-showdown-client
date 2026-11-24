@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports */
 
+type Timeout = ReturnType<typeof setTimeout>;
+
 // dex data
 ///////////
 

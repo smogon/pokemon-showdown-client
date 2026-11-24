@@ -22,7 +22,7 @@ export class PSConnection {
 	reconnectDelay = 1000;
 	private reconnectCap = 60000;
 	private shouldReconnect = true;
-	reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+	reconnectTimer: Timeout | null = null;
 	private worker: Worker | null = null;
 	lastReceiveTime = Date.now();
 	/** the next time we'll attempt a reconnect; 0 means we're not scheduled to retry */

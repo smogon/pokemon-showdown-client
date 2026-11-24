@@ -7,15 +7,15 @@ function showSpriteIndex(string $path) {
 	<div>
 		View:
 		<ul class="nav" style="display:inline-block;vertical-align:middle;margin:0 10px 0 0">
-			<li><a class="button nav-first cur" href="./?view=sprites">Sprites</a></li>
+			<li><a class="button nav-first" href="./?view=sprites" aria-current="page">Sprites</a></li>
 			<li><a class="button nav-last" href="./?view=dir">Directory</a></li>
 		</ul>
 		Filter:
 		<ul class="nav" style="display:inline-block;vertical-align:middle;margin:0">
-			<li><a class="button nav-first<?= $filter === '' ? ' cur' : '' ?>" href="./?view=sprites">All</a></li>
-			<li><a class="button<?= $sprite_credits ? '' : ' nav-last' ?><?= $filter === 'latest' ? ' cur' : '' ?>" href="./?view=sprites&filter=recent">Recent</a></li>
+			<li><a class="button nav-first" href="./?view=sprites"<?= $filter === '' ? ' aria-current="page"' : '' ?>>All</a></li>
+			<li><a class="button<?= $sprite_credits ? '' : ' nav-last' ?>" href="./?view=sprites&filter=recent"<?= $filter === 'latest' ? ' aria-current="page"' : '' ?>>Recent</a></li>
 <?php if ($sprite_credits) { ?>
-			<li><a class="button nav-last<?= $filter === 'credited' ? ' cur' : '' ?>" href="./?view=sprites&filter=credited">Credited</a></li>
+			<li><a class="button nav-last" href="./?view=sprites&filter=credited"<?= $filter === 'credited' ? ' aria-current="page"' : '' ?>>Credited</a></li>
 <?php } ?>
 		</ul>
 	</div>
@@ -45,10 +45,11 @@ function showSpriteIndex(string $path) {
 			}
 		}
 		$escaped_file = htmlentities($file);
+		$file_url = implode('/', array_map('rawurlencode', explode('/', $file)));
 ?>
 <figure id="<?php echo $escaped_file ?>">
-	<img loading="lazy" src="<?php echo urlencode($file) ?>" alt="<?php echo $escaped_file ?>" title="<?php echo $escaped_file ?>" />
-	<figcaption><a href="<?php echo urlencode($file) ?>"><?php echo substr($escaped_file, 0, -4) ?></a><?php if ($credit) echo '<br />by ' . htmlentities($credit) ?></figcaption>
+	<img loading="lazy" src="<?php echo $file_url ?>" alt="<?php echo $escaped_file ?>" title="<?php echo $escaped_file ?>" />
+	<figcaption><a href="<?php echo $file_url ?>"><?php echo substr($escaped_file, 0, -4) ?></a><?php if ($credit) echo '<br />by ' . htmlentities($credit) ?></figcaption>
 </figure>
 <?php
 	}

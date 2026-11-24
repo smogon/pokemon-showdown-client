@@ -35,9 +35,9 @@ export class MiniEdit {
 	pushHistory?: (text: string, selection: MiniEditSelection) => void;
 	composing = false;
 	lastSelection: MiniEditSelection = null;
-	selectionChangeTimeout: ReturnType<typeof setTimeout> | null = null;
+	selectionChangeTimeout: Timeout | null = null;
 	pointerFocus = false;
-	pointerFocusTimeout: ReturnType<typeof setTimeout> | null = null;
+	pointerFocusTimeout: Timeout | null = null;
 	onSelectionChange = () => {
 		if (this.selectionChangeTimeout) clearTimeout(this.selectionChangeTimeout);
 		// while blurring, selectionchange can fire after `getSelection()` is reset to 0,0

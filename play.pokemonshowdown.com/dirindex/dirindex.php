@@ -167,7 +167,7 @@ foreach ($files as $file) {
 	}
 
 	$next = [
-		'name' => htmlentities($file),
+		'name' => $file,
 		'mtime' => date('Y-m-d H:i:s', filemtime($path)),
 		'icon' => $icon,
 		'size' => $size,
@@ -309,8 +309,7 @@ if ($sort_by === 'name' || $sort_by === 'N') {
 			background: linear-gradient(to bottom, #273661, #4c63a3);
 			box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45), inset 0.5px 1px -1px rgba(255, 255, 255, 0.5);
 		}
-		.nav a.cur, .nav a.cur:hover, .nav a.cur:active,
-		.dark .nav a.cur, .dark .nav a.cur:hover, .dark .nav a.cur:active {
+		.nav a[aria-current], .dark .nav a[aria-current] {
 			color: #CCCCCC;
 			background: rgba(79, 109, 148, 0.7);
 			box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45);
@@ -415,7 +414,7 @@ if ($sort_by === 'name' || $sort_by === 'N') {
 		footer a:hover {
 			color: #6688AA;
 		}
-		footer a.cur, footer a.cur:hover {
+		footer a[aria-current] {
 			color: #888888;
 			font-weight: bold;
 			text-decoration: none;
@@ -770,7 +769,7 @@ if ($special_sprites || array_key_exists($rel_dir, $sprites_whitelist)) {
 		View:
 		<ul class="nav" style="display:inline-block;vertical-align:middle;margin:0 10px 0 0">
 			<li><a class="button nav-first" href="./?view=sprites">Sprites</a></li>
-			<li><a class="button nav-last cur" href="./?view=dir">Directory</a></li>
+			<li><a class="button nav-last" href="./?view=dir" aria-current="page">Directory</a></li>
 		</ul>
 	</div>
 <?php
@@ -779,8 +778,8 @@ if ($special_sprites || array_key_exists($rel_dir, $sprites_whitelist)) {
 	<div>
 		View:
 		<ul class="nav" style="display:inline-block;vertical-align:middle;margin:0 10px 0 0">
-			<li><a class="button nav-first<?= $view === 'dir' ? ' cur' : '' ?>" href="./?view=dir">Directory</a></li>
-			<li><a class="button nav-last<?= $view === 'icons' ? ' cur' : '' ?>" href="./?view=icons">Icons</a></li>
+			<li><a class="button nav-first" href="./?view=dir"<?= $view === 'dir' ? ' aria-current="page"' : '' ?>>Directory</a></li>
+			<li><a class="button nav-last" href="./?view=icons"<?= $view === 'icons' ? ' aria-current="page"' : '' ?>>Icons</a></li>
 		</ul>
 	</div>
 <?php
@@ -799,7 +798,7 @@ if ($special_sprites || array_key_exists($rel_dir, $sprites_whitelist)) {
 			</li>
 <?php foreach ($fileinfo as $file) : ?>
 			<li>
-				<a class="row" href="./<?= urlencode($file['name']) ?>">
+				<a class="row" href="./<?= rawurlencode($file['name']) ?>">
 					<i class="icon <?= $file['icon'] ?>">
 					</i><code class="filename"><?= $file['name'] === '..' ? '(Parent directory)' : htmlentities($file['name']) ?>
 

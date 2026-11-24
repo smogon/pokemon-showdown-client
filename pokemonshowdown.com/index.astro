@@ -1,0 +1,267 @@
+---
+import BaseLayout from '../includes/BaseLayout.astro';
+import routes from '../config/routes.json';
+
+export const prerender = true;
+---
+<BaseLayout title="Home">
+	<Fragment slot="head">
+		<script is:inline>
+		window.ramp = window.ramp || {};
+		window.ramp.que = window.ramp.que || [];
+		</script>
+
+		<style is:inline>
+		@font-face {
+		  font-family: 'FontAwesome';
+		  src: url('/theme/fonts/fontawesome-webfont.eot?v=4.0.3');
+		  src: url('/theme/fonts/fontawesome-webfont.eot?#iefix&v=4.0.3') format('embedded-opentype'), url('/theme/fonts/fontawesome-webfont.woff?v=4.0.3') format('woff'), url('/theme/fonts/fontawesome-webfont.ttf?v=4.0.3') format('truetype'), url('/theme/fonts/fontawesome-webfont.svg?v=4.0.3#fontawesomeregular') format('svg');
+		  font-weight: normal;
+		  font-style: normal;
+		}
+		.fa {
+		  display: inline-block;
+		  font-family: FontAwesome;
+		  font-style: normal;
+		  font-weight: normal;
+		  line-height: 1;
+		  -webkit-font-smoothing: antialiased;
+		  -moz-osx-font-smoothing: grayscale;
+		}
+		.fa-tachometer:before {content: "\f0e4";}
+		.fa-sort-amount-desc:before {content: "\f161";}
+		.fa-github:before {content: "\f09b";}
+		</style>
+		<style is:inline>
+			.left {
+				float: left;
+				width: 560px;
+			}
+			.right {
+				margin-left: 590px;
+			}
+			@media (max-width:880px) {
+				.left iframe {
+					width: 275px;
+					height: 144px;
+				}
+				.left {
+					width: 275px;
+				}
+				.right {
+					margin-left: 290px;
+				}
+			}
+			@media (max-width:600px) {
+				.left {
+					float: none;
+					text-align: center;
+					width: auto;
+				}
+				.right {
+					margin-left: 0;
+				}
+			}
+			.mainbutton {
+				text-align: center;
+			}
+			.mainbutton .button {
+				background: #3a884f;
+				background: linear-gradient(to bottom, #4ca363, #276136);
+				font-size: 16pt;
+				padding: 12px 20px;
+			}
+			.mainbutton .button:hover {
+				background: linear-gradient(to bottom, #5ac777, #2f7f44);
+			}
+			.mainbutton .button:active {
+				background: linear-gradient(to bottom, #276136, #4ca363);
+			}
+
+		</style>
+	</Fragment>
+
+	<div class="main-spacer" id="landing-aboveintro" style="text-align:center"></div>
+
+	<section class="section" style="max-width: 850px">
+		<div class="left">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/daw9GoZWWSI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		</div>
+		<div class="right">
+			<p>
+				Pok&eacute;mon Showdown is a Pok&eacute;mon battle simulator. Play Pok&eacute;mon battles online! Play with randomly generated teams, or build your own! Fully animated!
+			</p>
+			<p class="mainbutton" id="play-online">
+				<a class="button greenbutton" href={`//${routes.client}/`}>Play online</a>
+			</p>
+			<script is:inline>
+				if (/(?:^\?|&)insecure(?:[=&]|$)/.test(location.search)) {
+					var play = document.querySelector('#play-online a');
+					play.href = 'http://' + play.host + '/?insecure';
+					play.textContent = 'Play (insecure mode)';
+				}
+			</script>
+		</div>
+
+		<div class="under-main" style="clear:both;padding-top:1px">
+
+			<div style="clear:both;padding-top:1px"></div>
+		</div>
+	</section>
+
+	<Fragment slot="belowMain">
+		<section class="section">
+			<style is:inline>
+			.hlinklist {
+				list-style: none;
+				margin: 1em 0 0 0;
+				padding: 0;
+				font-size: 18pt;
+			}
+			.hlinklist li {
+				width: 255px;
+				float: left;
+				margin: 0;
+				padding: 0 3px 1em;
+			}
+			.hlinklist .blocklink {
+				padding: 6px 0;
+				margin: 0;
+				text-align: center;
+				font-size: 16pt;
+			}
+			</style>
+			<ul class="hlinklist">
+				<li>
+					<a class="blocklink" href="/damagecalc/" target="_blank"><i class="fa fa-tachometer"></i> Damage calculator</a>
+				</li>
+				<li>
+					<a class="blocklink" href="http://www.smogon.com/stats/" target="_blank"><i class="fa fa-sort-amount-desc"></i> Usage stats</a>
+				</li>
+				<li>
+					<a class="blocklink" href="https://github.com/smogon/Pokemon-Showdown" target="_blank"><i class="fa fa-github"></i> GitHub repository</a>
+				</li>
+			</ul>
+			<p style="text-align: center; clear: both">
+				<a href="https://twitter.com/PokemonShowdown">@PokemonShowdown on Twitter</a>
+			</p>
+
+			<div style="clear:both;padding-top:1px"></div>
+		</section>
+
+		<style is:inline>
+		.sections-container {
+			max-width: 1000px;
+			margin: 0 auto;
+		}
+		.section-servers {
+			float: left;
+			margin: 0;
+			width: 200px;
+		}
+		.section-news {
+			margin-left: 260px;
+		}
+		@media (max-width:600px) {
+			.section-servers, .section-news {
+				float: none;
+				width: auto;
+				margin: 20px 10px;
+			}
+		}
+
+		.linklist {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+		.linklist .blocklink {
+			margin: 3px 0;
+		}
+
+		</style>
+
+		<div class="sections-container">
+
+			<section class="section section-servers">
+				<h1>Servers</h1>
+				<a href="/servers/" id="server-directory">View server list</a>
+				<ul class="linklist" id="servers"></ul>
+				<div id="more-servers" hidden>
+					<button class="button" type="button" aria-controls="empty-servers">More</button>
+					<ul class="linklist" id="empty-servers" hidden></ul>
+				</div>
+			</section>
+
+			<div class="news-post"></div>
+			<div class="main-spacer" id="landing-betweennews" style="text-align:center"></div>
+			<div class="news-post"></div>
+			<section class="section section-news">
+				<a href="/news/" class="button">Older news &raquo;</a>
+			</section>
+
+			<div style="clear:both;"></div>
+		</div>
+
+		<script es3>
+			function loadFeed(url, render) {
+				var request = new XMLHttpRequest();
+				request.open('GET', url);
+				request.responseType = 'json';
+				request.onload = function () {
+					if (request.status === 200 && Array.isArray(request.response)) render(request.response);
+				};
+				request.send();
+			}
+
+			function escapeHTML(value) {
+				return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+					.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+			}
+
+			loadFeed('/servers.json', function (servers) {
+				if (!servers.length) return;
+				let activeHTML = '';
+				let emptyHTML = '';
+				for (const server of servers) {
+					const official = server.id === 'showdown';
+					const name = escapeHTML(server.name);
+					const label = official ? `<strong>${name}<br>(official server)</strong>` : name;
+					const count = `${escapeHTML(server.usercount)} ${server.usercount === 1 ? 'user' : 'users'} online`;
+					const item = `<li><a class="blocklink" href="${escapeHTML(server.uri)}">${label}<br><small>${count}</small></a></li>`;
+					if (official || server.usercount) activeHTML += item;
+					else emptyHTML += item;
+				}
+				document.getElementById('servers').innerHTML = activeHTML;
+				document.getElementById('server-directory').hidden = true;
+				if (emptyHTML) {
+					var empty = document.getElementById('empty-servers');
+					empty.innerHTML = emptyHTML;
+					var more = document.getElementById('more-servers');
+					more.hidden = false;
+					more.querySelector('button').onclick = function () {
+						empty.hidden = false;
+						this.style.display = 'none';
+					};
+				}
+			});
+
+			loadFeed('/news.json', function (posts) {
+				const slots = document.querySelectorAll('.news-post');
+				posts.slice(0, slots.length).forEach(function (post, i) {
+					if (!post || !post.id) return;
+					const date = new Date(post.date * 1000).toLocaleDateString('en-US', {
+						month: 'short', day: 'numeric', year: 'numeric',
+					});
+					slots[i].innerHTML = `<section class="section section-news">
+						<h1>${escapeHTML(post.title || '')}</h1>
+						<div class="summary">${post.summaryHTML || ''}</div>
+						<p>&mdash;<strong>${escapeHTML(post.author || '')}</strong> <small class="date">on ${escapeHTML(date)}</small>
+							<small><a href="/news/${encodeURIComponent(post.id)}">${post.detailsHTML ? 'Read more' : 'Permalink'}</a></small></p>
+					</section>`;
+				});
+			});
+		</script>
+		<script raw data-cfasync="false" defer src="https://cdn.intergient.com/1025841/77767/ramp.js"></script>
+	</Fragment>
+</BaseLayout>

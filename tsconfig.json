@@ -1,9 +1,14 @@
 {
     "compilerOptions": {
         "lib": ["dom", "dom.iterable", "es6", "es2016.array.include", "es2017.object"],
+        "types": ["node", "astralhp"],
         "noEmit": true,
+        "allowImportingTsExtensions": true,
         "target": "esnext",
-        "module": "ES2015",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "allowJs": true,
+        "skipLibCheck": true,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "verbatimModuleSyntax": true,
@@ -12,8 +17,12 @@
         "strict": true,
         "noImplicitOverride": true
     },
-    "types": ["*"],
     "include": [
+        "./includes/**/*.astro",
+        "./lib/*.ts",
+        "./pokemonshowdown.com/**/*.astro",
+        "./pokemonshowdown.com/**/*.ts",
+        "./pokemonshowdown.com/**/*.tsx",
         "./play.pokemonshowdown.com/js/lib/preact.d.ts",
         "./play.pokemonshowdown.com/src/*",
         "./replay.pokemonshowdown.com/src/*",

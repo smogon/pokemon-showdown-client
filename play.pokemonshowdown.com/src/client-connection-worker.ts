@@ -8,7 +8,7 @@ const PING_RESPONSE = '|queryresponse|ping|';
 
 let socket: WebSocket | null = null;
 let serverInfo: ServerInfo;
-let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+let reconnectTimeout: Timeout | null = null;
 let reconnectDelay = 1000;
 let shouldReconnect = true;
 let lastReceiveTime = Date.now();

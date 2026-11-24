@@ -1,72 +1,24 @@
 ---
-import { CSS } from "astralhp/components";
+import BaseLayout from "./BaseLayout.astro";
 
-const {title} = Astro.props.frontmatter;
+const title = Astro.props.title ?? Astro.props.frontmatter?.title;
 ---
-<!DOCTYPE html>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width" />
+<BaseLayout title={title}>
+	<Fragment slot="head">
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-26211653-1"></script>
+		<script is:inline>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
 
-<title>{title} - Pok&eacute;mon Showdown!</title>
+		  gtag('config', 'UA-26211653-1');
+		</script>
+		<!-- End Google Analytics -->
+		<slot name="head" />
+	</Fragment>
 
-<script is:inline>
-	(function () {
-		if (!window.matchMedia) return;
-		var scheme = window.matchMedia('(prefers-color-scheme: dark)');
-		function updateTheme() {
-			var classes = document.documentElement.classList;
-			if (scheme.matches) {
-				classes.add('dark');
-			} else {
-				classes.remove('dark');
-			}
-		}
-		updateTheme();
-		if (scheme.addEventListener) {
-			scheme.addEventListener('change', updateTheme);
-		} else if (scheme.addListener) {
-			scheme.addListener(updateTheme);
-		}
-	})();
-</script>
-
-<CSS src="/style/global.css" />
-
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-26211653-1"></script>
-<script is:inline>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-26211653-1');
-</script>
-<!-- End Google Analytics -->
-
-<div class="body">
-
-	<header>
-		<div class="nav-wrapper"><ul class="nav">
-			<li><a class="button nav-first" href="/"><img src="/images/pokemonshowdownbeta.png" srcset="/images/pokemonshowdownbeta.png 1x, /images/pokemonshowdownbeta@2x.png 2x" alt="Pok&eacute;mon Showdown" width="146" height="44" /> Home</a></li>
-			<li><a class="button" href="/dex/">Pok&eacute;dex</a></li>
-			<li><a class="button" href="//replay.pokemonshowdown.com/">Replay</a></li>
-			<li><a class="button purplebutton" href="//smogon.com/dex/" target="_blank">Strategy</a></li>
-			<li><a class="button nav-last purplebutton" href="//smogon.com/forums/" target="_blank">Forum</a></li>
-			<li><a class="button greenbutton nav-first nav-last" href="//play.pokemonshowdown.com/">Play</a></li>
-		</ul></div>
-	</header>
-
-	<div class="main">
-		<section class="section">
-
-			<slot />
-
-		</section>
-	</div>
-</div>
-
-<footer>
-	<p>
-		<small><a href="/rules" class={Astro.routePattern === "/rules" ? "cur" : undefined}>Rules</a> | <a href="/credits" class={Astro.routePattern === "/credits" ? "cur" : undefined}>Credits</a> | <a href="/privacy" class={Astro.routePattern === "/privacy" ? "cur" : undefined}>Privacy</a> | <a href="/contact" class={Astro.routePattern === "/contact" ? "cur" : undefined}>Contact</a></small>
-	</p>
-</footer>
+	<section class="section">
+		<slot />
+	</section>
+</BaseLayout>

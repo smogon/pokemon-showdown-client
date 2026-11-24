@@ -393,7 +393,7 @@ export class PSView extends preact.Component {
 	static verticalHeaderWidth = VERTICAL_HEADER_WIDTH;
 	static scrollFrame: HTMLDivElement | null = null;
 	static scrollListeners: (() => void)[] = [];
-	static snapTimeout: ReturnType<typeof setTimeout> | null = null;
+	static snapTimeout: Timeout | null = null;
 	static snapFrame: number | null = null;
 	static snapStart: {
 		x: number, y: number,
@@ -1714,7 +1714,7 @@ Supported file types:
 }
 
 export class ReconnectTimer extends preact.Component {
-	timer: ReturnType<typeof setInterval> | null = null;
+	timer: Timeout | null = null;
 	override componentDidMount() {
 		this.timer = setInterval(() => this.forceUpdate(), 1000);
 	}

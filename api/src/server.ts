@@ -13,8 +13,10 @@ import * as pathModule from 'node:path';
 import { toID, md5 } from './utils.ts';
 import { Config } from './config-loader.ts';
 import { actions } from './actions.ts';
-import { type User, Session } from './user.ts';
+import { ActionError, type User, Session } from './user.ts';
 import IPTools from './ip-tools.ts';
+
+export { ActionError };
 
 const SERVER_LIST_PATH = pathModule.resolve(
 	import.meta.dirname, process.env.NODE_TEST_CONTEXT ? 'test/fixtures/servers.json' : '../../config/servers.json'
@@ -50,18 +52,6 @@ function logRequest(ip: string, start: number, body: any) {
 			requestLog = fs.createWriteStream(Config.logrequests, { flags: 'a' });
 		}
 		requestLog.write(`${Date.now()}|ip:${ip}|act:${body.act}|${Date.now() - start}ms\n`);
-	}
-}
-/**
- * Throw this to end a request with an `actionerror` message.
- */
-export class ActionError extends Error {
-	httpStatus: number;
-	constructor(message: string, httpStatus = 200) {
-		super(message);
-		this.httpStatus = httpStatus;
-		this.name = 'ActionError';
-		Error.captureStackTrace(this, ActionError);
 	}
 }
 

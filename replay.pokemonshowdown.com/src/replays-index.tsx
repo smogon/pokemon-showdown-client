@@ -163,7 +163,7 @@ export class SearchPanel extends preact.Component<{ id: string, user: PSReplays[
 	};
 	searchLoggedIn = (e: Event) => {
 		if (!this.props.user) return; // shouldn't happen
-		this.base!.querySelector<HTMLInputElement>('input[name=user]')!.value = this.props.user.id;
+		this.base!.querySelector<HTMLInputElement>('input[name=user]')!.value = toID(this.props.user.name);
 		this.submitForm(e);
 	};
 	url(replay: ReplayResult) {
@@ -207,7 +207,7 @@ export class SearchPanel extends preact.Component<{ id: string, user: PSReplays[
 							<input type="search" class="textbox" name="user" placeholder="(blank = any user)" size={20} /> {}
 							{this.props.user &&
 								<button type="button" class="button" onClick={this.searchLoggedIn}>
-									{this.props.user.id}'s replays
+									{this.props.user.name}'s replays
 								</button>}
 						</label>
 					</p>

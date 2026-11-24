@@ -264,7 +264,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		return TL`Teambuilder`;
 	}
 	mobileFormatFolderButton: HTMLButtonElement | null = null;
-	backupCopiedTimeout: ReturnType<typeof setTimeout> | null = null;
+	backupCopiedTimeout: Timeout | null = null;
 	teamList: Team[] = [];
 	teamListFocusIndex = -1;
 	/** number of rows actually rendered */

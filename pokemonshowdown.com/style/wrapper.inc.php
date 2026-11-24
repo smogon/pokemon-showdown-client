@@ -2,15 +2,6 @@
 
 include_once __DIR__ . '/../../config/config.inc.php';
 
-function curPage($thisPage) {
-	global $page;
-	if ($page === $thisPage) echo ' cur';
-}
-function classCurPage($thisPage) {
-	global $page;
-	if ($page === $thisPage) echo ' class="cur"';
-}
-
 function includeHeaderTop() {
 	global $page, $pageTitle, $headerData;
 ?>
@@ -70,7 +61,7 @@ function includeFooter() {
 
 <footer>
 	<p>
-		<small><a href="/rules">Rules</a> | <a href="/credits"<?php classCurPage('credits') ?>>Credits</a> | <a href="/privacy">Privacy</a> | <a href="/contact">Contact</a></small>
+		<small><a href="/rules">Rules</a> | <a href="/credits">Credits</a> | <a href="/privacy">Privacy</a> | <a href="/contact">Contact</a></small>
 	</p>
 </footer>
 <?php

@@ -384,7 +384,7 @@ class BattleDiv extends preact.Component<{ room: BattleRoom }> {
 }
 
 class TimerButton extends preact.Component<{ room: BattleRoom, top: number }> {
-	timerInterval: ReturnType<typeof setInterval> | null = null;
+	timerInterval: Timeout | null = null;
 	override componentWillUnmount() {
 		if (this.timerInterval) {
 			clearInterval(this.timerInterval);

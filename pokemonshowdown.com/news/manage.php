@@ -10,15 +10,9 @@ if (!$users->isLeader()) die('access denied');
 
 function saveNews() {
 	global $newsCache, $latestNewsCache;
-	file_put_contents(__DIR__ . '/../../config/news.inc.php', '<?php
-
-$latestNewsCache = '.var_export($GLOBALS['latestNewsCache'], true).';
-$newsCache = '.var_export($GLOBALS['newsCache'], true).';
-');
-
 	file_put_contents(__DIR__ . '/../../config/news.json', json_encode([
-		'latest' => array_values($GLOBALS['latestNewsCache']),
-		'news' => (object)$GLOBALS['newsCache'],
+		'latest' => array_values($latestNewsCache),
+		'news' => (object)$newsCache,
 	], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
 	date_default_timezone_set('America/Los_Angeles');

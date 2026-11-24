@@ -8,7 +8,7 @@ export class BattleBGM {
 	 */
 	sound?: HTMLAudioElement;
 	url: string;
-	timer: number | undefined = undefined;
+	timer: Timeout | undefined = undefined;
 	loopstart: number;
 	loopend: number;
 	/**

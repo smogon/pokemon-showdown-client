@@ -8,7 +8,8 @@ import * as crypto from 'node:crypto';
 import { TLSSocket } from 'node:tls';
 import * as url from 'node:url';
 
-import { ActionError, type ActionContext } from './server.ts';
+import type { ActionContext } from './server.ts';
+import { ActionError } from './user.ts';
 import * as tables from './tables.ts';
 import { escapeHTML } from './utils.ts';
 

@@ -3,7 +3,6 @@ import preact from '../../play.pokemonshowdown.com/js/lib/preact';
 import { Net, PSModel } from './utils';
 import { BattlePanel } from './replays-battle';
 import { SearchPanel } from './replays-index';
-import type { ID } from '../../play.pokemonshowdown.com/src/battle-dex';
 declare const Config: any;
 
 export const PSRouter = new class extends PSModel {
@@ -97,7 +96,7 @@ export const PSRouter = new class extends PSModel {
 
 export class PSReplays extends preact.Component {
 	static darkMode: 'dark' | 'light' | 'auto' = 'auto';
-	user: { id: ID, isLeader: boolean } | null = null;
+	user: { name: string, isLeader: boolean } | null = null;
 	static updateDarkMode() {
 		let dark = this.darkMode === 'dark' ? 'dark' : '';
 		if (this.darkMode === 'auto') {
@@ -127,8 +126,8 @@ export class PSReplays extends preact.Component {
 		});
 		if (!Net.defaultRoute) Net(`/api/replays/check-login`).get().then(result => {
 			if (!result.startsWith(']')) return;
-			const [userid, isLeader] = result.slice(1).split(',');
-			this.user = { id: userid as ID, isLeader: !!isLeader };
+			const [name, isLeader] = result.slice(1).split(',');
+			this.user = name ? { name, isLeader: !!isLeader } : null;
 			this.forceUpdate();
 		});
 	}

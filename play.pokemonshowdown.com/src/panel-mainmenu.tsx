@@ -47,7 +47,7 @@ export class MainMenuRoom extends PSRoom {
 		sectionTitles?: string[],
 	} = {};
 	searchCountdown: {
-		format: string, packedTeam: string, countdown: number, timer: ReturnType<typeof setInterval>,
+		format: string, packedTeam: string, countdown: number, timer: Timeout,
 	} | null = null;
 	/** used to track the moment between "search sent" and "server acknowledged search sent" */
 	teamSent: string | null = null;

@@ -13,9 +13,9 @@ import { Ladder, type LadderEntry } from './ladder.ts';
 import { OAuth } from './oauth.ts';
 import { Replays } from './replays.ts';
 import {
-	ActionError, type ActionContext, type ActionRequest, type QueryHandler, Server, DISPATCH_PREFIX,
+	type ActionContext, type ActionRequest, type QueryHandler, Server, DISPATCH_PREFIX,
 } from './server.ts';
-import { Session } from './user.ts';
+import { ActionError, Session } from './user.ts';
 import {
 	toID, updateserver, bash, time, signAsync, TimeSorter,
 } from './utils.ts';
@@ -999,10 +999,12 @@ export const actions: { [k: string]: QueryHandler } = {
 		this.allowCORS();
 		return Replays.recent();
 	},
-	async 'replays/check-login'(params) {
+	async 'replays/check-login'() {
+		this.setHeader('Cache-Control', 'private, no-store');
 		const user = await this.getUser();
+		if (!user.loggedIn) return DISPATCH_PREFIX + ',';
 		return (
-			DISPATCH_PREFIX + `${user.id},` +
+			DISPATCH_PREFIX + `${user.name},` +
 			`${user.isSysop() ? 'sysop' : user.isLeader() ? 'leader' : ''}`
 		);
 	},

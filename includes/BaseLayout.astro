@@ -1,0 +1,54 @@
+---
+import DarkMode from "./DarkMode.astro";
+
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+
+function current(href: string) {
+	return Astro.routePattern === href ? "page" : undefined;
+}
+---
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width" />
+	<title>{title === "Home" ? "Pokémon Showdown! battle simulator" : `${title} - Pokémon Showdown!`}</title>
+	<DarkMode />
+	<style src="/style/global.css"></style>
+	<slot name="head" />
+</head>
+<body>
+	<div class="body">
+
+		<header>
+			<div class="nav-wrapper"><ul class="nav">
+				<li><a class="button nav-first" href="/" aria-current={current("/")}><img src="/images/pokemonshowdownbeta.png" srcset="/images/pokemonshowdownbeta.png 1x, /images/pokemonshowdownbeta@2x.png 2x" alt="Pok&eacute;mon Showdown" width="146" height="44" /> Home</a></li>
+				<li><a class="button" href="/dex/">Pok&eacute;dex</a></li>
+				<li><a class="button" href="//replay.pokemonshowdown.com/">Replay</a></li>
+				<li><a class="button purplebutton" href="//smogon.com/dex/" target="_blank">Strategy</a></li>
+				<li><a class="button nav-last purplebutton" href="//smogon.com/forums/" target="_blank">Forum</a></li>
+				<li><a class="button greenbutton nav-first nav-last" href="//play.pokemonshowdown.com/">Play</a></li>
+			</ul></div>
+		</header>
+
+		<div class="main">
+			<slot />
+		</div>
+	</div>
+
+	<slot name="belowMain" />
+
+	<footer>
+		<p><small>
+			<a href="/rules" aria-current={current("/rules")}>Rules</a> | {}
+			<a href="/credits" aria-current={current("/credits")}>Credits</a> | {}
+			<a href="/privacy" aria-current={current("/privacy")}>Privacy</a> | {}
+			<a href="/contact" aria-current={current("/contact")}>Contact</a>
+		</small></p>
+	</footer>
+</body>
+</html>

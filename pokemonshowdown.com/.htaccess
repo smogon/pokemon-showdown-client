@@ -1,20 +1,4 @@
-# -FrontPage-
-
-IndexIgnore .htaccess */.??* *~ *# */HEADER* */README* */_vti*
 RewriteRule ^api(/.*)?$ http://localhost:9000/api$1 [P,L]
-
-<Limit GET POST>
-order deny,allow
-deny from all
-allow from all
-</Limit>
-<Limit PUT DELETE>
-order deny,allow
-deny from all
-</Limit>
-# AuthName pokemonshowdown.com
-# AuthUserFile /home/pokemon/public_html/_vti_pvt/service.pwd
-# AuthGroupFile /home/pokemon/public_html/_vti_pvt/service.grp
 
 AddType text/plain .phps
 AddType application/octet-stream .heapsnapshot
@@ -22,13 +6,11 @@ AddType application/x-tgz .tgz
 AddType application/x-chrome-extension .crx
 AddType application/x-web-app-manifest+json .webapp
 
-<Files ~ "\.md$">
-    Header set Content-Type "text/markdown; charset=utf-8"
-</Files>
-
 <IfModule mod_rewrite.c>
 RewriteEngine on
 
+# Only redirect the original request. Apache loads local error documents internally.
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
 RewriteCond %{HTTP:X-Forwarded-Proto} ^http$
 RewriteCond %{QUERY_STRING} !^insecure [NC]
 RewriteRule ^(.*)$ https://pokemonshowdown.com/$1 [R=302,NE,L]
@@ -40,14 +22,17 @@ RewriteCond %{HTTP_HOST} ^www\.pokemonshowdown\.com$
 RewriteRule ^(.*)$ https://pokemonshowdown.com/$1 [R=301,NE,L]
 
 RewriteRule ^secure$ ./ [L,QSA]
+RewriteRule ^index\.php$ / [L]
 
 RewriteRule ^credits\.php$ /credits [L]
 RewriteRule ^userstats$ userstats.php [L,QSA]
 RewriteRule ^interstice$ interstice.php [L,QSA]
 RewriteRule ^versions$ versions.php [L,QSA]
 RewriteRule ^(intro|news/version0\.9|news/june2013attack)\.php$ /$1 [L]
-RewriteRule ^news/([0-9]+)/?$ news/view.php?id=$1 [L]
-RewriteRule ^news/?([0-9]*)\.json$ news/viewjson.php?id=$1 [L,QSA]
+RewriteRule ^news/index\.php$ /news/ [L]
+RewriteCond %{QUERY_STRING} (?:^|&)id=([0-9]+)(?:&|$)
+RewriteRule ^news/view\.php$ /news/%1 [L,QSD]
+RewriteRule ^news/\.json$ /news.json [L]
 RewriteRule ^ladder/(.*)\.json$ ladder.php?format=$1&json [L,QSA]
 RewriteRule ^ladder/?(.*)$ ladder.php?format=$1 [L,QSA]
 RewriteRule ^users/?$ users.php [L,QSA]
@@ -99,7 +84,6 @@ RewriteRule ^stats$ stats.php [L,QSA]
 RewriteRule ^topsekritsim\.php$ /lobby [R=301,L]
 RewriteRule ^topsekrit3\.php$ /lobby [R=301,L]
 RewriteRule ^temporary508\.php$ /lobby [R=301,L]
-RewriteRule ^temporary508\.php$ /lobby [R=301,L]
 
 RewriteRule ^ads\.txt$ https://config.playwire.com/dyn_ads/1025841/77767/ads.txt [R=302,L]
 
@@ -129,7 +113,7 @@ ErrorDocument 404 /dirindex/404.html
 RewriteEngine On
 
 <FilesMatch "(?i)\.md$">
-    ForceType text/markdown
+    ForceType "text/markdown; charset=utf-8"
 </FilesMatch>
 
 # Don't serve private paths or component, endpoint, and include sources
@@ -138,6 +122,7 @@ RewriteRule "(?:\.astro|\.mdx)$" "-" [R=404,END,NC]
 RewriteRule "(?:\.astro\.js|\.astro\.ts|\.inc\.astro|\.inc\.ts|\.inc\.js)$" "-" [R=404,END,NC]
 
 # Serve built files in .caches/dist/
+RewriteRule "^$" ".caches/dist/index.html" [END]
 RewriteCond "%{DOCUMENT_ROOT}/.caches/dist/$1" -f
 RewriteRule "^(.+)$" ".caches/dist/$1" [END]
 
@@ -152,15 +137,22 @@ RewriteRule "^(.+?)/?$" ".caches/dist/$1.html" [END]
 RewriteCond "%{DOCUMENT_ROOT}/.caches/dist/$1/index.html" -f
 RewriteRule "^(.+?)/?$" ".caches/dist/$1/index.html" [END]
 
-# Identify this Apache webroot to the shared AstralHP server
-RequestHeader set X-AstralHP-Document-Root "expr=%{DOCUMENT_ROOT}"
+# Give the proxy priority over mod_dir
+DirectoryCheckHandler On
 
-# mod_proxy_http supplies the client address and original Host after mod_headers runs.
-RequestHeader unset X-Forwarded-For
-RequestHeader unset X-Forwarded-Host
-RequestHeader set X-Forwarded-Proto "expr=%{REQUEST_SCHEME}"
+# Identify the webroot to the proxy
+RequestHeader set X-AstralHP-Document-Root "expr=%{DOCUMENT_ROOT}" env=ASTRALHP_PROXY
+
+# Headers for the proxy
+RequestHeader unset X-Forwarded-For env=ASTRALHP_PROXY
+RequestHeader unset X-Forwarded-Host env=ASTRALHP_PROXY
+RequestHeader set X-Forwarded-Proto "expr=%{REQUEST_SCHEME}" env=ASTRALHP_PROXY
 
 # Proxy dynamic AstralHP routes
-RewriteRule "^servers\.json/?$" "http://127.0.0.1:4321%{REQUEST_URI}" [P,END,NE]
+RewriteRule "^news/?$" "http://127.0.0.1:4321%{REQUEST_URI}" [E=ASTRALHP_PROXY:1,P,END,NE,NS]
+RewriteRule "^news\.json/?$" "http://127.0.0.1:4321%{REQUEST_URI}" [E=ASTRALHP_PROXY:1,P,END,NE,NS]
+RewriteRule "^news/[^/]+?/?$" "http://127.0.0.1:4321%{REQUEST_URI}" [E=ASTRALHP_PROXY:1,P,END,NE,NS]
+RewriteRule "^news/[^/]+?\.json/?$" "http://127.0.0.1:4321%{REQUEST_URI}" [E=ASTRALHP_PROXY:1,P,END,NE,NS]
+RewriteRule "^servers\.json/?$" "http://127.0.0.1:4321%{REQUEST_URI}" [E=ASTRALHP_PROXY:1,P,END,NE,NS]
 
 # ===== END ASTRALHP =====

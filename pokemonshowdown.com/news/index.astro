@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../../includes/BaseLayout.astro';
+import { News, type LegacyPost } from '../../lib/news.ts';
+
+export const prerender = false;
+
+const { latest, news } = await News.read();
+const postsByYear: Record<string, LegacyPost[]> = {};
+for (const id of latest) {
+	const post = news[id];
+	if (!post) continue;
+	const year = News.formatYear(post.date);
+	(postsByYear[year] ??= []).push(post);
+}
+
+const years = Object.keys(postsByYear).sort().reverse();
+const requestedYear = Astro.url.searchParams.get('year');
+const index = requestedYear ? years.indexOf(requestedYear) : 0;
+if (index < 0) return Astro.redirect('/news/', 302);
+const year = years[index];
+const newerYear = years[index - 1];
+const olderYear = years[index + 1];
+const posts = postsByYear[year] ?? [];
+---
+<BaseLayout title="News">
+	<link slot="head" rel="stylesheet" href="https://play.pokemonshowdown.com/style/battle-log.css?v0.1" />
+
+	{!newerYear && <div id="new-news-post"></div>}
+	{newerYear && <p class="pagelink">
+		<a class="button" href={`/news/?year=${newerYear}`} aria-label={`Newer news, ${newerYear}`}>
+			<span aria-hidden="true">▲</span><br />{newerYear}
+		</a>
+	</p>}
+
+	{years.length > 0 && <form class="year-picker" action="/news/" method="get">
+		<label>News from {}
+			<select name="year" class="select" onchange="this.form.submit()">
+				{years.map(option => <option value={option} selected={option === year}>{option}</option>)}
+			</select>
+		</label>
+		<noscript> <button class="button" type="submit">Go</button></noscript>
+	</form>}
+
+	{!posts.length && <p class="section">No news yet.</p>}
+	{posts.map(post => {
+		const date = new Date(Number(post.date) * 1000);
+		return <article class="section" data-edit-url={`/news/${post.topic_id}.json`}>
+			<h1>{post.title}</h1>
+			<Fragment set:html={post.summary_html} />
+			<p>
+				&mdash;<strong>{post.authorname}</strong> {}
+				<small class="date">on <time datetime={date.toISOString()}>{News.formatDate(post.date)}</time></small> {}
+				<small><a href={`/news/${post.topic_id}`}>{post.details != null ? 'Read more' : 'Permalink'}</a></small>
+			</p>
+		</article>;
+	})}
+	{olderYear && <p class="pagelink">
+		<a class="button" href={`/news/?year=${olderYear}`} aria-label={`Older news, ${olderYear}`}>
+			{olderYear}<br /><span aria-hidden="true">▼</span>
+		</a>
+	</p>}
+
+	<script is:inline nomodule src="//play.pokemonshowdown.com/js/lib/ps-polyfill.js"></script>
+	<script is:inline src="//play.pokemonshowdown.com/js/lib/preact.min.js"></script>
+	<script es3 src="/js/net.ts"></script>
+	<script es3 src="/js/news-editor.tsx"></script>
+</BaseLayout>
+
+<style is:global>
+	.year-picker, .pagelink {
+		margin: 16px auto;
+		text-align: center;
+	}
+	.pagelink .button {
+		width: 150px;
+	}
+</style>

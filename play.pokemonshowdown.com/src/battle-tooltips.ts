@@ -158,7 +158,7 @@ export class BattleTooltips {
 	// Shorter time will cause the button to click
 	static LONG_TAP_DELAY = 500; // ms
 	static LONG_CLICK_DELAY = 700; // ms
-	static longTapTimeout: ReturnType<typeof setTimeout> | null = null;
+	static longTapTimeout: Timeout | null = null;
 	static elem: HTMLDivElement | null = null;
 	static parentElem: HTMLElement | null = null;
 	static isLocked = false;
