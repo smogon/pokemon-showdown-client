@@ -1408,7 +1408,7 @@
 					evBuf += '<small>&minus;</small>';
 				}
 				var highestStat = j === 'hp' ? 714 : 499;
-				if (isChampions || isVGC) {
+				if ((isChampions && set.level === 50) || isVGC) {
 					highestStat = j === 'hp' ? 362 : 252;
 				}
 				if (isLC) {
@@ -2093,7 +2093,7 @@
 					evBuf += '<small>&minus;</small>';
 				}
 				var highestStat = stat === 'hp' ? 714 : 499;
-				if (usesStatPoints || isVGC) {
+				if ((usesStatPoints && set.level === 50) || isVGC) {
 					highestStat = stat === 'hp' ? 362 : 252;
 				}
 				if (isLC) {
@@ -2122,7 +2122,7 @@
 			for (var stat in stats) {
 				if (stat === 'spd' && this.curTeam.gen === 1) continue;
 				var highestStat = stat === 'hp' ? 714 : 499;
-				if (usesStatPoints || isVGC) {
+				if ((usesStatPoints && set.level === 50) || isVGC) {
 					highestStat = stat === 'hp' ? 362 : 252;
 				}
 				if (isLC) {
@@ -2394,7 +2394,7 @@
 			for (var i in stats) {
 				stats[i] = this.getStat(i);
 				var highestStat = i === 'hp' ? 714 : 499;
-				if (usesStatPoints || isVGC) {
+				if ((usesStatPoints && set.level === 50) || isVGC) {
 					highestStat = i === 'hp' ? 362 : 252;
 				}
 				if (isLC) {
@@ -2909,7 +2909,7 @@
 				'<input type="number" min="1" max="100" step="1" name="level" value="' +
 				(typeof set.level === 'number' ? set.level : 100) +
 				'" class="textbox inputform numform"' +
-				(isChampions ? ' disabled' : '') +
+				(isChampions && Dex.formats.get(this.curTeam.format).defaultLevel === 50 ? ' disabled' : '') +
 				' /></div></div>';
 
 			if (this.curTeam.gen > 1) {
@@ -3613,7 +3613,7 @@
 				if (baseFormat.substr(-5) === 'draft') baseFormat = baseFormat.substr(0, baseFormat.length - 5);
 				if (!baseFormat) baseFormat = 'ou';
 				if (this.curTeam && this.curTeam.format) {
-					if (baseFormat.substr(0, 9) === 'champions' || baseFormat.substr(0, 10) === 'battlespot' ||
+					if ((baseFormat.substr(0, 9) === 'champions' && Dex.formats.get(this.curTeam.format).defaultLevel === 50) || baseFormat.substr(0, 10) === 'battlespot' ||
 						baseFormat.substr(0, 3) === 'bss' || baseFormat.substr(0, 3) === 'vgc' ||
 						baseFormat.substr(0, 14) === 'battlefestival') set.level = 50;
 					if (baseFormat.startsWith('lc') || baseFormat.endsWith('lc')) set.level = 5;
@@ -3673,7 +3673,7 @@
 			var species = this.curTeam.dex.species.get(set.species);
 			if (!species.exists) return 0;
 
-			if (!set.level) set.level = 100;
+			if (!set.level) set.level = usesStatPoints ? Dex.formats.get(this.curTeam.format).defaultLevel : 100;
 			if (typeof set.ivs[stat] === 'undefined') set.ivs[stat] = 31;
 
 			var baseStat = species.baseStats[stat];
@@ -3685,13 +3685,13 @@
 
 			if (stat === 'hp') {
 				if (baseStat === 1) return 1;
-				if (usesStatPoints) return baseStat + ev + 75;
+				if (usesStatPoints) return Dex.getChampionsStat(stat, baseStat, ev, set.level);
 				if (!supportsEVs) return Math.floor(Math.floor(2 * baseStat + iv + 100) * set.level / 100 + 10) + (supportsAVs ? ev : 0);
 				return Math.floor(Math.floor(2 * baseStat + iv + Math.floor(ev / 4) + 100) * set.level / 100 + 10);
 			}
 			var val = Math.floor(Math.floor(2 * baseStat + iv + Math.floor(ev / 4)) * set.level / 100 + 5);
 			if (usesStatPoints) {
-				val = baseStat + ev + 20;
+				val = Dex.getChampionsStat(stat, baseStat, ev, set.level);
 			} else if (!supportsEVs) {
 				val = Math.floor(Math.floor(2 * baseStat + iv) * set.level / 100 + 5);
 			}

@@ -1713,11 +1713,11 @@ export class BattleTooltips {
 			if (tier.includes('No Restrictions')) max += 200;
 			else if (tier.includes('Random')) max += 20;
 		} else if (tier.includes('Champions')) {
-			min = tr(minNatureMult * (baseSpe + 20));
-			ev0 = tr((2 * baseSpe + 31) * level / 100) + 5;
-			ev84 = tr((2 * baseSpe + 31 + 21) * level / 100) + 5;
-			ev252 = tr(baseSpe + 32 + 20);
-			max = tr(maxNatureMult * (baseSpe + 32 + 20));
+			ev0 = Dex.getChampionsStat('spe', baseSpe, 0, level);
+			ev84 = Dex.getChampionsStat('spe', baseSpe, 11, level);
+			ev252 = Dex.getChampionsStat('spe', baseSpe, 32, level);
+			min = tr(minNatureMult * ev0);
+			max = tr(maxNatureMult * ev252);
 		} else if (gen < 3) {
 			max = tr((2 * baseSpe + 30 + 63) * level / 100 + 5);
 			ev252 = max;
@@ -3604,7 +3604,7 @@ export class BattleStatGuesser {
 		let species = this.dex.species.get(set.species);
 		if (!species.exists) return 0;
 
-		let level = set.level || 100;
+		let level = set.level || (this.useStatPoints ? Dex.formats.get(this.formatid).defaultLevel : 100);
 
 		let baseStat = species.baseStats[stat];
 
@@ -3618,13 +3618,13 @@ export class BattleStatGuesser {
 
 		if (stat === 'hp') {
 			if (baseStat === 1) return 1;
-			if (this.useStatPoints) return baseStat + ev + 75;
+			if (this.useStatPoints) return Dex.getChampionsStat(stat, baseStat, ev, level);
 			if (this.supportsAVs) return ~~(~~(2 * baseStat + iv + 100) * level / 100 + 10) + (ev || 0);
 			return ~~(~~(2 * baseStat + iv + ~~(ev / 4) + 100) * level / 100 + 10);
 		}
 		let val = ~~(~~(2 * baseStat + iv + ~~(ev / 4)) * level / 100 + 5);
 		if (this.useStatPoints) {
-			val = baseStat + ev + 20;
+			val = Dex.getChampionsStat(stat, baseStat, ev, level);
 		} else if (!this.supportsEVs) {
 			val = ~~(~~(2 * baseStat + iv) * level / 100 + 5);
 		}
@@ -3657,12 +3657,12 @@ export function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 	if (!(useStatPoints || supportsEVs) || ignoreEVLimits) return null;
 
 	const species = dex.species.get(set.species);
-	const level = set.level || 100;
+	const level = set.level || (useStatPoints ? Dex.formats.get(formatid).defaultLevel : 100);
 	const getStat = (stat: Dex.StatNameExceptHP, ev: number, nature: Dex.Nature, statPoints: boolean) => {
 		const baseStat = species.baseStats[stat];
 		const iv = set.ivs?.[stat] || 31;
 		let val = ~~(~~(2 * baseStat + iv + ~~(ev / 4)) * level / 100 + 5);
-		if (statPoints) val = baseStat + ev + 20;
+		if (statPoints) val = Dex.getChampionsStat(stat, baseStat, ev, level);
 		if (nature.plus === stat) {
 			val *= 1.1;
 		} else if (nature.minus === stat) {

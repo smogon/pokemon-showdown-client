@@ -98,7 +98,7 @@ export class BattleFormat implements FormatData {
 		if (
 			id.includes('vgc') || id.includes('bss') || id.includes('ultrasinnohclassic') ||
 			id.includes('battlespot') || id.includes('battlestadium') || id.includes('battlefestival') ||
-			this.isLetsGo || this.isChampions
+			this.isLetsGo || (this.isChampions && !this.isNatDex)
 		) this.defaultLevel = 50;
 		if (id.includes('lc')) this.defaultLevel = 5;
 		if (data) Object.assign(this, data);

@@ -1158,7 +1158,7 @@ export class BattleLog {
 		if (name.startsWith('gen')) {
 			name = name.replace(/^gen([0-9])/, '[Gen $1] ');
 		}
-		if (name.startsWith(`[Gen ${Dex.gen}] `)) {
+		if (name.startsWith(`[Gen ${Dex.gen}] `) && !name.startsWith(`[Gen ${Dex.gen}] National Dex`)) {
 			name = name.slice(`[Gen ${Dex.gen}] `.length);
 		} else if (name.startsWith(`[Gen ${Dex.gen} `)) {
 			name = '[' + name.slice(`[Gen ${Dex.gen} `.length);

@@ -683,6 +683,15 @@ export const Dex = new class implements ModdedDex {
 		},
 	};
 
+	getChampionsStat(stat: Dex.StatName, baseStat: number, points: number, level = 50): number {
+		if (stat === 'hp' && baseStat === 1) return 1;
+		if (level !== 50) {
+			// The first point gives 4 EVs, and each additional point gives 8 EVs.
+			const value = Math.floor((2 * baseStat + 31 + Math.max(2 * points - 1, 0)) * level / 100);
+			return value + (stat === 'hp' ? level + 10 : 5);
+		}
+		return baseStat + points + (stat === 'hp' ? 75 : 20);
+	}
 	getGen3Category(type: string) {
 		return [
 			'Fire', 'Water', 'Grass', 'Electric', 'Ice', 'Psychic', 'Dark', 'Dragon',

@@ -530,7 +530,8 @@ class FormatDropdownPanel extends PSRoomPanel {
 						if (selectType === 'search' && format.searchShow === false) return null;
 						if (selectType === 'teambuilder' && !format.isTeambuilderFormat) return null;
 						return <li><button value={format.name} class={`option${curFormat === format.id ? ' cur' : ''}`}>
-							{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
+							{format.name.startsWith('[Gen 9] National Dex') ? format.name :
+							format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
 							{format.section === 'No Format' && <em> {TL`(uncategorized)`}</em>}
 							<i class="star fa fa-star cur" data-cmd={`/unstar ${format.id}`}></i>
 						</button></li>;
@@ -543,7 +544,8 @@ class FormatDropdownPanel extends PSRoomPanel {
 							value={format.name}
 							class={`option${curFormat === format.id ? ' cur' : ''}`}
 						>
-							{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
+							{format.name.startsWith('[Gen 9] National Dex') ? format.name :
+							format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
 							{format.section === 'No Format' && <em> {TL`(uncategorized)`}</em>}
 							<i class="star fa fa-star-o" data-cmd={`/star ${format.id}`}></i>
 						</button></li>)}</ul>;
