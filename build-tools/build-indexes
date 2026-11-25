@@ -425,8 +425,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					return species.natDexTier;
 				}
 				if (isNDChampions) {
-					if (species.tier === 'Illegal') return Dex.mod('gen9').species.get(species.id).natDexTier;
-					return species.tier;
+					return species.natDexTier;
 				}
 				return species.tier;
 			})();

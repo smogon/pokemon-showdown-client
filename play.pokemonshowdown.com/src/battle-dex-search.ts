@@ -742,17 +742,13 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType = 'champions';
 			this.dex = Dex.mod('champions' as ID);
 			format = format.slice(9) as ID;
-			if (format.startsWith('natdex') || format.startsWith('nationaldex')) this.formatType = 'natdexchampions';
-			if (format.startsWith('natdex')) format = format.slice(6) as ID;
-			if (format.startsWith('nationaldex')) format = format.slice(11) as ID;
-			if (this.formatType === 'champions' && (format.includes('doubles') || format.startsWith('vgc'))) {
+			if (format.includes('doubles') || format.startsWith('vgc')) {
 				this.formatType = 'championsdoubles';
 				this.isDoubles = true;
 			}
 			// we don't have Champions tables for VGC/BSS yet, so we're using Ubers for now
 			// also makes it so we don't override formatType later
 			if (format.startsWith('vgc') || format.startsWith('bss')) format = 'ubers' as ID;
-			if (format.endsWith('draft')) format = 'ag' as ID;
 		}
 		if (format.startsWith('vgc')) {
 			this.formatType = 'doubles';
@@ -796,7 +792,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (format.includes('nationaldex') || format.startsWith('nd') || format.includes('natdex')) {
 			format = (format.startsWith('nd') ? format.slice(2) :
 				format.includes('natdex') ? format.slice(6) : format.slice(11)) as ID;
-			this.formatType = 'natdex';
+			this.formatType = this.formatType?.includes('champions') ? 'natdexchampions' : 'natdex';
 			if (!format) format = 'ou' as ID;
 			this.isDoubles = format.includes('doubles');
 		}
@@ -817,7 +813,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType = 'lc';
 		}
 		if (format.endsWith('draft')) {
-			format = format.slice(0, -5) as ID;
+			format = (this.formatType?.includes('champions') ? 'ag' : format.slice(0, -5)) as ID;
 			if (!format) format = 'anythinggoes' as ID;
 		}
 		this.format = format;
