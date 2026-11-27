@@ -469,7 +469,7 @@ export class TeamEditorState extends PSModel {
 	};
 	hpTypeMatters(set: Dex.PokemonSet): boolean {
 		if (this.gen < 2) return false;
-		if (this.gen > 7) return false;
+		if (this.gen > 7 && !this.format.isNatDex) return false;
 		for (const move of set.moves) {
 			const moveid = toID(move);
 			if (moveid.startsWith('hiddenpower')) return true;
@@ -1801,7 +1801,7 @@ class TeamTextbox extends preact.Component<{
 			<span class="detailcell">
 				<label>{TL`Shiny`}</label>{set.shiny ? 'Yes' : '\u2014'}
 			</span>
-			{editor.gen === 9 && !editor.format.isChampions ? (
+			{editor.gen === 9 && !editor.format.terastalClause && !editor.format.isChampions ? (
 				<span class="detailcell">
 					<label>{TL`Tera`}</label><PSIcon type={set.teraType || species.requiredTeraType || species.types[0]} />
 				</span>
@@ -4061,7 +4061,7 @@ class DetailsForm extends preact.Component<{
 						))}
 					</select></label>
 				</p>}
-				{editor.gen === 9 && !editor.format.isChampions && <p>
+				{editor.gen === 9 && !editor.format.terastalClause && !editor.format.isChampions && <p>
 					<label class="label" title={TL`Tera Type`}>
 						{TL.label(TL`Tera Type`)}{}
 						{species.requiredTeraType && editor.format.formeLegality === 'normal' ? (

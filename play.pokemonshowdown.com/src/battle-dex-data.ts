@@ -33,6 +33,7 @@ export interface FormatData {
 	bestOfDefault?: boolean;
 	teraPreviewDefault?: boolean;
 	itemClauseDefault?: boolean;
+	terastalClause?: boolean;
 	rated: boolean;
 	teambuilderLevel?: number | null;
 	partner?: boolean;
@@ -58,6 +59,7 @@ export class BattleFormat implements FormatData {
 	bestOfDefault?: boolean = undefined;
 	teraPreviewDefault?: boolean = undefined;
 	itemClauseDefault?: boolean = undefined;
+	terastalClause?: boolean = undefined;
 	rated = false;
 	teambuilderLevel?: number | null = undefined;
 	partner?: boolean = undefined;
